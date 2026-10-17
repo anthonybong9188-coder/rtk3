@@ -917,7 +917,7 @@ function drawFigure(c,f){
   if(f.officer){c.fillStyle='#e8d48a';circ(c,0,-41.5,1.6);c.fill();c.strokeStyle=O;c.lineWidth=1;c.fillStyle='#20140c';c.beginPath();c.moveTo(.5,-29);c.quadraticCurveTo(4,-25,7,-28);c.quadraticCurveTo(4,-27.5,.5,-29);c.fill()}
   c.restore()}
 function mountains(c,col,base,amp,r){c.fillStyle=col;c.beginPath();c.moveTo(0,base+30);let x=0;while(x<=W+40){c.lineTo(x,base-r()*amp);x+=40+r()*50}c.lineTo(W,base+30);c.closePath();c.fill()}
-const BGART={plain:'art/bg_plain.jpg'},BGUSE={'.':'plain',p:'plain',w:'plain',c:'plain',duel:'plain'},BGIMG={};
+const BGART={plain:'art/bg_plain.jpg',road:'art/bg_road.jpg'},BGUSE={'.':'plain',p:'road',w:'plain',c:'plain',duel:'plain'},BGIMG={};
 for(const [k,src] of Object.entries(BGART)){const im=new Image();im.src=src;BGIMG[k]=im}
 function bgFor(ter,duel){const im=BGIMG[BGUSE[duel?'duel':ter]];return im&&im.complete&&im.naturalWidth?im:null}
 function makeBG(ter,defSide,duel){
