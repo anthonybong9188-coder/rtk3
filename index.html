@@ -111,18 +111,20 @@ td:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-n
 body{margin:0}
 body.lock{overflow:hidden}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ink);z-index:5}
-.tbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.tshade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,17,13,.94) 0%,rgba(20,17,13,.7) 45%,rgba(20,17,13,.15) 100%)}
-.tcontent{position:relative;margin:auto 0;padding-block:20px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:480px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:100%}
+.tbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0%}
+.tshade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,17,13,.95) 0%,rgba(20,17,13,.8) 30%,rgba(20,17,13,0) 62%)}
+.tcontent{position:relative;margin:auto 0 0;padding-block:16px max(16px,env(safe-area-inset-bottom,0px));padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:640px;display:flex;flex-direction:column;gap:10px;overflow:auto;max-height:100%}
 .tbrand{display:flex;align-items:center;gap:12px}
 .tname{font:700 34px/1 var(--f-display);letter-spacing:.03em}
 .tsub{color:var(--muted);font-size:13.5px;margin-top:3px}
-.tbig{font:900 44px/1.05 var(--f-zh);color:var(--gold);letter-spacing:.08em}
+.tbig{display:none}
 .tscen{display:flex;flex-direction:column;gap:3px}
 .tscen b{font:700 21px var(--f-display)}
 .tscen p{margin:2px 0 0;color:#cfc4aa;font-size:14px;max-width:46ch}
-.tbtns{display:flex;flex-direction:column;gap:8px;max-width:320px}
-.tbtns button{min-height:46px;text-align:left;padding:0 16px;font-size:15px}
+.tbtns{display:flex;flex-wrap:wrap;gap:8px}
+.tbtns button{min-height:46px;padding:0 18px;font-size:15px}
+@media (max-height:430px){.tscen p{display:none}.tname{font-size:28px}}
+@media (orientation:portrait){.tbg{object-position:6% 0%}}
 .ctop{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 16px;padding-block:6px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line)}
 .cfac{display:flex;align-items:center;gap:8px;line-height:1.15}
 .cfac small{display:block;color:var(--muted);font-size:12px}
