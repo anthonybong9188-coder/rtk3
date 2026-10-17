@@ -206,7 +206,7 @@ label.grow input{width:18px;height:18px;accent-color:#d4ad55;flex:none}
 .mcols{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .mcol{display:flex;flex-direction:column;gap:8px;min-width:0}
 @media (orientation:landscape){.mcols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.mg{max-height:calc(100dvh - 260px);min-height:96px}.dlgbox.dwide{padding:12px 16px;gap:8px}}
-.mapimg{width:104%;max-width:none}
+.mapimg{width:100%}
 .msum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:13px}
 .msum div{background:var(--panel2);border-radius:5px;padding:6px 8px;display:flex;flex-direction:column}
 .msum span{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
@@ -244,7 +244,7 @@ label.grow input{width:18px;height:18px;accent-color:#d4ad55;flex:none}
     <button id="endMonth" class="primary">End month</button>
   </header>
   <main class="cmain">
-    <div class="mapcol"><div class="mapbox"><img src="art/map.png" alt="" class="mapimg"><div class="mapshade"></div><svg id="routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><div id="armyLayer"></div><div id="cityLayer"></div></div></div>
+    <div class="mapcol"><div class="mapbox"><img src="art/map.jpg" alt="" class="mapimg"><div class="mapshade"></div><svg id="routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><div id="armyLayer"></div><div id="cityLayer"></div></div></div>
     <aside class="cpanel" id="cpanel"></aside>
   </main>
 </div>
@@ -913,20 +913,20 @@ const FACS={
 };
 // id, name, zh, x%, y%, owner, troops, farm, farmMax, com, comMax, walls, order, pop(k), training
 const CITY_DEF=[
-  ['xuchang','Xuchang','許昌',52,13,'wei',25000,900,1000,800,1000,90,85,600,70],
-  ['wancheng','Wancheng','宛城',35,21,'wei',8000,500,700,400,600,70,75,250,70],
-  ['runan','Runan','汝南',60,31,'wei',7000,600,800,350,600,60,70,300,65],
-  ['hefei','Hefei','合肥',78,38,'wei',10000,450,700,350,600,80,75,200,75],
-  ['xiangyang','Xiangyang','襄陽',31,39,'wei',12000,600,800,600,800,85,65,400,70],
-  ['jiangling','Jiangling','江陵',23,56,'wei',35000,650,900,500,800,80,60,350,70],
-  ['jiangxia','Jiangxia','江夏',47,52,'shu',8500,410,800,280,600,55,72,120,60],
-  ['chaisang','Chaisang','柴桑',62,63,'wu',18000,500,800,450,700,70,80,200,70],
-  ['jianye','Jianye','建業',86,50,'wu',20000,700,900,700,900,85,85,400,65],
-  ['kuaiji','Kuaiji','會稽',89,75,'wu',8000,550,800,400,700,60,75,250,60],
-  ['wuling','Wuling','武陵',14,74,'jin',6000,350,700,200,500,45,60,150,50],
-  ['changsha','Changsha','長沙',38,74,'han',9000,500,800,350,600,60,65,250,60],
-  ['lingling','Lingling','零陵',25,89,'liu',6000,380,700,220,500,45,60,150,50],
-  ['guiyang','Guiyang','桂陽',47,89,'zhao',5000,360,700,200,500,40,60,130,50]];
+  ['xuchang','Xuchang','許昌',54.5,21.0,'wei',25000,900,1000,800,1000,90,85,600,70],
+  ['wancheng','Wancheng','宛城',34.1,29.5,'wei',8000,500,700,400,600,70,75,250,70],
+  ['runan','Runan','汝南',56.1,33.0,'wei',7000,600,800,350,600,60,70,300,65],
+  ['hefei','Hefei','合肥',69.7,52.3,'wei',10000,450,700,350,600,80,75,200,75],
+  ['xiangyang','Xiangyang','襄陽',34.1,46.6,'wei',12000,600,800,600,800,85,65,400,70],
+  ['jiangling','Jiangling','江陵',31.1,72.7,'wei',35000,650,900,500,800,80,60,350,70],
+  ['jiangxia','Jiangxia','江夏',46.2,63.6,'shu',8500,410,800,280,600,55,72,120,60],
+  ['chaisang','Chaisang','柴桑',62.1,72.7,'wu',18000,500,800,450,700,70,80,200,70],
+  ['jianye','Jianye','建業',85.6,62.5,'wu',20000,700,900,700,900,85,85,400,65],
+  ['kuaiji','Kuaiji','會稽',86.4,86.5,'wu',8000,550,800,400,700,60,75,250,60],
+  ['wuling','Wuling','武陵',18.9,84.0,'jin',6000,350,700,200,500,45,60,150,50],
+  ['changsha','Changsha','長沙',47.7,82.0,'han',9000,500,800,350,600,60,65,250,60],
+  ['lingling','Lingling','零陵',31.0,90.5,'liu',6000,380,700,220,500,45,60,150,50],
+  ['guiyang','Guiyang','桂陽',57.0,91.0,'zhao',5000,360,700,200,500,40,60,130,50]];
 const ROUTES=[['xuchang','wancheng',1],['xuchang','runan',1],['runan','hefei',1],['wancheng','xiangyang',1],['xiangyang','jiangling',1],
   ['xiangyang','jiangxia',2],['runan','jiangxia',2],['jiangling','jiangxia',2,1],['jiangling','wuling',1],['jiangling','changsha',2],
   ['jiangxia','chaisang',1,1],['jiangxia','changsha',2],['chaisang','jianye',2,1],['hefei','jianye',1,1],['jianye','kuaiji',2],
