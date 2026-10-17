@@ -529,7 +529,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[]};
+  setTimeout(()=>sprWait(),0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -990,7 +990,13 @@ function drawFightHud(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-function playBattle(att,def,r){
+function sprLoad(fk){return ['spear','shield','archer','cav','general'].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
+  const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
+  return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
+sprLoad('shu');
+async function playBattle(att,def,r){await sprWait();return playBattle0(att,def,r)}
+function playBattle0(att,def,r){
   return new Promise(resolve=>{
     if(speed===0){resolve();return}
     const L=att.side==='shu'?att:def,R=L===att?def:att;
@@ -1048,7 +1054,8 @@ function newRound(){
   const others=['strike','guard','feint'].filter(k=>k!==D.ec);const tell=Math.random()<.65?D.ec:others[Math.floor(Math.random()*2)];
   $('#duelTell').textContent=TELLS[tell].replace('{n}',D.E.name);
   document.querySelectorAll('.duelBtns button').forEach(b=>b.disabled=false)}
-function playDuel(P,E){
+async function playDuel(P,E){await sprWait();return playDuel0(P,E)}
+function playDuel0(P,E){
   return new Promise(resolve=>{
     D={P,E,hp:{P:100,E:100},show:{P:100,E:100},round:1,anim:null,result:null,floats:[],resolve,bg:makeBG('.',null,true),xP:W*.3,xE:W*.7};
     parts=[];$('#cap').innerHTML=`<span><b>${P.name}</b> challenges <b>${E.name}</b> to single combat</span><span>War ${P.war} vs ${E.war}</span>`;
