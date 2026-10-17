@@ -220,6 +220,47 @@ label.grow input{width:18px;height:18px;accent-color:#d4ad55;flex:none}
   .cmdgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media (max-height:430px){.ctop{gap:4px 12px}.cres{gap:10px}.cpanel{flex-basis:300px}}
+/* ---------- city-centred campaign ---------- */
+.iconbtn{display:inline-flex;align-items:center;gap:6px;position:relative}
+.iconbtn .badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#c4473a;color:#fff;font:700 11px/18px var(--f-body);text-align:center;font-style:normal;padding:0 4px}
+.cbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.45fr) minmax(0,.85fr);gap:10px;padding-block:8px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+.ccol{min-width:0;min-height:0;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.cA{padding:0;overflow:hidden auto}
+.cA .sgrid{padding:2px 10px 10px;font-size:12.5px;gap:5px 12px}
+.cscene{position:relative;flex:none;height:clamp(120px,42%,220px);background-color:#3b3626;background-repeat:no-repeat;border-bottom:1px solid var(--line)}
+.cscap{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:18px 12px 8px;background:linear-gradient(0deg,rgba(14,12,9,.92),rgba(14,12,9,0))}
+.cnav{position:absolute;top:50%;transform:translateY(-70%);width:36px;height:44px;padding:0;font:700 26px/1 var(--f-body);background:rgba(14,12,9,.65);border-color:rgba(236,226,201,.25);z-index:1}
+.cnav.prev{left:6px}.cnav.next{right:6px}
+.chead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.chead button{flex:none;min-height:36px}
+.ohead,.orow{display:grid;grid-template-columns:36px minmax(0,1fr) repeat(4,27px) 56px;align-items:center;gap:6px}
+.ohead{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0 6px}
+.ohead span:nth-child(n+3){text-align:center}
+.olist{display:flex;flex-direction:column;gap:4px}
+.orow{padding:4px 6px;border-radius:5px;background:var(--panel2);border:1px solid transparent;text-align:left;width:100%;font-weight:500}
+.orow .on{text-align:center;font-variant-numeric:tabular-nums;font-size:14px}
+.orow .gst{justify-self:end}
+.oname{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+.oname b{font-size:14px;overflow-wrap:anywhere}
+.oname small{color:var(--muted);font-size:11.5px}
+button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border-color:var(--line);cursor:pointer}
+.opick{display:flex;flex-direction:column;line-height:1.2;font-size:13px}
+.opick small{color:#86cc90;font-size:12px}
+.cmdgrid button.on{border-color:var(--gold);background:#3a2f1f}
+.mapview{position:absolute;inset:0;z-index:30;background:rgba(10,8,6,.96);display:flex;flex-direction:column}
+.mvhead{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding-block:6px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.mvt{font:700 17px var(--f-display)}
+.legend{display:flex;gap:6px;flex-wrap:wrap;font-size:11.5px}
+.legend span{padding:1px 8px;border-radius:99px;border:1px solid}
+.mvbody{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.mapview .mapbox{width:min(100%,calc((100dvh - 80px)*1.5))}
+@media (orientation:portrait){
+  .cbody{display:flex;flex-direction:column;overflow-y:auto}
+  .ccol{overflow:visible;flex:none}
+  .cscene{height:200px}
+}
+@media (max-height:430px){.cres{gap:10px}.ctop .iconbtn span{display:none}}
+
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
 </style>
 
@@ -240,13 +281,19 @@ label.grow input{width:18px;height:18px;accent-color:#d4ad55;flex:none}
     <div class="cfac"><span class="seal sm" style="background:#3f7f4a">蜀</span><div><b>Liu Bei</b><small id="cDate"></small></div></div>
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
-    <button id="menuBtn">Menu</button>
+    <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>
+    <button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
     <button id="endMonth" class="primary">End month</button>
   </header>
-  <main class="cmain">
-    <div class="mapcol"><div class="mapbox"><img src="art/map.jpg" alt="" class="mapimg"><div class="mapshade"></div><svg id="routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><div id="armyLayer"></div><div id="cityLayer"></div></div></div>
-    <aside class="cpanel" id="cpanel"></aside>
+  <main class="cbody">
+    <section class="ccol cA" id="cA"></section>
+    <section class="ccol cB" id="cB"></section>
+    <section class="ccol cC" id="cC"></section>
   </main>
+  <div id="mapView" class="mapview" hidden>
+    <div class="mvhead"><b class="mvt">Map of China</b><span class="muted">Tap a city to go there</span><div id="mapLegend" class="legend"></div><div class="spacer"></div><button id="mapClose" class="iconbtn" aria-label="Close the map"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Close</span></button></div>
+    <div class="mvbody"><div class="mapbox"><img src="art/map.jpg" alt="" class="mapimg"><div class="mapshade"></div><svg id="routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><div id="armyLayer"></div><div id="cityLayer"></div></div></div>
+  </div>
 </div>
 <div id="battleView" hidden>
 <div class="app">
@@ -1033,8 +1080,13 @@ function renderCampaign(){
   $('#cCities').textContent=`${my.length} / 14`;
   $('#cTroops').textContent=fmt(my.reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0));
   $('#endMonth').disabled=UI.busy||S.over;
-  renderMap();renderPanel();
+  const inc=S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu').length;
+  $('#mapBadge').hidden=!inc;$('#mapBadge').textContent=inc;
+  if(!$('#mapView').hidden)renderMap();
+  renderCity();
 }
+function openMap(){$('#mapView').hidden=false;renderMap()}
+function closeMap(){$('#mapView').hidden=true}
 function renderMap(){
   const svg=$('#routes');let h='';
   for(const r of ROUTES){const a=C(r[0]),b=C(r[1]);h+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${r[2]>1?'long':''}"/>`}
@@ -1048,33 +1100,55 @@ function renderMap(){
   for(const a of S.armies){const f=C(a.from),t=C(a.to),p=.25+.5*(a.total-a.left)/Math.max(1,a.total);const F=FACS[a.fac];
     al+=`<div class="army" style="left:${lerp(f.x,t.x,p)}%;top:${lerp(f.y,t.y,p)}%;background:${F.dark};border-color:${F.light}"><span>${F.zh}</span>${(a.troops/1000).toFixed(1)}k</div>`}
   $('#armyLayer').innerHTML=al;
+  const fl=[...new Set(Object.values(S.cities).map(c=>c.owner))];
+  $('#mapLegend').innerHTML=fl.map(f=>`<span style="border-color:${FACS[f].main}">${FACS[f].short} · ${citiesOf(f).length}</span>`).join('');
 }
 function statRow(label,val,max){return `<div class="srow"><span>${label}</span><b>${val}${max!=null?` <i>/ ${max}</i>`:''}</b>${max!=null?`<div class="sbar"><i style="width:${Math.round(100*clamp(parseFloat(String(val).replace(/,/g,''))/max))}%"></i></div>`:''}</div>`}
-function renderPanel(){
-  const c=C(S.sel),F=FACS[c.owner],mine=c.owner==='shu',P=$('#cpanel');let h='';
-  h+=`<div class="ph"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?'Your city':`${F.short}${c.owner==='shu'?'':' · ruled by '+F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div>`;
-  if(CITY_ART[c.id])h+=`<img class="cityart" src="${CITY_ART[c.id]}" alt="${c.name}">`;
-  if(UI.mode==='cmd'&&mine){h+=renderCmdPick(c);P.innerHTML=h;return}
-  h+=`<div class="sgrid">${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}</div>`;
+function sceneStyle(c){return CITY_ART[c.id]?`background-image:url(${CITY_ART[c.id]});background-size:cover;background-position:50% 55%`:`background-image:url(art/map.jpg);background-size:420% auto;background-position:${c.x}% ${c.y}%`}
+function renderCity(){
+  const c=C(S.sel),F=FACS[c.owner],mine=c.owner==='shu';
+  const my=citiesOf('shu');const idx=my.findIndex(x=>x.id===c.id);
+  // ---- column A: the city itself
+  let a=`<div class="cscene" style="${sceneStyle(c)}">
+    ${mine&&my.length>1?`<button class="cnav prev" data-act="prevCity" aria-label="Previous city">‹</button><button class="cnav next" data-act="nextCity" aria-label="Next city">›</button>`:''}
+    <div class="cscap"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?`Your city${my.length>1?` · ${idx+1} of ${my.length}`:''}`:`${F.short} · ruled by ${F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div></div>`;
+  a+=`<div class="sgrid">${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>`;
+  $('#cA').innerHTML=a;
+  // ---- column B: officers
+  const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
+  let b='';
+  if(UI.mode==='cmd'&&mine){
+    const k=UI.cmd,v=CMDS[k],cost=Object.entries(v.cost).map(([r,n])=>`${n} ${r}`).join(', ')||'free';
+    const afford=Object.entries(v.cost).every(([r,n])=>S.fac.shu[r]>=n);
+    let list=gs.filter(g=>k==='reward'?g.loy<100&&!isRuler(g):!g.acted);
+    list.sort((x,y)=>k==='reward'?x.loy-y.loy:y[v.stat]-x[v.stat]);
+    b+=`<div class="chead"><div><div class="sec">${v.zh} ${v.n} · ${cost}</div><p class="muted">Choose who will do it. ${v.tip}.</p></div><button data-act="back">Cancel</button></div>`;
+    if(!afford)b+=`<p class="bad">Not enough ${Object.keys(v.cost).join(' and ')}.</p>`;
+    if(!list.length)b+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal.':'Every officer here has already acted this month.'}</p>`;
+    b+=`<div class="olist">${list.map(g=>`<button class="orow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="opick"><b>${v.stat==='loy'?'Loyalty':v.stat==='pol'?'Politics':v.stat==='cha'?'Charisma':v.stat==='int'?'Intelligence':'War'} ${g[v.stat]}</b><small>${cmdPreview(k,g,c)}</small></span></button>`).join('')}</div>`;
+  } else {
+    const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
+    b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
+    b+=`<div class="ohead"><span></span><span>Name</span><span>War</span><span>Int</span><span>Pol</span><span>Cha</span><span>${mine?'Status':'Loyal'}</span></div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:`<span class="on">${g.loy}</span>`}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+  }
+  $('#cB').innerHTML=b;
+  // ---- column C: commands and reports
+  let cc='';
   if(mine){
-    h+=`<div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
-    h+=`<button class="primary wide" data-act="march"><span class="czh">征</span> March or move</button>`;
+    cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
+    cc+=`<button class="primary wide" data-act="march"><span class="czh">征</span> March or move</button>`;
   } else {
     const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
-    if(allied('shu',c.owner))h+=`<p class="muted">Allied with you until the end of 210. You cannot attack Wu before then.</p>`;
-    else if(src.length)h+=`<button class="primary wide" data-act="attack"><span class="czh">征</span> March on ${c.name}</button>`;
-    else h+=`<p class="muted">Not next to any of your cities.</p>`;
+    cc+=`<div class="sec">${F.short}</div>`;
+    if(allied('shu',c.owner))cc+=`<p class="muted">Allied with you until the end of 210. You cannot attack Wu before then.</p>`;
+    else if(src.length)cc+=`<button class="primary wide" data-act="attack"><span class="czh">征</span> March on ${c.name}</button><p class="muted">From ${src.map(x=>x.name).join(' or ')}.</p>`;
+    else cc+=`<p class="muted">Not next to any of your cities.</p>`;
+    cc+=`<button class="wide" data-act="home">Back to my city</button>`;
   }
-  const gs=gensIn(c.id);
-  h+=`<div class="sec">Generals · ${gs.length}</div><div class="glist">`;
-  if(!gs.length)h+=`<p class="muted">No generals here.</p>`;
-  for(const g of gs.sort((a,b)=>(isRuler(b)-isRuler(a))||b.war-a.war)){
-    h+=`<div class="grow">${gseal(g,30)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} P${g.pol} C${g.cha} · ${TYPES[g.type].n}</small></div>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:`<span class="gst">L${g.loy}</span>`}</div>`}
-  h+=`</div>`;
-  const marching=S.armies.filter(a=>a.to===c.id||a.from===c.id);
-  for(const a of marching)h+=`<div class="note" style="border-color:${FACS[a.fac].main}">${FACS[a.fac].short} army of ${fmt(a.troops)} marching ${C(a.from).name} → ${C(a.to).name} · arrives in ${a.left} month${a.left>1?'s':''}</div>`;
-  h+=`<div class="sec">Reports</div><ol class="clog">${S.log.slice(0,8).map(l=>`<li><span>${l.d}</span> ${l.h}</li>`).join('')}</ol>`;
-  P.innerHTML=h;
+  for(const ar of S.armies.filter(x=>x.to===c.id||x.from===c.id))cc+=`<div class="note" style="border-color:${FACS[ar.fac].main}">${FACS[ar.fac].short} army of ${fmt(ar.troops)} · ${C(ar.from).name} → ${C(ar.to).name} · ${ar.left} month${ar.left>1?'s':''}</div>`;
+  cc+=`<div class="sec">Reports</div><ol class="clog">${S.log.slice(0,6).map(l=>`<li><span>${l.d}</span> ${l.h}</li>`).join('')}</ol>`;
+  $('#cC').innerHTML=cc;
 }
 function cmdPreview(k,g,c){
   const s=g[CMDS[k].stat];
@@ -1087,17 +1161,6 @@ function cmdPreview(k,g,c){
   if(k==='search')return `${Math.round(Math.min(90,s*.6+10))}% chance to find something`;
   if(k==='reward')return `loyalty ${g.loy} → ${Math.min(100,g.loy+8)}`;
   return ''}
-function renderCmdPick(c){
-  const k=UI.cmd,v=CMDS[k];const cost=Object.entries(v.cost).map(([r,n])=>`${n} ${r}`).join(', ')||'free';
-  let gs=gensIn(c.id).filter(g=>k==='reward'?g.loy<100&&!isRuler(g):!g.acted);
-  gs.sort((a,b)=>k==='reward'?a.loy-b.loy:b[v.stat]-a[v.stat]);
-  let h=`<div class="sec">${v.zh} ${v.n} · ${cost}</div><p class="muted">${v.tip}.</p><div class="glist">`;
-  const afford=Object.entries(v.cost).every(([r,n])=>S.fac.shu[r]>=n);
-  if(!afford)h+=`<p class="bad">Not enough ${Object.keys(v.cost).join(' and ')}.</p>`;
-  if(!gs.length)h+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal.':'Every general here has already acted this month.'}</p>`;
-  for(const g of gs)h+=`<button class="grow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,30)}<div class="gmid"><b>${g.name}</b><small>${v.stat==='loy'?'Loyalty':v.stat[0].toUpperCase()+v.stat.slice(1)} ${g[v.stat]} · ${cmdPreview(k,g,c)}</small></div></button>`;
-  h+=`</div><button class="wide" data-act="back">Back</button>`;
-  return h}
 function doCmd(k,g,c,f){
   const F=S.fac[f],v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
   if(k!=='reward')g.acted=true;
@@ -1119,16 +1182,20 @@ function doCmd(k,g,c,f){
 // ------------------------------------------------------------ input
 document.addEventListener('click',async e=>{
   if(!S||$('#campaign').hidden)return;
-  const cb=e.target.closest('[data-city]');if(cb){S.sel=cb.dataset.city;UI.mode='city';renderCampaign();return}
-  const b=e.target.closest('#cpanel button');if(!b||UI.busy)return;
+  const cb=e.target.closest('[data-city]');if(cb){S.sel=cb.dataset.city;UI.mode='city';closeMap();renderCampaign();return}
+  const b=e.target.closest('.cbody button');if(!b||UI.busy)return;
   const c=C(S.sel);
-  if(b.dataset.cmd){UI.mode='cmd';UI.cmd=b.dataset.cmd;renderPanel();return}
+  if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd}renderCity();return}
   if(b.dataset.gen){const g=GN(b.dataset.gen);const m=doCmd(UI.cmd,g,c,'shu');addLog(m,'shu');toast(m);if(UI.cmd!=='reward')UI.mode='city';save();renderCampaign();return}
   const a=b.dataset.act;
-  if(a==='back'){UI.mode='city';renderPanel()}
+  if(a==='back'){UI.mode='city';renderCity()}
+  if(a==='prevCity'||a==='nextCity'){const my=citiesOf('shu'),i=my.findIndex(x=>x.id===c.id);S.sel=my[(i+(a==='nextCity'?1:my.length-1))%my.length].id;UI.mode='city';renderCity()}
+  if(a==='home'){const my=citiesOf('shu');if(my.length){S.sel=my[0].id;UI.mode='city';renderCity()}}
   if(a==='march')openMarch(c.id,null);
   if(a==='attack'){const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu').sort((x,y)=>y.troops-x.troops)[0];openMarch(src.id,c.id)}
 });
+$('#mapBtn').onclick=()=>openMap();
+$('#mapClose').onclick=()=>closeMap();
 $('#endMonth').onclick=()=>endMonth();
 $('#newBtn').onclick=()=>{newCampaign();UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#contBtn').onclick=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
