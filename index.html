@@ -865,7 +865,7 @@ function drawHorse(c,ph,running,F){
   leg(-6,g*5,'#6d4a2a');leg(13,-g*5,'#6d4a2a');
   c.fillStyle=F.main;c.strokeStyle=O;c.lineWidth=1.2;c.beginPath();c.moveTo(-9,-24);c.lineTo(7,-24);c.lineTo(8,-13);c.lineTo(-10,-13);c.closePath();c.fill();c.stroke();
   c.strokeStyle='#d4ad55';c.lineWidth=1;ln(c,-9.5,-14.5,7.5,-14.5)}
-const SPRITES={spear:1};const SPIMG={};
+const SPRITES={spear:1,shield:1};const SPIMG={};
 function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}
 function sprSheet(type,fk){const k=type+'_'+fk;let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
 function drawSprite(c,f,sh){
