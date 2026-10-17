@@ -152,6 +152,7 @@ body.lock{overflow:hidden}
 .cpanel{flex:0 0 340px;min-width:0;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:9px}
 .ph{display:flex;align-items:center;gap:10px}
 .phzh{font:900 28px/1 var(--f-zh)}
+.cityart{display:block;width:100%;height:92px;object-fit:cover;object-position:50% 60%;border-radius:5px;border:1px solid var(--line);flex:none}
 .phn{font:700 19px/1.1 var(--f-display)}
 .phs{font-size:12.5px}
 .sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;font-size:13px;font-variant-numeric:tabular-nums}
@@ -977,6 +978,7 @@ const CMDS={
   patrol:{n:'Patrol',zh:'巡',stat:'cha',cost:{rice:100},tip:'Keep the peace and raise public order'},
   search:{n:'Search',zh:'探',stat:'int',cost:{},tip:'Look for hidden talent, gold or rice'},
   reward:{n:'Reward',zh:'賞',stat:'loy',cost:{gold:100},tip:'Give gold to raise a general\'s loyalty. Does not use his action'}};
+const CITY_ART={jiangxia:'art/jiangxia.jpg'};
 const SALARY=5, RICE_CITY=0.1, RICE_MARCH=0.2, END_YEAR=215, WIN_CITIES=10;
 
 let S=null;           // campaign state (saved)
@@ -1049,6 +1051,7 @@ function statRow(label,val,max){return `<div class="srow"><span>${label}</span><
 function renderPanel(){
   const c=C(S.sel),F=FACS[c.owner],mine=c.owner==='shu',P=$('#cpanel');let h='';
   h+=`<div class="ph"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?'Your city':`${F.short}${c.owner==='shu'?'':' · ruled by '+F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div>`;
+  if(CITY_ART[c.id])h+=`<img class="cityart" src="${CITY_ART[c.id]}" alt="${c.name}">`;
   if(UI.mode==='cmd'&&mine){h+=renderCmdPick(c);P.innerHTML=h;return}
   h+=`<div class="sgrid">${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}</div>`;
   if(mine){
