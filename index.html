@@ -865,7 +865,7 @@ function drawHorse(c,ph,running,F){
   leg(-6,g*5,'#6d4a2a');leg(13,-g*5,'#6d4a2a');
   c.fillStyle=F.main;c.strokeStyle=O;c.lineWidth=1.2;c.beginPath();c.moveTo(-9,-24);c.lineTo(7,-24);c.lineTo(8,-13);c.lineTo(-10,-13);c.closePath();c.fill();c.stroke();
   c.strokeStyle='#d4ad55';c.lineWidth=1;ln(c,-9.5,-14.5,7.5,-14.5)}
-const SPRITES={spear:1,shield:1,archer:1};const SPIMG={};
+const SPRITES={spear:1,shield:1,archer:1,cav:1};const SPIMG={};
 function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}
 function sprSheet(type,fk){const k=type+'_'+fk;let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
 function drawSprite(c,f,sh){
@@ -875,8 +875,8 @@ function drawSprite(c,f,sh){
   else if(f.shoot){row=2;fr=Math.floor(now/190+sd*3)%4}
   else if(f.run!=null){row=1;fr=Math.floor(f.run/2.6)%4}
   else{row=0;const p=Math.floor(now/320+sd*3)%6;fr=[0,1,2,3,2,1][p]}
-  const k=58/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
-  if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,10,3,0,0,Math.PI*2);c.fill()}
+  const cv=f.type==='cav',k=(cv?74:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
+  if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
 function drawFigure(c,f){
   if(!f.officer&&SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
