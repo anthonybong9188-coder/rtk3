@@ -3,7 +3,7 @@
 A single-player strategy game set in the Three Kingdoms period, starting at the Battle of Red Cliffs (208 AD).
 Play as Liu Bei: develop your cities month by month, march armies across the map of China, and fight battles on a tactical grid.
 
-**Play:** https://anthonybong9188-coder.github.io/rtk3/
+**Play:** https://rtk3.tikabon.com/
 
 - Runs entirely in the browser; best on a phone held sideways or on a PC.
 - Saves are kept in your own browser (localStorage). Nothing is uploaded.
