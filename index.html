@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁典分劉勝南合吳商單國城壁夏天守宛射巡平度延建張征待徵忠惇戰挑探推操攻敗昌昭曹會柴桂桑業樂權武汝江沙淵滿火琬瑜甘稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓魏黃龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡平度延建弓張征待徵忠惇戰挑探推操攻敗昌昭曹會柴桂桑業槍樂權武汝江沙淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -672,7 +672,10 @@ function drawToken(c,u,now){
   if(pim){c.save();rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.clip();c.drawImage(pim,96,36,320,264,-s/2+2,-s/2+2,s-4,s*.84-4);c.restore()}
   else{c.fillStyle=F.main;rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.fill();c.fillStyle='#f6eed8';c.font=`900 ${Math.round(s*.5)}px "Noto Serif TC", serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,-s*.06,-s*.06)}
   rr(c,-s/2,-s/2,s,s*.84,s*.16);c.lineWidth=u.cmd?3:2.2;c.strokeStyle=u.cmd?'#e8c25e':F.main;c.stroke();
-  c.fillStyle=F.dark;circ(c,s*.33,-s*.3,s*.15);c.fill();drawGlyph(c,u.type,s*.33,-s*.3,s*.12);
+  {const bx=s*.44,by=-s*.42,br=s*.215;c.fillStyle='rgba(0,0,0,.45)';circ(c,bx+1,by+2,br+1);c.fill();
+   c.fillStyle=F.main;circ(c,bx,by,br);c.fill();c.lineWidth=Math.max(1.6,s*.035);c.strokeStyle='#e8c25e';c.stroke();
+   c.fillStyle='#fff6e2';c.font=`900 ${Math.round(br*1.3)}px "Noto Serif TC","Songti TC",serif`;c.textAlign='center';c.textBaseline='middle';
+   c.fillText(({spear:'槍',shield:'盾',archer:'弓',cav:'騎'})[u.type]||'兵',bx,by+br*.06)}
   const bw=s,bh=Math.max(3,T*.07);c.fillStyle='#0d0b08';c.fillRect(-bw/2,s*.38,bw,bh);c.fillStyle=u.troops/u.max>.35?'#d4ad55':'#c4473a';c.fillRect(-bw/2,s*.38,bw*clamp(u.troops/u.max),bh);
   if(u.acted&&u.side==='shu'&&G.phase==='player'){rr(c,-s/2,-s/2,s,s*.84,s*.16);c.fillStyle='rgba(20,17,13,.55)';c.fill()}
   if(u.stun){c.fillStyle='#e88b7f';c.font=`700 ${Math.round(s*.3)}px "Alegreya Sans", sans-serif`;c.fillText('✕',-s*.34,-s*.3)}
