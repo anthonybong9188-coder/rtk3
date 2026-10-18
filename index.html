@@ -332,6 +332,11 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .spin b{min-width:52px;text-align:center;font-variant-numeric:tabular-nums;color:#f3dc9a}
 .spin+.cmdpick{margin-left:6px}
 .mtot{display:flex;flex-direction:column;gap:2px}.mtot small{color:var(--muted)}
+.city .cic{position:relative;display:block;isolation:isolate;margin-bottom:1px}
+.city .cic img{display:block;width:100%;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.city .cic::after{content:'';position:absolute;left:8%;right:8%;bottom:-3px;height:7px;border-radius:50%;background:var(--fc);opacity:.85;z-index:-1;filter:blur(1.5px)}
+.city.sel .cic img{filter:drop-shadow(0 0 4px var(--gold)) drop-shadow(0 0 2px var(--gold))}
+.city{min-height:0}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
@@ -1561,6 +1566,11 @@ function renderCampaign(){
 }
 function openMap(){$('#mapView').hidden=false;renderMap()}
 function closeMap(){$('#mapView').hidden=true}
+const CITY_TIER={xuchang:'capital',jianye:'capital',jiangling:'large',xiangyang:'large',chaisang:'large',runan:'large',hefei:'large'};
+const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};
+function underSiege(c){return S.armies.some(a=>a.to===c.id&&a.fac!==c.owner&&!allied(a.fac,c.owner))}
+function cityIcon(c,F){const t=CITY_TIER[c.id]||'small',st=underSiege(c)?'siege':'ok',src=`art/city_${t}_${st}`;
+  return `<span class="cic" style="width:${CITY_W[t][st==='ok'?0:1]}px;--fc:${F.main}"><img src="${src}_${c.owner}.png" alt=""></span>`}
 function renderMap(){
   const svg=$('#routes');let h='';
   for(const r of ROUTES){const a=C(r[0]),b=C(r[1]);h+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${r[2]>1?'long':''}"/>`}
@@ -1568,7 +1578,7 @@ function renderMap(){
   svg.innerHTML=h;
   let cl='';
   for(const c of Object.values(S.cities)){const F=FACS[c.owner];
-    cl+=`<button class="city${S.sel===c.id?' sel':''}${c.owner==='shu'?' mine':''}" data-city="${c.id}" style="left:${c.x}%;top:${c.y}%"><span class="dia" style="background:${F.main}"></span><span class="cn">${c.name}</span><small>${(c.troops/1000).toFixed(1)}k</small></button>`}
+    cl+=`<button class="city${S.sel===c.id?' sel':''}${c.owner==='shu'?' mine':''}" data-city="${c.id}" style="left:${c.x}%;top:${c.y}%">${cityIcon(c,F)}<span class="cn">${c.name}</span><small>${(c.troops/1000).toFixed(1)}k</small></button>`}
   $('#cityLayer').innerHTML=cl;
   let al='';
   for(const a of S.armies){const f=C(a.from),t=C(a.to),p=.25+.5*(a.total-a.left)/Math.max(1,a.total);const F=FACS[a.fac];
