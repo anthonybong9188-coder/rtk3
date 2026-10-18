@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇戰挑探推操攻敗昌昭曹會柴桂桑業槍樂權武汝江沙淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇戰挑探推操擒攻敗昌昭曹會柴桂桑業槍樂權武汝江沙淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -536,7 +536,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  setTimeout(()=>sprWait(),0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[]};
+  setTimeout(()=>sprWait(),0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -837,6 +837,7 @@ async function doAttack(a,d,o={}){
   let ctr=0;const ctrOn=!o.noCounter&&(o.forceCounter||inRange(d.type,dist));
   if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr}
   const ctrVis=!o.noCounter&&(o.forceCounter||inRange(d.type,dist));
+  if(d.troops<=0)d.fate=fateRoll(d,a);if(a.troops<=0)a.fate=fateRoll(a,d);
   await playBattle(a,d,{aB,dB,dmg,ctr,ctrOn:ctrOn||ctrVis,ranged,charge:o.charge,push:o.push,label:o.label});
   float(d,'-'+dmg,'#ff9a86');if(ctr)float(a,'-'+ctr,'#ff9a86');
   const m=typeMult(a.type,d.type);
@@ -867,7 +868,17 @@ async function doDuel(a,d){
   else if(r==='lose'){const l=Math.min(a.troops,Math.max(100,Math.round(a.troops*.3)));a.troops-=l;a.stun=1;float(a,'-'+l,'#ff9a86');log(`${nm(d)} bests ${nm(a)} in single combat. Shu troops falter (−${l}).`)}
   else{const la=Math.round(a.troops*.1),ld=Math.round(d.troops*.1);a.troops-=la;d.troops-=ld;log(`${nm(a)} and ${nm(d)} fight to a standstill.`)}
   sweep()}
-function sweep(){for(const u of G.units.filter(u=>u.troops<=0)){log(`${nm(u)}'s force is broken. ${u.name} retreats from the field.`);G.broken.push(u.id)}G.units=G.units.filter(u=>u.troops>0);if(G.view&&!G.units.includes(G.view))G.view=null;updateUI()}
+function fateRoll(u,by){if(u.war>=95)return 'breakout';let p=.30;const foes=G.units.filter(e=>e.side!==u.side&&e.troops>0);
+  p+=.15*foes.filter(e=>manh(e,u)===1).length;
+  if(!DIRS.some(([dx,dy])=>{const x=u.x+dx,y=u.y+dy;return inb(x,y)&&terAt(x,y)!=='w'&&!unitAt(x,y)}))p+=.40;
+  p+=((by?by.war:u.war)-u.war)/100;if(u.type==='cav')p-=.10;if(u.type==='archer')p+=.10;
+  const tt=terAt(u.x,u.y);if(tt==='w'||tt==='=')p+=.10;if(tt==='f')p-=.10;
+  p=clamp(p,.05,.85);if(u.war>=90)p/=2;return Math.random()<p?'capture':'escape'}
+function sweep(){for(const u of G.units.filter(u=>u.troops<=0)){const f=u.fate||'escape';
+    if(f==='capture'){log(`${nm(u)} is unhorsed and <b>captured</b>!`);G.captured.push(u.id);float(u,'擒 Captured','#ff8a78')}
+    else if(f==='breakout'){log(`${nm(u)}'s force is broken, but ${u.name} cuts his way out and escapes!`);float(u,'Breaks free','#f3d27a')}
+    else{log(`${nm(u)}'s force is broken. ${u.name} escapes from the field.`);float(u,'Escaped','#e8dcc0')}
+    G.broken.push(u.id)}G.units=G.units.filter(u=>u.troops>0);if(G.view&&!G.units.includes(G.view))G.view=null;updateUI()}
 function checkEnd(){
   if(G.over)return true;
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
@@ -876,7 +887,7 @@ function checkEnd(){
   return false}
 function endGame(win,text,retreat){G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
 $('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(u.troops));
-  const r={win:G.win,retreat:G.retreat,left};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
+  const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
 $('#retreatBtn').onclick=()=>{if(G.phase!=='player'||G.busy||G.over)return;endGame(false,'You sound the retreat. Your army withdraws from the field.',true)};
 
 async function endTurn(){
@@ -956,7 +967,10 @@ function drawSprite(c,f,sh){
   const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
+function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;
+  c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function drawFigure(c,f){
+  if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}
   if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   const F=FAC[f.fac]||FAC.shu,O='#1a1410',skin='#e6bb8e';c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
@@ -1070,7 +1084,7 @@ function drawFightHud(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-function sprLoad(fk){return ['spear','shield','archer','cav','general',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+function sprLoad(fk){return ['spear','shield','archer','cav','general','general_cap',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
@@ -1099,19 +1113,24 @@ function playBattle0(att,def,r){
     const shownT=(S,t)=>{const k=kindOf(S)==='arrow'?clamp((t-1280)/600):clamp((t-1650)/1000);return lerp(S.before,S.after,k)};
     function frame(now){
       let t=skip?END:(now-start)*speed;const dt=Math.min(50,now-last)*(skip?0:speed);last=now;
-      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t);
+      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t),capS=[SL,SR].find(S=>S.nA===0&&S.u.fate==='capture'),capX=capS?sX(capS.off,capS,2700):0;
       if(cam){const bx=-cam*.5;c.drawImage(bg,bx,0,W,H);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);c.drawImage(bg,0,0,W,H);c.restore()}else c.drawImage(bg,0,0,W,H);
       c.save();c.translate(-cam,0);const items=[];
       for(const S of [SL,SR]){
-        for(const s of S.sol){const tt=Math.min(t,s.deathT),x=sX(s,S,tt)+(S.pushed?-S.face*70*ease(clamp((tt-1900)/700)):0),alive=t<s.deathT;let run=null,face=S.face,sw=0;
+        for(const s of S.sol){const tt=Math.min(t,s.deathT);let x=sX(s,S,tt)+(S.pushed?-S.face*70*ease(clamp((tt-1900)/700)):0),alive=t<s.deathT;let run=null,face=S.face,sw=0;
           let chf=false;if(S.ch&&alive){const p=S.ch.f*x;chf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(chf)sw=(Math.sin(t*.012+s.seed*3)+1)/2;else if(t>600&&t<3300)run=t*(t>2300?.05:.034)+s.seed;if(t>=3450+TURN_MS)face=-S.face}else if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}else if(t>=1500&&t<=2700)sw=(Math.sin(t*.02+s.seed*3)+1)/2}
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}
           if((S.ch?chf:S.melee&&alive&&t>1500&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500:S.melee&&alive&&t>=1500&&t<=2700,slow:chf,seed:s.seed,turn:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
-        const o=S.off,flee=S.nA===0&&t>2900?ease(clamp((t-2900)/900)):0,ox=sX(o,S,flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
+          let srd=false;if(capS&&S!==capS&&alive&&t>3000){const k=ease(clamp((t-3000)/650)),sg=s.i%2?1:-1,tx2=capX+sg*(38+((s.i>>1)%3)*22);x=lerp(x,tx2,k);face=x<capX?1:-1;if(k<1)run=t*.03+s.seed;else run=null;sw=0;srd=true}
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500:S.melee&&alive&&t>=1500&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
+        const fate=S.nA===0?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sX(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
         let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
-        if(flee){orun=t*.03;oface=-S.face}
-        items.push({y:o.y,f:{x:ox-S.face*flee*140,y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=1050&&t<=2500:S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:S.nA===0&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+        if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
+        if(flee){orun=t*(fate==='breakout'?.045:.03);oface=-S.face}
+        if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
+          if(k3){items.push({y:o.y-1,f:{cap:true,fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+          else items.push({y:o.y,f:{cap:true,fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=1050&&t<=2500:S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
@@ -1121,6 +1140,10 @@ function playBattle0(att,def,r){
       drawFightHud(c,SL,SR,shownT(SL,t),shownT(SR,t));
       if(t>2750){const p=clamp((t-2750)/1000);c.globalAlpha=Math.min(1,p*3)*(1-Math.max(0,p-.8)*5);c.font='700 30px "Alegreya Sans", sans-serif';c.textAlign='center';c.lineWidth=4;c.strokeStyle='#14110d';
         for(const S of [SL,SR]){const loss=S.before-S.after;if(!loss)continue;const x=S.side==='L'?190:W-190,y=GROUND-6-p*24;c.strokeText('−'+loss,x,y);c.fillStyle='#ff9a86';c.fillText('−'+loss,x,y)}c.globalAlpha=1}
+      for(const S of [SL,SR]){const fate=S.nA===0?S.u.fate||'escape':null;if(!fate)continue;const t0=fate==='capture'?3150:fate==='breakout'?2700:2950;if(t<t0)continue;
+        const p=clamp((t-t0)/250),txt=fate==='capture'?`擒  ${S.u.name} captured!`:fate==='breakout'?`${S.u.name} breaks free!`:`${S.u.name} escapes`;
+        c.save();c.globalAlpha=p;c.font=`900 ${fate==='capture'?34:28}px "Noto Serif TC","Alegreya Sans",serif`;c.textAlign='center';c.lineWidth=6;c.strokeStyle='#14110d';
+        const y=78-(1-p)*12;c.strokeText(txt,W/2,y);c.fillStyle=fate==='capture'?'#ff7a64':fate==='breakout'?'#f3d27a':'#e8dcc0';c.fillText(txt,W/2,y);c.restore()}
       if(t>=END){SC.removeEventListener('pointerdown',onSkip);setTimeout(()=>{$('#stage').hidden=true;resolve()},skip?120:350);return}
       requestAnimationFrame(frame)}
     requestAnimationFrame(frame)})}
@@ -1654,14 +1677,14 @@ async function applyBattle(a,c,gens,defG,res){
   if(res.attWin){
     const flee=nearestOwn(oldOwner,c.id);
     for(const g of gensIn(c.id)){const inBattle=defG.includes(g),broken=res.defBroken.includes(g.id);
-      const capP=broken?.55:inBattle?.25:.3;
-      if(!flee||Math.random()<capP){caps.push(g);g.city=null}else g.city=flee.id}
+      const capP=res.captured?(res.captured.includes(g.id)?1:broken?0:capAdj(g,inBattle?.25:.3)):capAdj(g,broken?.55:inBattle?.25:.3);
+      if(Math.random()<capP||(!flee&&g.war<95)){caps.push(g);g.city=null}else if(flee)g.city=flee.id;else{g.fac=null;g.hidden=true;g.city=c.id}}
     if(flee)flee.troops+=Math.round(dS*.5);
     takeCity(a,c,gens,aS,res.attBroken);
     addLog(`${fs(a.fac)} takes <b>${c.name}</b> from ${fs(oldOwner)}.`,a.fac);
   } else {
     c.troops=dS+(res.reserve||0);c.order=Math.min(100,c.order+3);
-    const back=[];for(const g of gens){if(res.attBroken.includes(g.id)&&Math.random()<.4){caps.push(g);g.army=null;g.city=null}else back.push(g)}
+    const back=[];for(const g of gens){const cap=res.captured?res.captured.includes(g.id):res.attBroken.includes(g.id)&&Math.random()<capAdj(g,.4);if(cap){caps.push(g);g.army=null;g.city=null}else back.push(g)}
     returnHome(a,back,aS);
     addLog(`${fs(oldOwner)} holds <b>${c.name}</b> against ${fs(a.fac)}.`,oldOwner);
   }
@@ -1672,6 +1695,7 @@ async function applyBattle(a,c,gens,defG,res){
     addLog(`<b>${FACS[f].name}'s rule is ended.</b> His officers scatter.`)}
   checkCampaignEnd();
 }
+function capAdj(g,p){return g.war>=95?0:g.war>=90?p/2:p}
 function takeCity(a,c,gens,troops,broken){
   c.owner=a.fac;c.troops=troops;c.train=a.train;c.order=Math.max(30,c.order-15);
   S.fac[a.fac].rice+=Math.round(a.rice*.8);S.fac[a.fac].gold+=300;
@@ -1732,7 +1756,7 @@ function playCampaignBattle(a,c,gens,defG){
       read(gens,aT,'',att,attBroken);read(dGs,dT,'',def,defBroken);
       if(r.retreat&&me){gens.forEach(g=>{if(att[g.id]===0&&!attBroken.includes(g.id))att[g.id]=0})}
       const attWin=me?r.win:!r.win;
-      return {attWin,att,def,attBroken:attBroken.filter(id=>id!=='garrison'),defBroken:defBroken.filter(id=>id!=='garrison'),reserve:0,summary:''}})
+      return {attWin,att,def,attBroken:attBroken.filter(id=>id!=='garrison'),defBroken:defBroken.filter(id=>id!=='garrison'),captured:r.captured||[],reserve:0,summary:''}})
 }
 
 setupStage();requestAnimationFrame(loop);
