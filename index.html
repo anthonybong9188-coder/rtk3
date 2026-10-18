@@ -311,7 +311,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #stage .stage-inner{width:auto;align-items:center}
 #sc{width:auto;height:min(calc(100dvh - 70px),calc((100vw - 24px)*9/16));aspect-ratio:16/9;max-width:100%}
 @media (orientation:portrait){
-  .bhint{top:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-width:80%}
+  .bhint{top:auto;bottom:calc(168px + env(safe-area-inset-bottom,0px));max-width:80%}
   .hud.tl{width:min(250px,60vw)}
   .acts2{grid-template-columns:repeat(3,64px)}
   .rbtn{width:64px;height:64px}
@@ -505,13 +505,15 @@ function skillNote(k,s,e){
 const splashOf=d=>enemies().filter(e=>e!==d&&manh(e,d)===1).sort((a,b)=>b.troops-a.troops)[0];
 function attackable(s){
   const en=enemies();
-  if(G.mode==='moved')return en.filter(e=>inRange(s.type,manh(s,e)));
-  if(G.mode==='select'&&G.reach)return en.filter(e=>G.reach.tiles.some(t=>inRange(s.type,Math.abs(t.x-e.x)+Math.abs(t.y-e.y))));
+  if(G.mode==='moved'&&!G.reach)return en.filter(e=>inRange(s.type,manh(s,e)));
+  if((G.mode==='select'||G.mode==='moved')&&G.reach)return en.filter(e=>G.reach.tiles.some(t=>inRange(s.type,Math.abs(t.x-e.x)+Math.abs(t.y-e.y))));
   return []}
+function reachFrom(s,o){const x=s.x,y=s.y;s.x=o.x;s.y=o.y;const R=reach(s);s.x=x;s.y=y;return R}
+function movePath(s,x,y){if(s.x===G.origin.x&&s.y===G.origin.y)return pathTo(G.reach,s,x,y);const R=reach(s);return R.tiles.some(t=>t.x===x&&t.y===y)?pathTo(R,s,x,y):[{x,y}]}
 function bestAttackTile(s,e){
   let best=null;
   for(const t of G.reach.tiles){const d=Math.abs(t.x-e.x)+Math.abs(t.y-e.y);if(!inRange(s.type,d))continue;
-    const sc=(s.type==='archer'&&d===2?100:0)+T_INFO[terAt(t.x,t.y)].def*50-pathTo(G.reach,s,t.x,t.y).length*3;
+    const sc=(s.type==='archer'&&d===2?100:0)+T_INFO[terAt(t.x,t.y)].def*50-pathTo(G.reach,s,t.x,t.y).length*3+(t.x===s.x&&t.y===s.y?40:0);
     if(!best||sc>best.sc)best={sc,t}}
   return best&&best.t}
 
@@ -680,9 +682,9 @@ function drawMap(now){
   const pulse=(Math.sin(now/220)+1)/2;
   if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.28)';for(const t of G.enemyTiles)c.fillRect(t.x*T+1,t.y*T+1,T-2,T-2)}
   const hl=(t,f,s)=>{rr(c,t.x*T+3,t.y*T+3,T-6,T-6,T*.12);c.fillStyle=f;c.fill();c.lineWidth=2;c.strokeStyle=s;c.stroke()};
-  if(G.mode==='select'&&G.reach){for(const t of G.reach.tiles)hl(t,'rgba(60,120,255,.34)','rgba(150,195,255,.85)')}
+  if((G.mode==='select'||G.mode==='moved')&&G.reach){for(const t of G.reach.tiles)if(!(G.mode==='moved'&&t.x===G.sel.x&&t.y===G.sel.y))hl(t,'rgba(60,120,255,.34)','rgba(150,195,255,.85)')}
   if(G.mode==='target'){for(const tg of G.targets){const u=tg.u;c.fillStyle=`rgba(200,60,40,${.22+pulse*.2})`;c.fillRect(u.x*T+1,u.y*T+1,T-2,T-2);c.strokeStyle='#e5634f';c.lineWidth=2;c.strokeRect(u.x*T+2,u.y*T+2,T-4,T-4)}}
-  if(G.rangeTiles&&G.mode==='select'){for(const t of G.rangeTiles)hl(t,'rgba(235,60,50,.30)','rgba(255,140,120,.85)')}
+  if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved')){for(const t of G.rangeTiles)hl(t,'rgba(235,60,50,.30)','rgba(255,140,120,.85)')}
   if(G.atk&&(G.mode==='select'||G.mode==='moved')){for(const e of G.atk){c.fillStyle=`rgba(215,55,40,${.32+pulse*.2})`;c.fillRect(e.x*T+1,e.y*T+1,T-2,T-2);c.strokeStyle=`rgba(255,120,95,${.65+pulse*.35})`;c.lineWidth=2.5;c.strokeRect(e.x*T+2.5,e.y*T+2.5,T-5,T-5)}}
   c.setLineDash([5,4]);c.strokeStyle='rgba(212,173,85,.85)';c.lineWidth=1.6;
   for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4)}
@@ -719,11 +721,11 @@ function updateUI(){
   $('#speedBtn').textContent=speed===0?'Scenes off':`Scenes ${speed}×`;
   $('#endBtn').disabled=G.phase!=='player'||G.busy||G.over;$('#retreatBtn').disabled=G.phase!=='player'||G.busy||G.over;
   G.atk=G.sel?attackable(G.sel):null;
-  G.rangeTiles=null;if(G.sel&&G.mode==='select'&&G.reach){const key=t=>t.x+','+t.y,rs=new Set(G.reach.tiles.map(key)),out=new Map(),[r0,r1]=TYPES[G.sel.type].rng;
+  G.rangeTiles=null;if(G.sel&&(G.mode==='select'||G.mode==='moved')&&G.reach){const key=t=>t.x+','+t.y,rs=new Set(G.reach.tiles.map(key)),out=new Map(),[r0,r1]=TYPES[G.sel.type].rng;
     for(const t of G.reach.tiles)for(let dx=-r1;dx<=r1;dx++)for(let dy=-r1;dy<=r1;dy++){const d=Math.abs(dx)+Math.abs(dy);if(d<r0||d>r1)continue;const x=t.x+dx,y=t.y+dy;if(!inb(x,y)||rs.has(x+','+y)||terAt(x,y)==='w'){continue}{const o=unitAt(x,y);if(o&&o.side==='shu')continue}out.set(x+','+y,{x,y})}
     G.rangeTiles=[...out.values()]}
   const hint={idle:'Tap a <b>green unit</b> to select it. Tap an enemy unit to see its reach.',select:'Tap a <b>blue tile</b> to move, or tap a <b>red-ringed enemy</b> to attack it. Specials are below.',moved:'Tap a <b>red-ringed enemy</b> to attack, or pick an action below.',target:'Tap a <b>red target</b> on the map or in the list.',busy:''}[G.mode]||'';
-  $('#hint').innerHTML=G.phase==='enemy'?`${FAC.wei.name} is moving…`:G.mode==='select'?'<b>Blue</b>: move · tap the general again to act here · <b>red</b>: attack':G.mode==='moved'?'Tap a <b>red enemy</b> or pick an action':G.mode==='target'?'Tap a <b>target</b>':'';
+  $('#hint').innerHTML=G.phase==='enemy'?`${FAC.wei.name} is moving…`:G.mode==='select'?'<b>Blue</b>: move · tap the general again to act here · <b>red</b>: attack':G.mode==='moved'?'<b>Blue</b>: move somewhere else · <b>red</b>: attack · or pick an action':G.mode==='target'?'Tap a <b>target</b>':'';
   const box=$('#info'); const u=G.view;
   let h='';
   if(u){const F=FAC[u.side];const t=terAt(u.x,u.y);
@@ -777,6 +779,7 @@ MC.addEventListener('click',e=>{
     const s=G.sel;G.tmode='attack';
     if(inRange(s.type,manh(s,u))){execTarget(u);return}
     const t=bestAttackTile(s,u);if(t){moveThenAttack(s,u,t);return}}
+  if(G.mode==='moved'&&G.sel&&G.reach&&!(x===G.sel.x&&y===G.sel.y)&&!u&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   if(G.mode==='moved')return;
   if(G.mode==='select'&&G.sel&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   G.enemyTiles=null;
@@ -788,8 +791,8 @@ async function animateMove(u,path){
   for(const p of path){const sx=u.px,sy=u.py,t0=performance.now(),dur=110/(speed||2.5);
     await new Promise(res=>{function f(now){const k=clamp((now-t0)/dur);u.px=lerp(sx,p.x,k);u.py=lerp(sy,p.y,k);if(k<1)requestAnimationFrame(f);else res()}requestAnimationFrame(f)})}
   const last=path[path.length-1];if(last){u.x=last.x;u.y=last.y}u.px=u.x;u.py=u.y}
-async function moveSel(x,y){const s=G.sel;G.busy=true;G.mode='busy';updateUI();await animateMove(s,pathTo(G.reach,s,x,y));G.busy=false;G.mode='moved';updateUI()}
-async function moveThenAttack(s,u,t){G.busy=true;G.mode='busy';updateUI();await animateMove(s,pathTo(G.reach,s,t.x,t.y));G.busy=false;G.tmode='attack';await execTarget(u)}
+async function moveSel(x,y){const s=G.sel;G.busy=true;G.mode='busy';updateUI();await animateMove(s,movePath(s,x,y));G.busy=false;G.mode='moved';G.reach=reachFrom(s,G.origin);updateUI()}
+async function moveThenAttack(s,u,t){G.busy=true;G.mode='busy';updateUI();if(t.x!==s.x||t.y!==s.y)await animateMove(s,movePath(s,t.x,t.y));G.busy=false;G.tmode='attack';await execTarget(u)}
 async function execTarget(t){
   const s=G.sel,mode=G.tmode;G.busy=true;G.mode='busy';G.targets=[];updateUI();
   if(mode==='attack')await doAttack(s,t);
