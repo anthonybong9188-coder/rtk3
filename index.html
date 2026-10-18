@@ -487,7 +487,7 @@ const SKILLS={
 const adjE=s=>enemies().filter(e=>manh(s,e)===1),adjA=s=>G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);
 const HERO={
  roar:{who:'zhangfei',zh:'咆哮',n:'Roar',self:1,can:s=>adjE(s).length>0,desc:'Every adjacent enemy is stunned and loses its next turn'},
- sweep:{who:'guanyu',zh:'青龍斬',n:'Dragon Sweep',self:1,can:s=>adjE(s).length>0,desc:'Strike every adjacent enemy at once'},
+ sweep:{who:'guanyu',zh:'青龍斬',n:'Dragon Sweep',self:1,can:s=>adjE(s).length>0,desc:'Strike every adjacent enemy at once; none can strike back'},
  lone:{who:'zhaoyun',zh:'單騎',n:'Lone Rider',targets:s=>adjE(s),desc:'×1.4, no counter, ride through to the square behind'},
  tiger:{who:'xuchu',zh:'虎衛',n:'Tiger Guard',targets:s=>adjA(s),desc:'Until your next turn, attacks on this ally hit Xu Chu instead at half damage'},
  raid:{who:'ganning',zh:'夜襲',n:'Night Raid',targets:s=>adjE(s),desc:'×1.2, no counter, then slip back 2 squares'},
@@ -1120,7 +1120,7 @@ function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.t
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);let keep=false;
   if(k==='roar'){mfx('ring',s.x,s.y,1100,3.2);await sleep(350);for(const e of adjE(s)){e.stun=1;float(e,'✕ Stunned','#f3d27a')}log(`<b>Roar!</b> ${nm(s)}'s roar freezes ${adjE(s).map(nm).join(', ')} in their tracks.`);await sleep(500)}
-  else if(k==='sweep'){const es=adjE(s).sort((a,b)=>b.troops-a.troops);mfx('arc',s.x,s.y,900,3.4);await doAttack(s,es[0],{mult:1,label:'Green Dragon Sweep',tint:'rgba(40,200,110,.10)'});
+  else if(k==='sweep'){const es=adjE(s).sort((a,b)=>b.troops-a.troops);mfx('arc',s.x,s.y,900,3.4);await doAttack(s,es[0],{mult:1,noCounter:true,label:'Green Dragon Sweep',tint:'rgba(40,200,110,.10)'});
     for(const e of es.slice(1)){if(!G.units.includes(e))continue;mfx('arc',e.x,e.y,700,1.6);quickHit(s,e,.9,{color:'#8dffb5'});await sleep(220)}log(`<b>Green Dragon Sweep!</b> ${nm(s)} cuts through ${es.length} enemy units.`)}
   else if(k==='lone'){const b=behind(s,t),via={x:t.x,y:t.y};mfx('speed',s.x,s.y,700);await doAttack(s,t,{mult:1.4,noCounter:true,charge:true,label:'Lone Rider',verb:'rides straight through'});if(G.units.includes(s)&&openSq(b)){await animateMove(s,[via,b])}}
   else if(k==='tiger'){t.guardBy=s.id;mfx('shield',t.x,t.y,1200);mfx('shield',s.x,s.y,1200);log(`<b>Tiger Guard!</b> ${nm(s)} stands over ${nm(t)}.`);await sleep(500)}
