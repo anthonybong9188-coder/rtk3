@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡平度延建弓張征待徵忠惇戰挑探推操攻敗昌昭曹會柴桂桑業槍樂權武汝江沙淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇戰挑探推操攻敗昌昭曹會柴桂桑業槍樂權武汝江沙淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -317,6 +317,12 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
   .rbtn{width:64px;height:64px}
   .logpanel{width:auto;right:8px}
 }
+.cmdpick{margin-left:auto;flex:none;width:34px;height:34px;min-height:0;padding:0;border-radius:50%;font:900 17px/1 var(--f-zh);color:#a6977a;background:#211a12;border:2px solid #4a3d2a}
+.cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
+.zhb{font-family:var(--f-zh);color:var(--gold)}
+.mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
+.mapview .mapbox{flex:none;max-width:none;width:calc(min(100vw - 16px, (100dvh - 80px)*1.5) * var(--mz,1))}
+.bmap{touch-action:pan-x pan-y}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
 </style>
 
@@ -559,12 +565,22 @@ function field(targets,type){
 
 // ---------- map rendering ----------
 const MC=$('#map'); let mctx, T=56, terrainCv=null;
-function resizeMap(){
-  const bm=$('.bmap');T=Math.round(Math.max(52,Math.min(120,Math.min(bm.clientHeight,bm.clientWidth)/5.4)));
+let ZOOM=1,mapBaseT=60;
+function applyMapT(full){const bm=$('.bmap');T=Math.round(clamp(mapBaseT*ZOOM,26,180));
   $('.mapwrap').style.padding=`${Math.max(0,Math.round(bm.clientHeight/2-T/2))}px ${Math.max(0,Math.round(bm.clientWidth/2-T/2))}px`;
   const d=DPR(); MC.width=COLS*T*d; MC.height=ROWS*T*d; MC.style.width=COLS*T+'px'; MC.style.height=ROWS*T+'px';
-  mctx=MC.getContext('2d'); mctx.setTransform(d,0,0,d,0,0); terrainCv=renderTerrain(T);
-}
+  mctx=MC.getContext('2d'); mctx.setTransform(d,0,0,d,0,0); if(full||!terrainCv)terrainCv=renderTerrain(T)}
+function resizeMap(){const bm=$('.bmap');mapBaseT=Math.max(52,Math.min(120,Math.min(bm.clientHeight,bm.clientWidth)/5.4));applyMapT(true)}
+function pinchZoom(el,onZoom,onEnd){let s=null,wt=null;const dist=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  el.addEventListener('touchstart',e=>{if(e.touches.length===2){s={d:dist(e.touches[0],e.touches[1])};e.preventDefault()}},{passive:false});
+  el.addEventListener('touchmove',e=>{if(s&&e.touches.length===2){const [a,b]=e.touches,d=dist(a,b);onZoom(d/s.d,(a.clientX+b.clientX)/2,(a.clientY+b.clientY)/2);s.d=d;e.preventDefault()}},{passive:false});
+  el.addEventListener('touchend',e=>{if(s&&e.touches.length<2){s=null;onEnd&&onEnd()}});
+  el.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();onZoom(Math.exp(-e.deltaY*.01),e.clientX,e.clientY);clearTimeout(wt);wt=setTimeout(()=>onEnd&&onEnd(),180)},{passive:false})}
+pinchZoom($('.bmap'),(k,fx,fy)=>{const bm=$('.bmap'),r=bm.getBoundingClientRect(),w=$('.mapwrap');
+  const pl=parseFloat(w.style.paddingLeft)||0,pt=parseFloat(w.style.paddingTop)||0,cx=(bm.scrollLeft+fx-r.left-pl)/T,cy=(bm.scrollTop+fy-r.top-pt)/T;
+  ZOOM=clamp(ZOOM*k,.45,2.2);applyMapT(false);
+  bm.scrollLeft=(parseFloat(w.style.paddingLeft)||0)+cx*T-(fx-r.left);bm.scrollTop=(parseFloat(w.style.paddingTop)||0)+cy*T-(fy-r.top)},
+  ()=>applyMapT(true));
 const MAPART={};{let left=0;const done=()=>{if(--left===0&&typeof G!=='undefined'&&G&&!$('#battleView').hidden){terrainCv=renderTerrain(T)}};
   for(const n of ['tex_grass','tex_road','tex_water','tree1','tree2','tree3','tree4','hill1','hill2','hill3','hill4','rock1','rock2','bush','reeds','fort','bridge','tuft1','tuft2']){left++;const im=new Image();im.onload=im.onerror=done;im.src='maptiles/'+n+(n.startsWith('tex_')?'.jpg':'.png');MAPART[n]=im}}
 function mapArtReady(){return Object.values(MAPART).every(im=>im.complete&&im.naturalWidth)}
@@ -1435,7 +1451,8 @@ function dialog(html,buttons){return new Promise(res=>{
 
 // ------------------------------------------------------------ march
 function openMarch(from,to){
-  const m={from,to,sel:new Set(),troops:0,rice:0};
+  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null};
+  const cmdOf=()=>m.sel.has(m.cmd)?m.cmd:(cmdOrder([...m.sel].map(GN))[0]||{}).id;
   const srcCity=C(from);
   const targets=()=>neighbours(m.from).map(C).filter(t=>!allied('shu',t.owner)||t.owner==='shu');
   if(!m.to||!targets().some(t=>t.id===m.to))m.to=(targets().find(t=>t.owner!=='shu')||targets()[0]||{}).id;
@@ -1459,8 +1476,8 @@ function openMarch(from,to){
     const out=own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     box.innerHTML=`<h2>March from ${src.name}</h2>
       <div class="mrow"><label for="mTo">Destination</label><select id="mTo">${targets().map(t=>`<option value="${t.id}" ${t.id===m.to?'selected':''}>${t.name} · ${t.owner==='shu'?'your city':FACS[t.owner].short+' · '+fmt(t.troops)+' troops'} · ${routeOf(m.from,t.id)[2]} month${routeOf(m.from,t.id)[2]>1?'s':''}</option>`).join('')}</select></div>
-      <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · strongest leads</div>
-      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div></label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
+      <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> commander · if he falls, the army retreats</div>
+      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       </div><div class="mcol"><div class="mrow"><label for="mTroops">Troops <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</label><input id="mTroops" type="range" min="0" max="${maxT}" step="100" value="${m.troops}"></div>
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tr} month${tr>1?'s':''}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b></div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
@@ -1473,8 +1490,9 @@ function openMarch(from,to){
     $('#mRice').onchange=()=>draw();
     box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{if(i.checked){if(m.sel.size<4)m.sel.add(i.dataset.g)}else m.sel.delete(i.dataset.g);draw()});
   }
-  box.onclick=e=>{const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
-    if(b.dataset.r==='go'){const order=cmdOrder([...m.sel].map(GN));launchArmy('shu',m.from,m.to,order,m.troops,m.rice);addLog(`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
+  box.onclick=e=>{const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
+    const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
+    if(b.dataset.r==='go'){const ci=cmdOf(),order=[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))];launchArmy('shu',m.from,m.to,order,m.troops,m.rice);addLog(`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
     $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
@@ -1713,6 +1731,10 @@ function playCampaignBattle(a,c,gens,defG){
 }
 
 setupStage();requestAnimationFrame(loop);
+{let MZ=1;const body=()=>$('#mapView .mvbody'),box=()=>$('#mapView .mapbox');
+  pinchZoom($('#mapView .mvbody'),(k,fx,fy)=>{const b=body(),m=box(),r1=m.getBoundingClientRect(),rx=(fx-r1.left)/r1.width,ry=(fy-r1.top)/r1.height;
+    MZ=clamp(MZ*k,1,3.2);m.style.setProperty('--mz',MZ);const r2=m.getBoundingClientRect();
+    b.scrollLeft+=r2.left+rx*r2.width-fx;b.scrollTop+=r2.top+ry*r2.height-fy});}
 window.addEventListener('resize',()=>{if(!$('#battleView').hidden)resizeMap()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(G&&!$('#battleView').hidden)terrainCv=renderTerrain(T)});
 showScreen('title');renderTitle();
