@@ -326,6 +326,12 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .mnote{margin:0;font-size:12px;color:var(--muted)}
 .dlgbox.dwide{padding:12px 14px;gap:8px}
 .cmdpick{margin-left:auto;flex:none;width:32px;height:32px;min-height:0;padding:0;border-radius:50%;font:900 17px/1 var(--f-zh);color:#a6977a;background:#211a12;border:2px solid #4a3d2a}
+.spin{margin-left:auto;flex:none;display:flex;align-items:center;gap:4px}
+.spin button{width:32px;height:32px;min-height:0;padding:0;border-radius:8px;font:700 20px/1 var(--f-ui,sans-serif);color:#f3dc9a;background:#2a2116;border:2px solid #6b5636}
+.spin button:disabled{opacity:.35}
+.spin b{min-width:52px;text-align:center;font-variant-numeric:tabular-nums;color:#f3dc9a}
+.spin+.cmdpick{margin-left:6px}
+.mtot{display:flex;flex-direction:column;gap:2px}.mtot small{color:var(--muted)}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
@@ -1678,7 +1684,7 @@ function dialog(html,buttons){return new Promise(res=>{
 
 // ------------------------------------------------------------ march
 function openMarch(from,to){
-  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null};
+  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null,al:{}};
   const cmdOf=()=>m.sel.has(m.cmd)?m.cmd:(cmdOrder([...m.sel].map(GN))[0]||{}).id;
   const srcCity=C(from);
   const targets=()=>neighbours(m.from).map(C).filter(t=>!allied('shu',t.owner)||t.owner==='shu');
@@ -1687,16 +1693,20 @@ function openMarch(from,to){
   // default: best 3 by war (ruler stays unless alone)
   avail().filter(g=>!isRuler(g)).sort((a,b)=>b.war-a.war).slice(0,3).forEach(g=>m.sel.add(g.id));
   if(!m.sel.size&&avail().length)m.sel.add(avail()[0].id);
-  m.troops=Math.round(C(m.from).troops*.7/500)*500;
+  const STEP=1000,tot=()=>[...m.sel].reduce((s,id)=>s+(m.al[id]||0),0),left=()=>C(m.from).troops-tot();
+  {const ids=[...m.sel].sort((a,b)=>GN(b).war-GN(a).war),goal=Math.max(ids.length*STEP,Math.floor(C(m.from).troops*.7/STEP)*STEP);let i=0;
+   while(ids.length&&tot()<goal&&left()>0){const id=ids[i%ids.length];m.al[id]=(m.al[id]||0)+Math.min(STEP,left());i++}}
+  m.troops=tot();
+  const reRice=()=>{m.rice=Math.min(S.fac.shu.rice,Math.round(m.troops*RICE_MARCH*(travel()+3)/100)*100)};
   const travel=()=>routeOf(m.from,m.to)?routeOf(m.from,m.to)[2]:1;
   m.rice=Math.min(S.fac.shu.rice,Math.round(m.troops*RICE_MARCH*(travel()+3)/100)*100);
   const box=$('#dlgbox');
   function draw(){
     const src=C(m.from),tgt=C(m.to),tr=travel(),own=tgt&&tgt.owner==='shu';
-    const maxT=src.troops,maxR=S.fac.shu.rice;m.troops=Math.min(m.troops,maxT);m.rice=Math.min(m.rice,maxR);
+    const maxT=src.troops,maxR=S.fac.shu.rice;m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=[...m.sel].some(id=>!(m.al[id]>0));
     const lasts=m.troops?Math.floor(m.rice/(m.troops*RICE_MARCH)):0;
     const gl=avail();const sel=[...m.sel].map(GN);
-    const myP=sel.length?sel.reduce((s,g)=>s+(m.troops/sel.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
+    const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
     const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops:0;
     const thP=dg.length?dg.reduce((s,g)=>s+(dT/dg.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0):dT*85;
     const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*(1.15+tgt.walls/250)):9;
@@ -1704,30 +1714,31 @@ function openMarch(from,to){
     box.innerHTML=`<h2>March from ${src.name}</h2>
       <div class="mrow"><label for="mTo">Destination</label><select id="mTo">${targets().map(t=>`<option value="${t.id}" ${t.id===m.to?'selected':''}>${t.name} · ${t.owner==='shu'?'your city':FACS[t.owner].short+' · '+fmt(t.troops)+' troops'} · ${routeOf(m.from,t.id)[2]} month${routeOf(m.from,t.id)[2]>1?'s':''}</option>`).join('')}</select></div>
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
-      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
+      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
-      </div><div class="mcol"><div class="mrow"><label for="mTroops">Troops <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</label><input id="mTroops" type="range" min="0" max="${maxT}" step="100" value="${m.troops}"></div>
+      </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}</small></div>${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tr} month${tr>1?'s':''}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b></div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
       ${lasts<tr+1&&!own?'<p class="bad">Not enough rice to reach the city and fight. Troops will desert.</p>':''}</div></div>
-      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||!m.troops||!m.to?'disabled':''}>March out</button></div>`;
-    $('#mTo').onchange=e=>{m.to=e.target.value;draw()};
-    $('#mTroops').oninput=e=>{m.troops=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.troops)};
-    $('#mTroops').onchange=()=>draw();
+      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||!m.troops||!m.to||empty?'disabled':''}>March out</button></div>`;
+    $('#mTo').onchange=e=>{m.to=e.target.value;reRice();draw()};
     $('#mRice').oninput=e=>{m.rice=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.rice)};
     $('#mRice').onchange=()=>draw();
-    box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{if(i.checked){if(m.sel.size<4)m.sel.add(i.dataset.g)}else m.sel.delete(i.dataset.g);draw()});
+    box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{const id=i.dataset.g;if(i.checked){if(m.sel.size<4){m.sel.add(id);m.al[id]=Math.min(STEP,left())}}else{m.sel.delete(id);delete m.al[id]}m.troops=tot();reRice();draw()});
   }
-  box.onclick=e=>{const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
+  box.onclick=e=>{const sp=e.target.closest('[data-sp]');if(sp){e.preventDefault();if(sp.disabled)return;const id=sp.dataset.id,v=m.al[id]||0;
+      if(sp.dataset.sp==='+')m.al[id]=v+Math.min(STEP,left());else m.al[id]=v%STEP?v-v%STEP:Math.max(0,v-STEP);
+      m.troops=tot();reRice();draw();return}
+    const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
     const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
-    if(b.dataset.r==='go'){const ci=cmdOf(),order=[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))];launchArmy('shu',m.from,m.to,order,m.troops,m.rice);addLog(`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
+    if(b.dataset.r==='go'){const ci=cmdOf(),order=[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))];launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])));addLog(`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
     $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
-function launchArmy(f,from,to,gens,troops,rice){
+function launchArmy(f,from,to,gens,troops,rice,split){
   const src=C(from),tr=routeOf(from,to)[2];
   src.troops-=troops;S.fac[f].rice-=rice;
-  const a={id:S.nextArmy++,fac:f,from,to,gens:gens.map(g=>g.id),troops,rice,left:tr,total:tr,train:src.train};
+  const a={id:S.nextArmy++,fac:f,from,to,gens:gens.map(g=>g.id),troops,rice,left:tr,total:tr,train:src.train};if(split)a.split=split;
   for(const g of gens){g.army=a.id;g.city=null;g.acted=true}
   S.armies.push(a);return a}
 
@@ -1853,9 +1864,12 @@ async function resolveArrival(a){
   await applyBattle(a,c,gens,defG,res);
 }
 function unitSplit(gs,total){const n=gs.length||1;return gs.map(()=>Math.floor(total/n))}
+// player armies carry a per-general split; scale it to what is left after desertion
+function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.map(g=>a.split[g.id]||0),t=w.reduce((x,y)=>x+y,0);
+  if(!t)return unitSplit(gs,a.troops);return w.map(v=>Math.floor(a.troops*v/t))}
 function autoBattle(a,c,gens,defG){
   const pw=(gs,tr,train)=>gs.reduce((s,g,i)=>s+tr[i]*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*train/100);
-  const aT=unitSplit(gens,a.troops),dGs=defG.length?defG:[{id:'garrison',war:45}],dT=unitSplit(dGs,c.troops);
+  const aT=armySplit(a,gens),dGs=defG.length?defG:[{id:'garrison',war:45}],dT=unitSplit(dGs,c.troops);
   const PA=pw(gens,aT,a.train)*rnd(.85,1.15),PD=pw(dGs,dT,c.train)*(1.15+c.walls/250)*rnd(.85,1.15);
   const attWin=PA>PD,ratio=Math.min(PA,PD)/Math.max(PA,PD||1);
   const lL=rnd(.55,.8),wL=.45*ratio*rnd(.8,1.2);
@@ -1946,7 +1960,7 @@ function playCampaignBattle(a,c,gens,defG){
   const SPA=sd=>sd==='L'?[[3,4],[3,2],[3,6],[2,3]]:[[COLS-4,4],[COLS-4,2],[COLS-4,6],[COLS-3,3]];
   const SPD=sd=>sd==='L'?[[1,4],[1,2],[1,6],[0,3]]:[[COLS-2,4],[COLS-2,2],[COLS-2,6],[COLS-1,3]];
   const dGs=defG.length?defG:[{id:'garrison',name:'Garrison captain',ch:'守',type:'shield',war:50,int:40}];
-  const aT=unitSplit(gens,a.troops),dT=unitSplit(dGs,c.troops);
+  const aT=armySplit(a,gens),dT=unitSplit(dGs,c.troops);
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
   return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6)),
