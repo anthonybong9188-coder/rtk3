@@ -802,6 +802,7 @@ MC.addEventListener('click',e=>{
     if(inRange(s.type,manh(s,u))){execTarget(u);return}
     const t=bestAttackTile(s,u);if(t){moveThenAttack(s,u,t);return}}
   if(G.mode==='moved'&&G.sel&&G.reach&&!(x===G.sel.x&&y===G.sel.y)&&!u&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
+  if(G.mode==='moved'&&u&&u.side==='shu'&&!u.acted&&u!==G.sel){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select';G.targets=[];updateUI();return}
   if(G.mode==='moved')return;
   if(G.mode==='select'&&G.sel&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   G.enemyTiles=null;
