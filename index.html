@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不九乾二于五仁佐八六兵典冬分劉勝十南合吳咆哮商單四國城壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬昌春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許諸賞赤趙農速遼邢金長關陳陵陽雄雙零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不九乾二于五仁佐八六兵典冬分劉勝十南合吳咆哮商單四國城壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬昌春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許說諸賞赤趙農速遭遼邢金長關降陳陵陽雄雙零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -396,6 +396,12 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .pkgens{display:flex;flex-wrap:wrap;gap:4px}.pkgens span{font-size:12.5px;padding:3px 8px;border-radius:12px;background:#211a12;border:1px solid #4a3d2a}.pkgens i{font-style:normal;color:var(--gold)}
 .pkbtns{display:flex;gap:8px;margin-top:auto}.pkbtns button{flex:1;min-height:42px}
 .pkhint{margin:0}
+.meet{margin:0;padding:6px 10px;border-radius:8px;background:#3a1f18;border:1px solid #a3554a;color:#ffc4b8;font-size:13px;font-weight:600}
+.dipl{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.dipl button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px;min-height:58px}.dipl small{font-size:11px;color:var(--muted)}
+.envrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}.envrow>span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.envrow button{min-height:34px;padding:4px 10px;font-size:13px}.envrow button.on{border-color:var(--gold);color:#f3dc9a;background:#2a2116}.envrow i{font-style:normal;color:var(--muted);font-size:11.5px}
+.tlist{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}.tlist button{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;padding:6px 10px}
+.tlist button>:first-child{grid-row:1/3}.tlist b{font-size:15px}.tlist small{grid-column:2;color:var(--muted);font-size:12px}.tlist em{grid-row:1/3;grid-column:3;font-style:normal;font-weight:800;font-size:18px;color:#f3dc9a}
+.bigp{font-size:16px;margin:4px 0}.bigp b{font-size:22px;color:#f3dc9a}
 .rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
 .rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -1734,7 +1740,9 @@ function renderCity(){
     const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
     cc+=`<div class="sec">${F.short}</div>`;
     if(allied('shu',c.owner))cc+=`<p class="muted">Allied with you until the end of 210. You cannot attack Wu before then.</p>`;
-    else if(src.length)cc+=`<button class="primary wide" data-act="attack"><span class="czh">征</span> March on ${c.name}</button><p class="muted">From ${src.map(x=>x.name).join(' or ')}.</p>`;
+    else if(src.length){cc+=`<button class="primary wide" data-act="attack"><span class="czh">征</span> March on ${c.name}</button><p class="muted">From ${src.map(x=>x.name).join(' or ')}.</p>`;
+      const ne=envoysFor(c.id).length;
+      cc+=`<div class="dipl"><button data-act="persuade" ${ne&&gensIn(c.id).some(g=>!isRuler(g))?'':'disabled'}><span class="czh">說</span>Persuade<small>lure an officer</small></button>${c.owner!=='wei'&&c.owner!=='wu'?`<button data-act="surrender" ${ne?'':'disabled'}><span class="czh">降</span>Surrender<small>demand it</small></button>`:''}</div>${ne?'':'<p class="muted">Diplomacy needs a free officer in a neighbouring city.</p>'}`}
     else cc+=`<p class="muted">Not next to any of your cities.</p>`;
     cc+=`<button class="wide" data-act="home">Back to my city</button>`;
   }
@@ -1749,12 +1757,13 @@ function cmdPreview(k,g,c){
   if(k==='farm')return `+${Math.round(s/10)}–${Math.round(s/10)+4} farming`;
   if(k==='com')return `+${Math.round(s/10)}–${Math.round(s/10)+4} commerce`;
   if(k==='walls')return `+${Math.round(s/15)}–${Math.round(s/15)+3} walls`;
-  if(k==='recruit')return `about +${fmt(s*10)} troops`;
+  if(k==='recruit'){const room=troopCap(c)-c.troops;return room<=0?`city is full (${fmt(troopCap(c))} max)`:`about +${fmt(Math.min(s*10,room))} troops`}
   if(k==='train')return `+${Math.round(s/12)}–${Math.round(s/12)+3} training`;
   if(k==='patrol')return `+${Math.round(s/15)}–${Math.round(s/15)+3} order`;
   if(k==='search')return `${Math.round(Math.min(90,s*.6+10))}% chance to find something`;
   if(k==='reward')return `loyalty ${g.loy} → ${Math.min(100,g.loy+8)}`;
   return ''}
+const troopCap=c=>Math.round(c.pop*120/500)*500;
 function intel(f,o){if(!S.intel)S.intel={};(S.intel[f]=S.intel[f]||[]).push(o)}
 function doCmd(k,g,c,f){
   const F=S.fac[f],v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
@@ -1763,7 +1772,7 @@ function doCmd(k,g,c,f){
   if(k==='farm'){const n=Math.min(c.farmMax-c.farm,Math.round(s/10)+ri(0,4));c.farm+=n;m=`${g.name} works the fields: farming +${n}.`}
   if(k==='com'){const n=Math.min(c.comMax-c.com,Math.round(s/10)+ri(0,4));c.com+=n;m=`${g.name} develops the markets: commerce +${n}.`}
   if(k==='walls'){const n=Math.min(100-c.walls,Math.round(s/15)+ri(0,3));c.walls+=n;m=`${g.name} repairs the walls: +${n}.`}
-  if(k==='recruit'){const n=Math.min(Math.round(s*10*rnd(.8,1.2)),Math.max(0,c.pop*1000-20000));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-3);m=`${g.name} raises ${fmt(n)} new troops. Order −3.`}
+  if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
@@ -1789,6 +1798,8 @@ document.addEventListener('click',async e=>{
   if(a==='prevCity'||a==='nextCity'){const my=citiesOf('shu'),i=my.findIndex(x=>x.id===c.id);S.sel=my[(i+(a==='nextCity'?1:my.length-1))%my.length].id;UI.mode='city';renderCity()}
   if(a==='home'){const my=citiesOf('shu');if(my.length){S.sel=my[0].id;UI.mode='city';renderCity()}}
   if(a==='march')openMarch(c.id,null);
+  if(a==='persuade'){UI.busy=true;try{await doPersuade(c)}finally{UI.busy=false;renderCampaign()}}
+  if(a==='surrender'){UI.busy=true;try{await doSurrender(c)}finally{UI.busy=false;renderCampaign()}}
   if(a==='attack'){const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu').sort((x,y)=>y.troops-x.troops)[0];openMarch(src.id,c.id)}
 });
 $('#mapBtn').onclick=()=>openMap();
@@ -1808,12 +1819,16 @@ const ACT_LINES={
   search:[['I will search every tavern and village.','Talent hides in humble places.'],['A fine find, my lord!','Heaven smiles on us.']],
   reward:[['You honour me, my lord.','I am unworthy of such a gift.'],['I will repay this with my life.','My loyalty is yours.']]};
 const ACT_FAIL=['Nothing… perhaps next month.','The search turned up nothing.'];
+const XCMDS={persuade:{n:'Persuade',zh:'說'},surrender:{n:'Demand surrender',zh:'降'}};
+ACT_LINES.persuade=[['I will speak with him over wine.','Every man serves a cause. Let me offer him ours.'],['He will join us, my lord!','He accepts. A fine officer for our cause.']];
+ACT_LINES.surrender=[['I go to their hall with your letter, my lord.','Let them see the strength behind our words.'],['They open the gates to us!','The lord has submitted to your rule.']];
+const ACT_NO={persuade:['He would not listen.','His loyalty held firm.'],surrender:['They sent me away.','They will not yield without a fight.']};
 const ACT_DONE=['There is nothing more to do here.','It is already at its best, my lord.'];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-function actFx(g,k,m,c){return new Promise(res=>{
-  const v=CMDS[k],img=portraitSrc(g),fail=k==='search'&&/finds nothing/.test(m),none=/\+0\b/.test(m);
+function actFx(g,k,m,c,ok){return new Promise(res=>{
+  const v=CMDS[k]||XCMDS[k],img=portraitSrc(g),fail=ok===false||(k==='search'&&/finds nothing/.test(m)),none=/\+0\b/.test(m);
   let line1=pick(ACT_LINES[k][0]);if(g.id==='zhangfei'&&k!=='reward')line1=pick(['Hah! Leave it to me!','Out of my way, I\'ll handle it!']);
-  const line2=fail?pick(ACT_FAIL):none?pick(ACT_DONE):pick(ACT_LINES[k][1]);
+  const line2=fail?pick(ACT_NO[k]||ACT_FAIL):none?pick(ACT_DONE):pick(ACT_LINES[k][1]);
   const res2=m.replace(g.name+' ','').replace(/^./,x=>x.toUpperCase());
   const d=document.createElement('div');d.id='actFx';d.setAttribute('role','status');
   d.innerHTML=`<div class="afx">${img?`<img class="afp" src="${img}" alt="">`:`<div class="afp afx0">${g.ch}</div>`}
@@ -1854,11 +1869,11 @@ function openMarch(from,to){
   const box=$('#dlgbox');
   function draw(){
     const src=C(m.from),tgt=C(m.to),tr=travel(),own=tgt&&tgt.owner==='shu';
-    const maxT=src.troops,maxR=S.fac.shu.rice;m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=[...m.sel].some(id=>!(m.al[id]>0));
+    const maxT=src.troops,maxR=S.fac.shu.rice;m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=!own&&[...m.sel].some(id=>!(m.al[id]>0));
     const lasts=m.troops?Math.floor(m.rice/(m.troops*RICE_MARCH)):0;
     const gl=avail();const sel=[...m.sel].map(GN);
     const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
-    const reinf=tgt?S.armies.filter(a=>a.to===tgt.id&&a.fac===tgt.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0):0;const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops+reinf:0;
+    const meet=tgt?S.armies.find(a=>a.from===tgt.id&&a.to===m.from&&a.fac!=='shu'&&!allied('shu',a.fac)):null;const reinf=tgt?S.armies.filter(a=>a.to===tgt.id&&a.fac===tgt.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0):0;const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops+reinf:0;
     const thP=dg.length?dg.reduce((s,g)=>s+(dT/dg.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0):dT*85;
     const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*(1.15+tgt.walls/250)):9;
     const out=!tgt?['Pick a destination','#a6977a']:own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
@@ -1867,11 +1882,11 @@ function openMarch(from,to){
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
       <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
-      </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}</small></div>${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
+      </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}${own?' · generals may move to your own city with no troops':''}</small></div>${meet?`<p class="meet">⚔ ${FACS[meet.fac].short}'s army of ${fmt(meet.troops)} is marching the other way on this road. You will meet it in a field battle.</p>`:''}${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tgt?`${tr} month${tr>1?'s':''}`:'—'}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${!tgt?'—':own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b>${!own&&reinf?`<small class="reinf">+${fmt(reinf)} on the way</small>`:''}</div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
       ${tgt&&lasts<tr+1&&!own?'<p class="bad">Not enough rice to reach the city and fight. Troops will desert.</p>':''}</div></div>
-      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||!m.troops||!m.to||empty?'disabled':''}>March out</button></div>`;
+      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||(!m.troops&&!own)||!m.to||empty?'disabled':''}>${own?'Move out':'March out'}</button></div>`;
     $('#mRice').oninput=e=>{m.rice=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.rice)};
     $('#mRice').onchange=()=>draw();
     box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{const id=i.dataset.g;if(i.checked){if(m.sel.size<4){m.sel.add(id);m.al[id]=Math.min(STEP,left())}}else{m.sel.delete(id);delete m.al[id]}m.troops=tot();reRice();draw()});
@@ -1900,6 +1915,7 @@ function pickDest(from,cur,ok){return new Promise(res=>{
     return `<div class="pkhead"><span class="pkzh" style="color:${F.light}">${c.zh}</span><div><b>${c.name}</b><small style="color:${F.light}">${own?'Your city':F.short}</small></div></div>
       <div class="pkstats"><div><span>Troops</span><b>${fmt(c.troops)}</b>${inc?`<small class="reinf">+${fmt(inc)} on the way</small>`:''}</div><div><span>Walls</span><b>${c.walls}</b></div><div><span>Training</span><b>${c.train}</b></div><div><span>Travel</span><b>${tr?`${tr} month${tr>1?'s':''}`:'—'}</b>${r&&r[3]?'<small>across the river</small>':''}</div></div>
       <div class="pkgens">${gs.length?gs.slice(0,6).map(g=>`<span>${g.name} <i>W${g.war}</i></span>`).join(''):'<span class="muted">No generals · garrison only</span>'}${gs.length>6?`<span class="muted">+${gs.length-6} more</span>`:''}</div>
+      ${(x=>x?`<p class="meet">⚔ ${FACS[x.fac].short}'s army of ${fmt(x.troops)} is on this road heading for ${src.name}. March here to intercept it.</p>`:'')(S.armies.find(a=>a.from===sel&&a.to===from&&a.fac!=='shu'&&!allied('shu',a.fac)))}
       ${why?`<p class="muted">${why}</p>`:''}
       <div class="pkbtns"><button type="button" data-pkx="1">Back</button><button type="button" class="primary" data-pkgo="1" ${can?'':'disabled'}>${own?'Move here':'March on '+c.name}</button></div>`};
   const draw=()=>{d.innerHTML=`<div class="pkbar"><b>Choose a destination</b><span class="muted">from ${src.name}</span><button type="button" class="iconbtn" data-pkx="1" aria-label="Close">✕</button></div>
@@ -1928,11 +1944,12 @@ async function endMonth(){
     S.intel={};S.intelD=dateStr();
     for(const f of Object.keys(FACS))if(f!=='shu'&&alive(f))aiTurn(f);
     renderMap();
+    await fieldBattles();
     // armies march and eat
     for(const a of S.armies){const need=a.troops*RICE_MARCH;if(a.rice>=need)a.rice-=need;else{a.rice=0;const l=Math.round(a.troops*.1);a.troops-=l;if(a.fac==='shu')addLog(`Your army bound for ${C(a.to).name} runs out of rice. ${fmt(l)} troops desert.`,'shu')}a.left--}
     const arrived=S.armies.filter(a=>a.left<=0).sort((x,y)=>(x.fac==='shu'||C(x.to).owner==='shu')-(y.fac==='shu'||C(y.to).owner==='shu'));
     for(const a of arrived){S.armies=S.armies.filter(x=>x!==a);await resolveArrival(a);if(S.over)break}
-    if(!S.over){economy();await events();
+    if(!S.over){economy();loyaltyTick();await events();
       S.month++;if(S.month>12){S.month=1;S.year++}
       for(const g of Object.values(S.gens))g.acted=false;
       if(S.month===7)addLog('Harvest month: every city brings in its rice.');
@@ -1958,6 +1975,59 @@ function foeReport(){const I=S.intel||{};const fs2=Object.keys(FACS).filter(f=>f
     for(const e of by('search'))if(/agrees to serve/.test(e.m))L.push(`<li>探 ${e.m}</li>`);
     h+=`<div class="foe"><div class="foeh"><i style="background:${F.main}"></i><b>${F.short}</b><small>${citiesOf(f).length} cit${citiesOf(f).length>1?'ies':'y'} · ${fmt(citiesOf(f).reduce((s,c)=>s+c.troops,0))} troops</small></div><ul>${L.join('')||'<li class="muted">Nothing seen.</li>'}</ul></div>`}
   return h}
+// ---- loyalty: drifts toward what the ruler inspires; low loyalty may walk away
+function loyTarget(f){const r=S.rulers&&GN(S.rulers[f]);return 50+Math.round((r?r.cha:60)/3)}
+function hostileNear(cityId,f){return [...new Set(neighbours(cityId).map(n=>C(n).owner))].filter(o=>o&&o!==f&&!allied(f,o)&&alive(o))}
+function moveGen(g,f,city,loy){if(g.army){const a=S.armies.find(x=>x.id===g.army);if(a)a.gens=a.gens.filter(id=>id!==g.id)}g.fac=f;g.city=city;g.army=null;g.loy=loy;g.acted=true}
+function loyaltyTick(){
+  for(const g of Object.values(S.gens)){if(!g.fac||g.hidden||isRuler(g))continue;const t=loyTarget(g.fac);
+    if(g.loy<t&&Math.random()<.3)g.loy++;else if(g.loy>t&&g.loy<75&&Math.random()<.3)g.loy--;
+    if(g.army||g.loy>=60||Math.random()>=(60-g.loy)/250)continue;
+    const from=g.fac,opts=hostileNear(g.city,from).sort((x,y)=>loyTarget(y)-loyTarget(x)),to=opts[0];
+    if(to){const dest=neighbours(g.city).map(C).find(c=>c.owner===to);moveGen(g,to,dest.id,70);
+      if(from==='shu'||to==='shu'){addLog(`<b>${g.name}</b> leaves ${fs(from)} and goes over to ${fs(to)}.`,to);toast(to==='shu'?`${g.name} defects to you!`:`${g.name} has deserted you!`)}}
+    else{g.fac=null;g.hidden=true;if(from==='shu')addLog(`<b>${g.name}</b> slips away from your service.`,'shu')}}}
+function persuadeChance(env,t){if(isRuler(t))return 0;const lb=GN('liubei');
+  return Math.max(t.loy>=95?0:.01,Math.min(.85,((100-t.loy)/100)*(.2+env.int/300)+((env.fac==='shu'?lb.cha:loyTarget(env.fac)*1.2)-80)/400))}
+function surrenderChance(env,f){const mine=citiesOf('shu').reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0);
+  const theirs=Math.max(1,citiesOf(f).reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac===f).reduce((s,a)=>s+a.troops,0));
+  const R=mine/theirs,r=GN(S.rulers[f]);if(R<1.2)return .02;
+  return Math.max(.02,Math.min(.8,(R-1.2)*.15+(env.int-60)/300+(70-(r?r.cha:60))/300-.1))}
+function envoysFor(cid){return [...new Set(neighbours(cid).filter(n=>C(n).owner==='shu'))].flatMap(n=>gensIn(n).filter(g=>!g.acted)).sort((a,b)=>b.int-a.int)}
+async function doPersuade(c){
+  const envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
+  let env=envs[0];
+  for(;;){const ts=gensIn(c.id).filter(g=>!isRuler(g)).sort((a,b)=>a.loy-b.loy);
+    const r=await dialog(`<div class="dzh">說</div><h2>Persuade an officer in ${c.name}</h2><p class="muted">Costs 100 gold and uses your envoy's action. Officers with low loyalty listen more readily.</p>
+      <div class="envrow"><span>Envoy</span>${envs.map(g=>`<button data-r="env:${g.id}" class="${g===env?'on':''}">${g.name} <i>Int ${g.int}</i></button>`).join('')}</div>
+      <div class="tlist">${ts.map(g=>{const p=persuadeChance(env,g);return `<button data-r="t:${g.id}" ${p<=0||S.fac.shu.gold<100?'disabled':''}>${gseal(g,30)}<b>${g.name}</b><small>War ${g.war} · Int ${g.int} · Loyalty ${g.loy}</small><em>${Math.round(p*100)}%</em></button>`}).join('')||'<p class="muted">No officer here can be approached; the ruler will never betray his own cause.</p>'}</div>`,
+      [['cancel','Cancel']]);
+    if(r.startsWith('env:')){env=GN(r.slice(4));continue}
+    if(!r.startsWith('t:'))return;
+    const t=GN(r.slice(2)),p=persuadeChance(env,t);S.fac.shu.gold-=100;env.acted=true;UI.busy=true;const ok=Math.random()<p;
+    let m;if(ok){moveGen(t,'shu',env.city,70);m=`${env.name} persuades ${t.name} to leave ${fs(c.owner)} and serve Liu Bei.`}else m=`${env.name} fails to sway ${t.name}.`;
+    addLog(m,'shu');save();try{await actFx(env,'persuade',m.replace(env.name+' ',''),C(env.city),ok)}catch(e){}UI.busy=false;renderCampaign();return}}
+async function doSurrender(c){
+  const f=c.owner,envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
+  let env=envs[0];
+  for(;;){const p=surrenderChance(env,f),done=S.surTry&&S.surTry[f]===dateNum();
+    const r=await dialog(`<div class="dzh">降</div><h2>Demand that ${FACS[f].name} surrender</h2>
+      <p>If he accepts, ${citiesOf(f).length>1?`all ${citiesOf(f).length} of his cities`:'his city'}, its troops and his officers join you without a fight.</p>
+      <p class="muted">Costs 200 gold and uses your envoy's action. One attempt per month. The odds grow when your army far outnumbers his (yours ${fmt(citiesOf('shu').reduce((s,x)=>s+x.troops,0))} vs his ${fmt(citiesOf(f).reduce((s,x)=>s+x.troops,0))}).</p>
+      <div class="envrow"><span>Envoy</span>${envs.map(g=>`<button data-r="env:${g.id}" class="${g===env?'on':''}">${g.name} <i>Int ${g.int}</i></button>`).join('')}</div>
+      <p class="bigp">Chance: <b>${Math.round(p*100)}%</b></p>${done?'<p class="bad">You have already sent an envoy this month.</p>':''}`,
+      [['cancel','Cancel'],...(done||S.fac.shu.gold<200?[]:[['go','Send the envoy','primary']])]);
+    if(r.startsWith('env:')){env=GN(r.slice(4));continue}
+    if(r!=='go')return;
+    (S.surTry=S.surTry||{})[f]=dateNum();S.fac.shu.gold-=200;env.acted=true;UI.busy=true;const ok=Math.random()<p;let m;
+    if(ok){const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9);x.order=Math.max(20,x.order-10)}
+      for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,isRuler(g)?55:62);
+      for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';
+      S.fac.shu.gold+=S.fac[f].gold;S.fac.shu.rice+=S.fac[f].rice;S.fac[f].gold=0;S.fac[f].rice=0;S['gone_'+f]=1;
+      m=`${FACS[f].name} surrenders! ${cs.map(x=>x.name).join(', ')} and his officers join Liu Bei.`}
+    else{(S.grudge[f]=S.grudge[f]||{}).shu=true;m=`${FACS[f].name} refuses to surrender.`}
+    addLog(`<b>${m}</b>`,'shu');save();try{await actFx(env,'surrender',m,c,ok)}catch(e){}UI.busy=false;
+    if(ok){renderCampaign();checkCampaignEnd()}else renderCampaign();return}}
 function economy(){
   for(const f of Object.keys(FACS)){if(!alive(f))continue;const F=S.fac[f],cs=citiesOf(f);
     const inc=cs.reduce((s,c)=>s+c.com*.5*c.order/100,0),sal=gensOf(f).length*SALARY;
@@ -1990,6 +2060,9 @@ async function finale(win,text){save();renderCampaign();
   showScreen('title');renderTitle()}
 
 // ------------------------------------------------------------ AI
+// fighting strength of an army: troops weighted by who leads them (same formula as the march Outlook)
+function armyPower(gs,troops,train){const L=gs.length?gs:[{war:45}];const per=troops/L.length;
+  return L.reduce((s,g)=>s+per*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*(train??60)/100)}
 function aiTurn(f){
   const F=S.fac[f],A=FACS[f].ai;
   const allTroops=citiesOf(f).reduce((s,c)=>s+c.troops,0);
@@ -1998,7 +2071,7 @@ function aiTurn(f){
     const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol);
     for(const g of gs){let k=null;
       if(c.order<50&&F.rice>2000)k='patrol';
-      else if(F.gold>800&&F.rice>allTroops*RICE_CITY*10&&c.troops<Math.min(30000,c.pop*60)&&c.order>55&&g.cha>=55)k='recruit';
+      else if(F.gold>800&&F.rice>allTroops*RICE_CITY*10&&c.troops<troopCap(c)-500&&c.order>55&&g.cha>=55)k='recruit';
       else if(c.train<75&&g.war>=65)k='train';
       else if(c.farm<c.farmMax&&F.gold>=50&&g.pol>=50)k='farm';
       else if(c.com<c.comMax&&F.gold>=50&&g.pol>=50)k='com';
@@ -2007,6 +2080,12 @@ function aiTurn(f){
       if(!k)continue;if(!Object.entries(CMDS[k].cost).every(([r,n])=>F[r]>=n))continue;const t0=c.troops,msg=doCmd(k,g,c,f);intel(f,{k,c:c.id,g:g.id,n:c.troops-t0,m:msg})}}
   };
   if(A==='passive'){domestic();return}
+  if(Math.random()<.35){const envs=citiesOf(f).flatMap(c=>gensIn(c.id).filter(g=>!g.acted&&!isRuler(g))).sort((a,b)=>b.int-a.int),env=envs[0];
+    const prey=env&&citiesOf(f).flatMap(c=>neighbours(c.id)).map(C).filter(c=>c.owner==='shu').flatMap(c=>gensIn(c.id)).filter(g=>!isRuler(g)&&g.loy<70)
+      .sort((a,b)=>a.loy-b.loy)[0];
+    if(prey){env.acted=true;const p=persuadeChance(env,prey)*.5;
+      if(Math.random()<p){const dest=neighbours(prey.city).map(C).find(c=>c.owner===f);moveGen(prey,f,dest.id,62);addLog(`<b>${prey.name}</b> is lured away by ${env.name} and joins ${fs(f)}.`,f);toast(`${prey.name} has gone over to ${FACS[f].short}!`)}
+      else addLog(`${env.name} of ${fs(f)} tries to lure ${prey.name} away, but he stays loyal.`,'shu')}}
   // move troops and spare generals from safe rear cities toward the border
   const mine=citiesOf(f),front=mine.filter(c=>neighbours(c.id).some(n=>{const o=C(n).owner;return o!==f&&!allied(f,o)}));
   if(front.length){const dist={},q=[];for(const c of front){dist[c.id]=0;q.push(c.id)}
@@ -2025,11 +2104,14 @@ function aiTurn(f){
   let best=null;
   for(const c of citiesOf(f)){const gs=gensIn(c.id).filter(g=>!g.acted);if(!gs.length||c.troops<6000)continue;
     for(const nid of neighbours(c.id)){const t=C(nid);if(t.owner===f||allied(f,t.owner))continue;
-      if(A==='defensive'&&!(S.grudge[f]&&S.grudge[f][t.owner]))continue;
+      const grudge=S.grudge[f]&&S.grudge[f][t.owner];
       if(S.armies.some(a=>a.fac===f&&a.to===nid))continue;
       const tr=routeOf(c.id,nid)[2],send=c.troops*.65,need=send*RICE_MARCH*(tr+3);
-      const score=send*(.7+.3*c.train/100)-t.troops*(.7+.3*t.train/100)*(1.15+t.walls/250);
-      if(score>1500&&F.rice>need+c.troops*RICE_CITY*4&&(!best||score>best.score))best={score,c,t,send,need}}}
+      const go=gs.filter(g=>!isRuler(g)).slice(0,3);if(!go.length)continue;
+      const inc=S.armies.filter(a=>a.to===nid&&a.fac===t.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0);
+      const ratio=armyPower(go,send,c.train)/Math.max(1,armyPower(gensIn(nid).sort((a,b)=>b.war-a.war).slice(0,4),t.troops+inc,t.train)*(1.15+t.walls/250));
+      const bar=A==='aggressive'?1.25:A==='defensive'?(grudge?1.3:1.8):9;
+      if(ratio>bar&&F.rice>need+c.troops*RICE_CITY*4&&(!best||ratio>best.score))best={score:ratio,c,t,send,need}}}
   if(!best){domestic();return}
   const gs=gensIn(best.c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war);const keep=gs.find(g=>isRuler(g))||(gensIn(best.c.id).length>1?gs[gs.length-1]:null);
   const go=gs.filter(g=>g!==keep).slice(0,3);if(!go.length){domestic();return}
@@ -2066,6 +2148,31 @@ async function resolveArrival(a){
   } else res=autoBattle(a,c,gens,defG);
   await applyBattle(a,c,gens,defG,res);
 }
+async function fieldBattles(){
+  for(const a of [...S.armies]){if(!S.armies.includes(a))continue;
+    const b=S.armies.find(x=>x!==a&&x.from===a.to&&x.to===a.from&&x.fac!==a.fac&&!allied(a.fac,x.fac));if(!b)continue;
+    let A=a,B=b;if(b.fac==='shu'){A=b;B=a}
+    const gA=A.gens.map(GN).filter(g=>g&&g.fac===A.fac),gB=B.gens.map(GN).filter(g=>g&&g.fac===B.fac);
+    if((!gA.length&&A.troops<=0)||(!gB.length&&B.troops<=0))continue;
+    const road={id:'field',field:true,name:`the road between ${C(A.from).name} and ${C(A.to).name}`,owner:B.fac,troops:B.troops,train:B.train,walls:0,order:50};
+    const playerIn=A.fac==='shu';let res;
+    if(playerIn){const r=await dialog(`<div class="dzh">遭</div><h2>Armies meet on the road</h2><p>Your army marching to ${C(A.to).name} runs into ${fs(B.fac)}'s army heading for ${C(B.to).name}. There are no walls here: a straight fight in the open.</p>
+        <div class="vs"><div><b style="color:${FACS.shu.light}">Shu</b><span>${fmt(A.troops)} troops</span><small>${gA.map(g=>g.name).join(', ')}</small></div><div><b style="color:${FACS[B.fac].light}">${FACS[B.fac].short}</b><span>${fmt(B.troops)} troops</span><small>${gB.map(g=>g.name).join(', ')||'No general'}</small></div></div>`,
+        [['auto','Auto-resolve'],['fight','Fight the battle','primary']]);
+      res=r==='fight'?await playCampaignBattle(A,road,gA,gB):autoBattle(A,road,gA,gB);res.fromField=r==='fight'}
+    else res=autoBattle(A,road,gA,gB);
+    const aS=Object.values(res.att).reduce((s,x)=>s+x,0),bS=Object.values(res.def).reduce((s,x)=>s+x,0);
+    const W=res.attWin?A:B,L=res.attWin?B:A,lostG=res.attWin?gB:gA,lostBrk=res.attWin?res.defBroken:res.attBroken;
+    A.troops=aS;B.troops=bS;
+    const caps=lostG.filter(g=>res.captured&&res.captured.length?res.captured.includes(g.id):lostBrk.includes(g.id)&&Math.random()<capAdj(g,.4));
+    for(const g of caps){L.gens=L.gens.filter(id=>id!==g.id);g.army=null}
+    S.armies=S.armies.filter(x=>x!==L);returnHome(L,lostG.filter(g=>!caps.includes(g)),L.troops);
+    if(W.troops<=0&&!W.gens.length)S.armies=S.armies.filter(x=>x!==W);
+    addLog(`${fs(W.fac)} defeats ${fs(L.fac)} on ${road.name}. The beaten army falls back to ${C(L.from).owner===L.fac?C(L.from).name:'its lands'}.`,W.fac);
+    if(playerIn&&!res.fromField){const w=W.fac==='shu';await dialog(`<div class="dzh" style="color:${w?'var(--gold)':'#e88b7f'}">${w?'勝':'敗'}</div><h2>${w?'The road is yours':'Your army is driven back'}</h2><p>${w?`${fs(L.fac)}'s army falls back. Your army marches on to ${C(W.to).name} with ${fmt(W.troops)} troops.`:`Your army retreats toward ${C(L.from).name} with ${fmt(L.troops)} troops.`}</p>`,[['ok','Continue','primary']])}
+    const home=C(W.from).owner===W.fac?C(W.from):C(W.to);
+    for(const g of caps)await handleCapture(g,W.fac,home);
+    if(S.over)return}}
 function unitSplit(gs,total){const n=gs.length||1;return gs.map(()=>Math.floor(total/n))}
 // player armies carry a per-general split; scale it to what is left after desertion
 function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.map(g=>a.split[g.id]||0),t=w.reduce((x,y)=>x+y,0);
@@ -2073,7 +2180,7 @@ function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.ma
 function autoBattle(a,c,gens,defG){
   const pw=(gs,tr,train)=>gs.reduce((s,g,i)=>s+tr[i]*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*train/100);
   const aT=armySplit(a,gens),dGs=defG.length?defG:[{id:'garrison',war:45}],dT=unitSplit(dGs,c.troops);
-  const PA=pw(gens,aT,a.train)*rnd(.85,1.15),PD=pw(dGs,dT,c.train)*(1.15+c.walls/250)*rnd(.85,1.15);
+  const PA=pw(gens,aT,a.train)*rnd(.85,1.15),PD=pw(dGs,dT,c.train)*(c.field?1:1.15+c.walls/250)*rnd(.85,1.15);
   const attWin=PA>PD,ratio=Math.min(PA,PD)/Math.max(PA,PD||1);
   const lL=rnd(.55,.8),wL=.45*ratio*rnd(.8,1.2);
   const att={},def={},attBroken=[],defBroken=[];
@@ -2114,7 +2221,8 @@ async function applyBattle(a,c,gens,defG,res){
 }
 function capAdj(g,p){return g.war>=95?0:g.war>=90?p/2:p}
 function takeCity(a,c,gens,troops,broken){
-  c.owner=a.fac;c.troops=troops;c.train=a.train;c.order=Math.max(30,c.order-15);
+  c.owner=a.fac;c.troops=troops;c.train=Math.round(a.train*.85);c.order=Math.max(20,c.order-25);c.walls=Math.max(20,c.walls-25);
+  c.farm=Math.round(c.farm*.9);c.com=Math.round(c.com*.85);c.pop=Math.round(c.pop*.95*10)/10;
   S.fac[a.fac].rice+=Math.round(a.rice*.8);S.fac[a.fac].gold+=300;
   for(const g of gens){g.army=null;g.city=c.id;g.acted=true}
   if(c.owner==='shu')S.sel=c.id;
@@ -2152,13 +2260,12 @@ function genBattleMap(fortSide,river,seed){
     if(x>1&&x<COLS-2&&x!==rc&&x!==rc+1&&r()<.3){const ny=Math.max(2,Math.min(5,y+(r()<.5?-1:1)));rows[y][x]='p';y=ny}
     rows[y][x]=rows[y][x]==='w'?'=':'p'}
   if(river){for(const yy of [1,6])if(r()<.75)rows[yy][rc]='='}
-  const fc=fortSide==='R'?COLS-2:1;
-  for(const yy of [2,4,6])rows[yy][fc]='c';
+  if(fortSide!=='N'){const fc=fortSide==='R'?COLS-2:1;for(const yy of [2,4,6])rows[yy][fc]='c'}
   return rows.map(r=>r.join(''))}
 function toUnit(g,troops,side,spot,cmd,train){return {id:g.id,name:g.name,ch:g.ch,side,type:g.type,war:g.war,int:g.int,troops:Math.max(1,troops),x:spot[0],y:spot[1],cmd,train,
   pers:g.war>=90?{strike:.45,guard:.27,feint:.28}:g.int>=80?{strike:.28,guard:.32,feint:.4}:{strike:.33,guard:.37,feint:.3}}}
 function playCampaignBattle(a,c,gens,defG){
-  const me=a.fac==='shu',foe=me?c.owner:a.fac,fortSide=me?'R':'L';
+  const me=a.fac==='shu',foe=me?c.owner:a.fac,fortSide=c.field?'N':me?'R':'L';
   const route=routeOf(a.from,a.to),river=route&&route[3]?true:Math.random()<.25;
   const SPA=sd=>sd==='L'?[[3,4],[3,2],[3,6],[2,3]]:[[COLS-4,4],[COLS-4,2],[COLS-4,6],[COLS-3,3]];
   const SPD=sd=>sd==='L'?[[1,4],[1,2],[1,6],[0,3]]:[[COLS-2,4],[COLS-2,2],[COLS-2,6],[COLS-1,3]];
@@ -2167,7 +2274,7 @@ function playCampaignBattle(a,c,gens,defG){
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
   return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6)),
-    playerAttacks:me,title:`Battle of ${c.name}`,sub:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls}`})
+    playerAttacks:me,title:c.field?`Battle on ${c.name}`:`Battle of ${c.name}`,sub:c.field?`Field battle · ${FACS[a.fac].short} meets ${FACS[c.owner].short} in the open, no walls`:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls}`})
     .then(r=>{const att={},def={},attBroken=[],defBroken=[];
       const read=(gs,tr,side,out,brk)=>gs.forEach((g,i)=>{if(r.left[g.id]!=null)out[g.id]=r.left[g.id];else{out[g.id]=0;brk.push(g.id)}});
       read(gens,aT,'',att,attBroken);read(dGs,dT,'',def,defBroken);
