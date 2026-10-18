@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇慈戰拒挑探推操擒攻敗昌昭曹會柴桂桑業槍樂權武汝江沙泰淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵必忠惇慈戰拒挑探推操擒攻敗昌昭曹會柴桂桑業槍樂權武汝江沙泰淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -83,6 +83,9 @@ td:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-n
 #duelUI{display:flex;flex-direction:column;gap:10px}
 #duelTell{margin:0;font-style:italic;color:var(--paper);min-height:1.4em}
 .duelBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.duelBtns:has(.critbtn:not([hidden])){grid-template-columns:repeat(4,1fr)}
+.duelBtns .critbtn{border-color:#e0583e;background:linear-gradient(180deg,#5a1c14,#2a100b)}
+.duelBtns .critbtn .zh{color:#ff8a6a}
 .duelBtns button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px}
 .duelBtns .zh{font:900 26px/1 var(--f-zh);color:var(--gold)}
 .duelBtns small{color:var(--muted);font-weight:400}
@@ -427,6 +430,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
         <button data-c="strike"><span class="zh">攻</span><span>Strike</span><small>beats Feint</small></button>
         <button data-c="guard"><span class="zh">守</span><span>Guard</span><small>beats Strike</small></button>
         <button data-c="feint"><span class="zh">虛</span><span>Feint</span><small>beats Guard</small></button>
+        <button data-c="crit" class="critbtn" hidden><span class="zh">必</span><span>Critical</span><small>once · 2× · always wins</small></button>
       </div>
       <p id="duelMsg"></p>
       <button id="duelDone" class="primary" hidden>Continue</button>
@@ -791,7 +795,10 @@ $('#logClose').onclick=()=>{$('#logPanel').hidden=true};
 const enemies=()=>G.units.filter(u=>u.side==='wei');
 function duelOdds(P,E){const base={strike:24,feint:20,guard:18},ks=['strike','guard','feint'],beat={strike:'guard',guard:'feint',feint:'strike'};let ew=0;const N=600;
   for(let n=0;n<N;n++){let hP=100,hE=100,res=null;
-    for(let r=1;r<=5&&!res;r++){const w={...E.pers};if(hE<40)w.guard+=.25;const ec=pickW(w),oth=ks.filter(k=>k!==ec),tell=Math.random()<.65?ec:oth[Math.floor(Math.random()*2)];
+    let pC=P.war-E.war>10,eC=E.war-P.war>10;
+    for(let r=1;r<=5&&!res;r++){if(pC&&(hE<60||r>=3)){pC=false;hE-=2*(24+(P.war-E.war)*.8+3);if(hE<=0){res='w';break}continue}
+      if(eC&&(hP<60||r>=3)){eC=false;hP-=2*(24+(E.war-P.war)*.8+3);if(hP<=0){res='l';break}continue}
+      const w={...E.pers};if(hE<40)w.guard+=.25;const ec=pickW(w),oth=ks.filter(k=>k!==ec),tell=Math.random()<.65?ec:oth[Math.floor(Math.random()*2)];
       const pc=Math.random()<.85?Object.keys(BEATS).find(k=>BEATS[k]===tell):ks[Math.floor(Math.random()*3)];
       if(pc===ec){if(pc==='strike'){hP-=10;hE-=10}else if(pc==='feint'){hP-=3;hE-=3}}
       else if(BEATS[pc]===ec)hE-=Math.max(8,base[pc]+(P.war-E.war)*.8+3);else hP-=Math.max(8,base[ec]+(E.war-P.war)*.8+3);
@@ -1223,14 +1230,17 @@ function playBattle0(att,def,r){
 
 // ---------- duel ----------
 const BEATS={strike:'feint',feint:'guard',guard:'strike'};
-const LABEL={strike:'Strike',guard:'Guard',feint:'Feint'};
+const LABEL={strike:'Strike',guard:'Guard',feint:'Feint',crit:'Critical'};
 const TELLS={strike:'{n} raises his weapon high, shoulders tense.',guard:'{n} sets his feet and narrows his stance.',feint:'{n}\'s eyes flick toward your off-hand.'};
 let D=null;
 function pickW(w){let r=Math.random()*(w.strike+w.guard+w.feint);for(const k of ['strike','guard','feint']){r-=w[k];if(r<=0)return k}return 'guard'}
 function newRound(){
   const w={...D.E.pers};if(D.hp.E<40)w.guard+=.25;D.ec=pickW(w);
+  D.eCrit=D.eCrit??(D.E.war-D.P.war>10);D.pCrit=D.pCrit??(D.P.war-D.E.war>10);
+  if(D.eCrit&&(Math.random()<(D.hp.E<55||D.round>=4?.6:.22)||D.round>=5)){D.ec='crit';D.eCrit=false}
+  $('.critbtn').hidden=!D.pCrit;
   const others=['strike','guard','feint'].filter(k=>k!==D.ec);const tell=Math.random()<.65?D.ec:others[Math.floor(Math.random()*2)];
-  $('#duelTell').textContent=TELLS[tell].replace('{n}',D.E.name);
+  $('#duelTell').textContent=D.ec==='crit'?`${D.E.name}'s eyes blaze. He gathers all his strength!`:TELLS[tell].replace('{n}',D.E.name);
   document.querySelectorAll('.duelBtns button').forEach(b=>b.disabled=false)}
 async function playDuel(P,E){await sprWait();return playDuel0(P,E)}
 function playDuel0(P,E){
@@ -1243,8 +1253,11 @@ function playDuel0(P,E){
 document.querySelectorAll('.duelBtns button').forEach(b=>b.addEventListener('click',()=>{
   if(!D||D.anim||D.result)return;document.querySelectorAll('.duelBtns button').forEach(x=>x.disabled=true);
   const pc=b.dataset.c,ec=D.ec,P=D.P,E=D.E;let win='tie',dP=0,dE=0,msg;
-  const base={strike:24,feint:20,guard:18};
-  if(pc===ec){if(pc==='strike'){dP=8+Math.round(Math.random()*4);dE=8+Math.round(Math.random()*4);msg='Blades meet head-on. Both men are jolted.'}else if(pc==='feint'){dP=dE=3;msg='Both feint. Nothing lands.'}else msg='Both hold back, circling.'}
+  const base={strike:24,feint:20,guard:18,crit:24};if(pc==='crit')D.pCrit=false;
+  if(pc==='crit'&&ec==='crit'){dP=dE=20;msg='Both men put everything into one blow!'}
+  else if(pc==='crit'){win='P';dE=2*Math.max(8,Math.round(base.strike+(P.war-E.war)*.8+Math.random()*6));msg=`A devastating blow! ${E.name} cannot answer it.`}
+  else if(ec==='crit'){win='E';dP=2*Math.max(8,Math.round(base.strike+(E.war-P.war)*.8+Math.random()*6));msg=`${E.name} unleashes a devastating blow!`}
+  else if(pc===ec){if(pc==='strike'){dP=8+Math.round(Math.random()*4);dE=8+Math.round(Math.random()*4);msg='Blades meet head-on. Both men are jolted.'}else if(pc==='feint'){dP=dE=3;msg='Both feint. Nothing lands.'}else msg='Both hold back, circling.'}
   else if(BEATS[pc]===ec){win='P';dE=Math.max(8,Math.round(base[pc]+(P.war-E.war)*.8+Math.random()*6));msg={strike:`Your strike catches ${E.name} mid-feint.`,guard:`You turn aside ${E.name}'s blow and counter.`,feint:`${E.name} raises his guard; you slip around it.`}[pc]}
   else{win='E';dP=Math.max(8,Math.round(base[ec]+(E.war-P.war)*.8+Math.random()*6));msg={strike:`${E.name} strikes through your feint.`,guard:`${E.name} blocks your blow and counters.`,feint:`${E.name} feints past your guard.`}[ec]}
   D.anim={t0:performance.now(),pc,ec,win,dP,dE,msg,sparked:false,applied:false,tie:pc===ec&&pc==='strike'};
@@ -1262,7 +1275,7 @@ function duelFrame(side,now){const A=D.anim,me=side==='P';
   if(lost&&t>=470&&t<1000)return[3,t<640?2:3];
   if(t<230||t>=1000)return[0,Math.floor(now/170)%4];
   const k=clamp((t-230)/440),fr=Math.min(3,Math.floor(k*4));
-  if(mv==='strike')return[1,fr];if(mv==='guard')return[2,fr];return[3,Math.min(1,Math.floor(k*2))]}
+  if(mv==='strike'||mv==='crit')return[1,fr];if(mv==='guard')return[2,fr];return[3,Math.min(1,Math.floor(k*2))]}
 function drawDuelist(c,u,x,y,s,face,fac,fr){const sh=sprSheet('duel_'+weaponOf(u),sprFac(fac));if(!sh)return false;const k=84/150;
   c.save();c.translate(x,y);c.scale(s*face,s);c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,22,3,0,0,Math.PI*2);c.fill();
   c.drawImage(sh,fr[1]*256,fr[0]*176,256,176,-128*k,-168*k,256*k,176*k);c.restore();return true}
@@ -1272,7 +1285,7 @@ function renderDuel(now,dt){
   if(A){const t=now-A.t0;const appr=t<350?ease(t/350):t<900?1:t<1400?1-ease((t-900)/500):0;const reachK=A.pc==='guard'&&A.ec==='guard'?.45:1;
     oP=appr*reachK*(W/2-58-D.xP);oE=-appr*reachK*(D.xE-(W/2+58));
     if(t>230&&t<480){swP=A.pc==='guard'?.3:1;swE=A.ec==='guard'?.3:1}
-    if(t>350&&t<500&&reachK===1)flash=1-(t-350)/150;
+    if(t>350&&t<500&&reachK===1)flash=(1-(t-350)/150)*(A.pc==='crit'||A.ec==='crit'?1.8:1);
     const kb=t>480&&t<900?Math.sin((t-480)/420*Math.PI):0;
     if(A.win==='P')oE+=kb*70;else if(A.win==='E')oP-=kb*70;else if(A.tie){oP-=kb*28;oE+=kb*28}
     if(!A.sparked&&t>=350&&reachK===1){A.sparked=true;burst(W/2,H*.88-60,26,'#ffe7a8',4);if(A.win!=='tie')burst(A.win==='P'?W/2+40:W/2-40,H*.88-90,14,'#c4473a',3)}
