@@ -279,7 +279,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .turnbox small{font-size:11px;color:var(--muted)}
 .pills{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .pill{padding:4px 6px;font-size:12.5px;min-height:36px;border-radius:18px;background:rgba(30,24,16,.88);box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.pills .pill:first-child{grid-column:1/-1}
+.pills #speedBtn{grid-column:auto}
 .acts2{position:absolute;z-index:4;right:max(10px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,72px);direction:rtl;gap:10px}
 .acts2>*{direction:ltr}
 .acts2:empty{display:none}
@@ -392,7 +392,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
   <div class="bhint" id="hint"></div>
   <aside class="rail">
     <div class="turnbox"><span class="lbl">Turn</span><b id="turn"></b><small id="phase"></small></div>
-    <div class="pills"><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
+    <div class="pills"><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
   </aside>
   <div id="acts" class="acts2"></div>
   <div class="hud tp" id="tpanel" hidden></div>
@@ -1667,7 +1667,7 @@ $('#mapClose').onclick=()=>closeMap();
 $('#endMonth').onclick=()=>endMonth();
 $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;newCampaign();UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#contBtn').onclick=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#menuBtn').onclick=async()=>{const r=await dialog(`<h2>Menu</h2><p class="muted">The game saves itself at the start of every month.</p>`,[['title','Back to title'],['close','Keep playing','primary']]);if(r==='title'){showScreen('title');renderTitle()}};
+$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game saves itself at the start of every month.</p>`,[['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
 let toastT=null;function toast(m){const t=$('#toast');t.innerHTML=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 
 // ------------------------------------------------------------ dialogs
@@ -1962,6 +1962,9 @@ function playCampaignBattle(a,c,gens,defG){
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
 for(const id of ['#newBtn','#contBtn'])$(id).addEventListener('click',goFull,true);
+function toggleFull(){try{if(document.fullscreenElement)document.exitFullscreen();else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
+$('#fsBtn').onclick=toggleFull;
+document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;$('#fsBtn').textContent=f?'⛶ Exit':'⛶ Full';setTimeout(()=>{if(G&&!$('#battleView').hidden){resizeMap();const u=G.sel||G.view;if(u)focusUnit(u,true)}},200)});
 {const m=document.createElement('link');m.rel='manifest';m.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify({name:'RTK3',short_name:'RTK3',start_url:location.href.split('#')[0],display:'fullscreen',orientation:'landscape',background_color:'#0b0a08',theme_color:'#0b0a08'}));document.head.appendChild(m);
  for(const [n,c] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent'],['theme-color','#0b0a08']]){const t=document.createElement('meta');t.name=n;t.content=c;document.head.appendChild(t)}}
 {let MZ=1;const body=()=>$('#mapView .mvbody'),box=()=>$('#mapView .mapbox');
