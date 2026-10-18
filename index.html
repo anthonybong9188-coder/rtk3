@@ -485,7 +485,7 @@ function forecast(a,d,o={}){
   const dist=manh(a,d),ranged=dist>1;
   const deal=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false)*(o.mult||1)));
   const left=d.troops-deal;
-  const take=!o.noCounter&&left>0&&inRange(d.type,dist)?Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,left,a.type,terAt(a.x,a.y),ranged,false)*(o.ctrMult??.65))):0;
+  const take=!o.noCounter&&inRange(d.type,dist)?Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(d.troops+left)/2,a.type,terAt(a.x,a.y),ranged,false)*(o.ctrMult??.65))):0;
   return {deal,take,m:typeMult(a.type,d.type)}}
 const behind=(a,d)=>({x:d.x+(d.x-a.x),y:d.y+(d.y-a.y)});
 const openSq=p=>inb(p.x,p.y)&&terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y);
@@ -808,8 +808,8 @@ function finish(u){
 async function doAttack(a,d,o={}){
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
   const dmg=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)));d.troops-=dmg;
-  let ctr=0;const ctrOn=!o.noCounter&&d.troops>0&&(o.forceCounter||inRange(d.type,dist));
-  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,d.troops,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr}
+  let ctr=0;const ctrOn=!o.noCounter&&(o.forceCounter||inRange(d.type,dist));
+  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr}
   const ctrVis=!o.noCounter&&(o.forceCounter||inRange(d.type,dist));
   await playBattle(a,d,{aB,dB,dmg,ctr,ctrOn:ctrOn||ctrVis,ranged,charge:o.charge,push:o.push,label:o.label});
   float(d,'-'+dmg,'#ff9a86');if(ctr)float(a,'-'+ctr,'#ff9a86');
@@ -881,7 +881,7 @@ function planEnemy(e){
   for(const t of tiles){const tt=terAt(t.x,t.y);
     for(const p of players){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(e.type,dist))continue;
       const ranged=dist>1,deal=Math.min(p.troops,tf(e)*dmgCalc(e.type,e.war,e.troops,p.type,terAt(p.x,p.y),ranged,false));
-      const left=p.troops-deal,take=left>0&&inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,left,e.type,tt,ranged,false)*.65:0;
+      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,(p.troops+left)/2,e.type,tt,ranged,false)*.65:0;
       const sc=deal-take*.7+(left<=0?300:0)+(p.cmd?70:0)+T_INFO[tt].def*25+(e.cmd&&tt==='c'?60:0);
       if(!best||sc>best.sc)best={sc,t,p}}}
   if(best)return{path:pathTo(R,e,best.t.x,best.t.y),target:best.p};
