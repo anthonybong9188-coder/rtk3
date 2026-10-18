@@ -356,6 +356,23 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .foeh{display:flex;align-items:center;gap:6px}.foeh i{width:10px;height:10px;border-radius:2px;transform:rotate(45deg)}.foeh b{color:var(--paper)}.foeh small{color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
 .foe ul{list-style:none;margin:3px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;color:#cbbd9c}
 .foe li.threat{color:#ff9b8c;font-weight:600}
+#actFx{position:fixed;inset:0;z-index:290;display:flex;align-items:flex-end;justify-content:center;padding:0 16px max(18px,env(safe-area-inset-bottom));background:linear-gradient(rgba(8,6,4,.45),rgba(8,6,4,.88) 55%);animation:afIn .2s ease;cursor:pointer}
+#actFx.leave{opacity:0;transition:opacity .18s}
+#actFx .afx{display:flex;align-items:flex-end;gap:14px;width:min(720px,100%);}
+#actFx .afp{width:clamp(110px,24vh,190px);aspect-ratio:2/3;object-fit:cover;object-position:50% 15%;border-radius:12px;border:2px solid #8a6d38;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:afSlide .3s cubic-bezier(.2,.8,.2,1);flex:none;background:#2a2116}
+#actFx .afx0{display:grid;place-items:center;font:900 64px/1 var(--f-zh);color:#f3dc9a}
+#actFx .afr{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;animation:afUp .3s .05s cubic-bezier(.2,.8,.2,1) both}
+#actFx .afh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#actFx .afk{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#1a140c;font:900 19px/1 var(--f-zh)}
+#actFx .afh{align-self:flex-start;padding:4px 12px 4px 4px;border-radius:22px;background:rgba(20,16,10,.92);border:1px solid #4a3d2a}#actFx .afh b{font-size:19px;color:#f3e6c4}#actFx .afh small{color:var(--muted);font-size:13px}
+#actFx .afb{position:relative;padding:12px 16px;background:#f3e6c4;color:#241a10;border-radius:14px;font:600 17px/1.35 var(--f-body);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+#actFx .afb::before{content:'';position:absolute;left:-9px;bottom:16px;border:9px solid transparent;border-right-color:#f3e6c4;border-left:0}
+#actFx .aft{display:block;transition:opacity .12s}#actFx .aft.out{opacity:0}
+#actFx .afres{align-self:flex-start;padding:6px 12px;border-radius:8px;background:#2c5a34;border:1px solid #86cc90;color:#e6f6e8;font:700 14.5px/1.3 var(--f-body);animation:afPop .3s cubic-bezier(.3,1.6,.5,1)}
+#actFx .afres.bad{background:#4a2a20;border-color:#a3725f;color:#f0d4c8}
+#actFx .afskip{color:#8f8064;font-size:11.5px}
+@keyframes afIn{from{opacity:0}}@keyframes afSlide{from{opacity:0;transform:translateX(-40px)}}@keyframes afUp{from{opacity:0;transform:translateY(14px)}}@keyframes afPop{from{opacity:0;transform:scale(.7)}}
+@media (prefers-reduced-motion:reduce){#actFx,#actFx *{animation:none!important}}
 .rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
 .rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -1741,7 +1758,8 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('.cbody button');if(!b||UI.busy)return;
   const c=C(S.sel);
   if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd}renderCity();return}
-  if(b.dataset.gen){const g=GN(b.dataset.gen);const m=doCmd(UI.cmd,g,c,'shu');addLog(m,'shu');toast(m);if(UI.cmd!=='reward')UI.mode='city';save();renderCampaign();return}
+  if(b.dataset.gen){const g=GN(b.dataset.gen),k=UI.cmd;UI.busy=true;const m=doCmd(k,g,c,'shu');addLog(m,'shu');save();
+    try{await actFx(g,k,m,c)}catch(err){console.error(err)}UI.busy=false;if(k!=='reward')UI.mode='city';renderCampaign();return}
   const a=b.dataset.act;
   if(a==='rtab'){UI.rtab=b.dataset.t;renderCity();return}
   if(a==='back'){UI.mode='city';renderCity()}
@@ -1756,6 +1774,34 @@ $('#endMonth').onclick=()=>endMonth();
 $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;newCampaign();UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#contBtn').onclick=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game saves itself at the start of every month.</p>`,[['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
+// ---- city command cut-in: 1s order, 1s result
+const ACT_LINES={
+  farm:[['To the fields! A good harvest feeds an army.','Turn the soil; the granaries must be full.'],['The fields will feed us well.','The farmers bless your name, my lord.']],
+  com:[['Open the markets and lower the tolls!','Merchants bring gold to a well-run city.'],['Trade flows again.','The coffers will thank us.']],
+  walls:[['Bring stone and timber to the walls!','No enemy will breach these walls.'],['The walls stand stronger.','Let them come now.']],
+  recruit:[['Who will take up the spear for the Han?','Raise the banners, call for volunteers!'],['Fresh men stand ready.','Our ranks grow, my lord.']],
+  train:[['Form ranks! Again!','Sweat in the drill, or bleed in battle.'],['They move as one now.','The troops are sharper.']],
+  patrol:[['Keep the peace in the streets.','Bandits will find no shelter here.'],['The people sleep easier.','Order is restored.']],
+  search:[['I will search every tavern and village.','Talent hides in humble places.'],['A fine find, my lord!','Heaven smiles on us.']],
+  reward:[['You honour me, my lord.','I am unworthy of such a gift.'],['I will repay this with my life.','My loyalty is yours.']]};
+const ACT_FAIL=['Nothing… perhaps next month.','The search turned up nothing.'];
+const ACT_DONE=['There is nothing more to do here.','It is already at its best, my lord.'];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function actFx(g,k,m,c){return new Promise(res=>{
+  const v=CMDS[k],img=portraitSrc(g),fail=k==='search'&&/finds nothing/.test(m),none=/\+0\b/.test(m);
+  let line1=pick(ACT_LINES[k][0]);if(g.id==='zhangfei'&&k!=='reward')line1=pick(['Hah! Leave it to me!','Out of my way, I\'ll handle it!']);
+  const line2=fail?pick(ACT_FAIL):none?pick(ACT_DONE):pick(ACT_LINES[k][1]);
+  const res2=m.replace(g.name+' ','').replace(/^./,x=>x.toUpperCase());
+  const d=document.createElement('div');d.id='actFx';d.setAttribute('role','status');
+  d.innerHTML=`<div class="afx">${img?`<img class="afp" src="${img}" alt="">`:`<div class="afp afx0">${g.ch}</div>`}
+    <div class="afr"><div class="afh"><span class="afk">${v.zh}</span><b>${g.name}</b><small>${v.n} · ${c.name}</small></div>
+    <div class="afb"><span class="aft">“${line1}”</span></div><div class="afres" hidden></div><small class="afskip">Tap to continue</small></div></div>`;
+  document.body.appendChild(d);
+  let ph=0,t=null;const go=()=>{clearTimeout(t);ph++;
+    if(ph===1){const b=d.querySelector('.aft');b.classList.add('out');setTimeout(()=>{b.textContent=`“${line2}”`;b.classList.remove('out')},120);
+      const r=d.querySelector('.afres');r.textContent=res2;r.hidden=false;r.classList.toggle('bad',fail||none);d.classList.add('ph2');t=setTimeout(go,1100)}
+    else{d.classList.add('leave');setTimeout(()=>{d.remove();res()},180)}};
+  d.onclick=go;t=setTimeout(go,1000)})}
 let toastT=null;function toast(m){const t=$('#toast');t.innerHTML=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 
 // ------------------------------------------------------------ dialogs
