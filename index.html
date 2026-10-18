@@ -335,8 +335,8 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #cutin[hidden]{display:none}
 #cutin.on{background:rgba(5,4,3,.55)}
 .ci-band{position:relative;width:100%;height:min(46vh,240px);display:flex;align-items:center;gap:4%;padding:0 6%;box-sizing:border-box;
-  background:url(art/skill_banner.png) center/100% 100% no-repeat,linear-gradient(100deg,transparent 0,rgba(120,20,12,.92) 12%,rgba(170,30,18,.95) 50%,rgba(120,20,12,.92) 88%,transparent 100%);
-  transform:translateX(-110%) skewX(-8deg);border-block:3px solid #e0b25a;box-shadow:0 0 40px rgba(0,0,0,.7)}
+  background:url(art/skill_banner.png) center/104% 118% no-repeat;filter:drop-shadow(0 8px 24px rgba(0,0,0,.75));
+  transform:translateX(-110%) skewX(-8deg)}
 #cutin.on .ci-band{animation:ciIn .32s cubic-bezier(.2,.9,.25,1) forwards}
 #cutin.out .ci-band{animation:ciOut .25s ease-in forwards}
 @keyframes ciIn{from{transform:translateX(-110%) skewX(-8deg)}to{transform:translateX(0) skewX(-8deg)}}
@@ -893,7 +893,7 @@ async function execTarget(t){
   const s=G.sel,mode=G.tmode;G.busy=true;G.mode='busy';G.targets=[];updateUI();
   if(mode==='attack')await doAttack(s,t);
   if(mode==='duel'){if(await doDuel(s,t)==='refused'){G.busy=false;G.mode='moved';G.reach=reachFrom(s,G.origin);updateUI();return}}
-  if(mode==='fire'){await doFire(s,t);if(G.ewSplash){const l=G.ewSplash;G.ewSplash=null;mfx('wind',0,0,1200);await sleep(200);for(const e of l)fireHit(s,e,.5);log('The East Wind carries the flames to the next ranks!');sweep()}}
+  if(mode==='fire'){await doFire(s,t);if(G.ewSplash){const l=G.ewSplash;G.ewSplash=null;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1200,COLS*.9);await sleep(200);for(const e of l)fireHit(s,e,.5);log('The East Wind carries the flames to the next ranks!');sweep()}}
   if(mode==='charge')await doCharge(s,t);
   if(mode==='push')await doPush(s,t);
   if(mode==='volley')await doVolley(s,t);
@@ -1133,7 +1133,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='ambush'){const tile=ambushTile(s,t);mfx('smoke',s.x,s.y,800);await sleep(250);s.x=s.px=tile.x;s.y=s.py=tile.y;mfx('smoke',s.x,s.y,800);await sleep(300);await doAttack(s,t,{mult:1.3,noCounter:true,label:'Ambush',verb:'bursts out of hiding at'})}
   else if(k==='swift'){s.swift=true;mfx('speed',s.x,s.y,900);float(s,'+3 Move','#9fd0ff');log(`<b>Swift March!</b> ${nm(s)} can move 3 more squares this turn.`);keep=true;await sleep(300)}
   else if(k==='iron'){s.iron=2;s.ironSave=true;mfx('iron',s.x,s.y,1200);float(s,'Iron Body','#f3d27a');log(`<b>Iron Body!</b> ${nm(s)} will not fall: half damage for 2 turns.`);await sleep(400)}
-  else if(k==='wind'){s.eastWind=true;mfx('wind',0,0,1800);log(`<b>East Wind!</b> The wind turns. ${nm(s)}'s next Fire will be doubled and spread.`);s.cd.fire=0;await sleep(900)}
+  else if(k==='wind'){s.eastWind=true;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1800,COLS*.9);log(`<b>East Wind!</b> The wind turns. ${nm(s)}'s next Fire will be doubled and spread.`);s.cd.fire=0;await sleep(900)}
   else if(k==='blaze'){const area=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1&&e!==t);
     s.cd.fire=CD;let before=t.troops,dmg=Math.min(t.troops,Math.round(fireDmg(s,t,true)*1.5*(t.iron?.5:1)));dmg=ironSave(t,dmg);t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);
     for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(t.x+dx,t.y+dy))G.fires.push({x:t.x+dx,y:t.y+dy,t0:performance.now(),dur:1600});
@@ -1142,7 +1142,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='strat'){t.acted=false;mfx('scroll',t.x,t.y,900);float(t,'Ready!','#9fe8a8');log(`<b>Strategist!</b> ${nm(s)}'s counsel lets ${nm(t)} act again.`);await sleep(400)}
   else if(k==='rally'){for(const u of [s,...adjA(s)]){const add=Math.min(u.max-u.troops,Math.round(u.max*.15));if(add>0){u.troops+=add;float(u,'+'+add,'#8dffb5')}mfx('heal',u.x,u.y,1100)}log(`<b>Rally!</b> ${nm(s)} steadies the men around him.`);await sleep(600)}
   else if(k==='treach'){t.stun=1;mfx('smoke',t.x,t.y,1200);float(t,'✕ Confused','#d6a8ff');log(`<b>Treachery!</b> False orders throw ${nm(t)} into confusion.`);await sleep(500)}
-  if(G.ewSplash){const l=G.ewSplash;G.ewSplash=null;mfx('wind',0,0,1200);for(const e of l)fireHit(s,e,.5)}
+  if(G.ewSplash){const l=G.ewSplash;G.ewSplash=null;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1200,COLS*.9);for(const e of l)fireHit(s,e,.5)}
   sweep();return keep?'keep':'done'}
 function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
