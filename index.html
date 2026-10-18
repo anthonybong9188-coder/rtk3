@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇慈戰挑探推操擒攻敗昌昭曹會柴桂桑業槍樂權武汝江沙泰淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下乾于仁兵典分劉勝南合吳商單國城壁夏天守宛射巡帥平度延建弓張征待徵忠惇慈戰拒挑探推操擒攻敗昌昭曹會柴桂桑業槍樂權武汝江沙泰淵滿火琬瑜甘盾稽突範簡糜肅肥良荀蒙蓋虛蜀襄計訓許諸賞赤趙農遼邢金長關陳陵陽零鞏韓騎魏黃龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -780,7 +780,7 @@ function onAct(e){
     G.tmode=k;G.targets=skillTargets(k,s).map(e=>({u:e,note:skillNote(k,s,e)}));G.mode='target';updateUI();return}
   const a=b.dataset.a;
   if(a==='attack'){G.prevMode=G.mode;G.tmode='attack';const list=G.mode==='moved'?enemies().filter(e=>inRange(s.type,manh(s,e))):(G.atk||[]);G.targets=list.map(e=>{const f=forecast(s,e);return{u:e,note:`deal ~${f.deal} · take ~${f.take}${f.m>1?' ▲':f.m<1?' ▼':''}`}});G.mode='target'}
-  if(a==='duel'){G.prevMode=G.mode;G.tmode='duel';G.targets=duelTargets(s).map(e=>({u:e,note:`War ${s.war} vs ${e.war}`}));G.mode='target'}
+  if(a==='duel'){G.prevMode=G.mode;G.tmode='duel';G.targets=duelTargets(s).map(e=>{const ch=duelOdds(s,e);return{u:e,note:`War ${s.war} vs ${e.war}${s.war-e.war>30?' · will refuse':ch<.3?' · may refuse':''}`}});G.mode='target'}
   if(a==='wait'){finish(s);return}
   if(a==='back'){G.mode=G.prevMode||'moved';G.targets=[]}
   if(a==='cancel'){s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.reach=reach(s);G.mode='select'}
@@ -789,6 +789,16 @@ for(const id of ['#info','#acts','#tpanel'])$(id).addEventListener('click',onAct
 $('#logBtn').onclick=()=>{$('#logPanel').hidden=!$('#logPanel').hidden};
 $('#logClose').onclick=()=>{$('#logPanel').hidden=true};
 const enemies=()=>G.units.filter(u=>u.side==='wei');
+function duelOdds(P,E){const base={strike:24,feint:20,guard:18},ks=['strike','guard','feint'],beat={strike:'guard',guard:'feint',feint:'strike'};let ew=0;const N=600;
+  for(let n=0;n<N;n++){let hP=100,hE=100,res=null;
+    for(let r=1;r<=5&&!res;r++){const w={...E.pers};if(hE<40)w.guard+=.25;const ec=pickW(w),oth=ks.filter(k=>k!==ec),tell=Math.random()<.65?ec:oth[Math.floor(Math.random()*2)];
+      const pc=Math.random()<.85?Object.keys(BEATS).find(k=>BEATS[k]===tell):ks[Math.floor(Math.random()*3)];
+      if(pc===ec){if(pc==='strike'){hP-=10;hE-=10}else if(pc==='feint'){hP-=3;hE-=3}}
+      else if(BEATS[pc]===ec)hE-=Math.max(8,base[pc]+(P.war-E.war)*.8+3);else hP-=Math.max(8,base[ec]+(E.war-P.war)*.8+3);
+      if(hP<=0&&hE<=0)res='d';else if(hE<=0)res='w';else if(hP<=0)res='l';else if(r>=5)res=Math.abs(hP-hE)<8?'d':hP>hE?'w':'l'}
+    ew+=res==='l'?1:res==='d'?.5:0}
+  return ew/N}
+function duelAnswer(s,e){const gap=s.war-e.war,ch=duelOdds(s,e);if(gap>30)return{refuse:true,sure:true,ch};if(ch<.3)return{refuse:Math.random()<.75,sure:false,ch};return{refuse:false,ch}}
 const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!e.dueled);
 
 MC.addEventListener('click',e=>{
@@ -819,7 +829,7 @@ async function moveThenAttack(s,u,t){G.busy=true;G.mode='busy';updateUI();if(t.x
 async function execTarget(t){
   const s=G.sel,mode=G.tmode;G.busy=true;G.mode='busy';G.targets=[];updateUI();
   if(mode==='attack')await doAttack(s,t);
-  if(mode==='duel')await doDuel(s,t);
+  if(mode==='duel'){if(await doDuel(s,t)==='refused'){G.busy=false;G.mode='moved';G.reach=reachFrom(s,G.origin);updateUI();return}}
   if(mode==='fire')await doFire(s,t);
   if(mode==='charge')await doCharge(s,t);
   if(mode==='push')await doPush(s,t);
@@ -864,7 +874,9 @@ async function doFire(u,e){
   if(speed===0)await sleep(350);else await playFire(u,e,dmg,before);float(e,'-'+dmg,'#ffb15a');
   log(`${nm(u)} sets fire to ${nm(e)}'s position${terAt(e.x,e.y)==='f'?' in the forest':''}: −${dmg}.`);await sleep(300);sweep()}
 async function doDuel(a,d){
-  d.dueled=true;const r=await playDuel(a,d);
+  d.dueled=true;
+  if(d.side!=='shu'){const ans=duelAnswer(a,d);if(ans.refuse){float(d,'拒 Refuses','#e8dcc0');log(`${nm(d)} refuses ${a.name}'s challenge${ans.sure?' (no match for him)':' and stays behind his men'}.`);await sleep(700);return 'refused'}}
+  const r=await playDuel(a,d);
   if(r==='win'){const l=Math.min(d.troops,Math.max(100,Math.round(d.troops*.3)));d.troops-=l;d.stun=1;float(d,'-'+l,'#ff9a86');log(`${nm(a)} defeats ${nm(d)} in single combat! Wei troops scatter (−${l}).`)}
   else if(r==='lose'){const l=Math.min(a.troops,Math.max(100,Math.round(a.troops*.3)));a.troops-=l;a.stun=1;float(a,'-'+l,'#ff9a86');log(`${nm(d)} bests ${nm(a)} in single combat. Shu troops falter (−${l}).`)}
   else{const la=Math.round(a.troops*.1),ld=Math.round(d.troops*.1);a.troops-=la;d.troops-=ld;log(`${nm(a)} and ${nm(d)} fight to a standstill.`)}
