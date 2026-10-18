@@ -464,7 +464,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
     <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>
-    <button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+    <button class="iconbtn sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
     <button id="endMonth" class="primary">End month</button>
   </header>
   <main class="cbody">
@@ -483,7 +483,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
   <div class="bhint" id="hint"></div>
   <aside class="rail">
     <div class="turnbox"><span class="lbl">Turn</span><b id="turn"></b><small id="phase"></small></div>
-    <div class="pills"><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
+    <div class="pills"><button class="pill sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
   </aside>
   <div id="acts" class="acts2"></div>
   <div class="hud tp" id="tpanel" hidden></div>
@@ -1001,7 +1001,7 @@ function finish(u){
   if(G.units.filter(x=>x.side==='shu').every(x=>x.acted))setTimeout(endTurn,450)}
 
 // ---------- actions ----------
-async function doAttack(a,d,o={}){
+async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
   let dmg=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;
   let ctr=0;const ctrOn=!o.noCounter&&(o.forceCounter||inRange(d.type,dist));
@@ -1048,7 +1048,7 @@ function fateRoll(u,by){if(u.war>=95)return 'breakout';let p=.30;const foes=G.un
   const tt=terAt(u.x,u.y);if(tt==='w'||tt==='=')p+=.10;if(tt==='f')p-=.10;
   p=clamp(p,.05,.85);if(u.war>=90)p/=2;return Math.random()<p?'capture':'escape'}
 function sweep(){for(const u of G.units.filter(u=>u.troops<=0)){const f=u.fate||'escape';
-    if(f==='capture'){log(`${nm(u)} is unhorsed and <b>captured</b>!`);G.captured.push(u.id);float(u,'擒 Captured','#ff8a78')}
+    if(f==='capture'){log(`${nm(u)} is unhorsed and <b>captured</b>!`);G.captured.push(u.id);SND.fx('capture');float(u,'擒 Captured','#ff8a78')}
     else if(f==='breakout'){log(`${nm(u)}'s force is broken, but ${u.name} cuts his way out and escapes!`);float(u,'Breaks free','#f3d27a')}
     else{log(`${nm(u)}'s force is broken. ${u.name} escapes from the field.`);float(u,'Escaped','#e8dcc0')}
     G.broken.push(u.id)}G.units=G.units.filter(u=>u.troops>0);if(G.view&&!G.units.includes(G.view))G.view=null;updateUI()}
@@ -1058,7 +1058,7 @@ function checkEnd(){
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
-function endGame(win,text,retreat){if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
+function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
 $('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(u.troops));
   const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
 $('#retreatBtn').onclick=async()=>{if(G.over)return;
@@ -1188,7 +1188,7 @@ const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
 function drawSig(c,f){const sh=sprSheet('general_sig',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function fx(c,row,fr,x,y,s,a){if(!FIREFX.complete||!FIREFX.naturalWidth)return;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a??1;c.drawImage(FIREFX,fr*200,row*200,200,200,x-100*s,y-196*s,200*s,200*s);c.restore()}
-function playFire(u,e,dmg,before){
+function playFire(u,e,dmg,before){SND.fx('fire');
   return new Promise(async resolve=>{
     if(speed===0){resolve();return}await sprWait();
     const L=u.side==='shu'?u:e,R=L===u?e:u;
@@ -1248,7 +1248,7 @@ const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:dur||900,s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CUTIN=document.createElement('div');CUTIN.id='cutin';CUTIN.hidden=true;document.body.appendChild(CUTIN);
-function cutIn(u,h){if(speed===0)return Promise.resolve();return new Promise(res=>{const p=PORT[u.id];
+function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');return new Promise(res=>{const p=PORT[u.id];
   CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/sp_${p}.png" onerror="this.onerror=null;this.src='portraits/${p}.png'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
@@ -1405,7 +1405,7 @@ function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Objec
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
 sprLoad('shu');
-async function playBattle(att,def,r){await sprWait();return playBattle0(att,def,r)}
+async function playBattle(att,def,r){await sprWait();if(speed){if(r.charge)SND.fx('gallop');SND.fx('shout',.15);const rng=att.type==='archer'||(def.type==='archer'&&r.ctrOn);if(rng)SND.fx('arrows',.35);if(att.type!=='archer'||(r.ctrOn&&def.type!=='archer'))SND.fx('melee',r.charge?1.1:.7)}return playBattle0(att,def,r)}
 function playBattle0(att,def,r){
   return new Promise(resolve=>{
     if(speed===0){resolve();return}
@@ -1478,7 +1478,7 @@ function newRound(){
   const others=['strike','guard','feint'].filter(k=>k!==D.ec);const tell=Math.random()<.65?D.ec:others[Math.floor(Math.random()*2)];
   $('#duelTell').textContent=D.ec==='crit'?`${D.E.name}'s eyes blaze. He gathers all his strength!`:TELLS[tell].replace('{n}',D.E.name);
   document.querySelectorAll('.duelBtns button').forEach(b=>b.disabled=false)}
-async function playDuel(P,E){await sprWait();return playDuel0(P,E)}
+async function playDuel(P,E){await sprWait();SND.music('duel');SND.fx('drum');SND.fx('drum',.4);try{return await playDuel0(P,E)}finally{SND.music('battle')}}
 function playDuel0(P,E){
   return new Promise(resolve=>{
     D={P,E,hp:{P:100,E:100},show:{P:100,E:100},round:1,anim:null,result:null,floats:[],resolve,bg:makeBG('.',null,true),xP:W*.3,xE:W*.7};
@@ -1524,7 +1524,7 @@ function renderDuel(now,dt){
     if(t>350&&t<500&&reachK===1)flash=(1-(t-350)/150)*(A.pc==='crit'||A.ec==='crit'?1.8:1);
     const kb=t>480&&t<900?Math.sin((t-480)/420*Math.PI):0;
     if(A.win==='P')oE+=kb*70;else if(A.win==='E')oP-=kb*70;else if(A.tie){oP-=kb*28;oE+=kb*28}
-    if(!A.sparked&&t>=350&&reachK===1){A.sparked=true;burst(W/2,H*.88-60,26,'#ffe7a8',4);if(A.win!=='tie')burst(A.win==='P'?W/2+40:W/2-40,H*.88-90,14,'#c4473a',3)}
+    if(!A.sparked&&t>=350&&reachK===1){A.sparked=true;SND.fx(A.pc==='crit'||A.ec==='crit'?'crit':'clash');burst(W/2,H*.88-60,26,'#ffe7a8',4);if(A.win!=='tie')burst(A.win==='P'?W/2+40:W/2-40,H*.88-90,14,'#c4473a',3)}
     if(!A.applied&&t>=430){A.applied=true;D.hp.P=Math.max(0,D.hp.P-A.dP);D.hp.E=Math.max(0,D.hp.E-A.dE);
       if(A.dP)D.floats.push({x:D.xP,v:'−'+A.dP,t0:now});if(A.dE)D.floats.push({x:D.xE,v:'−'+A.dE,t0:now});$('#duelMsg').innerHTML+=` — ${A.msg}`}
     if(t>=1400){D.anim=null;afterRound()}}
@@ -1546,6 +1546,74 @@ function afterRound(){
   D.round++;newRound()}
 
 // ---------- boot ----------
+// ---------- sound: synthesized effects + optional music files (music/<name>.mp3) ----------
+var SND=(()=>{
+  let ctx=null,master,sfxG,musG,noiseBuf;const KEY='rtk3-audio';
+  let set={sfx:.8,mus:.55,mute:false};try{Object.assign(set,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+  const saveSet=()=>{try{localStorage.setItem(KEY,JSON.stringify(set))}catch(e){}};
+  function init(){if(ctx)return ctx;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+    ctx=new AC();master=ctx.createGain();sfxG=ctx.createGain();musG=ctx.createGain();sfxG.connect(master);musG.connect(master);master.connect(ctx.destination);
+    const comp=ctx.createDynamicsCompressor();master.disconnect();master.connect(comp);comp.connect(ctx.destination);
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;apply();return ctx}
+  function apply(){if(!ctx)return;master.gain.value=set.mute?0:1;sfxG.gain.value=set.sfx;musG.gain.value=set.mus;if(cur)cur.el.volume=set.mute?0:set.mus}
+  const unlock=()=>{init();if(ctx&&ctx.state==='suspended')ctx.resume();if(want&&!cur)music(want)};
+  ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}));
+  // building blocks
+  const T=()=>ctx.currentTime;
+  function env(g,t,a,peak,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+dec)}
+  function tone(type,f,t,a,peak,dec,f2,out){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+a+dec);env(g,t,a,peak,dec);o.connect(g);g.connect(out||sfxG);o.start(t);o.stop(t+a+dec+.05);return o}
+  function noise(t,dur,peak,ftype,f,q,f2,out){const s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;s.loop=true;fl.type=ftype;fl.frequency.setValueAtTime(f,t);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t+dur);fl.Q.value=q||1;
+    env(g,t,Math.min(.01,dur/4),peak,dur);s.connect(fl);fl.connect(g);g.connect(out||sfxG);s.start(t,Math.random());s.stop(t+dur+.1)}
+  const R=(a,b)=>a+Math.random()*(b-a);
+  // effects
+  const FX={
+    tap:t=>tone('sine',R(850,950),t,.004,.08,.05),
+    confirm:t=>{tone('triangle',660,t,.005,.12,.08);tone('triangle',990,t+.07,.005,.12,.12)},
+    cancel:t=>{tone('triangle',520,t,.005,.1,.07);tone('triangle',350,t+.06,.005,.1,.1)},
+    chime:t=>{[784,988,1175].forEach((f,i)=>tone('sine',f,t+i*.07,.005,.14,.5))},
+    dud:t=>{tone('triangle',300,t,.005,.12,.18,220)},
+    gong:t=>{[1,2.76,5.4,8.93,1.5].forEach((m,i)=>tone('sine',98*m,t,.01,[.5,.22,.12,.06,.18][i],[3.2,2.2,1.4,.8,2.6][i],98*m*.985));noise(t,.25,.25,'lowpass',900,1)},
+    drum:t=>{tone('sine',95,t,.004,.9,.45,42);noise(t,.08,.4,'lowpass',600,1)},
+    march:t=>{[0,.32,.56,.9,1.22,1.46].forEach((d,i)=>{tone('sine',i%3===2?70:95,t+d,.004,i%3===2?.95:.7,.4,40);noise(t+d,.07,.3,'lowpass',500,1)})},
+    hit:t=>{noise(t,.12,.5,'lowpass',R(500,800),1);tone('sine',120,t,.003,.4,.12,60)},
+    clash:t=>{[2480,3710,5130,6390,7800].forEach(f=>tone('square',f*R(.97,1.03),t,.001,.05,R(.15,.32)));noise(t,.1,.45,'bandpass',R(3500,5000),2);noise(t,.05,.3,'highpass',6000,1)},
+    melee:t=>{for(let i=0;i<5;i++){const d=i*R(.18,.3);if(Math.random()<.6)FX.clash(t+d);else FX.hit(t+d)}noise(t,1.2,.06,'bandpass',900,.8)},
+    arrows:t=>{for(let i=0;i<9;i++){const d=R(0,.35);noise(t+d,.28,.18,'bandpass',R(2500,4000),3,R(700,1200))}for(let i=0;i<5;i++)noise(t+.55+R(0,.3),.06,.25,'lowpass',700,1)},
+    gallop:t=>{for(let b=0;b<6;b++)for(const k of [0,.09,.18]){const d=b*.36+k;noise(t+d,.06,.35*(.5+b/10),'lowpass',380,1);tone('sine',70,t+d,.003,.25,.08,45)}},
+    fire:t=>{noise(t,1.8,.35,'lowpass',300,.7,1400);noise(t+.2,1.5,.15,'bandpass',2500,1.5);for(let i=0;i<22;i++)noise(t+R(0,1.7),.015,.25,'highpass',3000,1)},
+    crit:t=>{tone('sine',60,t,.005,1,.9,30);noise(t,.4,.5,'lowpass',1200,1,200);FX.clash(t+.03);[1320,1760,2640].forEach((f,i)=>tone('sine',f,t+.05+i*.04,.01,.08,.6))},
+    special:t=>{noise(t,.7,.25,'bandpass',400,1.5,3000);tone('sawtooth',110,t,.05,.15,.9,220);FX.gong(t+.45)},
+    capture:t=>{[392,330,262].forEach((f,i)=>tone('triangle',f,t+i*.16,.01,.18,.3));for(let i=0;i<3;i++)tone('square',R(3000,4200),t+.5+i*.07,.001,.03,.12)},
+    shout:t=>{const g=ctx.createGain();g.connect(sfxG);for(let v=0;v<6;v++){const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),gg=ctx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(R(110,190),t);o.frequency.linearRampToValueAtTime(R(160,260),t+.35);
+      f.type='bandpass';f.frequency.value=R(700,1100);f.Q.value=4;env(gg,t+R(0,.08),.08,.05,.7);o.connect(f);f.connect(gg);gg.connect(g);o.start(t);o.stop(t+1)}noise(t,.8,.08,'bandpass',900,1)},
+    victory:t=>{const n=[523,587,659,784,880,1047];[[0,0],[.18,2],[.36,3],[.6,5]].forEach(([d,i])=>{tone('sawtooth',n[i],t+d,.02,.12,.45);tone('triangle',n[i]/2,t+d,.02,.1,.45)});FX.gong(t+.6);FX.shout(t+.3)},
+    defeat:t=>{[440,392,330,294].forEach((f,i)=>{const o=tone('sawtooth',f,t+i*.38,.06,.08,.6,f*.99)});noise(t,2,.04,'lowpass',500,1)},
+  };
+  function fx(name,delay){if(set.mute||!init()||ctx.state!=='running'||!FX[name])return;try{FX[name](T()+(delay||0))}catch(e){}}
+  // music: plays music/<name>.mp3 if it exists, cross-fading; silent otherwise
+  // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
+  const TRACKS=new Set([]);
+  let cur=null,want=null;const missing=new Set();
+  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(cur&&cur.name===name)return;
+    const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
+    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat/.test(name);el.volume=0;
+    el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
+  function fade(el,to,ms,done){const from=el.volume,t0=performance.now();const st=()=>{const k=Math.min(1,(performance.now()-t0)/ms);el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)requestAnimationFrame(st);else done&&done()};st()}
+  document.addEventListener('visibilitychange',()=>{if(!cur)return;if(document.hidden)cur.el.pause();else cur.el.play().catch(()=>{})});
+  return {fx,music,init,get set(){return set},setVol(k,v){set[k]=v;saveSet();apply()},toggleMute(){set.mute=!set.mute;saveSet();init();apply();if(!set.mute&&want&&!cur)music(want);return set.mute}};
+})();
+function soundDlg(){const s=SND.set;const p=dialog(`<h2>Sound</h2>
+  <div class="mrow"><label for="vSfx">Effects <b id="vSfxV">${Math.round(s.sfx*100)}%</b></label><input id="vSfx" type="range" min="0" max="100" value="${Math.round(s.sfx*100)}"></div>
+  <div class="mrow"><label for="vMus">Music <b id="vMusV">${Math.round(s.mus*100)}%</b></label><input id="vMus" type="range" min="0" max="100" value="${Math.round(s.mus*100)}"></div>
+  <p class="muted">Music plays once the track files are added. Effects are built into the game.</p>`,[['mute',s.mute?'🔊 Unmute':'🔇 Mute all'],['ok','Done','primary']]);
+  setTimeout(()=>{const a=document.getElementById('vSfx'),b=document.getElementById('vMus');if(a)a.oninput=e=>{SND.setVol('sfx',e.target.value/100);document.getElementById('vSfxV').textContent=e.target.value+'%'};if(a)a.onchange=()=>SND.fx('clash');
+    if(b)b.oninput=e=>{SND.setVol('mus',e.target.value/100);document.getElementById('vMusV').textContent=e.target.value+'%'}},0);
+  return p.then(r=>{if(r==='mute'){SND.toggleMute();updSndBtns()}})}
+function updSndBtns(){document.querySelectorAll('.sndbtn').forEach(b=>{b.textContent=SND.set.mute?'🔇':'🔊';b.setAttribute('aria-label',SND.set.mute?'Unmute sound':'Mute sound')})}
+// UI clicks
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||b.classList.contains('sndbtn'))return;
+  const r=b.dataset.r;if(r==='cancel'||r==='no'||r==='stay'||b.dataset.pkx!=null)SND.fx('cancel');else if(b.classList.contains('primary'))SND.fx('confirm');else SND.fx('tap')},true);
+
 // =====================================================================
 // CAMPAIGN · grand strategy layer
 // =====================================================================
@@ -1685,7 +1753,7 @@ async function saveLoadDlg(mode){
 function loadSave(){try{const t=localStorage.getItem('rtk3-save');return t?JSON.parse(t):null}catch(e){return null}}
 
 // ------------------------------------------------------------ rendering
-function showScreen(id){for(const s of ['title','campaign','battleView'])$('#'+s).hidden=s!==id;document.body.classList.toggle('lock',id!=='battleView');if(id==='battleView')window.scrollTo(0,0)}
+function showScreen(id){SND.music(id==='title'?'title':id==='campaign'?'map':'battle');for(const s of ['title','campaign','battleView'])$('#'+s).hidden=s!==id;document.body.classList.toggle('lock',id!=='battleView');if(id==='battleView')window.scrollTo(0,0)}
 function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
 function threats(){return S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu'&&!allied('shu',a.fac)).sort((x,y)=>x.left-y.left)}
 function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElement('div');el.id='threatBar';el.setAttribute('role','alert');$('#campaign .ctop').after(el)}
@@ -1835,7 +1903,7 @@ $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
+$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
 // ---- city command cut-in: 1s order, 1s result
 const ACT_LINES={
   farm:[['To the fields! A good harvest feeds an army.','Turn the soil; the granaries must be full.'],['The fields will feed us well.','The farmers bless your name, my lord.']],
@@ -1864,7 +1932,7 @@ function actFx(g,k,m,c,ok){return new Promise(res=>{
     <div class="afb"><span class="aft">“${line1}”</span></div><div class="afres" hidden></div><small class="afskip">Tap to continue</small></div></div>`;
   document.body.appendChild(d);
   let ph=0,t=null;const go=()=>{clearTimeout(t);ph++;
-    if(ph===1){const b=d.querySelector('.aft');b.classList.add('out');setTimeout(()=>{b.textContent=`“${line2}”`;b.classList.remove('out')},120);
+    if(ph===1){SND.fx(fail||none?'dud':'chime');const b=d.querySelector('.aft');b.classList.add('out');setTimeout(()=>{b.textContent=`“${line2}”`;b.classList.remove('out')},120);
       const r=d.querySelector('.afres');r.textContent=res2;r.hidden=false;r.classList.toggle('bad',fail||none);d.classList.add('ph2');t=setTimeout(go,1100)}
     else{d.classList.add('leave');setTimeout(()=>{d.remove();res()},180)}};
   d.onclick=go;t=setTimeout(go,1000)})}
@@ -1959,7 +2027,7 @@ function launchArmy(f,from,to,gens,troops,rice,split){
   src.troops-=troops;S.fac[f].rice-=rice;
   const a={id:S.nextArmy++,fac:f,from,to,gens:gens.map(g=>g.id),troops,rice,left:tr,total:tr,train:src.train};if(split)a.split=split;
   for(const g of gens){g.army=a.id;g.city=null;g.acted=true}
-  S.armies.push(a);return a}
+  S.armies.push(a);if(f==='shu')SND.fx('march');return a}
 
 // ------------------------------------------------------------ month
 async function endMonth(){
@@ -1989,7 +2057,7 @@ async function endMonth(){
     if(nw.length)setTimeout(()=>toast(`⚠ ${nw.map(a=>`${FACS[a.fac].short} army of ${fmt(a.troops)} marching on ${C(a.to).name}`).join(' · ')}`),1150)}
 }
 const MZH=['','正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','臘月'];
-function monthFx(){const old=$('#monthFx');if(old)old.remove();const se=S.month<=3?['春','#86cc90']:S.month<=6?['夏','#e8a05f']:S.month<=9?['秋','#d4ad55']:['冬','#9cc4e8'];
+function monthFx(){SND.fx('gong');const old=$('#monthFx');if(old)old.remove();const se=S.month<=3?['春','#86cc90']:S.month<=6?['夏','#e8a05f']:S.month<=9?['秋','#d4ad55']:['冬','#9cc4e8'];
   const d=document.createElement('div');d.id='monthFx';d.setAttribute('aria-live','polite');
   d.innerHTML=`<div class="mfx"><b style="color:${se[1]}">${se[0]}</b><div><i>${MZH[S.month]}</i><span>${dateStr()}</span></div></div>`;
   document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
@@ -2341,7 +2409,7 @@ document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenE
     b.scrollLeft+=r2.left+rx*r2.width-fx;b.scrollTop+=r2.top+ry*r2.height-fy});}
 window.addEventListener('resize',()=>{if(!$('#battleView').hidden)resizeMap()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(G&&!$('#battleView').hidden)terrainCv=renderTerrain(T)});
-showScreen('title');renderTitle();
+showScreen('title');renderTitle();updSndBtns();
 </script>
 
 </html>
