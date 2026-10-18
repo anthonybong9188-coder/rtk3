@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=三下不乾于仁佐兵典分劉勝南合吳咆哮商單國城壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬昌昭曹會東柴桂桑業槍樂權武汝江沙泰淵滿火王琬瑜甘盾神稽突範簡糜肅肥良荀蒙蓋虎虛蜀衛襄襲計訓許諸賞赤趙農速遼邢金長關陳陵陽雄雙零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不九乾二于五仁佐八六兵典冬分劉勝十南合吳咆哮商單四國城壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬昌春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許諸賞赤趙農速遼邢金長關陳陵陽雄雙零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -337,6 +337,25 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .city .cic::after{content:'';position:absolute;left:8%;right:8%;bottom:-3px;height:7px;border-radius:50%;background:var(--fc);opacity:.85;z-index:-1;filter:blur(1.5px)}
 .city.sel .cic img{filter:drop-shadow(0 0 4px var(--gold)) drop-shadow(0 0 2px var(--gold))}
 .city{min-height:0}
+#monthFx{position:fixed;inset:0;z-index:300;display:grid;place-items:center;pointer-events:none;background:radial-gradient(ellipse at center,rgba(10,8,5,.75),rgba(10,8,5,0) 70%);animation:mfxBg 1.05s ease forwards}
+#monthFx .mfx{display:flex;align-items:center;gap:16px;padding:14px 28px 14px 20px;background:linear-gradient(#2a2016,#17120c);border:2px solid #8a6d38;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.6);animation:mfxIn 1.05s cubic-bezier(.2,.8,.2,1) forwards}
+#monthFx b{font:900 56px/1 var(--f-zh);text-shadow:0 0 14px currentColor}
+#monthFx div div{display:flex;flex-direction:column;gap:4px}
+#monthFx i{font:900 30px/1 var(--f-zh);font-style:normal;color:#f3dc9a;letter-spacing:4px}
+#monthFx span{font-size:15px;color:#d8c8a4}
+@keyframes mfxBg{0%{opacity:0}20%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes mfxIn{0%{opacity:0;transform:translateY(24px) scale(.9)}22%{opacity:1;transform:none}75%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-16px) scale(1.03)}}
+@media (prefers-reduced-motion:reduce){#monthFx,#monthFx .mfx{animation-duration:1.05s;animation-timing-function:steps(1,end)}}
+.rtabs{display:flex;gap:6px;margin-top:6px}
+.rtabs button{flex:1;min-height:34px;padding:4px 8px;font:700 13px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:#a6977a;background:#1c160f;border:1px solid #4a3d2a;border-radius:8px}
+.rtabs button.on{color:#f3dc9a;border-color:#8a6d38;background:#2a2116}
+.rtabs .dot{display:inline-grid;place-items:center;width:16px;height:16px;margin-left:4px;border-radius:50%;background:#c4473a;color:#fff;font:800 11px/1 sans-serif;font-style:normal}
+.foes{display:flex;flex-direction:column;gap:8px;font-size:12.5px}
+.foes .fsub{margin:0;font-size:11.5px}
+.foe{border-left:3px solid #4a3d2a;padding-left:8px}
+.foeh{display:flex;align-items:center;gap:6px}.foeh i{width:10px;height:10px;border-radius:2px;transform:rotate(45deg)}.foeh b{color:var(--paper)}.foeh small{color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+.foe ul{list-style:none;margin:3px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;color:#cbbd9c}
+.foe li.threat{color:#ff9b8c;font-weight:600}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
@@ -1631,7 +1650,9 @@ function renderCity(){
     cc+=`<button class="wide" data-act="home">Back to my city</button>`;
   }
   for(const ar of S.armies.filter(x=>x.to===c.id||x.from===c.id))cc+=`<div class="note" style="border-color:${FACS[ar.fac].main}">${FACS[ar.fac].short} army of ${fmt(ar.troops)} · ${C(ar.from).name} → ${C(ar.to).name} · ${ar.left} month${ar.left>1?'s':''}</div>`;
-  cc+=`<div class="sec">Reports</div><ol class="clog">${S.log.slice(0,6).map(l=>`<li><span>${l.d}</span> ${l.h}</li>`).join('')}</ol>`;
+  const tab=UI.rtab||'log',thr=Object.values(S.intel||{}).flat().some(e=>e.k==='march'&&C(e.to).owner==='shu');
+  cc+=`<div class="rtabs" role="tablist"><button role="tab" aria-selected="${tab==='log'}" class="${tab==='log'?'on':''}" data-act="rtab" data-t="log">Reports</button><button role="tab" aria-selected="${tab==='foe'}" class="${tab==='foe'?'on':''}" data-act="rtab" data-t="foe">Enemies${thr?' <em class="dot" aria-label="threat">!</em>':''}</button></div>`;
+  cc+=tab==='log'?`<ol class="clog">${S.log.slice(0,8).map(l=>`<li><span>${l.d}</span> ${l.h}</li>`).join('')}</ol>`:`<div class="foes">${foeReport()}</div>`;
   $('#cC').innerHTML=cc;
 }
 function cmdPreview(k,g,c){
@@ -1645,6 +1666,7 @@ function cmdPreview(k,g,c){
   if(k==='search')return `${Math.round(Math.min(90,s*.6+10))}% chance to find something`;
   if(k==='reward')return `loyalty ${g.loy} → ${Math.min(100,g.loy+8)}`;
   return ''}
+function intel(f,o){if(!S.intel)S.intel={};(S.intel[f]=S.intel[f]||[]).push(o)}
 function doCmd(k,g,c,f){
   const F=S.fac[f],v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
   if(k!=='reward')g.acted=true;
@@ -1672,6 +1694,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd}renderCity();return}
   if(b.dataset.gen){const g=GN(b.dataset.gen);const m=doCmd(UI.cmd,g,c,'shu');addLog(m,'shu');toast(m);if(UI.cmd!=='reward')UI.mode='city';save();renderCampaign();return}
   const a=b.dataset.act;
+  if(a==='rtab'){UI.rtab=b.dataset.t;renderCity();return}
   if(a==='back'){UI.mode='city';renderCity()}
   if(a==='prevCity'||a==='nextCity'){const my=citiesOf('shu'),i=my.findIndex(x=>x.id===c.id);S.sel=my[(i+(a==='nextCity'?1:my.length-1))%my.length].id;UI.mode='city';renderCity()}
   if(a==='home'){const my=citiesOf('shu');if(my.length){S.sel=my[0].id;UI.mode='city';renderCity()}}
@@ -1754,8 +1777,13 @@ function launchArmy(f,from,to,gens,troops,rice,split){
 
 // ------------------------------------------------------------ month
 async function endMonth(){
-  if(UI.busy||S.over)return;UI.busy=true;UI.mode='city';renderCampaign();
+  if(UI.busy||S.over)return;
+  if(!UI.noConfirm){const idle=gensOf('shu').filter(g=>!g.acted&&!g.army).length;
+    const r=await dialog(`<h2>End ${dateStr().split(' · ')[1]}?</h2><p>${idle?`<b>${idle} general${idle>1?'s have':' has'} not acted</b> this month.`:'All your generals have acted.'} The enemy will move next.</p>`,[['no','Keep playing'],['yes','End month','primary']]);
+    if(r!=='yes')return}
+  UI.busy=true;UI.mode='city';renderCampaign();
   try{
+    S.intel={};S.intelD=dateStr();
     for(const f of Object.keys(FACS))if(f!=='shu'&&alive(f))aiTurn(f);
     renderMap();
     // armies march and eat
@@ -1769,8 +1797,25 @@ async function endMonth(){
       checkCampaignEnd()}
     save();
   }catch(err){console.error(err)}
-  UI.busy=false;renderCampaign();
+  UI.busy=false;renderCampaign();if(!S.over)monthFx();
 }
+const MZH=['','正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','臘月'];
+function monthFx(){const old=$('#monthFx');if(old)old.remove();const se=S.month<=3?['春','#86cc90']:S.month<=6?['夏','#e8a05f']:S.month<=9?['秋','#d4ad55']:['冬','#9cc4e8'];
+  const d=document.createElement('div');d.id='monthFx';d.setAttribute('aria-live','polite');
+  d.innerHTML=`<div class="mfx"><b style="color:${se[1]}">${se[0]}</b><div><i>${MZH[S.month]}</i><span>${dateStr()}</span></div></div>`;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
+function foeReport(){const I=S.intel||{};const fs2=Object.keys(FACS).filter(f=>f!=='shu'&&alive(f));
+  const nm=id=>C(id).name,list=a=>[...new Set(a)].map(nm).join(', ');
+  let h=`<p class="muted fsub">What every rival did in ${S.intelD||'the last month'}.</p>`;
+  for(const f of fs2){const E=I[f]||[],F=FACS[f],by=k=>E.filter(e=>e.k===k);const L=[];
+    for(const e of by('march'))L.push(`<li class="${C(e.to).owner==='shu'?'threat':''}">⚔ Marches on <b>${nm(e.to)}</b> from ${nm(e.c)} with ${fmt(e.n)} troops${e.gs&&e.gs.length?' · '+e.gs.map(id=>GN(id).name).join(', '):''}</li>`);
+    for(const e of by('move'))L.push(`<li>➜ Moves ${fmt(e.n)} troops from ${nm(e.c)} to ${nm(e.to)}</li>`);
+    const rc=by('recruit');if(rc.length)L.push(`<li>徵 Recruits <b>+${fmt(rc.reduce((s,e)=>s+e.n,0))}</b> troops · ${list(rc.map(e=>e.c))}</li>`);
+    const lab={train:'訓 Drills troops',walls:'城 Repairs walls',farm:'農 Works the fields',com:'商 Builds markets',patrol:'巡 Patrols the streets'};
+    for(const k in lab){const x=by(k);if(x.length)L.push(`<li>${lab[k]} · ${list(x.map(e=>e.c))}</li>`)}
+    for(const e of by('search'))if(/agrees to serve/.test(e.m))L.push(`<li>探 ${e.m}</li>`);
+    h+=`<div class="foe"><div class="foeh"><i style="background:${F.main}"></i><b>${F.short}</b><small>${citiesOf(f).length} cit${citiesOf(f).length>1?'ies':'y'} · ${fmt(citiesOf(f).reduce((s,c)=>s+c.troops,0))} troops</small></div><ul>${L.join('')||'<li class="muted">Nothing seen.</li>'}</ul></div>`}
+  return h}
 function economy(){
   for(const f of Object.keys(FACS)){if(!alive(f))continue;const F=S.fac[f],cs=citiesOf(f);
     const inc=cs.reduce((s,c)=>s+c.com*.5*c.order/100,0),sal=gensOf(f).length*SALARY;
@@ -1817,7 +1862,7 @@ function aiTurn(f){
       else if(c.com<c.comMax&&F.gold>=50&&g.pol>=50)k='com';
       else if(c.walls<100&&F.gold>=50)k='walls';
       else if(c.train<100)k='train';
-      if(!k)continue;if(!Object.entries(CMDS[k].cost).every(([r,n])=>F[r]>=n))continue;doCmd(k,g,c,f)}}
+      if(!k)continue;if(!Object.entries(CMDS[k].cost).every(([r,n])=>F[r]>=n))continue;const t0=c.troops,msg=doCmd(k,g,c,f);intel(f,{k,c:c.id,g:g.id,n:c.troops-t0,m:msg})}}
   };
   if(A==='passive'){domestic();return}
   // move troops and spare generals from safe rear cities toward the border
@@ -1827,7 +1872,7 @@ function aiTurn(f){
     for(const c of mine){if(!dist[c.id]||c.troops<7000||S.armies.some(a=>a.fac===f&&a.from===c.id))continue;
       const to=neighbours(c.id).filter(n=>dist[n]!=null&&dist[n]<dist[c.id]).sort((x,y)=>C(x).troops-C(y).troops)[0];if(!to)continue;
       const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war),spare=gs.filter(g=>!isRuler(g)).slice(0,Math.min(2,gensIn(c.id).length-1));
-      const amt=c.troops-4000,tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.min(F.rice,Math.round(amt*RICE_MARCH*tr)))}}
+      const amt=c.troops-4000,tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.min(F.rice,Math.round(amt*RICE_MARCH*tr)));intel(f,{k:'move',c:c.id,to,n:amt,gs:spare.map(g=>g.id)})}}
   if((A==='aggressive'&&dateNum()<210*12+1)||(S.armies.some(a=>a.fac===f&&C(a.to).owner!==f)&&Math.random()<.5)){domestic();return}
   let best=null;
   for(const c of citiesOf(f)){const gs=gensIn(c.id).filter(g=>!g.acted);if(!gs.length||c.troops<6000)continue;
@@ -1841,7 +1886,7 @@ function aiTurn(f){
   const gs=gensIn(best.c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war);const keep=gs.find(g=>isRuler(g))||(gensIn(best.c.id).length>1?gs[gs.length-1]:null);
   const go=gs.filter(g=>g!==keep).slice(0,3);if(!go.length){domestic();return}
   const a=launchArmy(f,best.c.id,best.t.id,go,Math.round(best.send),Math.round(best.need));
-  addLog(`${fs(f)} marches on ${best.t.name} from ${best.c.name} with ${fmt(a.troops)} troops.`,f);
+  addLog(`${fs(f)} marches on ${best.t.name} from ${best.c.name} with ${fmt(a.troops)} troops.`,f);intel(f,{k:'march',c:best.c.id,to:best.t.id,n:a.troops,gs:go.map(g=>g.id)});
   if(best.t.owner==='shu')toast(`${FACS[f].short} army of ${fmt(a.troops)} marches on ${best.t.name}!`);
   domestic();
 }
