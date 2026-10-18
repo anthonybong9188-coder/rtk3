@@ -1023,6 +1023,11 @@ function playFire(u,e,dmg,before){
       if(t>=END){SC.removeEventListener('pointerdown',onSkip);setTimeout(()=>{$('#stage').hidden=true;resolve()},skip?120:300);return}
       requestAnimationFrame(frame)}
     requestAnimationFrame(frame)})}
+const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong:'guandao',xuchu:'guandao',
+  zhangfei:'spear',zhaoyun:'spear',xiahoudun:'spear',taishici:'spear',zhangliao:'spear',caoren:'spear',huanggai:'spear',chenying:'spear',
+  ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
+  liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
+function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
 function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function drawFigure(c,f){
