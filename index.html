@@ -1157,7 +1157,7 @@ function drawFightHud(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-function sprLoad(fk){return ['spear','shield','archer','cav','general','general_cap','general_sig',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+function sprLoad(fk){return ['spear','shield','archer','cav','general','general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
@@ -1256,6 +1256,16 @@ function drawHP(c,u,hp,x,align){
   c.textBaseline='alphabetic';c.textAlign=align==='L'?'left':'right';const tx=align==='L'?px+60:px+w-60;c.fillStyle='#ece2c9';c.font='700 18px "Alegreya SC", Georgia, serif';c.fillText(`${u.name}`,tx,38);
   c.fillStyle='#a6977a';c.font='500 13px "Alegreya Sans", sans-serif';c.fillText(`War ${u.war}`,align==='L'?px+w-12:px+12,38);
   const bw=w-72,bxx=align==='L'?px+60:px+12;c.fillStyle='#0d0b08';c.fillRect(bxx,48,bw,10);c.fillStyle=hp>35?'#d4ad55':'#c4473a';const ww=bw*clamp(hp/100);c.fillRect(align==='L'?bxx:bxx+bw-ww,48,ww,10)}
+function duelFrame(side,now){const A=D.anim,me=side==='P';
+  if(!A){if(D.result&&((D.result==='win'&&!me)||(D.result==='lose'&&me)))return[3,3];return[0,Math.floor(now/170+(me?0:2))%4]}
+  const t=now-A.t0,mv=me?A.pc:A.ec,lost=A.win===(me?'E':'P');
+  if(lost&&t>=470&&t<1000)return[3,t<640?2:3];
+  if(t<230||t>=1000)return[0,Math.floor(now/170)%4];
+  const k=clamp((t-230)/440),fr=Math.min(3,Math.floor(k*4));
+  if(mv==='strike')return[1,fr];if(mv==='guard')return[2,fr];return[3,Math.min(1,Math.floor(k*2))]}
+function drawDuelist(c,u,x,y,s,face,fac,fr){const sh=sprSheet('duel_'+weaponOf(u),sprFac(fac));if(!sh)return false;const k=84/150;
+  c.save();c.translate(x,y);c.scale(s*face,s);c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,22,3,0,0,Math.PI*2);c.fill();
+  c.drawImage(sh,fr[1]*256,fr[0]*176,256,176,-128*k,-168*k,256*k,176*k);c.restore();return true}
 function renderDuel(now,dt){
   const c=sctx;c.drawImage(D.bg,0,0,W,H);
   let oP=0,oE=0,swP=0,swE=0,flash=0;const A=D.anim;
@@ -1270,9 +1280,9 @@ function renderDuel(now,dt){
       if(A.dP)D.floats.push({x:D.xP,v:'−'+A.dP,t0:now});if(A.dE)D.floats.push({x:D.xE,v:'−'+A.dE,t0:now});$('#duelMsg').innerHTML+=` — ${A.msg}`}
     if(t>=1400){D.anim=null;afterRound()}}
   for(const k of ['P','E'])D.show[k]=lerp(D.show[k],D.hp[k],clamp(dt/120));
-  const sP=D.P.type==='cav'?2.1:2.6,sE=D.E.type==='cav'?2.1:2.6;
-  drawFigure(c,{x:D.xP+oP,y:H*.9,s:sP,face:1,fac:'shu',type:D.P.type,officer:true,ch:D.P.ch,swing:swP,run:A&&Math.abs(oP)>2?now*.03:null});
-  drawFigure(c,{x:D.xE+oE,y:H*.9,s:sE,face:-1,fac:'wei',type:D.E.type,officer:true,ch:D.E.ch,swing:swE,run:A&&Math.abs(oE)>2?now*.03:null});
+  const sP=2.1,sE=2.1;
+  if(!drawDuelist(c,D.P,D.xP+oP,H*.9,sP,1,'shu',duelFrame('P',now)))drawFigure(c,{x:D.xP+oP,y:H*.9,s:sP,face:1,fac:'shu',type:D.P.type,officer:true,ch:D.P.ch,swing:swP,run:A&&Math.abs(oP)>2?now*.03:null});
+  if(!drawDuelist(c,D.E,D.xE+oE,H*.9,sE,-1,'wei',duelFrame('E',now)))drawFigure(c,{x:D.xE+oE,y:H*.9,s:sE,face:-1,fac:'wei',type:D.E.type,officer:true,ch:D.E.ch,swing:swE,run:A&&Math.abs(oE)>2?now*.03:null});
   if(flash>0){c.fillStyle=`rgba(255,244,214,${flash*.55})`;c.fillRect(0,0,W,H)}
   stepParts(c,dt);
   drawHP(c,D.P,D.show.P,14,'L');drawHP(c,D.E,D.show.E,W-14,'R');
