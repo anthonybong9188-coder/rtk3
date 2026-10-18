@@ -317,7 +317,10 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
   .rbtn{width:64px;height:64px}
   .logpanel{width:auto;right:8px}
 }
-.cmdpick{margin-left:auto;flex:none;width:34px;height:34px;min-height:0;padding:0;border-radius:50%;font:900 17px/1 var(--f-zh);color:#a6977a;background:#211a12;border:2px solid #4a3d2a}
+.mg label.grow{box-sizing:border-box;padding:3px 6px;gap:8px}
+.mnote{margin:0;font-size:12px;color:var(--muted)}
+.dlgbox.dwide{padding:12px 14px;gap:8px}
+.cmdpick{margin-left:auto;flex:none;width:32px;height:32px;min-height:0;padding:0;border-radius:50%;font:900 17px/1 var(--f-zh);color:#a6977a;background:#211a12;border:2px solid #4a3d2a}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
@@ -1476,8 +1479,9 @@ function openMarch(from,to){
     const out=own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     box.innerHTML=`<h2>March from ${src.name}</h2>
       <div class="mrow"><label for="mTo">Destination</label><select id="mTo">${targets().map(t=>`<option value="${t.id}" ${t.id===m.to?'selected':''}>${t.name} · ${t.owner==='shu'?'your city':FACS[t.owner].short+' · '+fmt(t.troops)+' troops'} · ${routeOf(m.from,t.id)[2]} month${routeOf(m.from,t.id)[2]>1?'s':''}</option>`).join('')}</select></div>
-      <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> commander · if he falls, the army retreats</div>
+      <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
       <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
+      <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
       </div><div class="mcol"><div class="mrow"><label for="mTroops">Troops <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</label><input id="mTroops" type="range" min="0" max="${maxT}" step="100" value="${m.troops}"></div>
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tr} month${tr>1?'s':''}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b></div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
