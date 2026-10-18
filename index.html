@@ -356,6 +356,12 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .foeh{display:flex;align-items:center;gap:6px}.foeh i{width:10px;height:10px;border-radius:2px;transform:rotate(45deg)}.foeh b{color:var(--paper)}.foeh small{color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
 .foe ul{list-style:none;margin:3px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;color:#cbbd9c}
 .foe li.threat{color:#ff9b8c;font-weight:600}
+.rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
+.rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
+.rchoice button[data-r=flee] b{color:#ff9b8c}.rchoice button[data-r=auto] b{color:#f3dc9a}
+#retreatBtn.autoon{background:#7e2a21;border-color:#e88b7f;color:#fff;animation:autoPulse 1.2s ease-in-out infinite}
+@keyframes autoPulse{50%{box-shadow:0 0 0 4px rgba(232,139,127,.35)}}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}
@@ -835,7 +841,7 @@ function updateUI(){
   $('#turn').textContent=`${G.turn} / ${G.maxTurn}`;
   $('#phase').textContent=G.over?'Battle over':G.phase==='player'?'Your move':`${FAC.wei.name} is moving`;
   $('#speedBtn').textContent=speed===0?'Scenes off':`Scenes ${speed}×`;
-  $('#endBtn').disabled=G.phase!=='player'||G.busy||G.over;$('#retreatBtn').disabled=G.phase!=='player'||G.busy||G.over;
+  $('#endBtn').disabled=G.phase!=='player'||G.busy||G.over;$('#retreatBtn').disabled=G.over||(!G.auto&&(G.phase!=='player'||G.busy));$('#retreatBtn').textContent=G.auto?'Stop auto':'Retreat';$('#retreatBtn').classList.toggle('autoon',!!G.auto);
   G.atk=G.sel?attackable(G.sel):null;
   G.rangeTiles=null;if(G.sel&&(G.mode==='select'||G.mode==='moved')&&G.reach){const key=t=>t.x+','+t.y,rs=new Set(G.reach.tiles.map(key)),out=new Map(),[r0,r1]=TYPES[G.sel.type].rng;
     for(const t of G.reach.tiles)for(let dx=-r1;dx<=r1;dx++)for(let dy=-r1;dy<=r1;dy++){const d=Math.abs(dx)+Math.abs(dy);if(d<r0||d>r1)continue;const x=t.x+dx,y=t.y+dy;if(!inb(x,y)||rs.has(x+','+y)||terAt(x,y)==='w'){continue}{const o=unitAt(x,y);if(o&&o.side==='shu')continue}out.set(x+','+y,{x,y})}
@@ -997,10 +1003,53 @@ function checkEnd(){
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
-function endGame(win,text,retreat){G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
+function endGame(win,text,retreat){if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
 $('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(u.troops));
   const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
-$('#retreatBtn').onclick=()=>{if(G.phase!=='player'||G.busy||G.over)return;endGame(false,'You sound the retreat. Your army withdraws from the field.',true)};
+$('#retreatBtn').onclick=async()=>{if(G.over)return;
+  if(G.auto){G.auto=false;speed=G.autoSpeed??speed;log('You take back command.');updateUI();return}
+  if(G.phase!=='player'||G.busy)return;
+  const alive=G.units.filter(u=>u.side==='shu'),tr=alive.reduce((s,u)=>s+u.troops,0);
+  const r=await dialog(`<h2>Leave the fight?</h2><p class="muted">You have ${alive.length} unit${alive.length>1?'s':''} and ${tr.toLocaleString()} troops on the field · turn ${G.turn} of ${G.maxTurn}.</p>
+    <div class="rchoice"><button data-r="flee"><b>Full retreat</b><small>Withdraw now. Your generals and the troops still standing return home. The battle is lost.</small></button>
+    <button data-r="auto"><b>Auto resolve</b><small>Your officers fight on by themselves until the battle ends, with scenes off. Tap “Stop auto” to take back command.</small></button></div>`,
+    [['stay','Keep fighting','primary']]);
+  if(r==='flee'){endGame(false,'You sound the retreat. Your army withdraws from the field.',true);return}
+  if(r==='auto'){G.auto=true;G.autoSpeed=speed;speed=0;log('<b>Auto resolve.</b> Your officers fight on.');updateUI();autoTurn()}};
+function planAuto(u){
+  const foes=enemies();const R=reach(u);let tiles=R.tiles;
+  if(u.cmd&&!G.cfg.playerAttacks&&!foes.some(p=>manh(p,u)<=3))tiles=[{x:u.x,y:u.y}];
+  // commander: count how many enemies could hit each tile next turn, and keep out of reach
+  let TH=null;if(u.cmd){TH=new Map();const ox=u.x,oy=u.y;
+    for(const f of foes){const fr=reach(f);const seen=new Set();for(const ft of fr.tiles)for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const d=Math.abs(dx)+Math.abs(dy);if(!d||!inRange(f.type,d))continue;const k=(ft.x+dx)+','+(ft.y+dy);if(seen.has(k))continue;seen.add(k);TH.set(k,(TH.get(k)||0)+1)}}}
+  const thr=t=>TH?(TH.get(t.x+','+t.y)||0):0;
+  if(u.cmd&&(u.troops<u.max*.6||!G.cfg.playerAttacks)){const allies=G.units.filter(a=>a.side==='shu'&&a!==u);
+    let bt=null,bv=Infinity;for(const t of tiles){const near=allies.length?Math.min(...allies.map(a=>Math.abs(t.x-a.x)+Math.abs(t.y-a.y))):0;const v=thr(t)*100+near-T_INFO[terAt(t.x,t.y)].def*3;if(v<bv){bv=v;bt=t}}
+    if(bt&&thr(bt)>0){/* nowhere safe: fall through and fight from the best tile */}else return{path:bt?pathTo(R,u,bt.x,bt.y):[],target:null}}
+  let best=null;
+  for(const t of tiles){const tt=terAt(t.x,t.y);
+    for(const p of foes){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(u.type,dist))continue;
+      const ranged=dist>1,deal=Math.min(p.troops,tf(u)*dmgCalc(u.type,u.war,u.troops,p.type,terAt(p.x,p.y),ranged,false));
+      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,(p.troops+left)/2,u.type,tt,ranged,false)*.65:0;
+      if(u.cmd&&(u.troops-take*1.4<u.max*.5||thr(t)-(left<=0?1:0)>1))continue;
+      const sc=deal-take*(u.cmd?1.6:.7)+(left<=0?300:0)+(p.cmd?90:0)+T_INFO[tt].def*25;
+      if(!best||sc>best.sc)best={sc,t,p}}}
+  if(best)return{path:pathTo(R,u,best.t.x,best.t.y),target:best.p};
+  const F=field(foes,u.type);let bt=null,bv=Infinity;
+  for(const t of tiles){const v=F[t.y][t.x]-T_INFO[terAt(t.x,t.y)].def*.3+thr(t)*40;if(v<bv){bv=v;bt=t}}
+  return{path:bt?pathTo(R,u,bt.x,bt.y):[],target:null}}
+async function autoTurn(){
+  if(!G||!G.auto||G.over||G.phase!=='player')return;G.busy=true;G.sel=null;G.reach=null;G.mode='idle';updateUI();
+  const order={archer:0,cav:1,spear:2,shield:3};
+  const list=G.units.filter(u=>u.side==='shu'&&!u.acted).sort((a,b)=>(a.cmd?9:order[a.type])-(b.cmd?9:order[b.type]));
+  for(const u of list){if(!G.auto||G.over)break;if(!G.units.includes(u))continue;
+    const plan=planAuto(u);G.view=u;updateUI();
+    if(plan.path.length){await animateMove(u,plan.path);await sleep(80)}
+    if(plan.target&&G.units.includes(u)&&G.units.includes(plan.target)){await doAttack(u,plan.target,{});if(checkEnd()){G.busy=false;return}}
+    u.acted=true;await sleep(100)}
+  G.busy=false;
+  if(!G.auto){autoSel();updateUI();return}
+  if(!G.over)endTurn()}
 
 async function endTurn(){
   if(G.phase!=='player'||G.busy||G.over)return;
@@ -1022,7 +1071,7 @@ async function endTurn(){
   G.turn++;for(const u of G.units){if(u.fear)u.fear--;if(u.iron){u.iron--;if(!u.iron)u.ironSave=false}u.guardBy=null;u.swift=false}
   if(G.turn>G.maxTurn){endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?'Fifteen turns pass and the walls still stand. Your army withdraws.':'Fifteen turns pass and the attackers give up the siege.');return}
   G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){u.guard=false;for(const k in u.cd)if(u.cd[k]>0)u.cd[k]--;u.acted=!!u.stun;if(u.stun){log(`${nm(u)} spends the turn rallying.`);u.stun=0}}
-  G.view=null;log(`Turn ${G.turn}.`);autoSel();updateUI()}
+  G.view=null;log(`Turn ${G.turn}.`);autoSel();updateUI();if(G.auto)setTimeout(autoTurn,250)}
 function planEnemy(e){
   const players=G.units.filter(u=>u.side==='shu');const R=reach(e);
   let tiles=R.tiles;
@@ -1525,7 +1574,7 @@ const CMDS={
   patrol:{n:'Patrol',zh:'巡',stat:'cha',cost:{rice:100},tip:'Keep the peace and raise public order'},
   search:{n:'Search',zh:'探',stat:'int',cost:{},tip:'Look for hidden talent, gold or rice'},
   reward:{n:'Reward',zh:'賞',stat:'loy',cost:{gold:100},tip:'Give gold to raise a general\'s loyalty. Does not use his action'}};
-const CITY_ART=Object.fromEntries(['jiangxia','xuchang'].map(id=>[id,`art/${id}.jpg`]));
+const CITY_ART=Object.fromEntries(['jiangxia','xuchang','wancheng','runan'].map(id=>[id,`art/${id}.jpg`]));
 const SALARY=5, RICE_CITY=0.1, RICE_MARCH=0.2, END_YEAR=215, WIN_CITIES=10;
 
 let S=null;           // campaign state (saved)
