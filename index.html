@@ -920,7 +920,7 @@ function drawSprite(c,f,sh){
   if(f.fall>0){row=3;fr=Math.min(3,Math.floor(f.fall*4))}
   else if(f.defeat>0){row=3;fr=f.defeat<.5?0:1}
   else if(f.officer&&!f.fight&&f.swing>0){row=2;fr=f.swing>.6?2:1}
-  else if(f.fight){row=2;fr=Math.floor(now/120+sd*5)%4}
+  else if(f.fight){row=2;fr=Math.floor(now/(f.slow?220:120)+sd*5)%4}
   else if(f.shoot){row=2;fr=Math.floor(now/190+sd*3)%4}
   else if(f.run!=null){row=1;fr=Math.floor(f.run/2.6)%4}
   else{row=0;const p=Math.floor(now/320+sd*3)%6;fr=[0,1,2,3,2,1][p]}
@@ -1001,7 +1001,10 @@ function setTargets(A,B,both){
   const o=A.off,front=B.side==='R'?W-232:232;
   o.tx=both?(A.side==='L'?W/2-14:W/2+14):(A.side==='L'?front-26:front+26)}
 function schedule(S,n,kind){const pool=[...S.sol].sort(()=>Math.random()-.5);for(let k=0;k<n&&k<pool.length;k++)pool[k].deathT=kind==='arrow'?1280+Math.random()*450:1650+Math.random()*950}
-function sX(s,S,t){if(!S.melee)return s.hx;if(t<600)return s.hx;if(t<1500)return lerp(s.hx,s.tx,ease((t-600)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
+function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.off.hx].map(pr),mine=[...S.sol.map(s=>s.hx),S.off.hx].map(pr);
+  const Ef=Math.min(...ox),Er=Math.max(...ox),fr=Math.max(...mine),bk=Math.min(...mine);S.ch={f,Ef,Er,Dc:Ef-24-fr,Dp:Er+24-fr,Df:Er+60-bk}}
+function chD(S,t){const c=S.ch;if(t<600)return 0;if(t<1050)return lerp(0,c.Dc,(t-600)/450);if(t<2300)return lerp(c.Dc,c.Dp,(t-1050)/1250);if(t<3200){const k=(t-2300)/900;return lerp(c.Dp,c.Df,k*k)}return c.Df}
+function sX(s,S,t){if(S.ch)return s.hx+S.ch.f*chD(S,t);if(!S.melee)return s.hx;if(t<600)return s.hx;if(t<1500)return lerp(s.hx,s.tx,ease((t-600)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 let parts=[];
 function burst(x,y,n,col,spd){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=spd*(.4+Math.random());parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,life:1,col})}}
 function stepParts(c,dt){parts=parts.filter(p=>p.life>0);for(const p of parts){p.x+=p.vx*dt*.06;p.y+=p.vy*dt*.06;p.vy+=.012*dt;p.life-=dt/450;c.globalAlpha=clamp(p.life);c.fillStyle=p.col;c.fillRect(p.x-1.2,p.y-1.2,2.4,2.4)}c.globalAlpha=1}
@@ -1052,7 +1055,7 @@ function playBattle0(att,def,r){
     const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
     const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);
-    if(r.charge){const S=att===L?SL:SR;for(const s of S.sol)s.tx=S.side==='L'?W-110-s.col*58-(s.row%2)*10:110+s.col*58+(s.row%2)*10;S.off.tx=S.side==='L'?W-60:60}
+    if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
     schedule(SL,SL.nB-SL.nA,SR.shoot?'arrow':'melee');schedule(SR,SR.nB-SR.nA,SL.shoot?'arrow':'melee');
     const arrows=[];
@@ -1071,14 +1074,14 @@ function playBattle0(att,def,r){
       const c=sctx;c.drawImage(bg,0,0,W,H);const items=[];
       for(const S of [SL,SR]){
         for(const s of S.sol){const tt=Math.min(t,s.deathT),x=sX(s,S,tt)+(S.pushed?-S.face*70*ease(clamp((tt-1900)/700)):0),alive=t<s.deathT;let run=null,face=S.face,sw=0;
-          if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}else if(t>=1500&&t<=2700)sw=(Math.sin(t*.02+s.seed*3)+1)/2}
+          let chf=false;if(S.ch&&alive){const p=S.ch.f*x;chf=t>600&&t<3200&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(chf)sw=(Math.sin(t*.012+s.seed*3)+1)/2;else if(t>600&&t<3200)run=t*(t>2300?.05:.034)+s.seed}else if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}else if(t>=1500&&t<=2700)sw=(Math.sin(t*.02+s.seed*3)+1)/2}
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}
-          if(S.melee&&alive&&t>1500&&t<2700&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:S.melee&&alive&&t>=1500&&t<=2700,seed:s.seed,turn:S.melee&&alive?TURN(t,[2700,3500]):1,tk:S.melee&&alive&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
+          if((S.ch?chf:S.melee&&alive&&t>1500&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500:S.melee&&alive&&t>=1500&&t<=2700,slow:chf,seed:s.seed,turn:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
         const o=S.off,flee=S.nA===0&&t>2900?ease(clamp((t-2900)/900)):0,ox=sX(o,S,flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
-        if(S.melee&&!flee){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
+        let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3200&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3200)orun=t*(t>2300?.05:.034)+1}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
         if(flee){orun=t*.03;oface=-S.face}
-        items.push({y:o.y,f:{x:ox-S.face*flee*140,y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.melee&&!flee&&t>=1500&&t<=2700,defeat:S.nA===0&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.melee?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+        items.push({y:o.y,f:{x:ox-S.face*flee*140,y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=1050&&t<=2500:S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:S.nA===0&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
