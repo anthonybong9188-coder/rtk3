@@ -373,6 +373,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #actFx .afskip{color:#8f8064;font-size:11.5px}
 @keyframes afIn{from{opacity:0}}@keyframes afSlide{from{opacity:0;transform:translateX(-40px)}}@keyframes afUp{from{opacity:0;transform:translateY(14px)}}@keyframes afPop{from{opacity:0;transform:scale(.7)}}
 @media (prefers-reduced-motion:reduce){#actFx,#actFx *{animation:none!important}}
+.msum .reinf{display:block;color:#e8a05f;font-size:11.5px;font-weight:600}
 .rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
 .rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -1835,18 +1836,18 @@ function openMarch(from,to){
     const lasts=m.troops?Math.floor(m.rice/(m.troops*RICE_MARCH)):0;
     const gl=avail();const sel=[...m.sel].map(GN);
     const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
-    const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops:0;
+    const reinf=tgt?S.armies.filter(a=>a.to===tgt.id&&a.fac===tgt.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0):0;const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops+reinf:0;
     const thP=dg.length?dg.reduce((s,g)=>s+(dT/dg.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0):dT*85;
     const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*(1.15+tgt.walls/250)):9;
     const out=own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     box.innerHTML=`<h2>March from ${src.name}</h2>
-      <div class="mrow"><label for="mTo">Destination</label><select id="mTo">${targets().map(t=>`<option value="${t.id}" ${t.id===m.to?'selected':''}>${t.name} · ${t.owner==='shu'?'your city':FACS[t.owner].short+' · '+fmt(t.troops)+' troops'} · ${routeOf(m.from,t.id)[2]} month${routeOf(m.from,t.id)[2]>1?'s':''}</option>`).join('')}</select></div>
+      <div class="mrow"><label for="mTo">Destination</label><select id="mTo">${targets().map(t=>`<option value="${t.id}" ${t.id===m.to?'selected':''}>${t.name} · ${t.owner==='shu'?'your city':FACS[t.owner].short+' · '+fmt(t.troops)+' troops'+((r=>r?' (+'+fmt(r)+' coming)':'')(S.armies.filter(a=>a.to===t.id&&a.fac===t.owner).reduce((s,a)=>s+a.troops,0)))} · ${routeOf(m.from,t.id)[2]} month${routeOf(m.from,t.id)[2]>1?'s':''}</option>`).join('')}</select></div>
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
       <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
       </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}</small></div>${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
-      <div class="msum"><div><span>Travel</span><b>${tr} month${tr>1?'s':''}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b></div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
+      <div class="msum"><div><span>Travel</span><b>${tr} month${tr>1?'s':''}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b>${!own&&reinf?`<small class="reinf">+${fmt(reinf)} on the way</small>`:''}</div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
       ${lasts<tr+1&&!own?'<p class="bad">Not enough rice to reach the city and fight. Troops will desert.</p>':''}</div></div>
       <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||!m.troops||!m.to||empty?'disabled':''}>March out</button></div>`;
     $('#mTo').onchange=e=>{m.to=e.target.value;reRice();draw()};
@@ -1964,10 +1965,16 @@ function aiTurn(f){
   const mine=citiesOf(f),front=mine.filter(c=>neighbours(c.id).some(n=>{const o=C(n).owner;return o!==f&&!allied(f,o)}));
   if(front.length){const dist={},q=[];for(const c of front){dist[c.id]=0;q.push(c.id)}
     while(q.length){const id=q.shift();for(const n of neighbours(id)){if(C(n).owner!==f||dist[n]!=null)continue;dist[n]=dist[id]+1;q.push(n)}}
-    for(const c of mine){if(!dist[c.id]||c.troops<7000||S.armies.some(a=>a.fac===f&&a.from===c.id))continue;
-      const to=neighbours(c.id).filter(n=>dist[n]!=null&&dist[n]<dist[c.id]).sort((x,y)=>C(x).troops-C(y).troops)[0];if(!to)continue;
-      const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war),spare=gs.filter(g=>!isRuler(g)).slice(0,Math.min(2,gensIn(c.id).length-1));
-      const amt=c.troops-4000,tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.min(F.rice,Math.round(amt*RICE_MARCH*tr)));intel(f,{k:'move',c:c.id,to,n:amt,gs:spare.map(g=>g.id)})}}
+    // a border city wants enough troops to face what sits next to it (and anything marching on it)
+    const hostile=o=>o!==f&&!allied(f,o);
+    const incoming=id=>S.armies.filter(a=>a.fac===f&&a.to===id).reduce((s,a)=>s+a.troops,0);
+    const want=id=>{const t=neighbours(id).map(C).filter(n=>hostile(n.owner)).reduce((s,n)=>s+n.troops*.6,0)+S.armies.filter(a=>a.to===id&&hostile(a.fac)).reduce((s,a)=>s+a.troops,0);return Math.max(6000,Math.round(t*1.1))};
+    const gap=id=>dist[id]===0?want(id)-C(id).troops-incoming(id):Math.max(0,8000-C(id).troops-incoming(id))+neighbours(id).filter(n=>dist[n]!=null&&dist[n]<dist[id]).reduce((s,n)=>s+Math.max(0,gap(n)),0)*.5;
+    for(const c of mine){if(!dist[c.id]||c.troops<9000||S.armies.some(a=>a.fac===f&&a.from===c.id))continue;
+      const opts=neighbours(c.id).filter(n=>dist[n]!=null&&dist[n]<dist[c.id]).map(n=>[n,gap(n)]).sort((x,y)=>y[1]-x[1]);if(!opts.length||opts[0][1]<2000)continue;
+      const to=opts[0][0],amt=Math.round(Math.min(c.troops-7000,opts[0][1],(c.troops-7000)*.6)/500)*500;if(amt<2000)continue;
+      const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war),spare=gs.filter(g=>!isRuler(g)).slice(0,Math.min(amt>=8000?2:1,gensIn(c.id).length-1));
+      const tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.min(F.rice,Math.round(amt*RICE_MARCH*tr)));intel(f,{k:'move',c:c.id,to,n:amt,gs:spare.map(g=>g.id)})}}
   if((A==='aggressive'&&dateNum()<210*12+1)||(S.armies.some(a=>a.fac===f&&C(a.to).owner!==f)&&Math.random()<.5)){domestic();return}
   let best=null;
   for(const c of citiesOf(f)){const gs=gensIn(c.id).filter(g=>!g.acted);if(!gs.length||c.troops<6000)continue;
