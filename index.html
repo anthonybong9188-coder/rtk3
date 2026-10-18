@@ -502,6 +502,7 @@ const HERO={
  strat:{who:'xunyu',zh:'王佐',n:'Strategist',targets:s=>G.units.filter(u=>u.side===s.side&&u!==s&&u.acted&&manh(u,s)<=2),desc:'An ally within 2 squares that has acted may act again'},
  rally:{who:'lusu',zh:'安撫',n:'Rally',self:1,can:s=>[s,...adjA(s)].some(u=>u.troops<u.max),desc:'Restore 15% troops to himself and adjacent allies'},
  treach:{who:'caocao',zh:'奸雄',n:'Treachery',targets:s=>adjE(s),desc:'An adjacent enemy loses its next turn'}};
+for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind'].includes(k))delete HERO[k];
 for(const [k,h] of Object.entries(HERO))SKILLS[k]={n:h.n,zh:h.zh[0],who:u=>u.id===h.who,desc:h.desc};
 function ambushTile(s,e){return DIRS.map(([dx,dy])=>({x:e.x+dx,y:e.y+dy})).filter(t=>inb(t.x,t.y)&&terAt(t.x,t.y)!=='w'&&!unitAt(t.x,t.y)).sort((a,b)=>manh(a,s)-manh(b,s))[0]}
 
