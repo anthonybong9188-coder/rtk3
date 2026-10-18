@@ -402,6 +402,15 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .tlist{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}.tlist button{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;padding:6px 10px}
 .tlist button>:first-child{grid-row:1/3}.tlist b{font-size:15px}.tlist small{grid-column:2;color:var(--muted);font-size:12px}.tlist em{grid-row:1/3;grid-column:3;font-style:normal;font-weight:800;font-size:18px;color:#f3dc9a}
 .bigp{font-size:16px;margin:4px 0}.bigp b{font-size:22px;color:#f3dc9a}
+.ohead,.orow{grid-template-columns:36px minmax(0,1fr) repeat(5,27px) 56px}
+.orow .loy.warn{color:#e8a05f;font-weight:700}.orow .loy.risk{color:#ff8a7a;font-weight:800}
+#threatBar{display:flex;flex-direction:column;gap:4px;padding:6px max(16px,env(safe-area-inset-left)) 0}
+#threatBar button{display:block;width:100%;text-align:left;min-height:34px;padding:6px 12px;border-radius:8px;background:#3a1f18;border:1px solid #a3554a;color:#ffd6cc;font-size:13.5px;line-height:1.3}
+#threatBar button.soon{background:#5a2018;border-color:#e88b7f;animation:autoPulse 1.4s ease-in-out infinite}
+#threatBar b{color:#fff}
+.dpick button.on{border-color:var(--gold);background:#2a2116}.dpick em{color:var(--gold)}
+.slots button{display:flex!important;justify-content:space-between;align-items:center;gap:10px;min-height:56px}.slots .sl{display:flex;flex-direction:column;gap:3px;min-width:0}.slots .sl small{color:var(--muted);font-size:12.5px}.slots em{font-size:14px!important}
+.dpick{max-height:46vh}
 .rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
 .rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -446,7 +455,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="tbig">天下三分</div>
     <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b>The Battle of Red Cliffs</b>
       <p>Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
-    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button></div>
+    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
 <div id="campaign" class="screen" hidden>
@@ -1660,13 +1669,30 @@ function newCampaign(){
   save();
 }
 function save(){try{if(S.over)localStorage.removeItem('rtk3-save');else localStorage.setItem('rtk3-save',JSON.stringify(S))}catch(e){}}
+const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
+function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
+function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
+function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
+function startFrom(sv){S=sv;if(!S)return;delete S.savedAt;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+async function saveLoadDlg(mode){
+  const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
+  const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
+    <div class="tlist slots">${rows.map(([k,n])=>{const sv=readKey(k);return `<button data-r="${k}" ${mode==='load'&&(!sv||sv.over)?'disabled':''}><span class="sl"><b>${n}</b><small>${slotLabel(sv)}</small></span><em>${mode==='save'?(sv?'Overwrite':'Save'):'Load'}</em></button>`}).join('')}</div>`,[['cancel','Cancel']]);
+  if(r==='cancel')return false;
+  if(mode==='save'){if(readKey(r)&&await dialog(`<h2>Overwrite ${rows.find(x=>x[0]===r)[1]}?</h2><p>${slotLabel(readKey(r))}</p>`,[['no','Cancel'],['yes','Overwrite','primary']])!=='yes')return false;if(writeSlot(r))toast('Game saved.');return true}
+  const sv=readKey(r);if(!sv)return false;if(S&&!S.over&&!$('#campaign').hidden&&await dialog(`<h2>Load this game?</h2><p>${slotLabel(sv)}</p><p class="muted">Anything since that save will be lost.</p>`,[['no','Cancel'],['yes','Load','primary']])!=='yes')return false;
+  startFrom(sv);toast('Game loaded.');return true}
 function loadSave(){try{const t=localStorage.getItem('rtk3-save');return t?JSON.parse(t):null}catch(e){return null}}
 
 // ------------------------------------------------------------ rendering
 function showScreen(id){for(const s of ['title','campaign','battleView'])$('#'+s).hidden=s!==id;document.body.classList.toggle('lock',id!=='battleView');if(id==='battleView')window.scrollTo(0,0)}
-function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
+function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
+function threats(){return S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu'&&!allied('shu',a.fac)).sort((x,y)=>x.left-y.left)}
+function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElement('div');el.id='threatBar';el.setAttribute('role','alert');$('#campaign .ctop').after(el)}
+  const T=threats();el.hidden=!T.length;
+  el.innerHTML=T.map(a=>`<button data-city="${a.to}" class="${a.left<=1?'soon':''}"><b>⚠</b> ${FACS[a.fac].short} army of <b>${fmt(a.troops)}</b>${a.gens.length?` (${a.gens.map(id=>GN(id).name).slice(0,2).join(', ')}${a.gens.length>2?'…':''})`:''} reaches <b>${C(a.to).name}</b> ${a.left<=1?'next month':`in ${a.left} months`}</button>`).join('')}
 function renderCampaign(){
-  if(!S)return;
+  if(!S)return;renderThreats();
   const sf=S.fac.shu,my=citiesOf('shu');
   $('#cDate').textContent=dateStr();
   $('#cGold').textContent=fmt(sf.gold);$('#cRice').textContent=fmt(sf.rice);
@@ -1727,8 +1753,8 @@ function renderCity(){
   } else {
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
     b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
-    b+=`<div class="ohead"><span></span><span>Name</span><span>War</span><span>Int</span><span>Pol</span><span>Cha</span><span>${mine?'Status':'Loyal'}</span></div>`;
-    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:`<span class="on">${g.loy}</span>`}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+    b+=`<div class="ohead"><span></span><span>Name</span><span>War</span><span>Int</span><span>Pol</span><span>Cha</span><span title="Loyalty">Loy</span><span>${mine?'Status':''}</span></div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isRuler(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isRuler(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
   }
   $('#cB').innerHTML=b;
   // ---- column C: commands and reports
@@ -1806,8 +1832,10 @@ $('#mapBtn').onclick=()=>openMap();
 $('#mapClose').onclick=()=>closeMap();
 $('#endMonth').onclick=()=>endMonth();
 $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;newCampaign();UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#contBtn').onclick=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game saves itself at the start of every month.</p>`,[['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
+$('#contBtn').onclick=()=>startFrom(loadSave());
+$('#loadBtn').onclick=()=>saveLoadDlg('load');
+const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
+$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
 // ---- city command cut-in: 1s order, 1s result
 const ACT_LINES={
   farm:[['To the fields! A good harvest feeds an army.','Turn the soil; the granaries must be full.'],['The fields will feed us well.','The farmers bless your name, my lord.']],
@@ -1941,6 +1969,7 @@ async function endMonth(){
     if(r!=='yes')return}
   UI.busy=true;UI.mode='city';renderCampaign();
   try{
+    try{UI.snap=JSON.stringify(S)}catch(e){}
     S.intel={};S.intelD=dateStr();
     for(const f of Object.keys(FACS))if(f!=='shu'&&alive(f))aiTurn(f);
     renderMap();
@@ -1956,7 +1985,8 @@ async function endMonth(){
       checkCampaignEnd()}
     save();
   }catch(err){console.error(err)}
-  UI.busy=false;renderCampaign();if(!S.over)monthFx();
+  UI.busy=false;renderCampaign();if(!S.over){monthFx();const seen=new Set(S.seenThreat||[]),nw=threats().filter(a=>!seen.has(a.id));S.seenThreat=threats().map(a=>a.id);
+    if(nw.length)setTimeout(()=>toast(`⚠ ${nw.map(a=>`${FACS[a.fac].short} army of ${fmt(a.troops)} marching on ${C(a.to).name}`).join(' · ')}`),1150)}
 }
 const MZH=['','正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','臘月'];
 function monthFx(){const old=$('#monthFx');if(old)old.remove();const se=S.month<=3?['春','#86cc90']:S.month<=6?['夏','#e8a05f']:S.month<=9?['秋','#d4ad55']:['冬','#9cc4e8'];
@@ -2080,7 +2110,7 @@ function aiTurn(f){
       if(!k)continue;if(!Object.entries(CMDS[k].cost).every(([r,n])=>F[r]>=n))continue;const t0=c.troops,msg=doCmd(k,g,c,f);intel(f,{k,c:c.id,g:g.id,n:c.troops-t0,m:msg})}}
   };
   if(A==='passive'){domestic();return}
-  if(Math.random()<.35){const envs=citiesOf(f).flatMap(c=>gensIn(c.id).filter(g=>!g.acted&&!isRuler(g))).sort((a,b)=>b.int-a.int),env=envs[0];
+  if(!allied(f,'shu')&&Math.random()<.35){const envs=citiesOf(f).flatMap(c=>gensIn(c.id).filter(g=>!g.acted&&!isRuler(g))).sort((a,b)=>b.int-a.int),env=envs[0];
     const prey=env&&citiesOf(f).flatMap(c=>neighbours(c.id)).map(C).filter(c=>c.owner==='shu').flatMap(c=>gensIn(c.id)).filter(g=>!isRuler(g)&&g.loy<70)
       .sort((a,b)=>a.loy-b.loy)[0];
     if(prey){env.acted=true;const p=persuadeChance(env,prey)*.5;
@@ -2135,6 +2165,8 @@ async function resolveArrival(a){
   const playerIn=a.fac==='shu'||c.owner==='shu';
   if(c.troops<=0&&!defG.length){takeCity(a,c,gens,a.troops,[]);if(playerIn)addLog(`${c.name} falls without a fight.`);return}
   let res;
+  if(playerIn&&UI.snap){try{localStorage.setItem(PRE,UI.snap)}catch(e){}}
+  if(playerIn&&c.owner==='shu'&&gensIn(c.id).length){defG=await pickDefenders(a,c,gens,defG);if(!defG)defG=cmdOrder(gensIn(c.id)).slice(0,4)}
   if(playerIn){
     const me=a.fac==='shu',foe=me?c.owner:a.fac;
     const html=`<div class="dzh">戰</div><h2>Battle at ${c.name}</h2>
@@ -2173,6 +2205,18 @@ async function fieldBattles(){
     const home=C(W.from).owner===W.fac?C(W.from):C(W.to);
     for(const g of caps)await handleCapture(g,W.fac,home);
     if(S.over)return}}
+async function pickDefenders(a,c,gens,def0){
+  const all=cmdOrder(gensIn(c.id));const sel=new Set(def0.map(g=>g.id));let cmd=def0[0]&&def0[0].id;
+  for(;;){if(!sel.has(cmd))cmd=[...sel][0];
+    const r=await dialog(`<div class="dzh">守</div><h2>${FACS[a.fac].short} attacks ${c.name}</h2>
+      <p>${fmt(a.troops)} troops led by ${gens.map(g=>g.name).join(', ')||'no general'} are at the gates. Your ${fmt(c.troops)} troops are split evenly between the officers you send out.</p>
+      <p class="muted">Pick up to 4 officers to defend, then choose the 帥 commander. If he falls, the defence collapses.</p>
+      <div class="tlist dpick">${all.map(g=>`<button data-r="tog:${g.id}" class="${sel.has(g.id)?'on':''}" ${!sel.has(g.id)&&sel.size>=4?'disabled':''}>${gseal(g,30)}<b>${sel.has(g.id)?'✓ ':''}${g.name}</b><small>War ${g.war} · Int ${g.int} · ${TYPES[g.type].n}</small><em>${cmd===g.id?'帥':''}</em></button>`).join('')}</div>
+      <div class="envrow"><span>Commander</span>${[...sel].map(id=>`<button data-r="cmd:${id}" class="${cmd===id?'on':''}">帥 ${GN(id).name}</button>`).join('')}</div>`,
+      [['go',`Defend with ${sel.size} officer${sel.size>1?'s':''}`,'primary']]);
+    if(r.startsWith('tog:')){const id=r.slice(4);if(sel.has(id)){if(sel.size>1)sel.delete(id)}else if(sel.size<4)sel.add(id);continue}
+    if(r.startsWith('cmd:')){cmd=r.slice(4);continue}
+    const rest=cmdOrder([...sel].filter(id=>id!==cmd).map(GN));return [GN(cmd),...rest]}}
 function unitSplit(gs,total){const n=gs.length||1;return gs.map(()=>Math.floor(total/n))}
 // player armies carry a per-general split; scale it to what is left after desertion
 function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.map(g=>a.split[g.id]||0),t=w.reduce((x,y)=>x+y,0);
