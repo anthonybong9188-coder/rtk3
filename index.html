@@ -1416,7 +1416,7 @@ function afterRound(){
 // CAMPAIGN · grand strategy layer
 // =====================================================================
 const FACS={
-  shu:{name:'Liu Bei',short:'Shu',zh:'蜀',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',gold:1200,rice:18000,ai:null},
+  shu:{name:'Liu Bei',short:'Shu',zh:'蜀',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',gold:1500,rice:30000,ai:null},
   wei:{name:'Cao Cao',short:'Wei',zh:'魏',main:'#4a78c0',dark:'#28457a',light:'#8fb2ea',ruler:'caocao',gold:4000,rice:150000,ai:'aggressive'},
   wu:{name:'Sun Quan',short:'Wu',zh:'吳',main:'#c4473a',dark:'#7e2a21',light:'#e88b7f',ruler:'sunquan',gold:2500,rice:80000,ai:'defensive'},
   han:{name:'Han Xuan',short:'Han Xuan',zh:'韓',main:'#a3824a',dark:'#5c4826',light:'#dcc08a',ruler:'hanxuan',gold:500,rice:9000,ai:'passive'},
@@ -1432,14 +1432,14 @@ const CITY_DEF=[
   ['hefei','Hefei','合肥',69.7,52.3,'wei',10000,450,700,350,600,80,75,200,75],
   ['xiangyang','Xiangyang','襄陽',34.1,46.6,'wei',12000,600,800,600,800,85,65,400,70],
   ['jiangling','Jiangling','江陵',31.1,72.7,'wei',35000,650,900,500,800,80,60,350,70],
-  ['jiangxia','Jiangxia','江夏',46.2,63.6,'shu',8500,410,800,280,600,55,72,120,60],
+  ['jiangxia','Jiangxia','江夏',46.2,63.6,'shu',15000,450,800,300,600,65,75,180,65],
   ['chaisang','Chaisang','柴桑',62.1,72.7,'wu',18000,500,800,450,700,70,80,200,70],
   ['jianye','Jianye','建業',85.6,62.5,'wu',20000,700,900,700,900,85,85,400,65],
   ['kuaiji','Kuaiji','會稽',86.4,86.5,'wu',8000,550,800,400,700,60,75,250,60],
-  ['wuling','Wuling','武陵',18.9,84.0,'jin',6000,350,700,200,500,45,60,150,50],
-  ['changsha','Changsha','長沙',47.7,82.0,'han',9000,500,800,350,600,60,65,250,60],
-  ['lingling','Lingling','零陵',31.0,90.5,'liu',6000,380,700,220,500,45,60,150,50],
-  ['guiyang','Guiyang','桂陽',57.0,91.0,'zhao',5000,360,700,200,500,40,60,130,50]];
+  ['wuling','Wuling','武陵',18.9,84.0,'jin',5000,350,700,200,500,45,60,150,50],
+  ['changsha','Changsha','長沙',47.7,82.0,'han',8000,500,800,350,600,60,65,250,60],
+  ['lingling','Lingling','零陵',31.0,90.5,'liu',5000,380,700,220,500,45,60,150,50],
+  ['guiyang','Guiyang','桂陽',57.0,91.0,'zhao',4000,360,700,200,500,40,60,130,50]];
 const ROUTES=[['xuchang','wancheng',1],['xuchang','runan',1],['runan','hefei',1],['wancheng','xiangyang',1],['xiangyang','jiangling',1],
   ['xiangyang','jiangxia',2],['runan','jiangxia',2],['jiangling','jiangxia',2,1],['jiangling','wuling',1],['jiangling','changsha',2],
   ['jiangxia','chaisang',1,1],['jiangxia','changsha',2],['chaisang','jianye',2,1],['hefei','jianye',1,1],['jianye','kuaiji',2],
