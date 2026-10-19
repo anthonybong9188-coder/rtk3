@@ -585,6 +585,13 @@ rep('@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}', '''.cmdpi
 .welct{flex:1;min-width:0}.welct h2{margin:2px 0 4px}.welck{font-size:12px;letter-spacing:.08em;color:var(--gold);font-weight:700}
 .welct blockquote{margin:10px 0;padding:10px 14px;background:#f3e6c4;color:#241a10;border-radius:12px;font:600 16px/1.4 var(--f-body)}
 .warnc{color:#e8a05f}
+.mvrow{display:grid;grid-template-columns:1.3fr 1fr;gap:6px}.mvrow button{min-height:48px}
+.durrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 6px}.durrow>span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.durrow button{min-height:34px;padding:4px 10px;font-size:13px}.durrow button.on{border-color:var(--gold);color:#f3dc9a;background:#2a2116}
+.gst.asg{color:#9cc4e8;border-color:#5a7a9a}.asgt{color:#9cc4e8;font-weight:600}
+.govcard{padding:10px 12px;border-radius:10px;background:#1c2418;border:1px solid #4f9a5a;display:flex;flex-direction:column;gap:3px;margin-bottom:6px}.govcard b{color:#f3e6c4}.govcard small{color:var(--muted)}
+.tipbox{position:fixed;z-index:400;max-width:280px;padding:8px 12px;border-radius:10px;background:#f3e6c4;color:#241a10;font:500 13.5px/1.4 var(--f-body);box-shadow:0 6px 20px rgba(0,0,0,.5);pointer-events:none}.tipbox b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#7a5a2a}
+[data-tip]{-webkit-touch-callout:none}
+.sumlist{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto;font-size:13.5px}.sumlist li{display:flex;gap:8px;align-items:flex-start}.smi{flex:none;width:20px;text-align:center}.sumlist.thr li{color:#ffd6cc}.newb{font-style:normal;font-size:11px;padding:1px 6px;border-radius:8px;background:#c4473a;color:#fff;margin-left:4px}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}

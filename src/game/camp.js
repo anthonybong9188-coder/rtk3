@@ -106,7 +106,7 @@ const facName=f=>f?FACS[f].short:'Free';
 const portraitSrc=g=>g.img?`portraits/${g.img}.png`:null;
 function gseal(g,size){const F=FACS[g.fac]||{main:'#5a5040'};const src=portraitSrc(g);
   return src?`<img class="gport" style="width:${size}px;height:${Math.round(size*1.15)}px" src="${src}" alt="">`:`<span class="gseal" style="width:${size}px;height:${Math.round(size*1.15)}px;background:${F.main};font-size:${Math.round(size*.55)}px">${g.ch}</span>`}
-function addLog(h,f){S.log.unshift({d:`${S.year}/${S.month}`,h,f:f||null});if(S.log.length>60)S.log.pop()}
+function addLog(h,f){S.logN=(S.logN||0)+1;S.log.unshift({d:`${S.year}/${S.month}`,h,f:f||null,n:S.logN});if(S.log.length>60)S.log.pop()}
 const fs=f=>`<b style="color:${FACS[f].light}">${FACS[f].short}</b>`;
 const gnm=g=>`<b style="color:${(FACS[g.fac]||{light:'#ece2c9'}).light}">${g.name}</b>`;
 
@@ -145,8 +145,88 @@ function threats(){return S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu
 function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElement('div');el.id='threatBar';el.setAttribute('role','alert');$('#campaign .ctop').after(el)}
   const T=threats();el.hidden=!T.length;
   el.innerHTML=T.map(a=>`<button data-city="${a.to}" class="${a.left<=1?'soon':''}"><b>⚠</b> ${FACS[a.fac].short} army of <b>${fmt(a.troops)}</b>${a.gens.length?` (${a.gens.map(id=>GN(id).name).slice(0,2).join(', ')}${a.gens.length>2?'…':''})`:''} reaches <b>${C(a.to).name}</b> ${a.left<=1?'next month':`in ${a.left} months`}</button>`).join('')}
+// ===== long-term assignments (farm / commerce / train for N months)
+const ASSIGNABLE=['farm','com','train'];
+const assignLbl=g=>g.assign?`${CMDS[g.assign.k].n} · ${g.assign.left} mo`:'';
+const govOf=c=>c&&c.gov?GN(c.gov):null;
+const isDelegated=c=>!!(c&&c.owner==='shu'&&c.gov);
+async function confirmBreakAssign(g){if(!g.assign)return true;
+  const r=await dialog(`<h2>${g.name} has an assignment</h2><p>He is assigned to <b>${CMDS[g.assign.k].n}</b> for ${g.assign.left} more month${g.assign.left>1?'s':''}.</p><p class="muted">Giving him this order ends the assignment.</p>`,[['no','Keep the assignment'],['yes','End it and continue','primary']]);
+  if(r!=='yes')return false;addLog(`${g.name}'s ${CMDS[g.assign.k].n.toLowerCase()} assignment is ended.`,'shu');g.assign=null;return true}
+// run every month before the economy: assigned officers, then governed cities
+function runAssignments(){
+  for(const g of gensOf('shu')){if(!g.assign||g.army||g.acted)continue;const c=C(g.city);if(!c||c.owner!=='shu'||isDelegated(c)){g.assign=null;continue}
+    const k=g.assign.k,afford=Object.entries(CMDS[k].cost).every(([r,n])=>S.fac.shu[r]>=n);
+    if(!afford){addLog(`${g.name} cannot carry out his ${CMDS[k].n.toLowerCase()} assignment: not enough gold.`,'shu');continue}
+    const m=doCmd(k,g,c,'shu');g.assign.left--;addLog(`${m} <i>(assigned${g.assign.left?`, ${g.assign.left} month${g.assign.left>1?'s':''} left`:', finished'})</i>`,'shu');if(!g.assign.left)g.assign=null}}
+const GOV_MODES={auto:'Auto',internal:'Internal',military:'Military'};
+function govTick(){
+  for(const c of citiesOf('shu')){if(!c.gov)continue;
+    if(gensIn(c.id).some(g=>g.id==='liubei')){endDelegation(c,'Liu Bei arrives and takes charge of '+c.name+' again.');continue}
+    let gv=govOf(c);if(!gv||gv.fac!=='shu'||gv.city!==c.id){const nx=gensIn(c.id).sort((a,b)=>b.pol-a.pol)[0];
+      if(!nx){endDelegation(c,`${c.name} has no officer left to govern it and returns to your direct rule.`);continue}c.gov=nx.id;gv=nx;addLog(`${nx.name} takes over as governor of ${c.name}.`,'shu')}
+    const P=c.purse;S.fac.__gov=P;const did=[];
+    const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol);
+    for(const g of gs){let k=null;const md=c.mode||'auto',room=troopCap(c)-c.troops;
+      const threat=neighbours(c.id).map(C).filter(n=>n.owner!=='shu'&&!allied('shu',n.owner)).reduce((x,n)=>Math.max(x,n.troops),0);
+      if(c.order<45&&P.rice>500)k='patrol';
+      else if(md==='military'){if(room>1000&&P.gold>=400&&g.cha>=50&&c.order>55)k='recruit';else if(c.train<100&&g.war>=50)k='train';else if(c.walls<100&&P.gold>=150)k='walls';else if(c.train<100)k='train'}
+      else if(md==='internal'){if(c.farm<c.farmMax&&P.gold>=150&&g.pol>=45)k='farm';else if(c.com<c.comMax&&P.gold>=150&&g.pol>=45)k='com';else if(c.order<80)k='patrol';else if(c.walls<100&&P.gold>=150)k='walls'}
+      else{if(threat>c.troops&&room>1000&&P.gold>=400&&g.cha>=50&&c.order>55)k='recruit';else if(c.train<70&&g.war>=60)k='train';else if(c.com<c.comMax&&P.gold>=150&&g.pol>=55)k='com';else if(c.farm<c.farmMax&&P.gold>=150&&g.pol>=50)k='farm';else if(c.walls<100&&P.gold>=150)k='walls';else if(c.train<100)k='train'}
+      if(!k||!Object.entries(CMDS[k].cost).every(([r,n])=>P[r]>=n))continue;doCmd(k,g,c,'__gov');did.push(CMDS[k].n.toLowerCase())}
+    delete S.fac.__gov;
+    if(did.length)addLog(`Governor ${gv.name} (${GOV_MODES[c.mode||'auto']}) runs ${c.name}: ${[...new Set(did)].join(', ')}.`,'shu')}}
+function endDelegation(c,msg){if(c.purse){S.fac.shu.gold+=Math.round(c.purse.gold);S.fac.shu.rice+=Math.round(c.purse.rice)}c.gov=null;c.purse=null;c.mode=null;if(msg)addLog(msg,'shu')}
+async function delegateDlg(c){
+  const gs=gensIn(c.id).filter(g=>g.id!=='liubei').sort((a,b)=>b.pol-a.pol);let gid=c.gov||(gs[0]&&gs[0].id),mode=c.mode||'auto';
+  let gold=c.purse?0:Math.min(S.fac.shu.gold,300),rice=c.purse?0:Math.min(S.fac.shu.rice,Math.round(c.troops*RICE_CITY*6/500)*500);
+  for(;;){const first=!c.gov;
+    const r=await dialog(`<div class="dzh">守</div><h2>${first?'Delegate':'Governor of'} ${c.name}</h2>
+      <p class="muted">A governor runs the city every month with its own purse: the city's income goes to the purse, its troops eat from it, and his orders are paid from it. You can still ask him to send gold, rice, troops or officers.</p>
+      <div class="sec">Governor</div><div class="envrow">${gs.map(g=>`<button data-r="g:${g.id}" class="${gid===g.id?'on':''}">${g.name} <i>Pol ${g.pol} · War ${g.war}</i></button>`).join('')}</div>
+      <div class="sec">Policy</div><div class="envrow">${Object.entries(GOV_MODES).map(([k,n])=>`<button data-r="m:${k}" class="${mode===k?'on':''}">${n}</button>`).join('')}</div>
+      <p class="muted">${{auto:'Balanced: keeps order, answers threats with recruits, then builds.',internal:'Farming and commerce first, then order and walls.',military:'Recruits troops and drills them, then repairs walls.'}[mode]}</p>
+      ${first?`<div class="sec">Starting purse (from your treasury)</div><div class="mrow"><label for="dG">Gold <b>${fmt(gold)}</b> of ${fmt(S.fac.shu.gold)}</label><input id="dG" type="range" min="0" max="${S.fac.shu.gold}" step="50" value="${gold}"></div>
+      <div class="mrow"><label for="dR">Rice <b>${fmt(rice)}</b> of ${fmt(S.fac.shu.rice)}</label><input id="dR" type="range" min="0" max="${S.fac.shu.rice}" step="500" value="${rice}"></div>`:`<p>Purse: <b>${fmt(c.purse.gold)}</b> gold · <b>${fmt(c.purse.rice)}</b> rice</p>`}`,
+      [['cancel','Cancel'],...(first?[]:[['end','Take back direct rule']]),['go',first?'Appoint governor':'Save','primary']]);
+    const gi=document.getElementById('dG'),ri=document.getElementById('dR');if(gi)gold=+gi.value;if(ri)rice=+ri.value;
+    if(r.startsWith('g:')){gid=r.slice(2);continue}if(r.startsWith('m:')){mode=r.slice(2);continue}
+    if(r==='end'){endDelegation(c,`You take back direct rule of ${c.name}. Its purse returns to the treasury.`);save();return}
+    if(r!=='go'||!gid)return;
+    if(first){S.fac.shu.gold-=gold;S.fac.shu.rice-=rice;c.purse={gold,rice};for(const g of gensIn(c.id))g.assign=null}
+    c.gov=gid;c.mode=mode;addLog(`${GN(gid).name} governs ${c.name} (${GOV_MODES[mode]}).`,'shu');save();return}}
+// the sliders in delegateDlg re-render on change; keep their values between redraws
+document.addEventListener('input',e=>{if(e.target.id==='dG'||e.target.id==='dR'){const b=e.target.previousElementSibling.querySelector('b');b.textContent=fmt(+e.target.value)}});
+async function requestDlg(c){
+  const own=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
+  const r=await dialog(`<div class="dzh">令</div><h2>Request from ${c.name}</h2><p class="muted">Governor ${govOf(c).name} will carry out your order.</p>
+    <div class="dipl"><button data-r="money"><span class="czh">庫</span>Gold & rice<small>send to your treasury</small></button><button data-r="move" ${own.length?'':'disabled'}><span class="czh">運</span>Troops & officers<small>to a neighbouring city</small></button></div>`,[['cancel','Cancel']]);
+  if(r==='move'){openMarch(c.id,null,'transfer');return}
+  if(r!=='money')return;
+  const P=c.purse;const q=await dialog(`<h2>Send from ${c.name}'s purse</h2>
+    <div class="mrow"><label for="qG">Gold <b>0</b> of ${fmt(P.gold)}</label><input id="qG" type="range" min="0" max="${Math.round(P.gold)}" step="50" value="0"></div>
+    <div class="mrow"><label for="qR">Rice <b>0</b> of ${fmt(P.rice)}</label><input id="qR" type="range" min="0" max="${Math.round(P.rice)}" step="500" value="0"></div>
+    <p class="muted">The governor keeps the rest to run the city. Troops eat ${fmt(Math.round(c.troops*RICE_CITY))} rice a month here.</p>`,[['cancel','Cancel'],['go','Send','primary']]);
+  const g=+(document.getElementById('qG')||{}).value||0,rr=+(document.getElementById('qR')||{}).value||0;
+  if(q!=='go')return;P.gold-=g;P.rice-=rr;S.fac.shu.gold+=g;S.fac.shu.rice+=rr;addLog(`${c.name} sends ${fmt(g)} gold and ${fmt(rr)} rice to your treasury.`,'shu');save()}
+document.addEventListener('input',e=>{if(e.target.id==='qG'||e.target.id==='qR'){e.target.previousElementSibling.querySelector('b').textContent=fmt(+e.target.value)}});
+// ===== tooltips (long-press on phones, hover on desktop)
+const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its population.',Training:'How well drilled the troops are. Fully trained troops hit about 30% harder.',
+  Farming:'Sets the rice harvest in the 7th month (40 rice per point).',Commerce:'Sets the gold the city earns each month, scaled by order.',Walls:'Fortifications. Higher walls make defenders much stronger in sieges.',
+  Order:'Public order. Low order cuts income; below 30 troops start to desert.',Population:'People living here. Limits recruiting and grows when order is 60 or more.',Harvest:'Months until the next harvest (7th month).',
+  War:'War: strength in battle and duels.',Int:'Intelligence: fire attacks, searching, persuading and envoys.',Pol:'Politics: farming, commerce and walls.',Cha:'Charisma: recruiting and how loyal your officers stay.',Loy:'Loyalty: below 75 rivals can lure him away; below 60 he may leave on his own. Reward raises it.',
+  Gold:'Your treasury. Pays for commands and salaries (5 gold per officer a month).',Rice:'Feeds your troops: 0.1 a month per soldier in a city, 0.2 on the march.',Cities:'Cities you hold. Hold 10 of the 14 by the end of 215 to win.',
+  Status:'Ready: can act this month. Done: has acted. Assigned: on a long-term task.'};
+(()=>{let t=null,tipEl=null;const show=(el,x,y)=>{hide();const k=el.dataset.tip;if(!TIPS[k])return;tipEl=document.createElement('div');tipEl.className='tipbox';tipEl.innerHTML=`<b>${k}</b> ${TIPS[k]}`;document.body.appendChild(tipEl);
+    const r=tipEl.getBoundingClientRect();tipEl.style.left=Math.max(8,Math.min(innerWidth-r.width-8,x-r.width/2))+'px';tipEl.style.top=(y-r.height-14<8?y+20:y-r.height-14)+'px';SND.fx('tap')};
+  const hide=()=>{if(tipEl){tipEl.remove();tipEl=null}};
+  addEventListener('pointerdown',e=>{const el=e.target.closest('[data-tip]');hide();if(!el)return;clearTimeout(t);t=setTimeout(()=>{show(el,e.clientX,e.clientY);el.dataset.tipped='1'},450)},{passive:true});
+  ['pointerup','pointercancel','pointermove'].forEach(ev=>addEventListener(ev,e=>{if(ev==='pointermove'&&e.pointerType==='mouse')return;clearTimeout(t)},{passive:true}));
+  addEventListener('click',e=>{const el=e.target.closest('[data-tipped]');if(el){delete el.dataset.tipped;e.stopPropagation();e.preventDefault()}},true);
+  addEventListener('scroll',hide,{capture:true,passive:true});addEventListener('pointerup',()=>setTimeout(hide,2200),{passive:true});
+  addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');if(el&&!el.title)el.title=TIPS[el.dataset.tip]||''},{passive:true})})();
 function renderCampaign(){
-  if(!S)return;renderThreats();
+  if(!S)return;document.querySelectorAll('.cres>div').forEach(d=>{const k=(d.querySelector('span')||{}).textContent;if(TIPS[k])d.dataset.tip=k});renderThreats();
   const sf=S.fac.shu,my=citiesOf('shu');
   $('#cDate').textContent=dateStr();
   $('#cGold').textContent=fmt(sf.gold);$('#cRice').textContent=fmt(sf.rice);
@@ -181,7 +261,7 @@ function renderMap(){
   const fl=[...new Set(Object.values(S.cities).map(c=>c.owner))];
   $('#mapLegend').innerHTML=fl.map(f=>`<span style="border-color:${FACS[f].main}">${FACS[f].short} · ${citiesOf(f).length}</span>`).join('');
 }
-function statRow(label,val,max){return `<div class="srow"><span>${label}</span><b>${val}${max!=null?` <i>/ ${max}</i>`:''}</b>${max!=null?`<div class="sbar"><i style="width:${Math.round(100*clamp(parseFloat(String(val).replace(/,/g,''))/max))}%"></i></div>`:''}</div>`}
+function statRow(label,val,max){return `<div class="srow" data-tip="${label}"><span>${label}</span><b>${val}${max!=null?` <i>/ ${max}</i>`:''}</b>${max!=null?`<div class="sbar"><i style="width:${Math.round(100*clamp(parseFloat(String(val).replace(/,/g,''))/max))}%"></i></div>`:''}</div>`}
 function sceneStyle(c){return CITY_ART[c.id]?`background-image:url(${CITY_ART[c.id]});background-size:cover;background-position:50% 55%`:`background-image:url(art/map.jpg);background-size:420% auto;background-position:${c.x}% ${c.y}%`}
 function renderCity(){
   const c=C(S.sel),F=FACS[c.owner],mine=c.owner==='shu';
@@ -195,27 +275,32 @@ function renderCity(){
   // ---- column B: officers
   const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
   let b='';
-  if(UI.mode==='cmd'&&mine){
+  if(UI.mode==='cmd'&&mine&&!isDelegated(c)){
     const k=UI.cmd,v=CMDS[k],cost=Object.entries(v.cost).map(([r,n])=>`${n} ${r}`).join(', ')||'free';
     const afford=Object.entries(v.cost).every(([r,n])=>S.fac.shu[r]>=n);
     let list=gs.filter(g=>k==='reward'?g.loy<100&&!isRuler(g)&&!g.rewarded:!g.acted);
     list.sort((x,y)=>k==='reward'?x.loy-y.loy:y[v.stat]-x[v.stat]);
-    b+=`<div class="chead"><div><div class="sec">${v.zh} ${v.n} · ${cost}</div><p class="muted">Choose who will do it. ${v.tip}.</p></div><button data-act="back">Cancel</button></div>`;
+    b+=`<div class="chead"><div><div class="sec">${v.zh} ${v.n} · ${cost}${ASSIGNABLE.includes(k)&&(UI.dur||1)>1?' a month':''}</div><p class="muted">Choose who will do it. ${v.tip}.</p></div><button data-act="back">Cancel</button></div>`;
+    if(ASSIGNABLE.includes(k))b+=`<div class="durrow"><span>For</span>${[1,3,6,12].map(n=>`<button data-act="dur" data-n="${n}" class="${(UI.dur||1)===n?'on':''}">${n===1?'This month':n+' months'}</button>`).join('')}</div>${(UI.dur||1)>1?`<p class="muted">Starting this month, he repeats it at the end of every month, paying ${cost} each time. Total ${Object.entries(v.cost).map(([r,n])=>`${n*(UI.dur)} ${r}`).join(', ')||'free'}.</p>`:''}`;
     if(!afford)b+=`<p class="bad">Not enough ${Object.keys(v.cost).join(' and ')}.</p>`;
     if(!list.length)b+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal or has already been rewarded this month.':'Every officer here has already acted this month.'}</p>`;
-    b+=`<div class="olist">${list.map(g=>`<button class="orow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="opick"><b>${v.stat==='loy'?'Loyalty':v.stat==='pol'?'Politics':v.stat==='cha'?'Charisma':v.stat==='int'?'Intelligence':'War'} ${g[v.stat]}</b><small>${cmdPreview(k,g,c)}</small></span></button>`).join('')}</div>`;
+    b+=`<div class="olist">${list.map(g=>`<button class="orow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${g.assign?`<span class="asgt">Assigned: ${assignLbl(g)}</span>`:isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="opick"><b>${v.stat==='loy'?'Loyalty':v.stat==='pol'?'Politics':v.stat==='cha'?'Charisma':v.stat==='int'?'Intelligence':'War'} ${g[v.stat]}</b><small>${cmdPreview(k,g,c)}</small></span></button>`).join('')}</div>`;
   } else {
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
     b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
-    b+=`<div class="ohead"><span></span><span>Name</span><span>War</span><span>Int</span><span>Pol</span><span>Cha</span><span title="Loyalty">Loy</span><span>${mine?'Status':''}</span></div>`;
-    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+    b+=`<div class="ohead"><span></span><span>Name</span><span data-tip="War">War</span><span data-tip="Int">Int</span><span data-tip="Pol">Pol</span><span data-tip="Cha">Cha</span><span data-tip="Loy">Loy</span><span data-tip="Status">${mine?'Status':''}</span></div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':g.assign?'asg':''}" title="${g.assign?assignLbl(g):''}">${c.gov===g.id?'Governor':g.acted?'Done':g.assign?'Assigned':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
   }
   $('#cB').innerHTML=b;
   // ---- column C: commands and reports
   let cc='';
-  if(mine){
+  if(mine&&isDelegated(c)){const gv=govOf(c);
+    cc+=`<div class="sec">Governed city</div><div class="govcard"><b>${gv?gv.name:'—'}</b><small>Governor · ${GOV_MODES[c.mode||'auto']} policy</small><div>Purse <b>${fmt(c.purse.gold)}</b> gold · <b>${fmt(c.purse.rice)}</b> rice</div></div>
+      <button class="primary wide" data-act="request"><span class="czh">令</span> Request</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
+  } else if(mine){
     cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
-    cc+=`<button class="primary wide" data-act="march"><span class="czh">征</span> March or move</button>`;
+    cc+=`<div class="mvrow"><button class="primary" data-act="march"><span class="czh">征</span> March</button><button data-act="transfer"><span class="czh">運</span> Transfer</button></div>`;
+    if(!gensIn(c.id).some(g=>g.id==='liubei')&&gensIn(c.id).length)cc+=`<button class="wide" data-act="delegate"><span class="czh">守</span> Delegate to a governor</button>`;
   } else {
     const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
     cc+=`<div class="sec">${F.short}</div>`;
@@ -269,13 +354,20 @@ document.addEventListener('click',async e=>{
   const cb=e.target.closest('[data-city]');if(cb){S.sel=cb.dataset.city;UI.mode='city';closeMap();renderCampaign();return}
   const b=e.target.closest('.cbody button');if(!b||UI.busy)return;
   const c=C(S.sel);
-  if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd}renderCity();return}
-  if(b.dataset.gen){const g=GN(b.dataset.gen),k=UI.cmd;UI.busy=true;const m=doCmd(k,g,c,'shu');addLog(m,'shu');save();
+  if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd;UI.dur=1}renderCity();return}
+  if(b.dataset.gen){const g=GN(b.dataset.gen),k=UI.cmd;
+    if(k!=='reward'&&g.assign){UI.busy=true;const ok=await confirmBreakAssign(g);UI.busy=false;if(!ok){renderCampaign();return}}
+    const dur=ASSIGNABLE.includes(k)?(UI.dur||1):1;
+    UI.busy=true;const m=doCmd(k,g,c,'shu');if(dur>1){g.assign={k,left:dur-1};addLog(`${m} <i>(assigned for ${dur} months)</i>`,'shu')}else addLog(m,'shu');save();
     try{await actFx(g,k,m,c)}catch(err){console.error(err)}
     if(UI.found){const ng=GN(UI.found);UI.found=null;try{await welcomeGen(ng,c,'search')}catch(err){console.error(err)}}
     UI.busy=false;if(k!=='reward')UI.mode='city';renderCampaign();return}
   const a=b.dataset.act;
   if(a==='rtab'){UI.rtab=b.dataset.t;renderCity();return}
+  if(a==='dur'){UI.dur=+b.dataset.n;renderCity();return}
+  if(a==='transfer'){openMarch(c.id,null,'transfer');return}
+  if(a==='delegate'){UI.busy=true;try{await delegateDlg(c)}finally{UI.busy=false;renderCampaign()}return}
+  if(a==='request'){UI.busy=true;try{await requestDlg(c)}finally{UI.busy=false;renderCampaign()}return}
   if(a==='back'){UI.mode='city';renderCity()}
   if(a==='prevCity'||a==='nextCity'){const my=citiesOf('shu'),i=my.findIndex(x=>x.id===c.id);S.sel=my[(i+(a==='nextCity'?1:my.length-1))%my.length].id;UI.mode='city';renderCity()}
   if(a==='home'){const my=citiesOf('shu');if(my.length){S.sel=my[0].id;UI.mode='city';renderCity()}}
@@ -346,13 +438,13 @@ function dialog(html,buttons){return new Promise(res=>{
   box.onclick=e=>{const b=e.target.closest('[data-r]');if(!b||b.disabled)return;$('#dlg').hidden=true;box.onclick=null;res(b.dataset.r)}})}
 
 // ------------------------------------------------------------ march
-function openMarch(from,to){
-  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null,al:{}};
+function openMarch(from,to,mode){
+  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null,al:{}},xfer=mode==='transfer',purse=C(from).gov?C(from).purse:null,RS=purse||S.fac.shu;
   const cmdOf=()=>m.sel.has(m.cmd)?m.cmd:(cmdOrder([...m.sel].map(GN))[0]||{}).id;
   const srcCity=C(from);
-  const targets=()=>neighbours(m.from).map(C).filter(t=>!allied('shu',t.owner)||t.owner==='shu');
+  const targets=()=>neighbours(m.from).map(C).filter(t=>xfer?t.owner==='shu':(!allied('shu',t.owner)||t.owner==='shu'));
   if(m.to&&!targets().some(t=>t.id===m.to))m.to=null;
-  const avail=()=>gensIn(m.from).filter(g=>!g.acted);
+  const avail=()=>gensIn(m.from).filter(g=>!g.acted&&!(purse&&C(from).gov===g.id));
   // default: best 3 by war (ruler stays unless alone)
   avail().filter(g=>!isRuler(g)).sort((a,b)=>b.war-a.war).slice(0,3).forEach(g=>m.sel.add(g.id));
   if(!m.sel.size&&avail().length)m.sel.add(avail()[0].id);
@@ -360,13 +452,14 @@ function openMarch(from,to){
   {const ids=[...m.sel].sort((a,b)=>GN(b).war-GN(a).war),goal=Math.max(ids.length*STEP,Math.floor(C(m.from).troops*.7/STEP)*STEP);let i=0;
    while(ids.length&&tot()<goal&&left()>0){const id=ids[i%ids.length];m.al[id]=(m.al[id]||0)+Math.min(STEP,left());i++}}
   m.troops=tot();
-  const reRice=()=>{m.rice=Math.min(S.fac.shu.rice,Math.round(m.troops*RICE_MARCH*(travel()+3)/100)*100)};
+  const need=()=>Math.ceil(m.troops*RICE_MARCH*travel()/100)*100;
+  const reRice=()=>{m.rice=Math.min(RS.rice,xfer||(m.to&&C(m.to).owner==='shu')?need():Math.round(m.troops*RICE_MARCH*(travel()+3)/100)*100)};
   const travel=()=>routeOf(m.from,m.to)?routeOf(m.from,m.to)[2]:1;
-  m.rice=Math.min(S.fac.shu.rice,Math.round(m.troops*RICE_MARCH*(travel()+3)/100)*100);
+  reRice();
   const box=$('#dlgbox');
   function draw(){
     const src=C(m.from),tgt=C(m.to),tr=travel(),own=tgt&&tgt.owner==='shu';
-    const maxT=src.troops,maxR=S.fac.shu.rice;m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=!own&&[...m.sel].some(id=>!(m.al[id]>0));
+    const maxT=src.troops,maxR=Math.round(RS.rice);const short=own&&m.troops>0&&m.rice<need();m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=!own&&[...m.sel].some(id=>!(m.al[id]>0));const tgtOwnTroopsOnly=own&&!m.sel.size;
     const lasts=m.troops?Math.floor(m.rice/(m.troops*RICE_MARCH)):0;
     const gl=avail();const sel=[...m.sel].map(GN);
     const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
@@ -376,16 +469,17 @@ function openMarch(from,to){
     const out=!tgt?['Pick a destination','#a6977a']:own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     const keepL=(box.querySelector('.glist.mg')||{}).scrollTop||0,keepB=box.scrollTop,keepF=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#dlgbox')?[document.activeElement.dataset.sp,document.activeElement.dataset.id]:null;
     queueMicrotask(()=>{const l=box.querySelector('.glist.mg');if(l)l.scrollTop=keepL;box.scrollTop=keepB;if(keepF&&keepF[0]){const f=box.querySelector(`[data-sp="${keepF[0]}"][data-id="${keepF[1]}"]`);if(f)f.focus({preventScroll:true})}});
-    box.innerHTML=`<h2>March from ${src.name}</h2>
+    box.innerHTML=`<h2>${xfer?'Transfer from':'March from'} ${src.name}${purse?' <small class="muted">· paid from the governor\'s purse</small>':''}</h2>
       <div class="mrow"><span class="lbl">Destination</span><button type="button" class="destbtn${tgt?'':' empty'}" data-pickdest="1">${tgt?`<i style="background:${FACS[tgt.owner].main}"></i><b>${tgt.name}</b><small>${own?'your city':FACS[tgt.owner].short+' · '+fmt(tgt.troops)+' troops'+(reinf?` (+${fmt(reinf)} coming)`:'')} · ${tr} month${tr>1?'s':''}</small><em>Change</em>`:'<span class="dmap" aria-hidden="true">🗺</span><b>Choose on the map</b><small>Tap to see which cities you can reach</small>'}</button></div>
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
-      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>W${g.war} I${g.int} · ${TYPES[g.type].n}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
+      <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>${g.assign?`<span class="asgt">${assignLbl(g)} · leaving ends it</span>`:`W${g.war} I${g.int} · ${TYPES[g.type].n}`}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
       </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}${own?' · generals may move to your own city with no troops':''}</small></div>${meet?`<p class="meet">⚔ ${FACS[meet.fac].short}'s army of ${fmt(meet.troops)} is marching the other way on this road. You will meet it in a field battle.</p>`:''}${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
       <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tgt?`${tr} month${tr>1?'s':''}`:'—'}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${!tgt?'—':own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b>${!own&&reinf?`<small class="reinf">+${fmt(reinf)} on the way</small>`:''}</div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
+      ${own&&m.troops?`<p class="${short?'bad':'muted'}">The journey needs ${fmt(need())} rice for ${fmt(m.troops)} troops${short?' — not enough rice.':'. Rice left over joins the destination.'}</p>`:''}
       ${tgt&&lasts<tr+1&&!own?'<p class="bad">Not enough rice to reach the city and fight. Troops will desert.</p>':''}</div></div>
-      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size||(!m.troops&&!own)||!m.to||empty?'disabled':''}>${own?'Move out':'March out'}</button></div>`;
+      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size&&!m.troops||(!m.troops&&!own)||!m.to||empty||short?'disabled':''}>${own?'Transfer':'March out'}</button></div>`;
     $('#mRice').oninput=e=>{m.rice=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.rice)};
     $('#mRice').onchange=()=>draw();
     box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{const id=i.dataset.g;if(i.checked){if(m.sel.size<4){m.sel.add(id);m.al[id]=Math.min(STEP,left())}}else{m.sel.delete(id);delete m.al[id]}m.troops=tot();reRice();draw()});
@@ -396,7 +490,7 @@ function openMarch(from,to){
       m.troops=tot();reRice();draw();return}
     const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
     const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
-    if(b.dataset.r==='go'){const ci=cmdOf(),order=[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))];launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])));addLog(`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
+    if(b.dataset.r==='go'){const ci=cmdOf(),order=m.sel.size?[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))]:[];for(const g of order)g.assign=null;if(purse){S.fac.shu.rice+=m.rice;purse.rice-=m.rice}launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])));addLog(own?`${order.length?order.map(gnm).join(', '):'A convoy'} ${order.length?'set':'sets'} out from ${C(m.from).name} to ${C(m.to).name}${m.troops?` with ${fmt(m.troops)} troops`:''}.`:`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
     $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
@@ -435,13 +529,15 @@ function launchArmy(f,from,to,gens,troops,rice,split){
 // ------------------------------------------------------------ month
 async function endMonth(){
   if(UI.busy||S.over)return;
-  if(!UI.noConfirm){const idle=gensOf('shu').filter(g=>!g.acted&&!g.army).length;
-    const r=await dialog(`<h2>End ${dateStr().split(' · ')[1]}?</h2><p>${idle?`<b>${idle} general${idle>1?'s have':' has'} not acted</b> this month.`:'All your generals have acted.'} The enemy will move next.</p>`,[['no','Keep playing'],['yes','End month','primary']]);
+  if(!UI.noConfirm){const idle=gensOf('shu').filter(g=>!g.acted&&!g.army&&!g.assign&&!isDelegated(C(g.city))).length,asg=gensOf('shu').filter(g=>g.assign&&!g.acted).length;
+    const r=await dialog(`<h2>End ${dateStr().split(' · ')[1]}?</h2><p>${idle?`<b>${idle} general${idle>1?'s have':' has'} not acted</b> this month.`:'All your generals have acted.'}${asg?` ${asg} assigned officer${asg>1?'s':''} will carry out ${asg>1?'their':'his'} task.`:''} The enemy will move next.</p>`,[['no','Keep playing'],['yes','End month','primary']]);
     if(r!=='yes')return}
   UI.busy=true;UI.mode='city';renderCampaign();
   try{
     try{UI.snap=JSON.stringify(S)}catch(e){}
     S.intel={};S.intelD=dateStr();
+    UI.logStart=S.logN||0;
+    runAssignments();govTick();
     for(const f of Object.keys(FACS))if(f!=='shu'&&alive(f))aiTurn(f);
     renderMap();
     await fieldBattles();
@@ -457,9 +553,19 @@ async function endMonth(){
     save();
   }catch(err){console.error(err)}
   UI.busy=false;renderCampaign();if(!S.over){monthFx();const seen=new Set(S.seenThreat||[]),nw=threats().filter(a=>!seen.has(a.id));S.seenThreat=threats().map(a=>a.id);
-    if(nw.length)setTimeout(()=>toast(`⚠ ${nw.map(a=>`${FACS[a.fac].short} army of ${fmt(a.troops)} marching on ${C(a.to).name}`).join(' · ')}`),1150)}
+    setTimeout(()=>monthSummary(nw),1150)}
 }
 const MZH=['','正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','臘月'];
+async function monthSummary(nw){
+  const L=S.log.filter(l=>l.n>(UI.logStart||0)).reverse();const mine=L.filter(l=>l.f==='shu'),other=L.filter(l=>l.f!=='shu');const T=threats();
+  if(!L.length&&!T.length)return;
+  const ic=h=>/takes|defeats|holds|falls|Battle|battle/.test(h)?'⚔':/harvest/.test(h)?'🌾':/goes over|leaves|lured|deserted|slips|defect|joins|agrees to serve|persuades/.test(h)?'🔀':/run out|Riots|empty|desert/.test(h)?'⚠':/Governor|governs|assigned/.test(h)?'守':'·';
+  const li=l=>`<li><span class="smi">${ic(l.h)}</span><span>${l.h}</span></li>`;
+  UI.busy=true;await dialog(`<div class="dzh">報</div><h2>Report · ${S.intelD||dateStr()}</h2><p class="muted">What happened last month. It is now ${dateStr()}.</p>
+    ${T.length?`<div class="sec">Threats</div><ul class="sumlist thr">${T.map(a=>`<li><span class="smi">⚠</span><span>${FACS[a.fac].short} army of <b>${fmt(a.troops)}</b> reaches <b>${C(a.to).name}</b> ${a.left<=1?'next month':`in ${a.left} months`}${nw.includes(a)?' <em class="newb">new</em>':''}</span></li>`).join('')}</ul>`:''}
+    ${mine.length?`<div class="sec">Your realm</div><ul class="sumlist">${mine.map(li).join('')}</ul>`:''}
+    ${other.length?`<div class="sec">Across the land</div><ul class="sumlist">${other.map(li).join('')}</ul>`:''}
+    <p class="muted">Rivals' domestic work is in the Enemies tab.</p>`,[['ok','Continue','primary']]);UI.busy=false;renderCampaign()}
 function monthFx(){SND.fx('gong');const old=$('#monthFx');if(old)old.remove();const se=S.month<=3?['春','#86cc90']:S.month<=6?['夏','#e8a05f']:S.month<=9?['秋','#d4ad55']:['冬','#9cc4e8'];
   const d=document.createElement('div');d.id='monthFx';d.setAttribute('aria-live','polite');
   d.innerHTML=`<div class="mfx"><b style="color:${se[1]}">${se[0]}</b><div><i>${MZH[S.month]}</i><span>${dateStr()}</span></div></div>`;
@@ -531,11 +637,17 @@ async function doSurrender(c){
     if(ok){renderCampaign();checkCampaignEnd()}else renderCampaign();return}}
 function economy(){
   for(const f of Object.keys(FACS)){if(!alive(f))continue;const F=S.fac[f],cs=citiesOf(f);
-    const inc=cs.reduce((s,c)=>s+c.com*.5*c.order/100,0),sal=gensOf(f).length*SALARY;
+    const dl=cs.filter(isDelegated),dr=cs.filter(c=>!isDelegated(c));
+    for(const c of dl){const P=c.purse;P.gold=Math.round(P.gold+c.com*.5*c.order/100-gensIn(c.id).length*SALARY);P.rice=Math.round(P.rice-c.troops*RICE_CITY);
+      if(S.month===7){const h=c.farm*40;P.rice+=h;addLog(`${c.name}'s harvest brings ${fmt(h)} rice into the governor's purse.`,'shu')}
+      if(P.rice<0){P.rice=0;c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5);addLog(`<b>${c.name} has run out of rice.</b> 10% of its troops desert.`,'shu')}
+      if(P.gold<0){P.gold=0;c.order=Math.max(0,c.order-2)}}
+    const inGov=new Set(dl.flatMap(c=>gensIn(c.id).map(g=>g.id)));
+    const inc=dr.reduce((s,c)=>s+c.com*.5*c.order/100,0),sal=gensOf(f).filter(g=>!inGov.has(g.id)).length*SALARY;
     F.gold=Math.round(F.gold+inc-sal);
-    const use=cs.reduce((s,c)=>s+c.troops*RICE_CITY,0);F.rice=Math.round(F.rice-use);
-    if(S.month===7){const h=cs.reduce((s,c)=>s+c.farm*40,0);F.rice+=h;if(f==='shu')addLog(`The harvest brings in ${fmt(h)} rice.`,'shu')}
-    if(F.rice<0){F.rice=0;for(const c of cs){c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5)}if(f==='shu')addLog('<b>Your rice has run out.</b> 10% of your troops desert and order falls.','shu')}
+    const use=dr.reduce((s,c)=>s+c.troops*RICE_CITY,0);F.rice=Math.round(F.rice-use);
+    if(S.month===7){const h=dr.reduce((s,c)=>s+c.farm*40,0);F.rice+=h;if(f==='shu')addLog(`The harvest brings in ${fmt(h)} rice.`,'shu')}
+    if(F.rice<0){F.rice=0;for(const c of dr){c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5)}if(f==='shu')addLog('<b>Your rice has run out.</b> 10% of your troops desert and order falls.','shu')}
     if(F.gold<0){F.gold=0;for(const c of cs)c.order=Math.max(0,c.order-2);if(f==='shu')addLog('Your treasury is empty. Unpaid officials let order slip.','shu')}
     for(const c of cs){if(c.order>=60)c.pop=Math.round((c.pop*1.004)*10)/10;
       if(c.order<30){const l=Math.round(c.troops*.05);c.troops-=l;if(f==='shu')addLog(`Riots in ${c.name}: ${fmt(l)} troops desert.`,'shu')}}}
@@ -628,7 +740,7 @@ async function resolveArrival(a){
   const c=C(a.to),gens=a.gens.map(GN).filter(g=>g&&g.fac===a.fac);
   if(!gens.length&&a.troops<=0)return;
   if(c.owner===a.fac){
-    c.troops+=a.troops;S.fac[a.fac].rice+=Math.round(a.rice);for(const g of gens){g.army=null;g.city=c.id}
+    c.troops+=a.troops;if(isDelegated(c))c.purse.rice+=Math.round(a.rice);else S.fac[a.fac].rice+=Math.round(a.rice);for(const g of gens){g.army=null;g.city=c.id}
     if(a.fac==='shu')addLog(`Your army reaches ${c.name}: ${fmt(a.troops)} troops join the garrison.`,'shu');return}
   if(allied(a.fac,c.owner)){returnHome(a,gens,a.troops);return}
   (S.grudge[c.owner]=S.grudge[c.owner]||{})[a.fac]=true;
@@ -735,7 +847,7 @@ async function applyBattle(a,c,gens,defG,res){
   checkCampaignEnd();
 }
 function capAdj(g,p){return g.war>=95?0:g.war>=90?p/2:p}
-function takeCity(a,c,gens,troops,broken){
+function takeCity(a,c,gens,troops,broken){if(c.gov){c.gov=null;c.purse=null;c.mode=null}
   c.owner=a.fac;c.troops=troops;c.train=Math.round(a.train*.85);c.order=Math.max(20,c.order-25);c.walls=Math.max(20,c.walls-25);
   c.farm=Math.round(c.farm*.9);c.com=Math.round(c.com*.85);c.pop=Math.round(c.pop*.95*10)/10;
   S.fac[a.fac].rice+=Math.round(a.rice*.8);S.fac[a.fac].gold+=300;
