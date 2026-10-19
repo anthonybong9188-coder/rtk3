@@ -99,6 +99,8 @@ const dateStr=()=>`${S.month<=3?'Spring':S.month<=6?'Summer':S.month<=9?'Autumn'
 const dateNum=()=>S.year*12+S.month;
 const allied=(a,b)=>((a==='shu'&&b==='wu')||(a==='wu'&&b==='shu'))&&dateNum()<=210*12+12;
 const isRuler=g=>!!(g.fac&&S.rulers&&S.rulers[g.fac]===g.id);
+// the faction's original lord never changes sides; an officer who only inherited the command can
+const isFounder=g=>!!(g.fac&&FACS[g.fac]&&FACS[g.fac].ruler===g.id);
 const alive=f=>citiesOf(f).length>0||S.armies.some(a=>a.fac===f);
 const facName=f=>f?FACS[f].short:'Free';
 const portraitSrc=g=>g.img?`portraits/${g.img}.png`:null;
@@ -206,7 +208,7 @@ function renderCity(){
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
     b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
     b+=`<div class="ohead"><span></span><span>Name</span><span>War</span><span>Int</span><span>Pol</span><span>Cha</span><span title="Loyalty">Loy</span><span>${mine?'Status':''}</span></div>`;
-    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isRuler(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isRuler(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':''}">${g.acted?'Done':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
   }
   $('#cB').innerHTML=b;
   // ---- column C: commands and reports
@@ -220,7 +222,7 @@ function renderCity(){
     if(allied('shu',c.owner))cc+=`<p class="muted">Allied with you until the end of 210. You cannot attack Wu before then.</p>`;
     else if(src.length){cc+=`<button class="primary wide" data-act="attack"><span class="czh">征</span> March on ${c.name}</button><p class="muted">From ${src.map(x=>x.name).join(' or ')}.</p>`;
       const ne=envoysFor(c.id).length;
-      cc+=`<div class="dipl"><button data-act="persuade" ${ne&&gensIn(c.id).some(g=>!isRuler(g))?'':'disabled'}><span class="czh">說</span>Persuade<small>lure an officer</small></button>${c.owner!=='wei'&&c.owner!=='wu'?`<button data-act="surrender" ${ne?'':'disabled'}><span class="czh">降</span>Surrender<small>demand it</small></button>`:''}</div>${ne?'':'<p class="muted">Diplomacy needs a free officer in a neighbouring city.</p>'}`}
+      cc+=`<div class="dipl"><button data-act="persuade" ${ne&&gensIn(c.id).some(g=>!isFounder(g))?'':'disabled'}><span class="czh">說</span>Persuade<small>lure an officer</small></button>${c.owner!=='wei'&&c.owner!=='wu'?`<button data-act="surrender" ${ne?'':'disabled'}><span class="czh">降</span>Surrender<small>demand it</small></button>`:''}</div>${ne?'':'<p class="muted">Diplomacy needs a free officer in a neighbouring city.</p>'}`}
     else cc+=`<p class="muted">Not next to any of your cities.</p>`;
     cc+=`<button class="wide" data-act="home">Back to my city</button>`;
   }
@@ -460,7 +462,7 @@ function foeReport(){const I=S.intel||{};const fs2=Object.keys(FACS).filter(f=>f
 // ---- loyalty: drifts toward what the ruler inspires; low loyalty may walk away
 function loyTarget(f){const r=S.rulers&&GN(S.rulers[f]);return 50+Math.round((r?r.cha:60)/3)}
 function hostileNear(cityId,f){return [...new Set(neighbours(cityId).map(n=>C(n).owner))].filter(o=>o&&o!==f&&!allied(f,o)&&alive(o))}
-function moveGen(g,f,city,loy){if(g.army){const a=S.armies.find(x=>x.id===g.army);if(a)a.gens=a.gens.filter(id=>id!==g.id)}g.fac=f;g.city=city;g.army=null;g.loy=loy;g.acted=true}
+function moveGen(g,f,city,loy){const was=isRuler(g)&&g.fac,from=g.fac;if(g.army){const a=S.armies.find(x=>x.id===g.army);if(a)a.gens=a.gens.filter(id=>id!==g.id)}g.fac=f;g.city=city;g.army=null;g.loy=loy;g.acted=true;if(was&&from!==f&&!S['gone_'+from])succession(from)}
 function loyaltyTick(){
   for(const g of Object.values(S.gens)){if(!g.fac||g.hidden||isRuler(g))continue;const t=loyTarget(g.fac);
     if(g.loy<t&&Math.random()<.3)g.loy++;else if(g.loy>t&&g.loy<75&&Math.random()<.3)g.loy--;
@@ -469,8 +471,8 @@ function loyaltyTick(){
     if(to){const dest=neighbours(g.city).map(C).find(c=>c.owner===to);moveGen(g,to,dest.id,70);
       if(from==='shu'||to==='shu'){addLog(`<b>${g.name}</b> leaves ${fs(from)} and goes over to ${fs(to)}.`,to);toast(to==='shu'?`${g.name} defects to you!`:`${g.name} has deserted you!`)}}
     else{g.fac=null;g.hidden=true;if(from==='shu')addLog(`<b>${g.name}</b> slips away from your service.`,'shu')}}}
-function persuadeChance(env,t){if(isRuler(t))return 0;const lb=GN('liubei');
-  return Math.max(t.loy>=95?0:.01,Math.min(.85,((100-t.loy)/100)*(.2+env.int/300)+((env.fac==='shu'?lb.cha:loyTarget(env.fac)*1.2)-80)/400))}
+function persuadeChance(env,t){if(isFounder(t))return 0;const heir=isRuler(t)?.6:1;const lb=GN('liubei');
+  return heir*Math.max(t.loy>=95?0:.01,Math.min(.85,((100-t.loy)/100)*(.2+env.int/300)+((env.fac==='shu'?lb.cha:loyTarget(env.fac)*1.2)-80)/400))}
 function surrenderChance(env,f){const mine=citiesOf('shu').reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0);
   const theirs=Math.max(1,citiesOf(f).reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac===f).reduce((s,a)=>s+a.troops,0));
   const R=mine/theirs,r=GN(S.rulers[f]);if(R<1.2)return .02;
@@ -479,7 +481,7 @@ function envoysFor(cid){return [...new Set(neighbours(cid).filter(n=>C(n).owner=
 async function doPersuade(c){
   const envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
   let env=envs[0];
-  for(;;){const ts=gensIn(c.id).filter(g=>!isRuler(g)).sort((a,b)=>a.loy-b.loy);
+  for(;;){const ts=gensIn(c.id).filter(g=>!isFounder(g)).sort((a,b)=>a.loy-b.loy);
     const r=await dialog(`<div class="dzh">說</div><h2>Persuade an officer in ${c.name}</h2><p class="muted">Costs 100 gold and uses your envoy's action. Officers with low loyalty listen more readily.</p>
       <div class="envrow"><span>Envoy</span>${envs.map(g=>`<button data-r="env:${g.id}" class="${g===env?'on':''}">${g.name} <i>Int ${g.int}</i></button>`).join('')}</div>
       <div class="tlist">${ts.map(g=>{const p=persuadeChance(env,g);return `<button data-r="t:${g.id}" ${p<=0||S.fac.shu.gold<100?'disabled':''}>${gseal(g,30)}<b>${g.name}</b><small>War ${g.war} · Int ${g.int} · Loyalty ${g.loy}</small><em>${Math.round(p*100)}%</em></button>`}).join('')||'<p class="muted">No officer here can be approached; the ruler will never betray his own cause.</p>'}</div>`,
@@ -502,7 +504,7 @@ async function doSurrender(c){
     if(r.startsWith('env:')){env=GN(r.slice(4));continue}
     if(r!=='go')return;
     (S.surTry=S.surTry||{})[f]=dateNum();S.fac.shu.gold-=200;env.acted=true;UI.busy=true;const ok=Math.random()<p;let m;
-    if(ok){const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9);x.order=Math.max(20,x.order-10)}
+    if(ok){S['gone_'+f]=1;const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9);x.order=Math.max(20,x.order-10)}
       for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,isRuler(g)?55:62);
       for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';
       S.fac.shu.gold+=S.fac[f].gold;S.fac.shu.rice+=S.fac[f].rice;S.fac[f].gold=0;S.fac[f].rice=0;S['gone_'+f]=1;
@@ -727,11 +729,11 @@ async function handleCapture(g,captor,c){
   if(g.id==='liubei'){S.over=true;await finale(false,`Liu Bei is captured at ${c.name}. Without him, Shu falls apart.`);return}
   const from=g.fac;
   if(captor==='shu'){
-    const ruler=isRuler(g);const p=Math.min(.95,.25+(100-g.loy)/150+.15);
-    const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${ruler?' · ruler of '+FACS[from].short:''}</p></div></div>
-      <p>${ruler?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>`,
-      [...(ruler?[]:[['rec','Recruit','primary']]),['rel','Release'],['exe','Execute']]);
-    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');toast(`${g.name} joins you!`)}
+    const ruler=isRuler(g),founder=isFounder(g);const p=Math.min(.95,(.25+(100-g.loy)/150+.15)*(ruler&&!founder?.8:1));
+    const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${founder?' · ruler of '+FACS[from].short:ruler?' · took command of '+FACS[from].short+'\'s men after his lord fell':''}</p></div></div>
+      <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>`,
+      [...(founder?[]:[['rec','Recruit','primary']]),['rel','Release'],['exe','Execute']]);
+    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');toast(`${g.name} joins you!`);if(ruler)succession(from)}
       else{const h=nearestOwn(from,c.id);if(h){g.city=h.id}else{g.fac=null;g.hidden=true;g.city=c.id}addLog(`${g.name} refuses and is released.`,'shu');toast(`${g.name} refuses to serve.`)}}
     else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.hidden=true;g.city=c.id}addLog(`${g.name} is released.`,'shu')}
     else{delete S.gens[g.id];addLog(`${g.name} is executed.`,'shu');if(ruler)succession(from)}
@@ -741,7 +743,7 @@ async function handleCapture(g,captor,c){
   }
 }
 function succession(f){const heir=gensOf(f).sort((a,b)=>b.cha-a.cha)[0];
-  if(heir){S.rulers[f]=heir.id;addLog(`${heir.name} now leads ${FACS[f].short}.`)}}
+  if(heir){S.rulers[f]=heir.id;addLog(`${heir.name} takes command of ${FACS[f].short}'s men.`)}}
 
 // ---------- hand-off to the tactical battle
 function genBattleMap(fortSide,river,seed){
