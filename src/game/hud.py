@@ -1133,3 +1133,20 @@ rep("  A.off.tx=A.off.hx+f*22}","  A.off.tx=both?line-f*58:line-f*40}")
 
 # capture sheet was drawn ~1.6x larger than the mounted general; match sizes
 rep("const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;","const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=52/150;")
+
+# Brace (spear Guard): covers 2 squares all round incl. diagonals, stops spear AND cavalry attacks
+rep("if(e.type==='cav'){const g=G.units.find(u=>u.side==='shu'&&u.guard&&Math.max(Math.abs(u.x-tgt.x),Math.abs(u.y-tgt.y))<=1);",
+    "if(e.type==='cav'||e.type==='spear'){const g=G.units.filter(u=>u.side==='shu'&&u.guard&&Math.max(Math.abs(u.x-tgt.x),Math.abs(u.y-tgt.y))<=2).sort((a,b)=>(a===tgt?-1:b===tgt?1:Math.max(Math.abs(a.x-tgt.x),Math.abs(a.y-tgt.y))-Math.max(Math.abs(b.x-tgt.x),Math.abs(b.y-tgt.y))))[0];")
+rep("`${nm(g)} meets ${nm(e)}'s charge with braced spears!`:`${nm(g)} braces spears and intercepts ${nm(e)}'s charge on ${nm(tgt)}!`","`${nm(g)} meets ${nm(e)}'s ${e.type==='cav'?'charge':'spears'} with braced spears!`:`${nm(g)} braces spears and intercepts ${nm(e)}'s ${e.type==='cav'?'charge':'attack'} on ${nm(tgt)}!`")
+rep("c.strokeRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4)","c.strokeRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4)")
+rep("desc:'Until the enemy turn ends, intercept any cavalry attack on a unit within 1 square'","desc:'Until the enemy turn ends, intercept any cavalry or spear attack on a unit within 2 squares (diagonals included)'")
+rep("intercepts cavalry attacks on any unit within 1 square, with full counter.","intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter.")
+rep("braces spears. Cavalry attacking within 1 square will meet him instead.","braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.")
+
+# preload + decode special cut-in portraits at battle start so the cut-in shows instantly
+rep("const CUTIN=document.createElement('div');","""const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.png'}else r(null)}});im.src='portraits/sp_'+p+'.png';SPC[p]={im,pr};return SPC[p]}
+function spPreAll(units){for(const u of units||[])if(PORT[u.id])spPre(PORT[u.id])}
+const CUTIN=document.createElement('div');""")
+rep("function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');return new Promise(res=>{const p=PORT[u.id];",
+    "async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.id]);if(P0&&!P0.im.complete)await Promise.race([P0.pr,sleep(450)]);SND.fx('special');return new Promise(res=>{const p=PORT[u.id];")
+rep("setTimeout(()=>sprWait(),0);G={units:","setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:")

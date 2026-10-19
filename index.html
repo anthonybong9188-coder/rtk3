@@ -539,7 +539,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
       </div>
       <div>
         <h4>Specials (Shu only)</h4>
-        <p><b>Charge</b> (cavalry): ×1.5 damage, weak counter, rides through to the square behind. <b>Brace</b> (spearmen): until Wei's turn ends, intercepts cavalry attacks on any unit within 1 square, with full counter. <b>Push</b> (shield infantry): shoves an adjacent enemy back, no counter, full damage if blocked. <b>Volley</b> (archers): shoots an enemy exactly 2 squares away with no counter, plus 60% splash on one enemy beside it. <b>Fire</b> (Int 75+): burns an enemy within 3 squares. Each recovers in 3 turns.</p>
+        <p><b>Charge</b> (cavalry): ×1.5 damage, weak counter, rides through to the square behind. <b>Brace</b> (spearmen): until Wei's turn ends, intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Push</b> (shield infantry): shoves an adjacent enemy back, no counter, full damage if blocked. <b>Volley</b> (archers): shoots an enemy exactly 2 squares away with no counter, plus 60% splash on one enemy beside it. <b>Fire</b> (Int 75+): burns an enemy within 3 squares. Each recovers in 3 turns.</p>
       </div>
     </div>
   </details>
@@ -587,7 +587,7 @@ const FAC={shu:{main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',name:'Shu'},wei:{m
 const CD=3;
 const SKILLS={
  charge:{n:'Charge',zh:'突',who:u=>u.type==='cav',desc:'×1.5 damage, weak counter, then ride through to the square behind'},
- guard:{n:'Brace',zh:'守',who:u=>u.type==='spear',desc:'Until the enemy turn ends, intercept any cavalry attack on a unit within 1 square'},
+ guard:{n:'Brace',zh:'守',who:u=>u.type==='spear',desc:'Until the enemy turn ends, intercept any cavalry or spear attack on a unit within 2 squares (diagonals included)'},
  push:{n:'Push',zh:'推',who:u=>u.type==='shield',desc:'Shove an adjacent enemy back 1 square, no counter. Full damage if it is blocked'},
  volley:{n:'Volley',zh:'射',who:u=>u.type==='archer',desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
  fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Burn an enemy within 3 squares, ×1.8 in forest'}};
@@ -689,7 +689,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  setTimeout(()=>sprWait(),0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
+  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -862,7 +862,7 @@ function drawMap(now){
   if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved')){for(const t of G.rangeTiles)hl(t,'rgba(235,60,50,.10)','rgba(255,140,120,.9)')}
   if(G.atk&&(G.mode==='select'||G.mode==='moved')){for(const e of G.atk){c.fillStyle=`rgba(215,55,40,${.12+pulse*.12})`;c.fillRect(e.x*T+1,e.y*T+1,T-2,T-2);c.strokeStyle=`rgba(255,120,95,${.65+pulse*.35})`;c.lineWidth=2.5;c.strokeRect(e.x*T+2.5,e.y*T+2.5,T-5,T-5)}}
   c.setLineDash([5,4]);c.strokeStyle='rgba(212,173,85,.85)';c.lineWidth=1.6;
-  for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-1)*T+2,(g.y-1)*T+2,3*T-4,3*T-4)}
+  for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4)}
   c.setLineDash([]);
   if(G.sel){c.strokeStyle='#d4ad55';c.lineWidth=2.5;c.strokeRect(G.sel.px*T+2,G.sel.py*T+2,T-4,T-4)}
   else if(G.view){c.strokeStyle='rgba(236,226,201,.7)';c.lineWidth=1.5;c.strokeRect(G.view.px*T+2,G.view.py*T+2,T-4,T-4)}
@@ -1038,7 +1038,7 @@ async function doVolley(a,d){
   await doAttack(a,d,{noCounter:true,label:'Volley',verb:'looses a volley on'});
   if(n&&G.units.includes(n)&&G.units.includes(a)){const dm=Math.min(n.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true)*.6));
     n.troops-=dm;float(n,'-'+dm,'#ff9a86');log(`Arrows fall on ${nm(n)} as well: −${dm}.`);await sleep(350);sweep()}}
-function doGuard(s){s.guard=true;s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry attacking within 1 square will meet him instead.`);finish(s)}
+function doGuard(s){s.guard=true;s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.`);finish(s)}
 async function doFire(u,e){
   u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*(ew?2:1)*(e.iron?.5:1))),before=e.troops;dmg=ironSave(e,dmg);
   G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});
@@ -1130,8 +1130,8 @@ async function endTurn(){
     const plan=planEnemy(e);G.view=e;updateUI();
     if(plan.path.length){await animateMove(e,plan.path);await sleep(120)}
     if(plan.target&&G.units.includes(e)){let tgt=plan.target,o={};
-      if(e.type==='cav'){const g=G.units.find(u=>u.side==='shu'&&u.guard&&Math.max(Math.abs(u.x-tgt.x),Math.abs(u.y-tgt.y))<=1);
-        if(g){log(g===tgt?`${nm(g)} meets ${nm(e)}'s charge with braced spears!`:`${nm(g)} braces spears and intercepts ${nm(e)}'s charge on ${nm(tgt)}!`);tgt=g;o={mult:.7,ctrMult:1,forceCounter:true,dist:1,label:'Braced spears'}}}
+      if(e.type==='cav'||e.type==='spear'){const g=G.units.filter(u=>u.side==='shu'&&u.guard&&Math.max(Math.abs(u.x-tgt.x),Math.abs(u.y-tgt.y))<=2).sort((a,b)=>(a===tgt?-1:b===tgt?1:Math.max(Math.abs(a.x-tgt.x),Math.abs(a.y-tgt.y))-Math.max(Math.abs(b.x-tgt.x),Math.abs(b.y-tgt.y))))[0];
+        if(g){log(g===tgt?`${nm(g)} meets ${nm(e)}'s ${e.type==='cav'?'charge':'spears'} with braced spears!`:`${nm(g)} braces spears and intercepts ${nm(e)}'s ${e.type==='cav'?'charge':'attack'} on ${nm(tgt)}!`);tgt=g;o={mult:.7,ctrMult:1,forceCounter:true,dist:1,label:'Braced spears'}}}
       {const xg=tgt.guardBy&&G.units.find(u=>u.id===tgt.guardBy&&manh(u,tgt)<=1);if(xg&&xg!==tgt){log(`<b>Tiger Guard!</b> ${nm(xg)} throws himself in front of ${nm(tgt)}.`);mfx('shield',xg.x,xg.y,900);tgt=xg;o={...o,mult:(o.mult||1)*.5}}}
       await doAttack(e,tgt,o);if(checkEnd())return}
     await sleep(160)}
@@ -1259,8 +1259,10 @@ function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
 const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:dur||900,s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
+const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.png'}else r(null)}});im.src='portraits/sp_'+p+'.png';SPC[p]={im,pr};return SPC[p]}
+function spPreAll(units){for(const u of units||[])if(PORT[u.id])spPre(PORT[u.id])}
 const CUTIN=document.createElement('div');CUTIN.id='cutin';CUTIN.hidden=true;document.body.appendChild(CUTIN);
-function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');return new Promise(res=>{const p=PORT[u.id];
+async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.id]);if(P0&&!P0.im.complete)await Promise.race([P0.pr,sleep(450)]);SND.fx('special');return new Promise(res=>{const p=PORT[u.id];
   CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/sp_${p}.png" onerror="this.onerror=null;this.src='portraits/${p}.png'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
