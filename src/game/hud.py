@@ -1207,3 +1207,8 @@ async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
 function prepBegin(){if(!G||G.phase!=='prep')return;prepBar(false);G.phase='player';
   const ch=G.units.filter(u=>u.side==='shu').map(u=>`${nm(u)}: ${TYPES[u.type].n}`).join(', ');log(`The battle begins. ${ch}.`);autoSel();updateUI()}
 function log(h){""")
+
+# East Wind no longer ends Zhuge Liang's turn: he can move / cast Fire straight after
+rep("s.cd.fire=0;await sleep(900)}","s.cd.fire=0;keep=true;await sleep(900)}")
+rep("desc:'His next Fire deals ×2 and spreads to adjacent enemies'}","desc:'Does not end his turn. His next Fire deals ×2 and spreads to adjacent enemies'}")
+rep("${nm(s)}'s next Fire will be doubled and spread.`","${nm(s)}'s next Fire will be doubled and spread. He can still act this turn.`")

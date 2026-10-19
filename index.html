@@ -617,7 +617,7 @@ const HERO={
  ambush:{who:'weiyan',zh:'奇襲',n:'Ambush',targets:s=>enemies().filter(e=>manh(s,e)<=4&&ambushTile(s,e)),desc:'Appear beside an enemy up to 4 squares away and strike ×1.3, no counter'},
  swift:{who:'xiahouyuan',zh:'神速',n:'Swift March',self:1,can:s=>true,free:1,desc:'+3 movement this turn; he can still act'},
  iron:{who:'zhoutai',zh:'不屈',n:'Iron Body',self:1,can:s=>true,desc:'Half damage for 2 turns and survive one deadly blow'},
- wind:{who:'zhugeliang',zh:'東風',n:'East Wind',self:1,can:s=>!s.eastWind,desc:'His next Fire deals ×2 and spreads to adjacent enemies'},
+ wind:{who:'zhugeliang',zh:'東風',n:'East Wind',self:1,can:s=>!s.eastWind,desc:'Does not end his turn. His next Fire deals ×2 and spreads to adjacent enemies'},
  blaze:{who:'zhouyu',zh:'赤壁',n:'Red Cliffs',once:1,targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Once per battle: a great fire over a 3×3 area'},
  strat:{who:'xunyu',zh:'王佐',n:'Strategist',targets:s=>G.units.filter(u=>u.side===s.side&&u!==s&&u.acted&&manh(u,s)<=2),desc:'An ally within 2 squares that has acted may act again'},
  rally:{who:'lusu',zh:'安撫',n:'Rally',self:1,can:s=>[s,...adjA(s)].some(u=>u.troops<u.max),desc:'Restore 15% troops to himself and adjacent allies'},
@@ -1316,7 +1316,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='ambush'){const tile=ambushTile(s,t);mfx('smoke',s.x,s.y,800);await sleep(250);s.x=s.px=tile.x;s.y=s.py=tile.y;mfx('smoke',s.x,s.y,800);await sleep(300);await doAttack(s,t,{mult:1.3,noCounter:true,label:'Ambush',verb:'bursts out of hiding at'})}
   else if(k==='swift'){s.swift=true;mfx('speed',s.x,s.y,900);float(s,'+3 Move','#9fd0ff');log(`<b>Swift March!</b> ${nm(s)} can move 3 more squares this turn.`);keep=true;await sleep(300)}
   else if(k==='iron'){s.iron=2;s.ironSave=true;mfx('iron',s.x,s.y,1200);float(s,'Iron Body','#f3d27a');log(`<b>Iron Body!</b> ${nm(s)} will not fall: half damage for 2 turns.`);await sleep(400)}
-  else if(k==='wind'){s.eastWind=true;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1800,COLS*.9);log(`<b>East Wind!</b> The wind turns. ${nm(s)}'s next Fire will be doubled and spread.`);s.cd.fire=0;await sleep(900)}
+  else if(k==='wind'){s.eastWind=true;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1800,COLS*.9);log(`<b>East Wind!</b> The wind turns. ${nm(s)}'s next Fire will be doubled and spread. He can still act this turn.`);s.cd.fire=0;keep=true;await sleep(900)}
   else if(k==='blaze'){const area=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1&&e!==t);
     s.cd.fire=CD;let before=t.troops,dmg=Math.min(t.troops,Math.round(fireDmg(s,t,true)*1.5*(t.iron?.5:1)));dmg=ironSave(t,dmg);t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);
     for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(t.x+dx,t.y+dy))G.fires.push({x:t.x+dx,y:t.y+dy,t0:performance.now(),dur:1600});

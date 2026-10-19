@@ -1,0 +1,14 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:915,height:412}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(200);await p.click('[data-r="normal"]');await p.waitForTimeout(300);
+await p.evaluate(()=>{const gens=['zhugeliang','guanyu'].map(GN);playCampaignBattle({id:99,fac:'shu',from:'jiangxia',to:'xiangyang',gens:gens.map(g=>g.id),troops:9000,rice:3000,left:0,total:2,train:70},C('xiangyang'),gens,[GN('caoren'),GN('yujin')]);setTimeout(()=>{document.querySelector('#dlg').hidden=true;prepBegin()},400)});
+await p.waitForTimeout(1500);
+const r=await p.evaluate(async()=>{speed=0;const z=G.units.find(u=>u.id==='zhugeliang'),e=enemies()[0];e.x=z.x+2;e.y=z.y;e.px=e.x;e.py=e.y;
+ G.sel=z;G.view=z;G.origin={x:z.x,y:z.y};G.reach=reach(z);G.mode='moved';G.atk=[];updateUI();
+ const ks=[...document.querySelectorAll('[data-sk]')].map(b=>b.dataset.sk+(b.disabled?'(off)':''));if(!document.querySelector('[data-sk="wind"]'))return {ks,type:z.type};document.querySelector('[data-sk="wind"]').click();await new Promise(r=>setTimeout(r,1800));
+ const after={acted:z.acted,mode:G.mode,ew:z.eastWind,fireBtn:!!document.querySelector('[data-sk="fire"]:not([disabled])')};
+ const t0=e.troops;document.querySelector('[data-sk="fire"]').click();await new Promise(r=>setTimeout(r,300));
+ const tg=G.targets.find(x=>x.u===e);if(tg){hitTarget(e)}await new Promise(r=>setTimeout(r,1500));
+ return {...after,fireHit:t0-e.troops,actedAfterFire:z.acted,ewAfter:z.eastWind,log:G.log.slice(0,3).map(s=>s.replace(/<[^>]+>/g,''))}});
+console.log(r,errs);await b.close();
