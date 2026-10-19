@@ -716,11 +716,11 @@ function prepHint(t){const foes=G.units.filter(u=>u.side==='wei');const good=foe
   return [good.length?`<span class="adv">strong vs ${good.map(f=>f.name).join(', ')}</span>`:'',bad.length?`<span class="dis">vulnerable to ${bad.map(f=>f.name).join(', ')}</span>`:''].filter(Boolean).join(' · ')||'no clear match-ups'}
 async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
   for(;;){const foes=G.units.filter(u=>u.side==='wei'),mine=G.units.filter(u=>u.side==='shu');
-    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The choice stays with the officer after this battle.</p>
+    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The change applies to this battle only.</p>
       <div class="muted" style="font-size:12px">ENEMY FORCES</div><div class="prep-foe">${foes.map(f=>`<span>${TZH[f.type]||'兵'} <b>${f.name}</b> · ${TSHORT[f.type]||f.type} · ${fmt(f.troops)}</span>`).join('')}</div>
       <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav'].map(t=>`<button data-r="t:${u.id}:${t}" class="${u.type===t?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
       [['scout','Scout field'],['go','Begin battle','primary']]);
-    if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&TYPES[t]&&u.type!==t){u.type=t;u.cd={};if(typeof S!=='undefined'&&S.gens&&S.gens[id])S.gens[id].type=t}updateUI();continue}
+    if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&TYPES[t]&&u.type!==t){u.type=t;u.cd={}}updateUI();continue}
     if(r==='go'){prepBegin();return}
     prepBar(true);return}}
 function prepBegin(){if(!G||G.phase!=='prep')return;prepBar(false);G.phase='player';
