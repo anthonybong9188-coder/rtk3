@@ -15,7 +15,7 @@ for(let r=0;r<RUNS;r++){const p=await b.newPage({viewport:{width:1000,height:460
       const d=document.querySelector('#dlg:not([hidden])');if(d){const bs=[...d.querySelectorAll('[data-r]')].filter(x=>!x.disabled);bs[Math.floor(R()*bs.length)]?.click();return 'dlg'}
       const mo=document.querySelector('#modal:not([hidden]) button');if(mo){mo.click();return 'modal'}
       const du=[...document.querySelectorAll('.duelBtns button')].filter(x=>!x.disabled&&vis(x));if(du.length){du[Math.floor(R()*du.length)].click();return 'duel'}
-      if(!G||G.over||G.busy||G.phase!=='player')return 'wait';
+      if(G&&G.phase==='prep'){document.querySelector('#dlg').hidden=true;prepBegin()}if(!G||G.over||G.busy||G.phase!=='player')return 'wait';
       const acts=[...document.querySelectorAll('#acts button')].filter(x=>!x.disabled&&vis(x));
       const tiles=(G.atk&&G.atk.length&&R()<.6)?G.atk.map(u=>({x:u.x,y:u.y})):(G.reach&&G.reach.tiles||[]);
       const roll=R();

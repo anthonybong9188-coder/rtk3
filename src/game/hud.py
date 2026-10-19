@@ -1004,8 +1004,8 @@ rep("G.captured.push(u.id);float(u,'擒 Captured','#ff8a78')","G.captured.push(u
 rep("function cutIn(u,h){if(speed===0)return Promise.resolve();","function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');")
 rep("function endGame(win,text,retreat){","function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');")
 # mute buttons: campaign header + battle pills
-rep('<button id="menuBtn" class="iconbtn" aria-label="Menu">','<button class="iconbtn sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu">')
-rep('<div class="pills"><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>','<div class="pills"><button class="pill sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>')
+rep('<button id="menuBtn" class="iconbtn" aria-label="Menu">','<button class="iconbtn sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu">')
+rep('<div class="pills"><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>','<div class="pills"><button class="pill sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>')
 rep("showScreen('title');renderTitle();","showScreen('title');renderTitle();updSndBtns();")
 
 # ---- keep fullscreen across app switches: browsers drop it when the tab is hidden,
@@ -1165,3 +1165,45 @@ rep("const PIMG={};","const PIMG={};const PK=im=>(im.naturalWidth||512)/512;")
 rep("c.drawImage(im,86,30,340,340,x,y,w,h)","{const k=PK(im);c.drawImage(im,86*k,30*k,340*k,340*k,x,y,w,h)}")
 rep("drawImage(pim,96,36,320,264,-s/2+2,-s/2+2,s-4,s*.84-4)","drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),264*PK(pim),-s/2+2,-s/2+2,s-4,s*.84-4)")
 rep("c.drawImage(pim,96,36,320,320,bx+1,22,40,40)","c.drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),320*PK(pim),bx+1,22,40,40)")
+
+# per-type size normalisation: the spear sheet's figures are drawn ~22% shorter than shield/archer
+rep("const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:58)/150;","const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;")
+
+# ---- pre-battle preparation: scout the field and pick each officer's troop type ----
+rep("#cutin[hidden]{display:none}","""#cutin[hidden]{display:none}
+#prepBar{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:10px;background:rgba(18,15,11,.92);border:1px solid var(--gold,#d4ad55);border-radius:14px;padding:8px 10px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.5);max-width:calc(100vw - 24px)}
+#prepBar[hidden]{display:none}
+#prepBar .pt{font-size:13px;color:#ece2c9;line-height:1.25}#prepBar .pt b{color:#f3dc9a}
+#prepBar button{white-space:nowrap}
+.prep-foe{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.prep-foe span{background:rgba(160,60,50,.18);border:1px solid rgba(220,120,100,.35);border-radius:10px;padding:3px 9px;font-size:13px}
+.prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
+.prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
+.prep-types{display:flex;gap:5px}
+.prep-types button{min-width:54px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.1;border-radius:9px}
+.prep-types button .zh{font-size:17px;font-weight:900}.prep-types button small{font-size:10px}
+.prep-types button.on{background:var(--gold,#d4ad55);color:#1a140c;border-color:var(--gold,#d4ad55)}
+.prep-hint{grid-column:1/-1;font-size:12px;color:var(--muted,#a99a7c)}.prep-hint .adv{color:#8fd19a}.prep-hint .dis{color:#e88b7f}""")
+rep("G.phase==='player'?'Your move':","G.phase==='prep'?'Preparation':G.phase==='player'?'Your move':")
+rep("""  if(G.phase!=='player'||G.busy||G.over)return;
+  const r=MC.getBoundingClientRect()""","""  if(G.phase==='prep'){const r=MC.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/T),y=Math.floor((e.clientY-r.top)/T);const u=inb(x,y)&&unitAt(x,y);if(u){G.view=u;updateUI()}return}
+  if(G.phase!=='player'||G.busy||G.over)return;
+  const r=MC.getBoundingClientRect()""")
+rep("  $('#logPanel').hidden=true;resizeMap();autoSel();updateUI();","  $('#logPanel').hidden=true;resizeMap();G.phase='prep';G.view=pc;updateUI();setTimeout(()=>prepDlg(),120);")
+rep("function log(h){","""const TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry'};
+function prepBar(show){let b=document.getElementById('prepBar');if(!b){b=document.createElement('div');b.id='prepBar';b.innerHTML=`<div class="pt"><b>Preparation</b><br>Drag to scout · tap a unit to inspect</div><button data-p="types">兵 Troop types</button><button data-p="go" class="primary">Begin battle</button>`;
+  b.onclick=e=>{const k=e.target.closest('[data-p]');if(!k)return;if(k.dataset.p==='go')prepBegin();else prepDlg()};$('#battleView').appendChild(b)}b.hidden=!show}
+function prepHint(t){const foes=G.units.filter(u=>u.side==='wei');const good=foes.filter(f=>typeMult(t,f.type)>1),bad=foes.filter(f=>typeMult(f.type,t)>1&&typeMult(t,f.type)<=1);
+  return [good.length?`<span class="adv">strong vs ${good.map(f=>f.name).join(', ')}</span>`:'',bad.length?`<span class="dis">vulnerable to ${bad.map(f=>f.name).join(', ')}</span>`:''].filter(Boolean).join(' · ')||'no clear match-ups'}
+async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
+  for(;;){const foes=G.units.filter(u=>u.side==='wei'),mine=G.units.filter(u=>u.side==='shu');
+    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The choice stays with the officer after this battle.</p>
+      <div class="muted" style="font-size:12px">ENEMY FORCES</div><div class="prep-foe">${foes.map(f=>`<span>${TZH[f.type]||'兵'} <b>${f.name}</b> · ${TSHORT[f.type]||f.type} · ${fmt(f.troops)}</span>`).join('')}</div>
+      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav'].map(t=>`<button data-r="t:${u.id}:${t}" class="${u.type===t?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
+      [['scout','Scout field'],['go','Begin battle','primary']]);
+    if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&TYPES[t]&&u.type!==t){u.type=t;u.cd={};if(typeof S!=='undefined'&&S.gens&&S.gens[id])S.gens[id].type=t}updateUI();continue}
+    if(r==='go'){prepBegin();return}
+    prepBar(true);return}}
+function prepBegin(){if(!G||G.phase!=='prep')return;prepBar(false);G.phase='player';
+  const ch=G.units.filter(u=>u.side==='shu').map(u=>`${nm(u)}: ${TYPES[u.type].n}`).join(', ');log(`The battle begins. ${ch}.`);autoSel();updateUI()}
+function log(h){""")

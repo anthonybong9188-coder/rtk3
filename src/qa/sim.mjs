@@ -43,6 +43,7 @@ for(let gi=0;gi<N;gi++){const p=await b.newPage({viewport:{width:1000,height:460
       const st=await p.evaluate(()=>{const d=document.querySelector('#dlg');if(d&&!d.hidden){const bs=[...d.querySelectorAll('[data-r]')].filter(b=>!b.disabled);
           const pref=(window.__mode==='fight'&&bs.find(b=>b.dataset.r==='fight'))||bs.find(b=>b.dataset.r==='auto')||bs.find(b=>b.dataset.r==='rec')||bs.find(b=>b.dataset.r==='go')||bs.find(b=>b.classList.contains('primary'))||bs[0];pref&&pref.click()}
         const a=document.querySelector('#actFx');if(a)a.click();
+        if(!document.querySelector('#battleView').hidden&&typeof G!=='undefined'&&G&&G.phase==='prep'){document.querySelector('#dlg').hidden=true;prepBegin()}
         if(!document.querySelector('#battleView').hidden&&typeof G!=='undefined'&&G&&!G.over&&!G.auto&&G.phase==='player'&&!G.busy){speed=0;G.auto=true;autoTurn()}
         const mo=document.querySelector('#modal');if(mo&&!mo.hidden){const b=mo.querySelector('button');b&&b.click()}
         return [window.__d,window.__e,S.over]});

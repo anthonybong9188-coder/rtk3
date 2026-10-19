@@ -1,0 +1,12 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:915,height:412}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(200);await p.click('[data-r="normal"]');await p.waitForTimeout(300);
+await p.evaluate(()=>{const gens=['zhangfei','guanyu','zhaoyun'].map(GN);playCampaignBattle({id:99,fac:'shu',from:'jiangxia',to:'xiangyang',gens:gens.map(g=>g.id),troops:9000,rice:3000,left:0,total:2,train:70},C('xiangyang'),gens,[GN('caoren'),GN('yujin')]);setTimeout(()=>{document.querySelector('#dlg').hidden=true;prepBegin()},400)});
+await p.waitForTimeout(2000);
+const btns=await p.$$eval('.sndbtn',bs=>bs.map(b=>{const r=b.getBoundingClientRect();return {vis:r.width>0,x:r.x+r.width/2,y:r.y+r.height/2,top:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.outerHTML.slice(0,80)}}));
+console.log(btns);
+const vb=btns.find(b=>b.vis);console.log('before',await p.evaluate(()=>SND.set.mute));
+await p.mouse.click(vb.x,vb.y);await p.waitForTimeout(200);
+console.log('after',await p.evaluate(()=>SND.set.mute),await p.evaluate(()=>[...document.querySelectorAll('.sndbtn')].map(b=>b.textContent)));
+console.log(errs);await b.close();

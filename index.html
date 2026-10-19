@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不中九乾二于五仁佐八六兵典冬分劉勝十南合吳咆哮商單四國城報壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬新昌易春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許說諸賞赤趙農速運遭遼邢金長關降陳陵陽雄雙難零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不中九乾二于五仁佐八六兵典冬出分劉勝十南合吳咆哮商單四國城報壁夏夜天奇奸威守安宛射屈巡帥平度延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬新昌易春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許說諸賞赤趙農速運遭遼邢金長關降陣陳陵陽雄雙難零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -436,6 +436,19 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .bmap{touch-action:pan-x pan-y}
 #cutin{position:fixed;inset:0;z-index:60;pointer-events:auto;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(5,4,3,0);transition:background .2s}
 #cutin[hidden]{display:none}
+#prepBar{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:10px;background:rgba(18,15,11,.92);border:1px solid var(--gold,#d4ad55);border-radius:14px;padding:8px 10px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.5);max-width:calc(100vw - 24px)}
+#prepBar[hidden]{display:none}
+#prepBar .pt{font-size:13px;color:#ece2c9;line-height:1.25}#prepBar .pt b{color:#f3dc9a}
+#prepBar button{white-space:nowrap}
+.prep-foe{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.prep-foe span{background:rgba(160,60,50,.18);border:1px solid rgba(220,120,100,.35);border-radius:10px;padding:3px 9px;font-size:13px}
+.prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
+.prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
+.prep-types{display:flex;gap:5px}
+.prep-types button{min-width:54px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.1;border-radius:9px}
+.prep-types button .zh{font-size:17px;font-weight:900}.prep-types button small{font-size:10px}
+.prep-types button.on{background:var(--gold,#d4ad55);color:#1a140c;border-color:var(--gold,#d4ad55)}
+.prep-hint{grid-column:1/-1;font-size:12px;color:var(--muted,#a99a7c)}.prep-hint .adv{color:#8fd19a}.prep-hint .dis{color:#e88b7f}
 #cutin.on{background:rgba(5,4,3,.55)}
 .ci-band{position:relative;width:100%;height:min(46vh,240px);display:flex;align-items:center;gap:4%;padding:0 6%;box-sizing:border-box;
   background:url(art/skill_banner.png) center/104% 118% no-repeat;filter:drop-shadow(0 8px 24px rgba(0,0,0,.75));
@@ -476,7 +489,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
     <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>
-    <button class="iconbtn sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+    <button class="iconbtn sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
     <button id="endMonth" class="primary">End month</button>
   </header>
   <main class="cbody">
@@ -495,7 +508,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
   <div class="bhint" id="hint"></div>
   <aside class="rail">
     <div class="turnbox"><span class="lbl">Turn</span><b id="turn"></b><small id="phase"></small></div>
-    <div class="pills"><button class="pill sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
+    <div class="pills"><button class="pill sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>
   </aside>
   <div id="acts" class="acts2"></div>
   <div class="hud tp" id="tpanel" hidden></div>
@@ -693,9 +706,25 @@ function startBattle(cfg){
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
-  $('#logPanel').hidden=true;resizeMap();autoSel();updateUI();
+  $('#logPanel').hidden=true;resizeMap();G.phase='prep';G.view=pc;updateUI();setTimeout(()=>prepDlg(),120);
   return new Promise(res=>{battleResolve=res});
 }
+const TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry'};
+function prepBar(show){let b=document.getElementById('prepBar');if(!b){b=document.createElement('div');b.id='prepBar';b.innerHTML=`<div class="pt"><b>Preparation</b><br>Drag to scout · tap a unit to inspect</div><button data-p="types">兵 Troop types</button><button data-p="go" class="primary">Begin battle</button>`;
+  b.onclick=e=>{const k=e.target.closest('[data-p]');if(!k)return;if(k.dataset.p==='go')prepBegin();else prepDlg()};$('#battleView').appendChild(b)}b.hidden=!show}
+function prepHint(t){const foes=G.units.filter(u=>u.side==='wei');const good=foes.filter(f=>typeMult(t,f.type)>1),bad=foes.filter(f=>typeMult(f.type,t)>1&&typeMult(t,f.type)<=1);
+  return [good.length?`<span class="adv">strong vs ${good.map(f=>f.name).join(', ')}</span>`:'',bad.length?`<span class="dis">vulnerable to ${bad.map(f=>f.name).join(', ')}</span>`:''].filter(Boolean).join(' · ')||'no clear match-ups'}
+async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
+  for(;;){const foes=G.units.filter(u=>u.side==='wei'),mine=G.units.filter(u=>u.side==='shu');
+    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The choice stays with the officer after this battle.</p>
+      <div class="muted" style="font-size:12px">ENEMY FORCES</div><div class="prep-foe">${foes.map(f=>`<span>${TZH[f.type]||'兵'} <b>${f.name}</b> · ${TSHORT[f.type]||f.type} · ${fmt(f.troops)}</span>`).join('')}</div>
+      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav'].map(t=>`<button data-r="t:${u.id}:${t}" class="${u.type===t?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
+      [['scout','Scout field'],['go','Begin battle','primary']]);
+    if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&TYPES[t]&&u.type!==t){u.type=t;u.cd={};if(typeof S!=='undefined'&&S.gens&&S.gens[id])S.gens[id].type=t}updateUI();continue}
+    if(r==='go'){prepBegin();return}
+    prepBar(true);return}}
+function prepBegin(){if(!G||G.phase!=='prep')return;prepBar(false);G.phase='player';
+  const ch=G.units.filter(u=>u.side==='shu').map(u=>`${nm(u)}: ${TYPES[u.type].n}`).join(', ');log(`The battle begins. ${ch}.`);autoSel();updateUI()}
 function log(h){G.log.unshift(h);if(G.log.length>30)G.log.pop();const ol=$('#log');ol.innerHTML=G.log.map(x=>`<li>${x}</li>`).join('')}
 const nm=u=>`<span class="${u.side==='shu'?'s':'w'}">${u.name}</span>`;
 
@@ -906,7 +935,7 @@ function float(u,text,color){G.floats.push({x:u.x,y:u.y,text,color,t0:performanc
 function updateUI(){
   {const f=G.sel||G.view;if(f&&f!==camFocus){camFocus=f;focusUnit(f)}}
   $('#turn').textContent=`${G.turn} / ${G.maxTurn}`;
-  $('#phase').textContent=G.over?'Battle over':G.phase==='player'?'Your move':`${FAC.wei.name} is moving`;
+  $('#phase').textContent=G.over?'Battle over':G.phase==='prep'?'Preparation':G.phase==='player'?'Your move':`${FAC.wei.name} is moving`;
   $('#speedBtn').textContent=speed===0?'Scenes off':`Scenes ${speed}×`;
   $('#endBtn').disabled=G.phase!=='player'||G.busy||G.over;$('#retreatBtn').disabled=G.over||(!G.auto&&(G.phase!=='player'||G.busy));$('#retreatBtn').textContent=G.auto?'Stop auto':'Retreat';$('#retreatBtn').classList.toggle('autoon',!!G.auto);
   G.atk=G.sel?attackable(G.sel):null;
@@ -974,6 +1003,7 @@ const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!
 
 MC.addEventListener('click',e=>{
   if($('.bmap').dataset.dragged)return;
+  if(G.phase==='prep'){const r=MC.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/T),y=Math.floor((e.clientY-r.top)/T);const u=inb(x,y)&&unitAt(x,y);if(u){G.view=u;updateUI()}return}
   if(G.phase!=='player'||G.busy||G.over)return;
   const r=MC.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/T),y=Math.floor((e.clientY-r.top)/T);if(!inb(x,y))return;
   const u=unitAt(x,y);
@@ -1193,7 +1223,7 @@ function drawSprite(c,f,sh){
   let dir=f.face*(f.turn??1);
   const tkey=f.officer?'general':f.type;
   if(f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
-  const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
+  const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
@@ -2139,7 +2169,7 @@ function openMarch(from,to,mode){
     const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
     const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
     if(b.dataset.r==='go'){const own=C(m.to).owner==='shu',ci=cmdOf(),order=m.sel.size?[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))]:[];for(const g of order)g.assign=null;launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])),own?m.gold:0);addLog(own?`${order.length?order.map(gnm).join(', '):'A convoy'} ${order.length?'set':'sets'} out from ${C(m.from).name} to ${C(m.to).name}${[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).length?' with '+[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).join(', '):''}.`:`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
-    $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
+    $('#dlg').hidden=true;box.onclick=null;renderCampaign();if(b.dataset.r==='go'&&C(m.to).owner!=='shu'&&m.sel.size){const ci2=cmdOf();marchOut([GN(ci2),...[...m.sel].filter(id=>id!==ci2).map(GN)],m.troops,C(m.to))}};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
 // ---- destination picker on the China map
@@ -2557,6 +2587,28 @@ function playCampaignBattle(a,c,gens,defG){
       const attWin=me?r.win:!r.win;
       return {attWin,att,def,attBroken:attBroken.filter(id=>id!=='garrison'),defBroken:defBroken.filter(id=>id!=='garrison'),captured:r.captured||[],reserve:0,summary:''}})
 }
+
+// ---- 2-second march-out scene after a war march is ordered ----
+async function marchOut(gens,troops,to){
+  if(!gens.length||typeof drawFigure!=='function'||typeof speed!=='undefined'&&speed===0)return;
+  await Promise.race([sprWait(),new Promise(r=>setTimeout(r,700))]);
+  const c=sctx,DUR=2000,nSol=Math.max(3,Math.min(18,Math.ceil(troops/600))),per=Math.max(2,Math.round(nSol/gens.length)),figs=[];
+  let x=0;const GAP=76;
+  gens.forEach((g,gi)=>{const t=g.type||'spear';
+    figs.push({x0:x,y:GROUND+112,s:2.35,officer:true,type:t,ch:g.ch,seed:gi*1.3});x-=170;
+    for(let i=0;i<per;i++){const row=i%3,col=Math.floor(i/3);figs.push({x0:x-col*GAP-(row%2)*22+Math.random()*10,y:GROUND+62+row*34,s:1.45+row*.12,type:t,seed:Math.random()*6})}
+    x-=Math.ceil(per/3)*GAP+90});
+  const len=-x,v=(W+Math.min(len,700)+120)/DUR,bg=makeBG('p','L',false);
+  $('#cap').innerHTML=`<span><b>${gens.map(gnm).join(', ')}</b> march on <b>${to.name}</b> · ${fmt(troops)} troops</span><span>Tap to skip</span>`;
+  $('#duelUI').hidden=true;$('#stage').hidden=false;SND.fx('march');SND.fx('gallop',.2);SND.fx('shout',.4);
+  return new Promise(res=>{let skip=false;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);const st=performance.now();
+    function fr(now){const t=skip?DUR:now-st;c.drawImage(bg,0,0,W,H);
+      const items=figs.map(f=>({y:f.y,f:{x:f.x0-120+v*t,y:f.y+(f.officer?0:Math.abs(Math.sin(t*.012+f.seed))*-1.5),s:f.s,face:1,fac:'shu',type:f.type,officer:!!f.officer,ch:f.ch,run:t*(f.officer?.034:.03)+f.seed,seed:f.seed}}));
+      for(const it of items){const f=it.f;if(f.x>-60&&f.x<W+60){c.fillStyle='rgba(190,160,110,.18)';c.beginPath();c.ellipse(f.x-26*f.s,f.y-4,18*f.s,6,0,0,Math.PI*2);c.fill()}}
+      items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
+      const a=Math.min(1,t/250,(DUR-t)/250);c.globalAlpha=Math.max(0,a);c.fillStyle='rgba(12,9,6,.72)';c.fillRect(W/2-70,40,140,54);c.fillStyle='#f3dc9a';c.font='900 34px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText('出陣',W/2,68);c.globalAlpha=1;c.textAlign='left';c.textBaseline='alphabetic';
+      if(t<DUR)requestAnimationFrame(fr);else{SC.removeEventListener('pointerdown',onSkip);$('#stage').hidden=true;res()}}
+    requestAnimationFrame(fr)})}
 
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}

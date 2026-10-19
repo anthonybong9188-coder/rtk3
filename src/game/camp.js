@@ -496,7 +496,7 @@ function openMarch(from,to,mode){
     const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
     const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
     if(b.dataset.r==='go'){const own=C(m.to).owner==='shu',ci=cmdOf(),order=m.sel.size?[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))]:[];for(const g of order)g.assign=null;launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])),own?m.gold:0);addLog(own?`${order.length?order.map(gnm).join(', '):'A convoy'} ${order.length?'set':'sets'} out from ${C(m.from).name} to ${C(m.to).name}${[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).length?' with '+[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).join(', '):''}.`:`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
-    $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
+    $('#dlg').hidden=true;box.onclick=null;renderCampaign();if(b.dataset.r==='go'&&C(m.to).owner!=='shu'&&m.sel.size){const ci2=cmdOf();marchOut([GN(ci2),...[...m.sel].filter(id=>id!==ci2).map(GN)],m.troops,C(m.to))}};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
 // ---- destination picker on the China map
@@ -914,3 +914,25 @@ function playCampaignBattle(a,c,gens,defG){
       const attWin=me?r.win:!r.win;
       return {attWin,att,def,attBroken:attBroken.filter(id=>id!=='garrison'),defBroken:defBroken.filter(id=>id!=='garrison'),captured:r.captured||[],reserve:0,summary:''}})
 }
+
+// ---- 2-second march-out scene after a war march is ordered ----
+async function marchOut(gens,troops,to){
+  if(!gens.length||typeof drawFigure!=='function'||typeof speed!=='undefined'&&speed===0)return;
+  await Promise.race([sprWait(),new Promise(r=>setTimeout(r,700))]);
+  const c=sctx,DUR=2000,nSol=Math.max(3,Math.min(18,Math.ceil(troops/600))),per=Math.max(2,Math.round(nSol/gens.length)),figs=[];
+  let x=0;const GAP=76;
+  gens.forEach((g,gi)=>{const t=g.type||'spear';
+    figs.push({x0:x,y:GROUND+112,s:2.35,officer:true,type:t,ch:g.ch,seed:gi*1.3});x-=170;
+    for(let i=0;i<per;i++){const row=i%3,col=Math.floor(i/3);figs.push({x0:x-col*GAP-(row%2)*22+Math.random()*10,y:GROUND+62+row*34,s:1.45+row*.12,type:t,seed:Math.random()*6})}
+    x-=Math.ceil(per/3)*GAP+90});
+  const len=-x,v=(W+Math.min(len,700)+120)/DUR,bg=makeBG('p','L',false);
+  $('#cap').innerHTML=`<span><b>${gens.map(gnm).join(', ')}</b> march on <b>${to.name}</b> · ${fmt(troops)} troops</span><span>Tap to skip</span>`;
+  $('#duelUI').hidden=true;$('#stage').hidden=false;SND.fx('march');SND.fx('gallop',.2);SND.fx('shout',.4);
+  return new Promise(res=>{let skip=false;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);const st=performance.now();
+    function fr(now){const t=skip?DUR:now-st;c.drawImage(bg,0,0,W,H);
+      const items=figs.map(f=>({y:f.y,f:{x:f.x0-120+v*t,y:f.y+(f.officer?0:Math.abs(Math.sin(t*.012+f.seed))*-1.5),s:f.s,face:1,fac:'shu',type:f.type,officer:!!f.officer,ch:f.ch,run:t*(f.officer?.034:.03)+f.seed,seed:f.seed}}));
+      for(const it of items){const f=it.f;if(f.x>-60&&f.x<W+60){c.fillStyle='rgba(190,160,110,.18)';c.beginPath();c.ellipse(f.x-26*f.s,f.y-4,18*f.s,6,0,0,Math.PI*2);c.fill()}}
+      items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
+      const a=Math.min(1,t/250,(DUR-t)/250);c.globalAlpha=Math.max(0,a);c.fillStyle='rgba(12,9,6,.72)';c.fillRect(W/2-70,40,140,54);c.fillStyle='#f3dc9a';c.font='900 34px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText('出陣',W/2,68);c.globalAlpha=1;c.textAlign='left';c.textBaseline='alphabetic';
+      if(t<DUR)requestAnimationFrame(fr);else{SC.removeEventListener('pointerdown',onSkip);$('#stage').hidden=true;res()}}
+    requestAnimationFrame(fr)})}
