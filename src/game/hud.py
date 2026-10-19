@@ -581,6 +581,10 @@ rep('@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}', '''.cmdpi
 .dpick button.on{border-color:var(--gold);background:#2a2116}.dpick em{color:var(--gold)}
 .slots button{display:flex!important;justify-content:space-between;align-items:center;gap:10px;min-height:56px}.slots .sl{display:flex;flex-direction:column;gap:3px;min-width:0}.slots .sl small{color:var(--muted);font-size:12.5px}.slots em{font-size:14px!important}
 .dpick{max-height:46vh}
+.welc{display:flex;gap:16px;align-items:flex-start}.welcp{width:clamp(110px,22vh,170px);aspect-ratio:2/3;object-fit:cover;object-position:50% 15%;border-radius:12px;border:2px solid #8a6d38;flex:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.welct{flex:1;min-width:0}.welct h2{margin:2px 0 4px}.welck{font-size:12px;letter-spacing:.08em;color:var(--gold);font-weight:700}
+.welct blockquote{margin:10px 0;padding:10px 14px;background:#f3e6c4;color:#241a10;border-radius:12px;font:600 16px/1.4 var(--f-body)}
+.warnc{color:#e8a05f}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}

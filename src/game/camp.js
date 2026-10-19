@@ -198,11 +198,11 @@ function renderCity(){
   if(UI.mode==='cmd'&&mine){
     const k=UI.cmd,v=CMDS[k],cost=Object.entries(v.cost).map(([r,n])=>`${n} ${r}`).join(', ')||'free';
     const afford=Object.entries(v.cost).every(([r,n])=>S.fac.shu[r]>=n);
-    let list=gs.filter(g=>k==='reward'?g.loy<100&&!isRuler(g):!g.acted);
+    let list=gs.filter(g=>k==='reward'?g.loy<100&&!isRuler(g)&&!g.rewarded:!g.acted);
     list.sort((x,y)=>k==='reward'?x.loy-y.loy:y[v.stat]-x[v.stat]);
     b+=`<div class="chead"><div><div class="sec">${v.zh} ${v.n} · ${cost}</div><p class="muted">Choose who will do it. ${v.tip}.</p></div><button data-act="back">Cancel</button></div>`;
     if(!afford)b+=`<p class="bad">Not enough ${Object.keys(v.cost).join(' and ')}.</p>`;
-    if(!list.length)b+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal.':'Every officer here has already acted this month.'}</p>`;
+    if(!list.length)b+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal or has already been rewarded this month.':'Every officer here has already acted this month.'}</p>`;
     b+=`<div class="olist">${list.map(g=>`<button class="orow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="opick"><b>${v.stat==='loy'?'Loyalty':v.stat==='pol'?'Politics':v.stat==='cha'?'Charisma':v.stat==='int'?'Intelligence':'War'} ${g[v.stat]}</b><small>${cmdPreview(k,g,c)}</small></span></button>`).join('')}</div>`;
   } else {
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
@@ -255,10 +255,10 @@ function doCmd(k,g,c,f){
   if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
-  if(k==='reward'){g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
+  if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
   if(k==='search'){const ch=Math.min(.9,(s*.6+10)/100);const hid=Object.values(S.gens).find(x=>x.hidden&&x.city===c.id);
     if(Math.random()>ch)m=`${g.name} searches ${c.name} but finds nothing.`;
-    else if(hid&&Math.random()<.6){hid.hidden=false;hid.fac=f;hid.acted=true;m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
+    else if(hid&&Math.random()<.6){hid.hidden=false;hid.fac=f;hid.acted=true;if(f==='shu'){hid.city=c.id;UI.found=hid.id}m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
     else if(Math.random()<.5){const n=ri(100,300);F.gold+=n;m=`${g.name} finds ${n} gold.`}
     else{const n=ri(5,15)*100;F.rice+=n;m=`${g.name} finds ${fmt(n)} rice.`}}
   return m}
@@ -271,7 +271,9 @@ document.addEventListener('click',async e=>{
   const c=C(S.sel);
   if(b.dataset.cmd){if(UI.mode==='cmd'&&UI.cmd===b.dataset.cmd)UI.mode='city';else{UI.mode='cmd';UI.cmd=b.dataset.cmd}renderCity();return}
   if(b.dataset.gen){const g=GN(b.dataset.gen),k=UI.cmd;UI.busy=true;const m=doCmd(k,g,c,'shu');addLog(m,'shu');save();
-    try{await actFx(g,k,m,c)}catch(err){console.error(err)}UI.busy=false;if(k!=='reward')UI.mode='city';renderCampaign();return}
+    try{await actFx(g,k,m,c)}catch(err){console.error(err)}
+    if(UI.found){const ng=GN(UI.found);UI.found=null;try{await welcomeGen(ng,c,'search')}catch(err){console.error(err)}}
+    UI.busy=false;if(k!=='reward')UI.mode='city';renderCampaign();return}
   const a=b.dataset.act;
   if(a==='rtab'){UI.rtab=b.dataset.t;renderCity();return}
   if(a==='back'){UI.mode='city';renderCity()}
@@ -290,6 +292,19 @@ $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
+// ---- a new officer joins: portrait, his words, and an offer to reward him at once
+const WELCOME={search:['I have waited long for a lord worthy of my talents. I am honoured to serve you, Lord Liu Bei.','Your name for benevolence reached even my humble door. Command me, my lord.','I am honoured to serve. My life is yours to spend for the Han.'],
+  capture:['You spared me when you could have taken my head. I will repay that kindness, my lord.','I fought you as an enemy; I will serve you as a loyal officer.'],
+  persuade:['Your envoy spoke truly. I am honoured to join your cause, Lord Liu Bei.','I have served the wrong master long enough. Command me.']};
+async function welcomeGen(g,c,why){
+  for(;;){const can=g.loy<100&&!g.rewarded&&S.fac.shu.gold>=100,img=portraitSrc(g);
+    const r=await dialog(`<div class="welc">${img?`<img src="${img}" alt="" class="welcp">`:gseal(g,120)}<div class="welct"><span class="welck">新 New officer</span><h2>${g.name}</h2>
+      <p class="muted">War ${g.war} · Int ${g.int} · Pol ${g.pol} · Cha ${g.cha} · ${TYPES[g.type].n}</p>
+      <blockquote>“${pick(WELCOME[why]||WELCOME.search)}”</blockquote>
+      <p>Loyalty <b class="${g.loy<60?'bad':g.loy<75?'warnc':''}">${g.loy}</b>${g.loy<75?' · <span class="warnc">low; rivals may lure him away</span>':''}</p></div></div>`,
+      [...(g.loy<100&&!g.rewarded?[['rew',`賞 Reward · 100 gold, +8 loyalty`]]:[]),['ok','Welcome','primary']]);
+    if(r==='rew'){if(!can){toast('Not enough gold.');continue}S.fac.shu.gold-=100;const m=doCmd('reward',g,c,'shu');addLog(m,'shu');save();SND.fx('chime');renderCampaign();continue}
+    return}}
 // ---- city command cut-in: 1s order, 1s result
 const ACT_LINES={
   farm:[['To the fields! A good harvest feeds an army.','Turn the soil; the granaries must be full.'],['The fields will feed us well.','The farmers bless your name, my lord.']],
@@ -434,7 +449,7 @@ async function endMonth(){
     for(const a of arrived){S.armies=S.armies.filter(x=>x!==a);await resolveArrival(a);if(S.over)break}
     if(!S.over){economy();loyaltyTick();await events();
       S.month++;if(S.month>12){S.month=1;S.year++}
-      for(const g of Object.values(S.gens))g.acted=false;
+      for(const g of Object.values(S.gens)){g.acted=false;g.rewarded=false}
       if(S.month===7)addLog('Harvest month: every city brings in its rice.');
       checkCampaignEnd()}
     save();
@@ -490,7 +505,7 @@ async function doPersuade(c){
     if(!r.startsWith('t:'))return;
     const t=GN(r.slice(2)),p=persuadeChance(env,t);S.fac.shu.gold-=100;env.acted=true;UI.busy=true;const ok=Math.random()<p;
     let m;if(ok){moveGen(t,'shu',env.city,70);m=`${env.name} persuades ${t.name} to leave ${fs(c.owner)} and serve Liu Bei.`}else m=`${env.name} fails to sway ${t.name}.`;
-    addLog(m,'shu');save();try{await actFx(env,'persuade',m.replace(env.name+' ',''),C(env.city),ok)}catch(e){}UI.busy=false;renderCampaign();return}}
+    addLog(m,'shu');save();try{await actFx(env,'persuade',m.replace(env.name+' ',''),C(env.city),ok)}catch(e){}if(ok)await welcomeGen(t,C(env.city),'persuade');UI.busy=false;renderCampaign();return}}
 async function doSurrender(c){
   const f=c.owner,envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
   let env=envs[0];
@@ -733,7 +748,7 @@ async function handleCapture(g,captor,c){
     const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${founder?' · ruler of '+FACS[from].short:ruler?' · took command of '+FACS[from].short+'\'s men after his lord fell':''}</p></div></div>
       <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>`,
       [...(founder?[]:[['rec','Recruit','primary']]),['rel','Release'],['exe','Execute']]);
-    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');toast(`${g.name} joins you!`);if(ruler)succession(from)}
+    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');if(ruler)succession(from);await welcomeGen(g,c,'capture')}
       else{const h=nearestOwn(from,c.id);if(h){g.city=h.id}else{g.fac=null;g.hidden=true;g.city=c.id}addLog(`${g.name} refuses and is released.`,'shu');toast(`${g.name} refuses to serve.`)}}
     else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.hidden=true;g.city=c.id}addLog(`${g.name} is released.`,'shu')}
     else{delete S.gens[g.id];addLog(`${g.name} is executed.`,'shu');if(ruler)succession(from)}
