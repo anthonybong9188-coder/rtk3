@@ -1961,8 +1961,8 @@ let toastT=null;function toast(m){const t=$('#toast');t.innerHTML=m;t.hidden=fal
 
 // ------------------------------------------------------------ dialogs
 function dialog(html,buttons){return new Promise(res=>{
-  const box=$('#dlgbox');box.classList.remove('dwide');box.innerHTML=html+`<div class="dbtns">${buttons.map(([v,l,cls])=>`<button data-r="${v}" class="${cls||''}">${l}</button>`).join('')}</div>`;
-  $('#dlg').hidden=false;
+  const box=$('#dlgbox'),again=!$('#dlg').hidden||dialog.last===html.slice(0,60),keepT=box.querySelector('.tlist')?box.querySelector('.tlist').scrollTop:0,keepB=box.scrollTop;dialog.last=html.slice(0,60);box.classList.remove('dwide');box.innerHTML=html+`<div class="dbtns">${buttons.map(([v,l,cls])=>`<button data-r="${v}" class="${cls||''}">${l}</button>`).join('')}</div>`;
+  $('#dlg').hidden=false;if(again){const t=box.querySelector('.tlist');if(t)t.scrollTop=keepT;box.scrollTop=keepB}
   box.onclick=e=>{const b=e.target.closest('[data-r]');if(!b||b.disabled)return;$('#dlg').hidden=true;box.onclick=null;res(b.dataset.r)}})}
 
 // ------------------------------------------------------------ march
@@ -1994,6 +1994,8 @@ function openMarch(from,to){
     const thP=dg.length?dg.reduce((s,g)=>s+(dT/dg.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0):dT*85;
     const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*(1.15+tgt.walls/250)):9;
     const out=!tgt?['Pick a destination','#a6977a']:own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
+    const keepL=(box.querySelector('.glist.mg')||{}).scrollTop||0,keepB=box.scrollTop,keepF=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#dlgbox')?[document.activeElement.dataset.sp,document.activeElement.dataset.id]:null;
+    queueMicrotask(()=>{const l=box.querySelector('.glist.mg');if(l)l.scrollTop=keepL;box.scrollTop=keepB;if(keepF&&keepF[0]){const f=box.querySelector(`[data-sp="${keepF[0]}"][data-id="${keepF[1]}"]`);if(f)f.focus({preventScroll:true})}});
     box.innerHTML=`<h2>March from ${src.name}</h2>
       <div class="mrow"><span class="lbl">Destination</span><button type="button" class="destbtn${tgt?'':' empty'}" data-pickdest="1">${tgt?`<i style="background:${FACS[tgt.owner].main}"></i><b>${tgt.name}</b><small>${own?'your city':FACS[tgt.owner].short+' · '+fmt(tgt.troops)+' troops'+(reinf?` (+${fmt(reinf)} coming)`:'')} · ${tr} month${tr>1?'s':''}</small><em>Change</em>`:'<span class="dmap" aria-hidden="true">🗺</span><b>Choose on the map</b><small>Tap to see which cities you can reach</small>'}</button></div>
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
