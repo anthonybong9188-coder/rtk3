@@ -1109,3 +1109,10 @@ rep("""c.font=`700 ${Math.round(T*.34)}px "Alegreya Sans", sans-serif`;c.textAli
 rep("const im=portImg(u.id),F=FAC[u.side],h=132,w=88,x=side==='L'?10:W-w-10,y=H-h-10;","const im=portImg(u.id),F=FAC[u.side],h=66,w=66,x=side==='L'?10:W-w-10,y=H-h-6;")
 rep("if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,0,40,512,688,x,y,w,h);c.restore()}","if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,86,30,340,340,x,y,w,h);c.restore()}")
 rep("  const x0=112,x1=W-112,y=H-62,cxm=W/2;","  const x0=84,x1=W-84,y=H-62,cxm=W/2;")
+
+# bigger soldiers and officers now the portraits are small
+rep("const cav=u.type===\"cav\",ROWS4=4,gap=cav?82:70;","const cav=u.type===\"cav\",ROWS4=4,gap=cav?96:84;")
+rep("y=GROUND+14+row*32,s=1.2+row*.09;const hx=322-col*gap-(row%2)*16+(row===0?6:0);","y=GROUND+10+row*40,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);")
+rep("const ox=side==='L'?112:W-112;\n  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+62,hy:GROUND+62,s:1.85,","const ox=side==='L'?92:W-92;\n  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,s:2.35,")
+rep("const ox=side==='L'?92:W-92;","const ox=side==='L'?104:W-104;")
+rep("A.off.tx=A.off.hx+f*36}","A.off.tx=A.off.hx+f*22}")
