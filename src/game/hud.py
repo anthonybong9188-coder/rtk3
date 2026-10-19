@@ -1104,3 +1104,8 @@ rep("c.fillStyle=`rgba(215,55,40,${.32+pulse*.2})`;c.fillRect(e.x*T+1,e.y*T+1,T-
 rep("if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.28)';","if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.15)';")
 rep("""c.font=`700 ${Math.round(T*.34)}px "Alegreya Sans", sans-serif`;c.textAlign='center';c.lineWidth=3;c.strokeStyle='#14110d';const yy=f.y*T+T*.3-p*T*.6;""",
     """c.font=`900 ${Math.round(T*.4)}px "Alegreya Sans", sans-serif`;c.textAlign='center';c.lineWidth=5;c.lineJoin='round';c.strokeStyle='#14110d';const yy=f.y*T-T*.02-p*T*.55;""")
+
+# smaller head-and-shoulders portraits beside the troop bar
+rep("const im=portImg(u.id),F=FAC[u.side],h=132,w=88,x=side==='L'?10:W-w-10,y=H-h-10;","const im=portImg(u.id),F=FAC[u.side],h=66,w=66,x=side==='L'?10:W-w-10,y=H-h-6;")
+rep("if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,0,40,512,688,x,y,w,h);c.restore()}","if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,86,30,340,340,x,y,w,h);c.restore()}")
+rep("  const x0=112,x1=W-112,y=H-62,cxm=W/2;","  const x0=84,x1=W-84,y=H-62,cxm=W/2;")
