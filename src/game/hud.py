@@ -999,3 +999,21 @@ rep("function endGame(win,text,retreat){","function endGame(win,text,retreat){SN
 rep('<button id="menuBtn" class="iconbtn" aria-label="Menu">','<button class="iconbtn sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu">')
 rep('<div class="pills"><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>','<div class="pills"><button class="pill sndbtn" onclick="SND.toggleMute();updSndBtns()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button>')
 rep("showScreen('title');renderTitle();","showScreen('title');renderTitle();updSndBtns();")
+
+# ---- keep fullscreen across app switches: browsers drop it when the tab is hidden,
+# and only a tap may turn it back on, so re-enter on the first tap after returning
+rep("function toggleFull(){try{if(document.fullscreenElement)document.exitFullscreen();",
+    "function toggleFull(){try{if(document.fullscreenElement){FS.want(false);document.exitFullscreen()}else FS.want(true);if(document.fullscreenElement);")
+rep("document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;",
+r"""var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')==='1'}catch(e){}
+  const set=v=>{want=v;try{localStorage.setItem('rtk3-fs',v?'1':'0')}catch(e){}};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hidAt=performance.now()});
+  addEventListener('pagehide',()=>{hidAt=performance.now()});
+  document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement){set(true);return}
+    // left fullscreen: if the page is (about to be) hidden it was an app switch, keep the wish; otherwise the player chose to leave
+    setTimeout(()=>{if(!document.hidden&&performance.now()-hidAt>1500)set(false)},600)});
+  const back=()=>{if(want&&!document.fullscreenElement&&!document.hidden&&matchMedia('(pointer:coarse)').matches){const d=document.documentElement;
+    try{(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}catch(e){}}};
+  addEventListener('pointerup',back,{capture:true,passive:true});addEventListener('touchend',back,{capture:true,passive:true});
+  return {want:set}})();
+document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;""")

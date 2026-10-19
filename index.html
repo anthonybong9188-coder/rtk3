@@ -2421,8 +2421,19 @@ function playCampaignBattle(a,c,gens,defG){
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
 for(const id of ['#newBtn','#contBtn'])$(id).addEventListener('click',goFull,true);
-function toggleFull(){try{if(document.fullscreenElement)document.exitFullscreen();else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
+function toggleFull(){try{if(document.fullscreenElement){FS.want(false);document.exitFullscreen()}else FS.want(true);if(document.fullscreenElement);else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
 $('#fsBtn').onclick=toggleFull;
+var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')==='1'}catch(e){}
+  const set=v=>{want=v;try{localStorage.setItem('rtk3-fs',v?'1':'0')}catch(e){}};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hidAt=performance.now()});
+  addEventListener('pagehide',()=>{hidAt=performance.now()});
+  document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement){set(true);return}
+    // left fullscreen: if the page is (about to be) hidden it was an app switch, keep the wish; otherwise the player chose to leave
+    setTimeout(()=>{if(!document.hidden&&performance.now()-hidAt>1500)set(false)},600)});
+  const back=()=>{if(want&&!document.fullscreenElement&&!document.hidden&&matchMedia('(pointer:coarse)').matches){const d=document.documentElement;
+    try{(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}catch(e){}}};
+  addEventListener('pointerup',back,{capture:true,passive:true});addEventListener('touchend',back,{capture:true,passive:true});
+  return {want:set}})();
 document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;$('#fsBtn').textContent=f?'⛶ Exit':'⛶ Full';setTimeout(()=>{if(G&&!$('#battleView').hidden){resizeMap();const u=G.sel||G.view;if(u)focusUnit(u,true)}},200)});
 {const m=document.createElement('link');m.rel='manifest';m.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify({name:'RTK3',short_name:'RTK3',start_url:location.href.split('#')[0],display:'fullscreen',orientation:'landscape',background_color:'#0b0a08',theme_color:'#0b0a08',icons:[{src:new URL('art/icon-192.png',location.href).href,sizes:'192x192',type:'image/png',purpose:'any'},{src:new URL('art/icon-512.png',location.href).href,sizes:'512x512',type:'image/png',purpose:'any maskable'}]}));document.head.appendChild(m);[['apple-touch-icon','art/icon-180.png'],['icon','art/icon-32.png']].forEach(([r,h])=>{const l=document.createElement('link');l.rel=r;l.href=h;document.head.appendChild(l);});
  for(const [n,c] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent'],['theme-color','#0b0a08']]){const t=document.createElement('meta');t.name=n;t.content=c;document.head.appendChild(t)}}
