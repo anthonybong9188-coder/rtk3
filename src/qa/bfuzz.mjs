@@ -5,7 +5,7 @@ const b=await chromium.launch();const errs=[],res=[];
 const P=[['zhangfei','guanyu','zhaoyun','zhugeliang'],['guanyu','zhaoyun'],['zhangfei','mizhu','sunqian'],['zhugeliang','zhaoyun','guanyu','zhangfei']];
 const E=[['caoren','xuchu','yujin','yuejin'],['huangzhong','weiyan','hanxuan'],['xiahouyuan','lidian'],['zhangliao','lidian','manchong']];
 for(let r=0;r<RUNS;r++){const p=await b.newPage({viewport:{width:1000,height:460}});p.on('pageerror',e=>errs.push(`r${r} ${e.message} @ ${(e.stack||'').split('\n').slice(1,3).join(' | ')}`));
-  await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(300);
+  await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(300);
   await p.evaluate(({r,pg,eg})=>{let s=r*104729+11;Math.random=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};speed=r%3===0?1:0;
     for(const id of eg)GN(id).city='xiangyang';const gens=pg.map(GN);const a={id:99,fac:'shu',from:'jiangxia',to:'xiangyang',gens:pg,troops:6000*pg.length,rice:3000,left:0,total:2,train:70};
     window.__res=null;playCampaignBattle(a,C(r%4===1?'xiangyang':'xiangyang'),gens,eg.map(GN)).then(x=>window.__res=x)},{r,pg:P[r%4],eg:E[r%4]});

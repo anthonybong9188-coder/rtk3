@@ -1,7 +1,7 @@
 import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
 const b=await chromium.launch();const errs=[],out=[];
 for(const sp of [0,1]){const p=await b.newPage({viewport:{width:1000,height:460}});p.on('pageerror',e=>errs.push(`sp${sp} ${e.message} @ ${(e.stack||'').split('\n')[1]}`));
-await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(300);
+await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(300);
 await p.evaluate(sp=>{speed=sp;const gens=['zhangfei','guanyu','zhaoyun','zhugeliang'].map(GN);const a={id:99,fac:'shu',from:'jiangxia',to:'xiangyang',gens:gens.map(g=>g.id),troops:20000,rice:3000,left:0,total:2,train:70};
   window.__res=null;playCampaignBattle(a,C('xiangyang'),gens,['caoren','xuchu','yujin','yuejin'].map(GN)).then(x=>window.__res=x)},sp);
 await p.waitForTimeout(1500);

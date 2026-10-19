@@ -7,7 +7,7 @@ const b=await chromium.launch();const out={errs:[],viol:[],ends:[]};
 for(let gi=0;gi<N;gi++){const p=await b.newPage({viewport:{width:1000,height:460}});
   p.on('pageerror',e=>out.errs.push(`g${gi} ${e.message} ${(e.stack||'').split('\n')[1]||''}`));
   await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.addScriptTag({content:inv});
-  await p.click('#newBtn');await p.waitForTimeout(300);
+  await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(300);
   await p.evaluate(({gi,mode})=>{UI.noConfirm=true;window.monthFx=()=>{};window.monthSummary=async()=>{};
     // seeded randomness per game
     let s=gi*9973+17;Math.random=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};

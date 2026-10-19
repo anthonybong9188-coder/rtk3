@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不九乾二于五仁令佐八六兵典冬分劉勝十南合吳咆哮商單四國城報壁夏夜天奇奸威守安宛射屈巡帥平度庫延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬新昌春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許說諸賞赤趙農速運遭遼邢金長關降陳陵陽雄雙零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七三下不中九乾二于五仁令佐八六兵典冬分劉勝十南合吳咆哮商單四國城報壁夏夜天奇奸威守安宛射屈巡帥平度庫延建弓張征待徵必忠惇慈戟戰拒挑探推撫操擒攻敗斬新昌易春昭曹會月東柴桂桑業槍樂權正武汝江沙泰淵滿火王琬瑜甘盾神秋稽突範簡糜肅肥臘良荀蒙蓋虎虛蜀衛襄襲計訓許說諸賞赤趙農速運遭遼邢金長關降陳陵陽雄雙難零震青鞏韓風騎魏黃龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -422,6 +422,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .tipbox{position:fixed;z-index:400;max-width:280px;padding:8px 12px;border-radius:10px;background:#f3e6c4;color:#241a10;font:500 13.5px/1.4 var(--f-body);box-shadow:0 6px 20px rgba(0,0,0,.5);pointer-events:none}.tipbox b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#7a5a2a}
 [data-tip]{-webkit-touch-callout:none}
 .sumlist{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto;font-size:13.5px}.sumlist li{display:flex;gap:8px;align-items:flex-start}.smi{flex:none;width:20px;text-align:center}.sumlist.thr li{color:#ffd6cc}.newb{font-style:normal;font-size:11px;padding:1px 6px;border-radius:8px;background:#c4473a;color:#fff;margin-left:4px}
+.slots button.on{border-color:var(--gold)}
 .rchoice{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .rchoice button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 14px;border-radius:10px;background:#211a12;border:1px solid #6b5636;color:var(--paper)}
 .rchoice button b{font-size:16px}.rchoice button small{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -683,7 +684,7 @@ let G, speed=1;
 const unitAt=(x,y)=>G.units.find(u=>u.x===x&&u.y===y);
 let battleResolve=null;
 function startBattle(cfg){
-  MAP=cfg.map;T_INFO.c.def=1.25+cfg.walls/250;
+  MAP=cfg.map;T_INFO.c.def=1+(.25+cfg.walls/250)*(cfg.playerAttacks&&typeof DF==='function'?DF().wall:1);
   const F=FACS[cfg.foe];FAC.wei={main:F.main,dark:F.dark,light:F.light,name:F.short};
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
@@ -1737,10 +1738,18 @@ function addLog(h,f){S.logN=(S.logN||0)+1;S.log.unshift({d:`${S.year}/${S.month}
 const fs=f=>`<b style="color:${FACS[f].light}">${FACS[f].short}</b>`;
 const gnm=g=>`<b style="color:${(FACS[g.fac]||{light:'#ece2c9'}).light}">${g.name}</b>`;
 
-function newCampaign(){
+// difficulty: inc = your gold income, wall = how much enemy walls help them when YOU attack,
+// aiRec = enemy recruiting, aiBar = how much stronger the enemy must be before it attacks
+const DIFF={easy:{n:'Easy',zh:'易',inc:1.6,gold:3000,rice:45000,wall:.45,aiRec:.45,aiBar:.45,pRec:1.5,cap:1.4,d:'Your treasury grows faster, enemy walls are weaker, and rivals attack only with a big advantage.'},
+  normal:{n:'Normal',zh:'中',inc:1.25,gold:2000,rice:35000,wall:.7,aiRec:.75,aiBar:.15,pRec:1.25,cap:1.2,d:'The intended challenge. Strike Wei after Red Cliffs while Jiangling is weak.'},
+  hard:{n:'Hard',zh:'難',inc:1,gold:1500,rice:30000,wall:1,aiRec:1.3,aiBar:-.1,pRec:1,cap:1,d:'Rivals recruit faster and attack sooner. Walls are at full strength.'}};
+const DF=()=>DIFF[(S&&S.diff)||'normal'];
+// how much a city's walls multiply its defence; enemy walls are softened by difficulty when Shu attacks
+function wallF(c,attacker){const k=c.owner!=='shu'&&attacker==='shu'?DF().wall:1;return 1+(.15+c.walls/250)*k}
+function newCampaign(diff){
   S={year:208,month:9,armies:[],log:[],grudge:{},sel:'jiangxia',over:false,nextArmy:1,cities:{},gens:{},fac:{},rulers:{}};
   for(const f in FACS)S.rulers[f]=FACS[f].ruler;
-  for(const f in FACS)S.fac[f]={gold:FACS[f].gold,rice:FACS[f].rice};
+  S.diff=diff||'normal';for(const f in FACS)S.fac[f]={gold:FACS[f].gold,rice:FACS[f].rice};S.fac.shu.gold=DF().gold;S.fac.shu.rice=DF().rice;
   for(const d of CITY_DEF){const [id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train]=d;
     S.cities[id]={id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train}}
   for(const d of GEN_DEF){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;
@@ -1949,13 +1958,13 @@ function cmdPreview(k,g,c){
   if(k==='farm')return `+${Math.round(s/10)}–${Math.round(s/10)+4} farming`;
   if(k==='com')return `+${Math.round(s/10)}–${Math.round(s/10)+4} commerce`;
   if(k==='walls')return `+${Math.round(s/15)}–${Math.round(s/15)+3} walls`;
-  if(k==='recruit'){const room=troopCap(c)-c.troops;return room<=0?`city is full (${fmt(troopCap(c))} max)`:`about +${fmt(Math.min(s*10,room))} troops`}
+  if(k==='recruit'){const room=troopCap(c)-c.troops;return room<=0?`city is full (${fmt(troopCap(c))} max)`:`about +${fmt(Math.min(Math.round(s*10*DF().pRec),room))} troops`}
   if(k==='train')return `+${Math.round(s/12)}–${Math.round(s/12)+3} training`;
   if(k==='patrol')return `+${Math.round(s/15)}–${Math.round(s/15)+3} order`;
   if(k==='search')return `${Math.round(Math.min(90,s*.6+10))}% chance to find something`;
   if(k==='reward')return `loyalty ${g.loy} → ${Math.min(100,g.loy+8)}`;
   return ''}
-const troopCap=c=>Math.round(c.pop*120/500)*500;
+const troopCap=c=>Math.round(c.pop*120*(c.owner==='shu'&&typeof DF==='function'&&S?DF().cap:1)/500)*500;
 function intel(f,o){if(!S.intel)S.intel={};(S.intel[f]=S.intel[f]||[]).push(o)}
 function doCmd(k,g,c,f){
   const F=S.fac[f],v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
@@ -1964,7 +1973,7 @@ function doCmd(k,g,c,f){
   if(k==='farm'){const n=Math.min(c.farmMax-c.farm,Math.round(s/10)+ri(0,4));c.farm+=n;m=`${g.name} works the fields: farming +${n}.`}
   if(k==='com'){const n=Math.min(c.comMax-c.com,Math.round(s/10)+ri(0,4));c.com+=n;m=`${g.name} develops the markets: commerce +${n}.`}
   if(k==='walls'){const n=Math.min(100-c.walls,Math.round(s/15)+ri(0,3));c.walls+=n;m=`${g.name} repairs the walls: +${n}.`}
-  if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
+  if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)*(f!=='shu'&&f!=='__gov'?DF().aiRec:DF().pRec)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
@@ -2006,11 +2015,12 @@ document.addEventListener('click',async e=>{
 $('#mapBtn').onclick=()=>openMap();
 $('#mapClose').onclick=()=>closeMap();
 $('#endMonth').onclick=()=>endMonth();
-$('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;newCampaign();UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
+$('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;const dr=await dialog(`<h2>Choose difficulty</h2><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" class="${k==='normal'?'on':''}"><span class="sl"><b>${v.zh} ${v.n}</b><small>${v.d}</small></span><em>${k==='normal'?'Recommended':''}</em></button>`).join('')}</div>`,[['cancel','Cancel']]);if(!DIFF[dr])return;newCampaign(dr);UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
+$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['diff',`${DF().zh} Difficulty: ${DF().n}`],['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='diff'){const dr=await dialog(`<h2>Difficulty</h2><p class="muted">You can change this at any time. Gold already in your treasury stays as it is.</p><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" ${S.diff===k?'disabled':''}><span class="sl"><b>${v.zh} ${v.n}${(S.diff||'normal')===k?' · current':''}</b><small>${v.d}</small></span></button>`).join('')}</div>`,[['cancel','Cancel']]);if(DIFF[dr]){S.diff=dr;addLog(`Difficulty set to ${DIFF[dr].n}.`,'shu');save();renderCampaign()}}
+    if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
 // ---- a new officer joins: portrait, his words, and an offer to reward him at once
 const WELCOME={search:['I have waited long for a lord worthy of my talents. I am honoured to serve you, Lord Liu Bei.','Your name for benevolence reached even my humble door. Command me, my lord.','I am honoured to serve. My life is yours to spend for the Han.'],
   capture:['You spared me when you could have taken my head. I will repay that kindness, my lord.','I fought you as an enemy; I will serve you as a loyal officer.'],
@@ -2092,7 +2102,7 @@ function openMarch(from,to,mode){
     const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
     const meet=tgt?S.armies.find(a=>a.from===tgt.id&&a.to===m.from&&a.fac!=='shu'&&!allied('shu',a.fac)):null;const reinf=tgt?S.armies.filter(a=>a.to===tgt.id&&a.fac===tgt.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0):0;const dg=tgt?gensIn(tgt.id).sort((a,b)=>b.war-a.war).slice(0,4):[];const dT=tgt?tgt.troops+reinf:0;
     const thP=dg.length?dg.reduce((s,g)=>s+(dT/dg.length)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0):dT*85;
-    const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*(1.15+tgt.walls/250)):9;
+    const ratio=thP?myP/(thP*(.7+.3*tgt.train/100)*wallF(tgt,'shu')):9;
     const out=!tgt?['Pick a destination','#a6977a']:own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     const keepL=(box.querySelector('.glist.mg')||{}).scrollTop||0,keepB=box.scrollTop,keepF=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#dlgbox')?[document.activeElement.dataset.sp,document.activeElement.dataset.id]:null;
     queueMicrotask(()=>{const l=box.querySelector('.glist.mg');if(l)l.scrollTop=keepL;box.scrollTop=keepB;if(keepF&&keepF[0]){const f=box.querySelector(`[data-sp="${keepF[0]}"][data-id="${keepF[1]}"]`);if(f)f.focus({preventScroll:true})}});
@@ -2183,7 +2193,7 @@ async function endMonth(){
     setTimeout(()=>monthSummary(nw),1150)}
 }
 const MZH=['','正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','臘月'];
-async function monthSummary(nw){
+async function monthSummary(nw){if(S.over||!$('#dlg').hidden)return;
   const L=S.log.filter(l=>l.n>(UI.logStart||0)).reverse();const mine=L.filter(l=>l.f==='shu'),other=L.filter(l=>l.f!=='shu');const T=threats();
   if(!L.length&&!T.length)return;
   const ic=h=>/takes|defeats|holds|falls|Battle|battle/.test(h)?'⚔':/harvest/.test(h)?'🌾':/goes over|leaves|lured|deserted|slips|defect|joins|agrees to serve|persuades/.test(h)?'🔀':/run out|Riots|empty|desert/.test(h)?'⚠':/Governor|governs|assigned/.test(h)?'守':'·';
@@ -2265,12 +2275,12 @@ async function doSurrender(c){
 function economy(){
   for(const f of Object.keys(FACS)){if(!alive(f))continue;const F=S.fac[f],cs=citiesOf(f);
     const dl=cs.filter(isDelegated),dr=cs.filter(c=>!isDelegated(c));
-    for(const c of dl){const P=c.purse;P.gold=Math.round(P.gold+c.com*.5*c.order/100-gensIn(c.id).length*SALARY);P.rice=Math.round(P.rice-c.troops*RICE_CITY);
+    for(const c of dl){const P=c.purse;P.gold=Math.round(P.gold+c.com*.5*c.order/100*DF().inc-gensIn(c.id).length*SALARY);P.rice=Math.round(P.rice-c.troops*RICE_CITY);
       if(S.month===7){const h=c.farm*40;P.rice+=h;addLog(`${c.name}'s harvest brings ${fmt(h)} rice into the governor's purse.`,'shu')}
       if(P.rice<0){P.rice=0;c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5);addLog(`<b>${c.name} has run out of rice.</b> 10% of its troops desert.`,'shu')}
       if(P.gold<0){P.gold=0;c.order=Math.max(0,c.order-2)}}
     const inGov=new Set(dl.flatMap(c=>gensIn(c.id).map(g=>g.id)));
-    const inc=dr.reduce((s,c)=>s+c.com*.5*c.order/100,0),sal=gensOf(f).filter(g=>!inGov.has(g.id)).length*SALARY;
+    const inc=dr.reduce((s,c)=>s+c.com*.5*c.order/100,0)*(f==='shu'?DF().inc:1),sal=gensOf(f).filter(g=>!inGov.has(g.id)).length*SALARY;
     F.gold=Math.round(F.gold+inc-sal);
     const use=dr.reduce((s,c)=>s+c.troops*RICE_CITY,0);F.rice=Math.round(F.rice-use);
     if(S.month===7){const h=dr.reduce((s,c)=>s+c.farm*40,0);F.rice+=h;if(f==='shu')addLog(`The harvest brings in ${fmt(h)} rice.`,'shu')}
@@ -2281,10 +2291,10 @@ function economy(){
 }
 async function events(){
   if(S.year===208&&S.month===11&&!S.flagRC){S.flagRC=1;const j=C('jiangling');
-    if(j.owner==='wei'){const lost=Math.round(j.troops*.6);j.troops-=lost;
+    if(j.owner==='wei'){const lost=Math.round(j.troops*.6);j.troops-=lost;j.walls=Math.max(40,j.walls-30);j.train=Math.min(j.train,50);j.order=Math.max(30,j.order-25);
       for(const id of ['caocao','xuchu']){const g=GN(id);if(g.fac==='wei'&&g.city==='jiangling'&&C('xuchang').owner==='wei')g.city='xuchang'}
       addLog(`<b>Fire at Red Cliffs.</b> Zhou Yu's fire ships burn Cao Cao's fleet. Jiangling loses ${fmt(lost)} troops and Cao Cao withdraws to Xuchang.`);
-      await dialog(`<div class="dzh">赤壁</div><h2>Fire at Red Cliffs</h2><p>Huang Gai's fire ships drift into Cao Cao's chained fleet on a south-east wind. The Wei army at Jiangling loses ${fmt(lost)} troops, and Cao Cao retreats north to Xuchang.</p><p class="muted">Jiangling is weakened. Wei will not march south again until 210.</p>`,[['ok','Continue','primary']])}}
+      await dialog(`<div class="dzh">赤壁</div><h2>Fire at Red Cliffs</h2><p>Huang Gai's fire ships drift into Cao Cao's chained fleet on a south-east wind. The Wei army at Jiangling loses ${fmt(lost)} troops, and Cao Cao retreats north to Xuchang.</p><p class="muted">Jiangling is shaken: its walls are damaged and its troops demoralised. Strike now and it can be yours. Wei will not march south again until 210.</p>`,[['ok','Continue','primary']])}}
   if(S.year===210&&S.month===12&&!S.flagAl){S.flagAl=1;addLog('<b>The Shu–Wu alliance ends</b> at the close of the year.');
     await dialog(`<h2>The alliance ends</h2><p>From the 1st month of 211, Shu and Wu are no longer allied. Wu will defend itself, and will march on anyone who attacks it.</p>`,[['ok','Continue','primary']])}
 }
@@ -2310,8 +2320,8 @@ function aiTurn(f){
   for(const c of citiesOf(f)){
     const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol);
     for(const g of gs){let k=null;
-      if(c.order<50&&F.rice>2000)k='patrol';
-      else if(F.gold>800&&F.rice>allTroops*RICE_CITY*10&&c.troops<troopCap(c)-500&&c.order>55&&g.cha>=55)k='recruit';
+      if(c.order<60&&F.rice>2000)k='patrol';
+      else if(F.gold>800&&F.rice>allTroops*RICE_CITY*10&&c.troops<troopCap(c)-500&&c.order>50&&g.cha>=55)k='recruit';
       else if(c.train<75&&g.war>=65)k='train';
       else if(c.farm<c.farmMax&&F.gold>=50&&g.pol>=50)k='farm';
       else if(c.com<c.comMax&&F.gold>=50&&g.pol>=50)k='com';
@@ -2349,8 +2359,8 @@ function aiTurn(f){
       const tr=routeOf(c.id,nid)[2],send=c.troops*.65,need=send*RICE_MARCH*(tr+3);
       const go=gs.filter(g=>!isRuler(g)).slice(0,3);if(!go.length)continue;
       const inc=S.armies.filter(a=>a.to===nid&&a.fac===t.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0);
-      const ratio=armyPower(go,send,c.train)/Math.max(1,armyPower(gensIn(nid).sort((a,b)=>b.war-a.war).slice(0,4),t.troops+inc,t.train)*(1.15+t.walls/250));
-      const bar=A==='aggressive'?1.25:A==='defensive'?(grudge?1.3:1.8):9;
+      const ratio=armyPower(go,send,c.train)/Math.max(1,armyPower(gensIn(nid).sort((a,b)=>b.war-a.war).slice(0,4),t.troops+inc,t.train)*wallF(t,f));
+      const bar=(A==='aggressive'?1.25:A==='defensive'?(grudge?1.3:1.8):9)+(t.owner==='shu'?DF().aiBar:0);
       if(ratio>bar&&F.rice>need+c.troops*RICE_CITY*4&&(!best||ratio>best.score))best={score:ratio,c,t,send,need}}}
   if(!best){domestic();return}
   const gs=gensIn(best.c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war);const keep=gs.find(g=>isRuler(g))||(gensIn(best.c.id).length>1?gs[gs.length-1]:null);
@@ -2434,7 +2444,7 @@ function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.ma
 function autoBattle(a,c,gens,defG){
   const pw=(gs,tr,train)=>gs.reduce((s,g,i)=>s+tr[i]*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*train/100);
   const aT=armySplit(a,gens),dGs=defG.length?defG:[{id:'garrison',war:45}],dT=unitSplit(dGs,c.troops);
-  const PA=pw(gens,aT,a.train)*rnd(.85,1.15),PD=pw(dGs,dT,c.train)*(c.field?1:1.15+c.walls/250)*rnd(.85,1.15);
+  const PA=pw(gens,aT,a.train)*rnd(.85,1.15),PD=pw(dGs,dT,c.train)*(c.field?1:wallF(c,a.fac))*rnd(.85,1.15);
   const attWin=PA>PD,ratio=Math.min(PA,PD)/Math.max(PA,PD||1);
   const lL=rnd(.55,.8),wL=.45*ratio*rnd(.8,1.2);
   const att={},def={},attBroken=[],defBroken=[];

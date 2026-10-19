@@ -5,14 +5,14 @@ const page=async()=>{const p=await b.newPage({viewport:{width:1000,height:460}})
 const runMonth=async p=>{await p.evaluate(()=>{UI.noConfirm=true;window.monthFx=()=>{};window.__d=false;endMonth().then(()=>window.__d=true)});
   for(let k=0;k<300;k++){await p.waitForTimeout(30);const d=await p.evaluate(()=>{const d=document.querySelector('#dlg');if(!d.hidden){const b=d.querySelector('[data-r="auto"]')||d.querySelector('[data-r].primary')||d.querySelector('[data-r]');b&&b.click()}return window.__d});if(d)break}};
 // 1. old-format save (no new fields) -> continue -> play
-let p=await page();await p.click('#newBtn');await p.waitForTimeout(200);
+let p=await page();await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(200);
 await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(S));delete o.logN;delete o.intel;delete o.seenThreat;delete o.intelD;delete o.surTry;for(const g of Object.values(o.gens)){delete g.assign;delete g.rewarded}for(const c of Object.values(o.cities)){delete c.gov;delete c.purse;delete c.mode}o.log=o.log.map(l=>({d:l.d,h:l.h,f:l.f}));localStorage.setItem('rtk3-save',JSON.stringify(o))});
 await p.reload();await p.addScriptTag({content:inv});await p.waitForTimeout(200);await p.click('#contBtn');await p.waitForTimeout(200);await runMonth(p);await runMonth(p);
 out.push('old save: '+JSON.stringify(await p.evaluate(()=>[dateStr(),__inv('old')])));
 // 2. corrupt save
 await p.evaluate(()=>{localStorage.setItem('rtk3-save','{not json');localStorage.setItem('rtk3-slot1','garbage')});await p.reload();await p.waitForTimeout(300);
 out.push('corrupt: title shows '+await p.evaluate(()=>[!document.querySelector('#title').hidden,document.querySelector('#contBtn').hidden,document.querySelector('#loadBtn')?.hidden]));
-await p.click('#newBtn');await p.waitForTimeout(200);await p.evaluate(()=>{const d=document.querySelector('#dlg');if(!d.hidden)d.querySelector('[data-r="yes"]')?.click()});await p.waitForTimeout(200);
+await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(200);await p.evaluate(()=>{const d=document.querySelector('#dlg');if(!d.hidden)d.querySelector('[data-r="yes"]')?.click()});await p.waitForTimeout(200);
 out.push('after corrupt new game: '+await p.evaluate(()=>S&&dateStr()));
 // 3. slot round trip with governor + assignment + army
 await p.addScriptTag({content:inv});
@@ -28,6 +28,6 @@ await p.evaluate(()=>{for(const c of Object.values(S.cities).slice(0,10))c.owner
 out.push('win dialog: '+await p.evaluate(()=>!document.querySelector('#dlg').hidden&&document.querySelector('#dlgbox').innerText.slice(0,40)));
 await p.evaluate(()=>document.querySelector('#dlg [data-r]').click());await p.waitForTimeout(200);
 out.push('after win: title='+await p.evaluate(()=>!document.querySelector('#title').hidden)+' save cleared='+await p.evaluate(()=>!localStorage.getItem('rtk3-save')));
-await p.click('#newBtn');await p.waitForTimeout(200);await p.evaluate(()=>{S.year=215;S.month=12});await runMonth(p);await p.waitForTimeout(300);
+await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(200);await p.evaluate(()=>{S.year=215;S.month=12});await runMonth(p);await p.waitForTimeout(300);
 out.push('end 215: '+await p.evaluate(()=>[S.over,document.querySelector('#dlgbox').innerText.slice(0,60)]));
 await b.close();console.log(JSON.stringify({errs:[...new Set(errs)],out},null,1));

@@ -1,0 +1,7 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage();
+await p.goto('file:///tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(150);await p.evaluate(d=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="'+d+'"]');b&&b.click()},process.argv[5]||'normal');await p.waitForTimeout(200);
+await p.evaluate(()=>{UI.noConfirm=true;window.monthFx=()=>{};window.monthSummary=async()=>{};let s=5;Math.random=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}});
+for(let m=0;m<52;m++){await p.evaluate(()=>{window.__d=false;endMonth().then(()=>window.__d=true)});for(let k=0;k<300;k++){await p.waitForTimeout(15);if(await p.evaluate(()=>{const d=document.querySelector('#dlg');if(!d.hidden){const b=d.querySelector('[data-r="auto"]')||d.querySelector('[data-r].primary');b&&b.click()}return window.__d}))break}}
+console.log(await p.evaluate(()=>dateStr()+'\n'+['wei','wu'].map(f=>f+' gold '+S.fac[f].gold+' rice '+S.fac[f].rice+'\n'+citiesOf(f).map(c=>`  ${c.id} t${c.troops} cap${troopCap(c)} ord${c.order} tr${c.train} w${c.walls} gens ${gensIn(c.id).length}`).join('\n')).join('\n')+'\nshu '+citiesOf('shu').map(c=>`${c.id} t${c.troops} w${c.walls}`).join(' ')+'\nlast wei intel '+JSON.stringify((S.intel.wei||[]).map(e=>e.k))));
+await b.close();

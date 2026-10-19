@@ -592,6 +592,7 @@ rep('@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}', '''.cmdpi
 .tipbox{position:fixed;z-index:400;max-width:280px;padding:8px 12px;border-radius:10px;background:#f3e6c4;color:#241a10;font:500 13.5px/1.4 var(--f-body);box-shadow:0 6px 20px rgba(0,0,0,.5);pointer-events:none}.tipbox b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#7a5a2a}
 [data-tip]{-webkit-touch-callout:none}
 .sumlist{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto;font-size:13.5px}.sumlist li{display:flex;gap:8px;align-items:flex-start}.smi{flex:none;width:20px;text-align:center}.sumlist.thr li{color:#ffd6cc}.newb{font-style:normal;font-size:11px;padding:1px 6px;border-radius:8px;background:#c4473a;color:#fff;margin-left:4px}
+.slots button.on{border-color:var(--gold)}
 .cmdpick.on{color:#1a140c;background:var(--gold);border-color:#f3dc9a;box-shadow:0 0 8px rgba(212,173,85,.6)}
 .zhb{font-family:var(--f-zh);color:var(--gold)}
 .mapview .mvbody{overflow:auto;display:flex;align-items:safe center;justify-content:safe center;touch-action:pan-x pan-y;scrollbar-width:none}

@@ -258,7 +258,7 @@ rep('''function newGame(){
   updateUI();
 }''', '''let battleResolve=null;
 function startBattle(cfg){
-  MAP=cfg.map;T_INFO.c.def=1.25+cfg.walls/250;
+  MAP=cfg.map;T_INFO.c.def=1+(.25+cfg.walls/250)*(cfg.playerAttacks&&typeof DF==='function'?DF().wall:1);
   const F=FACS[cfg.foe];FAC.wei={main:F.main,dark:F.dark,light:F.light,name:F.short};
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
