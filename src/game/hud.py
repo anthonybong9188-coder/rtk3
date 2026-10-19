@@ -1116,3 +1116,17 @@ rep("y=GROUND+14+row*32,s=1.2+row*.09;const hx=322-col*gap-(row%2)*16+(row===0?6
 rep("const ox=side==='L'?112:W-112;\n  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+62,hy:GROUND+62,s:1.85,","const ox=side==='L'?92:W-92;\n  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,s:2.35,")
 rep("const ox=side==='L'?92:W-92;","const ox=side==='L'?104:W-104;")
 rep("A.off.tx=A.off.hx+f*36}","A.off.tx=A.off.hx+f*22}")
+
+# whole army melee: every rank charges in, staggered, some cross into the enemy line
+rep("sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6})}","sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6,dl:col*90+Math.random()*220})}")
+rep("  for(const s of A.sol){if(s.col===0)s.tx=line-f*(both?30:46)-f*(s.row%2)*10;else s.tx=s.hx+f*(both?52:70)}",
+"""  for(const s of A.sol){const r=Math.random();
+    if(both&&r<.28)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
+    else s.tx=line-f*((both?16:40)+s.col*30+Math.random()*48);    // pressing in behind / beside the front
+  }""")
+rep("if(t<600)return s.hx;if(t<1500)return lerp(s.hx,s.tx,ease((t-600)/900));","const d=s.dl||0;if(t<600+d)return s.hx;if(t<1500+d)return lerp(s.hx,s.tx,ease((t-600-d)/900));")
+rep("S.melee&&alive&&s.col===0&&t>1500&&t<2700","S.melee&&alive&&t>1500+(s.dl||0)&&t<2700")
+rep("S.melee&&alive&&t>=1500&&t<=2700&&s.col===0","S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700")
+
+# generals ride into the melee: face the enemy general when both charge, else cut into the soldiers
+rep("  A.off.tx=A.off.hx+f*22}","  A.off.tx=both?line-f*58:line-f*40}")

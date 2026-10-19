@@ -1360,22 +1360,25 @@ function buildSide(u,side,before,after){
   const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
   for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
-    sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6})}
+    sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6,dl:col*90+Math.random()*220})}
   const ox=side==='L'?104:W-104;
   return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,s:2.35,seed:1,deathT:Infinity}}}
 function setTargets(A,B,both){
   const f=A.face,bf=B.sol.filter(s=>s.col===0).map(s=>s.hx),front=bf.length?(B.side==='R'?Math.min(...bf):Math.max(...bf)):(B.side==='R'?W-300:300);
   // only the front rank closes to the clash line; the ranks behind step up and hold
   const line=both?W/2:front-f*0;
-  for(const s of A.sol){if(s.col===0)s.tx=line-f*(both?30:46)-f*(s.row%2)*10;else s.tx=s.hx+f*(both?52:70)}
-  A.off.tx=A.off.hx+f*22}
+  for(const s of A.sol){const r=Math.random();
+    if(both&&r<.28)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
+    else s.tx=line-f*((both?16:40)+s.col*30+Math.random()*48);    // pressing in behind / beside the front
+  }
+  A.off.tx=both?line-f*58:line-f*40}
 function schedule(S,n,kind){const pool=[...S.sol].sort((a,b)=>(kind==='arrow'?0:a.col-b.col)+(Math.random()-.5)*1.2);for(let k=0;k<n&&k<pool.length;k++)pool[k].deathT=kind==='arrow'?1280+Math.random()*450:1650+Math.random()*950}
 function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.off.hx].map(pr),mine=[...S.sol.map(s=>s.hx),S.off.hx].map(pr);
   const Ef=Math.min(...ox),Er=Math.max(...ox),fr=Math.max(...mine),bk=Math.min(...mine),Df=Er+125-bk,xf=f*(fr+Df);
   S.ch={f,Ef,Er,Dc:Ef-24-fr,Dp:Er+24-fr,Df,cam:f===1?Math.max(0,xf-(W-185)):-Math.max(0,185-xf)}}
 function chCam(S,t){return !S||t<1050?0:lerp(0,S.ch.cam,ease(clamp((t-1050)/2350)))}
 function chD(S,t){const c=S.ch;if(t<600)return 0;if(t<1050)return lerp(0,c.Dc,(t-600)/450);if(t<2300)return lerp(c.Dc,c.Dp,(t-1050)/1250);if(t<3400)return lerp(c.Dp,c.Df,ease((t-2300)/1100));return c.Df}
-function sX(s,S,t){if(S.ch)return s.hx+S.ch.f*chD(S,t);if(!S.melee)return s.hx;if(t<600)return s.hx;if(t<1500)return lerp(s.hx,s.tx,ease((t-600)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
+function sX(s,S,t){if(S.ch)return s.hx+S.ch.f*chD(S,t);if(!S.melee)return s.hx;const d=s.dl||0;if(t<600+d)return s.hx;if(t<1500+d)return lerp(s.hx,s.tx,ease((t-600-d)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 let parts=[];
 function burst(x,y,n,col,spd){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=spd*(.4+Math.random());parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,life:1,col})}}
 function stepParts(c,dt){parts=parts.filter(p=>p.life>0);for(const p of parts){p.x+=p.vx*dt*.06;p.y+=p.vy*dt*.06;p.vy+=.012*dt;p.life-=dt/450;c.globalAlpha=clamp(p.life);c.fillStyle=p.col;c.fillRect(p.x-1.2,p.y-1.2,2.4,2.4)}c.globalAlpha=1}
@@ -1455,9 +1458,9 @@ function playBattle0(att,def,r){
         for(const s of S.sol){const tt=Math.min(t,s.deathT);let x=sX(s,S,tt)+(S.pushed?-S.face*70*ease(clamp((tt-1900)/700)):0),alive=t<s.deathT;let run=null,face=S.face,sw=0;
           let chf=false;if(S.ch&&alive){const p=S.ch.f*x;chf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(chf)sw=(Math.sin(t*.012+s.seed*3)+1)/2;else if(t>600&&t<3300)run=t*(t>2300?.05:.034)+s.seed;if(t>=3450+TURN_MS)face=-S.face}else if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}else if(t>=1500&&t<=2700)sw=(Math.sin(t*.02+s.seed*3)+1)/2}
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}
-          if((S.ch?chf:S.melee&&alive&&s.col===0&&t>1500&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
+          if((S.ch?chf:S.melee&&alive&&t>1500+(s.dl||0)&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
           let srd=false;if(capS&&S!==capS&&alive&&t>3000){const k=ease(clamp((t-3000)/650)),sg=s.i%2?1:-1,tx2=capX+sg*(38+((s.i>>1)%3)*22);x=lerp(x,tx2,k);face=x<capX?1:-1;if(k<1)run=t*.03+s.seed;else run=null;sw=0;srd=true}
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500&&s.col===0:S.melee&&alive&&t>=1500&&t<=2700&&s.col===0,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500&&s.col===0:S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
         const fate=S.nA===0?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sX(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
         let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
         if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
