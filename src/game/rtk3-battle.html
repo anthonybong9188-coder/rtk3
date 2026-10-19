@@ -401,7 +401,7 @@ function updateUI(){
   const box=$('#info'); const u=G.view;
   let h='';
   if(u){const F=FAC[u.side];const t=terAt(u.x,u.y);
-    h+=`<div class="ucard">${PORT[u.id]?`<img class="uport" src="portraits/${PORT[u.id]}.png" alt="${u.name}">`:`<div class="useal" style="background:${F.main}">${u.ch}</div>`}<div style="min-width:0;flex:1">
+    h+=`<div class="ucard">${PORT[u.id]?`<img class="uport" src="portraits/${PORT[u.id]}.webp" alt="${u.name}">`:`<div class="useal" style="background:${F.main}">${u.ch}</div>`}<div style="min-width:0;flex:1">
       <div class="uname">${u.name}</div><div class="umeta">${F.name} · ${TYPES[u.type].n} · on ${T_INFO[t].n}</div>
       <div class="stats" style="margin-top:6px"><div><span>War</span> ${u.war}</div><div><span>Int</span> ${u.int}</div><div><span>Move</span> ${TYPES[u.type].mv}</div><div><span>Troops</span> ${u.troops} / ${u.max}</div></div>
       <div class="tbar"><i style="width:${100*clamp(u.troops/u.max)}%"></i></div></div></div>`;

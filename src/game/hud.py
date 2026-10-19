@@ -162,7 +162,7 @@ rep('''  rr(c,-s/2,-s/2,s,s*.84,s*.16);c.fillStyle=F.main;c.fill();c.lineWidth=u
   else{c.fillStyle=F.main;rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.fill();c.fillStyle='#f6eed8';c.font=`900 ${Math.round(s*.5)}px "Noto Serif TC", serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,-s*.06,-s*.06)}
   rr(c,-s/2,-s/2,s,s*.84,s*.16);c.lineWidth=u.cmd?3:2.2;c.strokeStyle=u.cmd?'#e8c25e':F.main;c.stroke();''')
 rep("const PORT={};", '''const PORT={};const PIMG={};
-function portImg(id){const f=PORT[id];if(!f)return null;let im=PIMG[f];if(!im){im=new Image();im.src=`portraits/${f}.png`;PIMG[f]=im}return im.complete&&im.naturalWidth?im:null}''')
+function portImg(id){const f=PORT[id];if(!f)return null;let im=PIMG[f];if(!im){im=new Image();im.src=`portraits/${f}.webp`;PIMG[f]=im}return im.complete&&im.naturalWidth?im:null}''')
 
 # ---------------------------------------------------------------- highlights
 rep('''  if(G.atk&&(G.mode==='select'||G.mode==='moved')){c.strokeStyle=`rgba(229,99,79,${.55+pulse*.45})`;c.lineWidth=2.5;for(const e of G.atk){c.beginPath();c.arc(e.px*T+T/2,e.py*T+T/2,T*.47,0,Math.PI*2);c.stroke()}}''',
@@ -874,7 +874,7 @@ function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CUTIN=document.createElement('div');CUTIN.id='cutin';CUTIN.hidden=true;document.body.appendChild(CUTIN);
 function cutIn(u,h){if(speed===0)return Promise.resolve();return new Promise(res=>{const p=PORT[u.id];
-  CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/sp_${p}.png" onerror="this.onerror=null;this.src='portraits/${p}.png'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
+  CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/sp_${p}.png" onerror="this.onerror=null;this.src='portraits/${p}.webp'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}
@@ -1144,7 +1144,7 @@ rep("intercepts cavalry attacks on any unit within 1 square, with full counter."
 rep("braces spears. Cavalry attacking within 1 square will meet him instead.","braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.")
 
 # preload + decode special cut-in portraits at battle start so the cut-in shows instantly
-rep("const CUTIN=document.createElement('div');","""const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.png'}else r(null)}});im.src='portraits/sp_'+p+'.png';SPC[p]={im,pr};return SPC[p]}
+rep("const CUTIN=document.createElement('div');","""const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src='portraits/sp_'+p+'.png';SPC[p]={im,pr};return SPC[p]}
 function spPreAll(units){for(const u of units||[])if(PORT[u.id])spPre(PORT[u.id])}
 const CUTIN=document.createElement('div');""")
 rep("function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');return new Promise(res=>{const p=PORT[u.id];",
@@ -1154,3 +1154,14 @@ rep("setTimeout(()=>sprWait(),0);G={units:","setTimeout(()=>{sprWait();spPreAll(
 # skill cut-in portraits are now ~30KB webp
 rep("im.src='portraits/sp_'+p+'.png'","im.src='portraits/sp_'+p+'.webp'")
 rep('src="portraits/sp_${p}.png"','src="portraits/sp_${p}.webp"')
+
+# only these generals have special cut-in art; others use their normal portrait directly
+rep("const SPC={};function spPre(p){","const SPS=new Set(['gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){")
+rep("im.src='portraits/sp_'+p+'.webp';","im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;")
+rep('src="portraits/sp_${p}.webp"','src="portraits/${SPS.has(p)?\'sp_\':\'\'}${p}.webp"')
+
+# portrait crops were authored for 512px-wide art; scale to the real image width (webp portraits are 360px)
+rep("const PIMG={};","const PIMG={};const PK=im=>(im.naturalWidth||512)/512;")
+rep("c.drawImage(im,86,30,340,340,x,y,w,h)","{const k=PK(im);c.drawImage(im,86*k,30*k,340*k,340*k,x,y,w,h)}")
+rep("drawImage(pim,96,36,320,264,-s/2+2,-s/2+2,s-4,s*.84-4)","drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),264*PK(pim),-s/2+2,-s/2+2,s-4,s*.84-4)")
+rep("c.drawImage(pim,96,36,320,320,bx+1,22,40,40)","c.drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),320*PK(pim),bx+1,22,40,40)")

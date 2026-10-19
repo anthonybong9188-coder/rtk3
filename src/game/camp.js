@@ -103,7 +103,7 @@ const isRuler=g=>!!(g.fac&&S.rulers&&S.rulers[g.fac]===g.id);
 const isFounder=g=>!!(g.fac&&FACS[g.fac]&&FACS[g.fac].ruler===g.id);
 const alive=f=>citiesOf(f).length>0||S.armies.some(a=>a.fac===f);
 const facName=f=>f?FACS[f].short:'Free';
-const portraitSrc=g=>g.img?`portraits/${g.img}.png`:null;
+const portraitSrc=g=>g.img?`portraits/${g.img}.webp`:null;
 function gseal(g,size){const F=FACS[g.fac]||{main:'#5a5040'};const src=portraitSrc(g);
   return src?`<img class="gport" style="width:${size}px;height:${Math.round(size*1.15)}px" src="${src}" alt="">`:`<span class="gseal" style="width:${size}px;height:${Math.round(size*1.15)}px;background:${F.main};font-size:${Math.round(size*.55)}px">${g.ch}</span>`}
 function addLog(h,f){S.logN=(S.logN||0)+1;S.log.unshift({d:`${S.year}/${S.month}`,h,f:f||null,n:S.logN});if(S.log.length>60)S.log.pop()}

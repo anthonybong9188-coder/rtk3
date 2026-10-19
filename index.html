@@ -579,8 +579,8 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 // ---------- data ----------
 const COLS=14, ROWS=8;
 let MAP=[];
-const PORT={};const PIMG={};
-function portImg(id){const f=PORT[id];if(!f)return null;let im=PIMG[f];if(!im){im=new Image();im.src=`portraits/${f}.png`;PIMG[f]=im}return im.complete&&im.naturalWidth?im:null}
+const PORT={};const PIMG={};const PK=im=>(im.naturalWidth||512)/512;
+function portImg(id){const f=PORT[id];if(!f)return null;let im=PIMG[f];if(!im){im=new Image();im.src=`portraits/${f}.webp`;PIMG[f]=im}return im.complete&&im.naturalWidth?im:null}
 const T_INFO={'.':{n:'Plain',def:1},f:{n:'Forest',def:1.2},h:{n:'Hill',def:1.25},w:{n:'River',def:1},'=':{n:'Bridge',def:0.9},c:{n:'Fort',def:1.5},p:{n:'Road',def:1}};
 const TYPES={shield:{n:'Shield infantry',mv:3,rng:[1,1]},spear:{n:'Spearmen',mv:3,rng:[1,1]},cav:{n:'Cavalry',mv:5,rng:[1,1]},archer:{n:'Archers',mv:3,rng:[1,2]}};
 const FAC={shu:{main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',name:'Shu'},wei:{main:'#4a78c0',dark:'#28457a',light:'#8fb2ea',name:'Wei'}};
@@ -841,7 +841,7 @@ function drawToken(c,u,now){
   c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse(0,s*.44,s*.42,s*.1,0,0,Math.PI*2);c.fill();
   rr(c,-s/2,-s/2,s,s*.84,s*.16);c.fillStyle=F.dark;c.fill();
   const pim=portImg(u.id);
-  if(pim){c.save();rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.clip();c.drawImage(pim,96,36,320,264,-s/2+2,-s/2+2,s-4,s*.84-4);c.restore()}
+  if(pim){c.save();rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.clip();c.drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),264*PK(pim),-s/2+2,-s/2+2,s-4,s*.84-4);c.restore()}
   else{c.fillStyle=F.main;rr(c,-s/2+2,-s/2+2,s-4,s*.84-4,s*.13);c.fill();c.fillStyle='#f6eed8';c.font=`900 ${Math.round(s*.5)}px "Noto Serif TC", serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,-s*.06,-s*.06)}
   rr(c,-s/2,-s/2,s,s*.84,s*.16);c.lineWidth=u.cmd?3:2.2;c.strokeStyle=u.cmd?'#e8c25e':F.main;c.stroke();
   {const bx=s*.44,by=-s*.42,br=s*.215;c.fillStyle='rgba(0,0,0,.45)';circ(c,bx+1,by+2,br+1);c.fill();
@@ -918,7 +918,7 @@ function updateUI(){
   const box=$('#info'); const u=G.view;
   let h='';
   if(u){const F=FAC[u.side];const t=terAt(u.x,u.y);
-    h+=`<div class="ucard">${PORT[u.id]?`<img class="uport" src="portraits/${PORT[u.id]}.png" alt="${u.name}">`:`<div class="useal" style="background:${F.main}">${u.ch}</div>`}<div style="min-width:0;flex:1">
+    h+=`<div class="ucard">${PORT[u.id]?`<img class="uport" src="portraits/${PORT[u.id]}.webp" alt="${u.name}">`:`<div class="useal" style="background:${F.main}">${u.ch}</div>`}<div style="min-width:0;flex:1">
       <div class="uname">${u.name}</div><div class="umeta">${F.name} · ${TYPES[u.type].n} · on ${T_INFO[t].n}</div>
       <div class="stats" style="margin-top:6px"><div><span>War</span> ${u.war}</div><div><span>Int</span> ${u.int}</div><div><span>Move</span> ${TYPES[u.type].mv}</div><div><span>Troops</span> ${u.troops} / ${u.max}</div></div>
       <div class="tbar"><i style="width:${100*clamp(u.troops/u.max)}%"></i></div></div></div>`;
@@ -1259,11 +1259,11 @@ function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
 const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:dur||900,s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
-const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.png'}else r(null)}});im.src='portraits/sp_'+p+'.webp';SPC[p]={im,pr};return SPC[p]}
+const SPS=new Set(['gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
 function spPreAll(units){for(const u of units||[])if(PORT[u.id])spPre(PORT[u.id])}
 const CUTIN=document.createElement('div');CUTIN.id='cutin';CUTIN.hidden=true;document.body.appendChild(CUTIN);
 async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.id]);if(P0&&!P0.im.complete)await Promise.race([P0.pr,sleep(450)]);SND.fx('special');return new Promise(res=>{const p=PORT[u.id];
-  CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/sp_${p}.webp" onerror="this.onerror=null;this.src='portraits/${p}.png'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
+  CUTIN.innerHTML=`<div class="ci-band">${p?`<img class="ci-port" src="portraits/${SPS.has(p)?'sp_':''}${p}.webp" onerror="this.onerror=null;this.src='portraits/${p}.webp'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}
@@ -1400,7 +1400,7 @@ function fadePort(im){let cv=FADE.get(im);if(cv)return cv;cv=document.createElem
 function drawBigPortrait(c,u,side){
   const im=portImg(u.id),F=FAC[u.side],h=66,w=66,x=side==='L'?10:W-w-10,y=H-h-6;
   c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=10;c.fillStyle='#14110d';rr(c,x-3,y-3,w+6,h+6,8);c.fill();c.restore();
-  if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,86,30,340,340,x,y,w,h);c.restore()}
+  if(im){c.save();rr(c,x,y,w,h,6);c.clip();{const k=PK(im);c.drawImage(im,86*k,30*k,340*k,340*k,x,y,w,h)};c.restore()}
   c.strokeStyle=F.main;c.lineWidth=3;rr(c,x,y,w,h,6);c.stroke();c.strokeStyle='rgba(212,173,85,.8)';c.lineWidth=1;rr(c,x-3,y-3,w+6,h+6,8);c.stroke();
   if(im)return;
   else{c.fillStyle=F.main;circ(c,side==='L'?86:W-86,H-62,70);c.fill();c.strokeStyle='#d4ad55';c.lineWidth=3;c.stroke();c.fillStyle='#f6eed8';c.font='900 64px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,side==='L'?86:W-86,H-60);c.textBaseline='alphabetic'}}
@@ -1529,7 +1529,7 @@ document.querySelectorAll('.duelBtns button').forEach(b=>b.addEventListener('cli
 $('#duelDone').onclick=()=>{const r=D.result,res=D.resolve;D=null;$('#stage').hidden=true;res(r)};
 function drawHP(c,u,hp,x,align){
   const F=FAC[u.side],w=320,px=align==='L'?x:x-w;c.fillStyle='rgba(18,15,11,.82)';rr(c,px,14,w,58,4);c.fill();c.strokeStyle=F.main;c.lineWidth=1.5;c.stroke();
-  const bx=align==='L'?px+8:px+w-50;c.fillStyle=F.main;rr(c,bx,21,42,42,3);c.fill();const pim=portImg(u.id);if(pim){c.save();rr(c,bx+1,22,40,40,3);c.clip();c.drawImage(pim,96,36,320,320,bx+1,22,40,40);c.restore()}else{c.fillStyle='#f6eed8';c.font='900 28px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,bx+21,43)}
+  const bx=align==='L'?px+8:px+w-50;c.fillStyle=F.main;rr(c,bx,21,42,42,3);c.fill();const pim=portImg(u.id);if(pim){c.save();rr(c,bx+1,22,40,40,3);c.clip();c.drawImage(pim,96*PK(pim),36*PK(pim),320*PK(pim),320*PK(pim),bx+1,22,40,40);c.restore()}else{c.fillStyle='#f6eed8';c.font='900 28px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,bx+21,43)}
   c.textBaseline='alphabetic';c.textAlign=align==='L'?'left':'right';const tx=align==='L'?px+60:px+w-60;c.fillStyle='#ece2c9';c.font='700 18px "Alegreya SC", Georgia, serif';c.fillText(`${u.name}`,tx,38);
   c.fillStyle='#a6977a';c.font='500 13px "Alegreya Sans", sans-serif';c.fillText(`War ${u.war}`,align==='L'?px+w-12:px+12,38);
   const bw=w-72,bxx=align==='L'?px+60:px+12;c.fillStyle='#0d0b08';c.fillRect(bxx,48,bw,10);c.fillStyle=hp>35?'#d4ad55':'#c4473a';const ww=bw*clamp(hp/100);c.fillRect(align==='L'?bxx:bxx+bw-ww,48,ww,10)}
@@ -1746,7 +1746,7 @@ const isRuler=g=>!!(g.fac&&S.rulers&&S.rulers[g.fac]===g.id);
 const isFounder=g=>!!(g.fac&&FACS[g.fac]&&FACS[g.fac].ruler===g.id);
 const alive=f=>citiesOf(f).length>0||S.armies.some(a=>a.fac===f);
 const facName=f=>f?FACS[f].short:'Free';
-const portraitSrc=g=>g.img?`portraits/${g.img}.png`:null;
+const portraitSrc=g=>g.img?`portraits/${g.img}.webp`:null;
 function gseal(g,size){const F=FACS[g.fac]||{main:'#5a5040'};const src=portraitSrc(g);
   return src?`<img class="gport" style="width:${size}px;height:${Math.round(size*1.15)}px" src="${src}" alt="">`:`<span class="gseal" style="width:${size}px;height:${Math.round(size*1.15)}px;background:${F.main};font-size:${Math.round(size*.55)}px">${g.ch}</span>`}
 function addLog(h,f){S.logN=(S.logN||0)+1;S.log.unshift({d:`${S.year}/${S.month}`,h,f:f||null,n:S.logN});if(S.log.length>60)S.log.pop()}
