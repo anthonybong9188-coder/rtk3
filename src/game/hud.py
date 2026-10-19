@@ -1150,3 +1150,7 @@ const CUTIN=document.createElement('div');""")
 rep("function cutIn(u,h){if(speed===0)return Promise.resolve();SND.fx('special');return new Promise(res=>{const p=PORT[u.id];",
     "async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.id]);if(P0&&!P0.im.complete)await Promise.race([P0.pr,sleep(450)]);SND.fx('special');return new Promise(res=>{const p=PORT[u.id];")
 rep("setTimeout(()=>sprWait(),0);G={units:","setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:")
+
+# skill cut-in portraits are now ~30KB webp
+rep("im.src='portraits/sp_'+p+'.png'","im.src='portraits/sp_'+p+'.webp'")
+rep('src="portraits/sp_${p}.png"','src="portraits/sp_${p}.webp"')
