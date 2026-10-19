@@ -1029,3 +1029,78 @@ document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenE
 # QA: duel animation could run one frame after the duel closed
 rep("function frame(now){const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}",
     "function frame(now){if(!D)return;const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}")
+
+# ===== Fight-scene staging overhaul: two formations, bigger soldiers, generals behind lines,
+# framed portraits, bold damage, dust / shake / zoom; lighter tactical-map overlays
+rep("""function buildSide(u,side,before,after){
+  const nB=Math.min(10,Math.ceil(before/100)),nA=Math.min(nB,Math.ceil(after/100)),face=side==='L'?1:-1,sol=[];
+  const cav=u.type==='cav';
+  for(let i=0;i<nB;i++){const col=Math.floor(i/5),row=i%5,y=GROUND+22+row*25,s=.92+row*.07;const hx=(cav?272:268)-col*(cav?74:54)-(row%2)*12;
+    sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6})}
+  const ox=side==='L'?172:W-172;
+  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+58,hy:GROUND+58,s:1.45,seed:1,deathT:Infinity}}}""",
+"""function buildSide(u,side,before,after){
+  const nB=Math.min(12,Math.ceil(before/100)),nA=Math.min(nB,Math.ceil(after/100)),face=side==='L'?1:-1,sol=[];
+  const cav=u.type==="cav",ROWS4=4,gap=cav?82:70;
+  // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
+  for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+14+row*32,s=1.2+row*.09;const hx=322-col*gap-(row%2)*16+(row===0?6:0);
+    sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6})}
+  const ox=side==='L'?112:W-112;
+  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+62,hy:GROUND+62,s:1.85,seed:1,deathT:Infinity}}}""")
+rep("""function setTargets(A,B,both){
+  for(const s of A.sol){const sp=A.u.type==='cav'?58:44;
+    if(both)s.tx=A.side==='L'?W/2-22-s.col*sp-(s.row%2)*8:W/2+22+s.col*sp+(s.row%2)*8;
+    else{const front=B.side==='R'?W-232:232;s.tx=A.side==='L'?front-34-s.col*sp:front+34+s.col*sp}}
+  const o=A.off,front=B.side==='R'?W-232:232;
+  o.tx=both?(A.side==='L'?W/2-14:W/2+14):(A.side==='L'?front-26:front+26)}""",
+"""function setTargets(A,B,both){
+  const f=A.face,bf=B.sol.filter(s=>s.col===0).map(s=>s.hx),front=bf.length?(B.side==='R'?Math.min(...bf):Math.max(...bf)):(B.side==='R'?W-300:300);
+  // only the front rank closes to the clash line; the ranks behind step up and hold
+  const line=both?W/2:front-f*0;
+  for(const s of A.sol){if(s.col===0)s.tx=line-f*(both?30:46)-f*(s.row%2)*10;else s.tx=s.hx+f*(both?52:70)}
+  A.off.tx=A.off.hx+f*36}""")
+rep("function schedule(S,n,kind){const pool=[...S.sol].sort(()=>Math.random()-.5);",
+    "function schedule(S,n,kind){const pool=[...S.sol].sort((a,b)=>(kind==='arrow'?0:a.col-b.col)+(Math.random()-.5)*1.2);")
+# only the front rank fights hand to hand
+rep("fight:srd?false:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500:S.melee&&alive&&t>=1500&&t<=2700,",
+    "fight:srd?false:S.ch?chf:S.hold?alive&&t>=1050&&t<=2500&&s.col===0:S.melee&&alive&&t>=1500&&t<=2700&&s.col===0,")
+rep("if((S.ch?chf:S.melee&&alive&&t>1500&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)",
+    "if((S.ch?chf:S.melee&&alive&&s.col===0&&t>1500&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)")
+# framed corner portraits
+rep("""function drawBigPortrait(c,u,side){
+  const im=portImg(u.id),F=FAC[u.side],h=246,w=h*512/768,x=side==='L'?-10:W-w+10,y=H-h+18;
+  c.save();c.strokeStyle='rgba(212,173,85,.55)';c.lineWidth=3;c.beginPath();c.arc(side==='L'?86:W-86,H-62,92,0,Math.PI*2);c.stroke();c.lineWidth=1;c.beginPath();c.arc(side==='L'?86:W-86,H-62,102,0,Math.PI*2);c.stroke();c.restore();
+  if(im){c.drawImage(fadePort(im),x,y,w,h)}""",
+"""function drawBigPortrait(c,u,side){
+  const im=portImg(u.id),F=FAC[u.side],h=132,w=88,x=side==='L'?10:W-w-10,y=H-h-10;
+  c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=10;c.fillStyle='#14110d';rr(c,x-3,y-3,w+6,h+6,8);c.fill();c.restore();
+  if(im){c.save();rr(c,x,y,w,h,6);c.clip();c.drawImage(im,0,40,512,688,x,y,w,h);c.restore()}
+  c.strokeStyle=F.main;c.lineWidth=3;rr(c,x,y,w,h,6);c.stroke();c.strokeStyle='rgba(212,173,85,.8)';c.lineWidth=1;rr(c,x-3,y-3,w+6,h+6,8);c.stroke();
+  if(im)return;""")
+rep("  const x0=176,x1=W-176,y=H-64,cxm=W/2;","  const x0=112,x1=W-112,y=H-62,cxm=W/2;")
+# bold damage numbers that pop above each army
+rep("""      if(t>2750){const p=clamp((t-2750)/1000);c.globalAlpha=Math.min(1,p*3)*(1-Math.max(0,p-.8)*5);c.font='700 30px "Alegreya Sans", sans-serif';c.textAlign='center';c.lineWidth=4;c.strokeStyle='#14110d';
+        for(const S of [SL,SR]){const loss=S.before-S.after;if(!loss)continue;const x=S.side==='L'?190:W-190,y=GROUND-6-p*24;c.strokeText('−'+loss,x,y);c.fillStyle='#ff9a86';c.fillText('−'+loss,x,y)}c.globalAlpha=1}""",
+"""      for(const S of [SL,SR]){const loss=S.before-S.after;if(!loss)continue;const t0=kindOf(S)==='arrow'?1450:1750;if(t<t0)continue;const p=clamp((t-t0)/1600);
+        const pop=p<.12?.6+p/.12*.55:p<.2?1.15-(p-.12)/.08*.15:1,a=p>.8?1-(p-.8)/.2:1;
+        c.save();c.globalAlpha=a;c.translate(S.side==='L'?W/2-120:W/2+120,GROUND-34-p*26);c.scale(pop,pop);c.font='900 46px "Alegreya Sans", sans-serif';c.textAlign='center';c.lineJoin='round';
+        c.lineWidth=8;c.strokeStyle='#14110d';c.strokeText('−'+loss,0,0);c.fillStyle=S.u.side==='shu'?'#ffb4a6':'#ffe08a';c.fillText('−'+loss,0,0);c.restore()}""")
+# dust at the clash line, small shake on heavy hits, gentle zoom while the lines meet
+rep("      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t),",
+    """      const both2=SL.melee&&SR.melee,heavy=Math.max((SL.before-SL.after)/Math.max(1,SL.before),(SR.before-SR.after)/Math.max(1,SR.before));
+      const zk=1+(both2||SL.ch||SR.ch?.07:.03)*Math.sin(Math.PI*clamp((t-1300)/1700)),sh=t>1550&&t<1950?Math.min(6,2+heavy*14)*Math.sin(t*.09)*(1-(t-1550)/400):0;
+      sctx.save();sctx.translate(W/2+sh,GROUND+40+sh*.4);sctx.scale(zk,zk);sctx.translate(-W/2,-(GROUND+40));
+      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t),""")
+rep("      stepParts(c,dt);c.restore();if(r.tint){c.fillStyle=r.tint;c.fillRect(0,0,W,H)}",
+    """      if((both2||(SL.melee||SR.melee))&&t>1450&&t<2800&&Math.random()<.5*Math.min(dt,30)/16)DUST.push({x:W/2+(both2?0:(SL.melee?120:-120))+(Math.random()-.5)*90,y:GROUND+20+Math.random()*100,r:10+Math.random()*16,life:1});
+      DUST=DUST.filter(d=>d.life>0);for(const d of DUST){d.life-=dt/1100;d.r+=dt*.025;d.y-=dt*.008;c.globalAlpha=.32*d.life;const g=c.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r);g.addColorStop(0,'#c8a87a');g.addColorStop(1,'rgba(200,168,122,0)');c.fillStyle=g;c.beginPath();c.arc(d.x,d.y,d.r,0,Math.PI*2);c.fill()}c.globalAlpha=1;
+      stepParts(c,dt);c.restore();sctx.restore();if(r.tint){c.fillStyle=r.tint;c.fillRect(0,0,W,H)}""")
+rep("function playBattle0(att,def,r){","let DUST=[];\nfunction playBattle0(att,def,r){")
+rep("parts=[];\n    const END=4100,start=performance.now();","parts=[];DUST=[];\n    const END=4100,start=performance.now();")
+# tactical map: outlines instead of heavy blocks; floats above the unit
+rep("hl(t,'rgba(60,120,255,.34)','rgba(150,195,255,.85)')","hl(t,'rgba(60,120,255,.13)','rgba(150,200,255,.95)')")
+rep("hl(t,'rgba(235,60,50,.30)','rgba(255,140,120,.85)')","hl(t,'rgba(235,60,50,.10)','rgba(255,140,120,.9)')")
+rep("c.fillStyle=`rgba(215,55,40,${.32+pulse*.2})`;c.fillRect(e.x*T+1,e.y*T+1,T-2,T-2);","c.fillStyle=`rgba(215,55,40,${.12+pulse*.12})`;c.fillRect(e.x*T+1,e.y*T+1,T-2,T-2);")
+rep("if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.28)';","if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.15)';")
+rep("""c.font=`700 ${Math.round(T*.34)}px "Alegreya Sans", sans-serif`;c.textAlign='center';c.lineWidth=3;c.strokeStyle='#14110d';const yy=f.y*T+T*.3-p*T*.6;""",
+    """c.font=`900 ${Math.round(T*.4)}px "Alegreya Sans", sans-serif`;c.textAlign='center';c.lineWidth=5;c.lineJoin='round';c.strokeStyle='#14110d';const yy=f.y*T-T*.02-p*T*.55;""")
