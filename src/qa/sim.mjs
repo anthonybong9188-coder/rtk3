@@ -17,26 +17,26 @@ for(let gi=0;gi<N;gi++){const p=await b.newPage({viewport:{width:1000,height:460
     // player turn: random but legal actions
     await p.evaluate(async()=>{const R=Math.random;if(S.over)return;
       for(const c of citiesOf('shu')){if(isDelegated(c))continue;
-        for(const g of gensIn(c.id).filter(g=>!g.acted)){const ks=Object.keys(CMDS).filter(k=>k!=='reward'&&Object.entries(CMDS[k].cost).every(([r,n])=>S.fac.shu[r]>=n));
+        for(const g of gensIn(c.id).filter(g=>!g.acted)){const ks=Object.keys(CMDS).filter(k=>k!=='reward'&&Object.entries(CMDS[k].cost).every(([r,n])=>c[r]>=n));
           if(R()<.15)continue;const k=ks[Math.floor(R()*ks.length)];if(!k)continue;
           if(['farm','com','train'].includes(k)&&R()<.2&&!g.assign){doCmd(k,g,c,'shu');g.assign={k,left:3}}else{UI.found=null;doCmd(k,g,c,'shu')}}
-        if(R()<.15&&gensIn(c.id).some(g=>g.loy<100&&!g.rewarded&&!isRuler(g))&&S.fac.shu.gold>=100){const g=gensIn(c.id).find(g=>g.loy<100&&!g.rewarded&&!isRuler(g));S.fac.shu.gold-=100;doCmd('reward',g,c,'shu')}
+        if(R()<.15&&gensIn(c.id).some(g=>g.loy<100&&!g.rewarded&&!isRuler(g))&&C(c.id).gold>=100){const g=gensIn(c.id).find(g=>g.loy<100&&!g.rewarded&&!isRuler(g));C(c.id).gold-=100;doCmd('reward',g,c,'shu')}
         // delegate sometimes
-        if(!c.gov&&R()<.08&&!gensIn(c.id).some(g=>g.id==='liubei')&&gensIn(c.id).length){const gv=gensIn(c.id)[0];const gold=Math.min(S.fac.shu.gold,200),rice=Math.min(S.fac.shu.rice,3000);S.fac.shu.gold-=gold;S.fac.shu.rice-=rice;c.purse={gold,rice};c.gov=gv.id;c.mode=['auto','internal','military'][Math.floor(R()*3)];for(const g of gensIn(c.id))g.assign=null}
+        if(!c.gov&&R()<.08&&!gensIn(c.id).some(g=>g.id==='liubei')&&gensIn(c.id).length){const gv=gensIn(c.id)[0];c.gov=gv.id;c.mode=['auto','internal','military'][Math.floor(R()*3)];for(const g of gensIn(c.id))g.assign=null}
         // march / transfer
         const free=gensIn(c.id).filter(g=>!g.acted&&g.id!=='liubei');
         if(free.length&&c.troops>4000&&R()<.35){const ns=neighbours(c.id).map(C).filter(t=>t.owner==='shu'||!allied('shu',t.owner));if(ns.length){const t=ns[Math.floor(R()*ns.length)];
-          const gs=free.slice(0,1+Math.floor(R()*Math.min(3,free.length)));const tr=Math.floor(c.troops*(.3+R()*.5));const tv=routeOf(c.id,t.id)[2];const rice=Math.min(S.fac.shu.rice,Math.round(tr*RICE_MARCH*(tv+2)));
+          const gs=free.slice(0,1+Math.floor(R()*Math.min(3,free.length)));const tr=Math.floor(c.troops*(.3+R()*.5));const tv=routeOf(c.id,t.id)[2];const rice=Math.min(c.rice,Math.round(tr*RICE_MARCH*(tv+2)));
           for(const g of gs)g.assign=null;launchArmy('shu',c.id,t.id,gs,tr,rice,Object.fromEntries(gs.map((g,i)=>[g.id,Math.floor(tr/gs.length)])))}}}
       // governor requests
-      for(const c of citiesOf('shu').filter(isDelegated)){if(R()<.2){const g=Math.floor(c.purse.gold*R()),r=Math.floor(c.purse.rice*R()*.5);c.purse.gold-=g;c.purse.rice-=r;S.fac.shu.gold+=g;S.fac.shu.rice+=r}
+      for(const c of citiesOf('shu').filter(isDelegated)){if(R()<.2){const to=neighbours(c.id).find(n=>C(n).owner==='shu');if(to)launchArmy('shu',c.id,to,[],0,Math.floor(c.rice*R()*.5),null,Math.floor(c.gold*R()))}
         if(R()<.05)endDelegation(c,'qa end')}
       // diplomacy
       for(const c of Object.values(S.cities)){if(c.owner==='shu'||allied('shu',c.owner))continue;if(!neighbours(c.id).some(n=>C(n).owner==='shu'))continue;
         const env=envoysFor(c.id)[0];if(!env)continue;
-        if(R()<.05&&!['wei','wu'].includes(c.owner)&&S.fac.shu.gold>=200){const f=c.owner,p=surrenderChance(env,f);S.fac.shu.gold-=200;env.acted=true;
-          if(R()<p){S['gone_'+f]=1;const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9)}for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,60);for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';S.fac.shu.gold+=S.fac[f].gold;S.fac.shu.rice+=S.fac[f].rice;S.fac[f].gold=0;S.fac[f].rice=0}}
-        else if(R()<.08&&S.fac.shu.gold>=100){const t=gensIn(c.id).filter(g=>!isFounder(g))[0];if(t){S.fac.shu.gold-=100;env.acted=true;if(R()<persuadeChance(env,t))moveGen(t,'shu',env.city,70)}}}
+        if(R()<.05&&!['wei','wu'].includes(c.owner)&&C(c.id).gold>=200){const f=c.owner,p=surrenderChance(env,f);C(c.id).gold-=200;env.acted=true;
+          if(R()<p){S['gone_'+f]=1;const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9)}for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,60);for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';}}
+        else if(R()<.08&&C(c.id).gold>=100){const t=gensIn(c.id).filter(g=>!isFounder(g))[0];if(t){C(c.id).gold-=100;env.acted=true;if(R()<persuadeChance(env,t))moveGen(t,'shu',env.city,70)}}}
     });
     await p.evaluate(()=>{window.__d=false;window.__e=null;endMonth().then(()=>window.__d=true).catch(e=>window.__e=String(e.stack||e))});
     let k=0;for(;k<(mode==="fight"?4000:400);k++){await p.waitForTimeout(25);

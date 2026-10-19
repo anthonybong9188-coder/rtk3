@@ -121,9 +121,10 @@ function wallF(c,attacker){const k=c.owner!=='shu'&&attacker==='shu'?DF().wall:1
 function newCampaign(diff){
   S={year:208,month:9,armies:[],log:[],grudge:{},sel:'jiangxia',over:false,nextArmy:1,cities:{},gens:{},fac:{},rulers:{}};
   for(const f in FACS)S.rulers[f]=FACS[f].ruler;
-  S.diff=diff||'normal';for(const f in FACS)S.fac[f]={gold:FACS[f].gold,rice:FACS[f].rice};S.fac.shu.gold=DF().gold;S.fac.shu.rice=DF().rice;
+  S.diff=diff||'normal';
   for(const d of CITY_DEF){const [id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train]=d;
-    S.cities[id]={id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train}}
+    S.cities[id]={id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train,gold:0,rice:0}}
+  for(const f in FACS)spreadStores(f,f==='shu'?DF().gold:FACS[f].gold,f==='shu'?DF().rice:FACS[f].rice);
   for(const d of GEN_DEF){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;
     S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}
   addLog('Cao Cao has taken Jing province. His fleet gathers at Jiangling. Liu Bei holds Jiangxia, allied with Sun Quan of Wu.');
@@ -135,7 +136,7 @@ const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
 function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
-function startFrom(sv){S=sv;if(!S)return;delete S.savedAt;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+function startFrom(sv){S=sv;if(!S)return;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
 async function saveLoadDlg(mode){
   const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
   const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
@@ -158,14 +159,23 @@ const ASSIGNABLE=['farm','com','train'];
 const assignLbl=g=>g.assign?`${CMDS[g.assign.k].n} · ${g.assign.left} mo`:'';
 const govOf=c=>c&&c.gov?GN(c.gov):null;
 const isDelegated=c=>!!(c&&c.owner==='shu'&&c.gov);
+// each city keeps its own gold and rice; a faction's wealth is the sum of its cities
+const facGold=f=>Math.round(citiesOf(f).reduce((s,c)=>s+(c.gold||0),0)),facRice=f=>Math.round(citiesOf(f).reduce((s,c)=>s+(c.rice||0),0));
+const canPay=(c,cost)=>Object.entries(cost).every(([r,n])=>(c[r]||0)>=n);
+// spread a faction's stores over its cities by population (new game and old saves)
+function spreadStores(f,gold,rice){const cs=citiesOf(f);const P=cs.reduce((s,c)=>s+c.pop,0)||1;for(const c of cs){c.gold=(c.gold||0)+Math.round(gold*c.pop/P);c.rice=(c.rice||0)+Math.round(rice*c.pop/P)}}
+function migrateStores(){if(Object.values(S.cities).every(c=>typeof c.gold==='number'))return;
+  for(const c of Object.values(S.cities)){c.gold=c.purse?Math.round(c.purse.gold):0;c.rice=c.purse?Math.round(c.purse.rice):0;delete c.purse}
+  for(const f in FACS){const F=S.fac&&S.fac[f];if(F)spreadStores(f,F.gold||0,F.rice||0)}
+  for(const a of S.armies)a.gold=a.gold||0}
 async function confirmBreakAssign(g){if(!g.assign)return true;
   const r=await dialog(`<h2>${g.name} has an assignment</h2><p>He is assigned to <b>${CMDS[g.assign.k].n}</b> for ${g.assign.left} more month${g.assign.left>1?'s':''}.</p><p class="muted">Giving him this order ends the assignment.</p>`,[['no','Keep the assignment'],['yes','End it and continue','primary']]);
   if(r!=='yes')return false;addLog(`${g.name}'s ${CMDS[g.assign.k].n.toLowerCase()} assignment is ended.`,'shu');g.assign=null;return true}
 // run every month before the economy: assigned officers, then governed cities
 function runAssignments(){
   for(const g of gensOf('shu')){if(!g.assign||g.army||g.acted)continue;const c=C(g.city);if(!c||c.owner!=='shu'||isDelegated(c)){g.assign=null;continue}
-    const k=g.assign.k,afford=Object.entries(CMDS[k].cost).every(([r,n])=>S.fac.shu[r]>=n);
-    if(!afford){addLog(`${g.name} cannot carry out his ${CMDS[k].n.toLowerCase()} assignment: not enough gold.`,'shu');continue}
+    const k=g.assign.k,afford=canPay(c,CMDS[k].cost);
+    if(!afford){addLog(`${g.name} cannot carry out his ${CMDS[k].n.toLowerCase()} assignment: ${c.name} is short of gold.`,'shu');continue}
     const m=doCmd(k,g,c,'shu');g.assign.left--;addLog(`${m} <i>(assigned${g.assign.left?`, ${g.assign.left} month${g.assign.left>1?'s':''} left`:', finished'})</i>`,'shu');if(!g.assign.left)g.assign=null}}
 const GOV_MODES={auto:'Auto',internal:'Internal',military:'Military'};
 function govTick(){
@@ -173,7 +183,7 @@ function govTick(){
     if(gensIn(c.id).some(g=>g.id==='liubei')){endDelegation(c,'Liu Bei arrives and takes charge of '+c.name+' again.');continue}
     let gv=govOf(c);if(!gv||gv.fac!=='shu'||gv.city!==c.id){const nx=gensIn(c.id).sort((a,b)=>b.pol-a.pol)[0];
       if(!nx){endDelegation(c,`${c.name} has no officer left to govern it and returns to your direct rule.`);continue}c.gov=nx.id;gv=nx;addLog(`${nx.name} takes over as governor of ${c.name}.`,'shu')}
-    const P=c.purse;S.fac.__gov=P;const did=[];
+    const P=c;const did=[];
     const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol);
     for(const g of gs){let k=null;const md=c.mode||'auto',room=troopCap(c)-c.troops;
       const threat=neighbours(c.id).map(C).filter(n=>n.owner!=='shu'&&!allied('shu',n.owner)).reduce((x,n)=>Math.max(x,n.troops),0);
@@ -181,49 +191,33 @@ function govTick(){
       else if(md==='military'){if(room>1000&&P.gold>=400&&g.cha>=50&&c.order>55)k='recruit';else if(c.train<100&&g.war>=50)k='train';else if(c.walls<100&&P.gold>=150)k='walls';else if(c.train<100)k='train'}
       else if(md==='internal'){if(c.farm<c.farmMax&&P.gold>=150&&g.pol>=45)k='farm';else if(c.com<c.comMax&&P.gold>=150&&g.pol>=45)k='com';else if(c.order<80)k='patrol';else if(c.walls<100&&P.gold>=150)k='walls'}
       else{if(threat>c.troops&&room>1000&&P.gold>=400&&g.cha>=50&&c.order>55)k='recruit';else if(c.train<70&&g.war>=60)k='train';else if(c.com<c.comMax&&P.gold>=150&&g.pol>=55)k='com';else if(c.farm<c.farmMax&&P.gold>=150&&g.pol>=50)k='farm';else if(c.walls<100&&P.gold>=150)k='walls';else if(c.train<100)k='train'}
-      if(!k||!Object.entries(CMDS[k].cost).every(([r,n])=>P[r]>=n))continue;doCmd(k,g,c,'__gov');did.push(CMDS[k].n.toLowerCase())}
-    delete S.fac.__gov;
+      if(!k||!canPay(c,CMDS[k].cost))continue;doCmd(k,g,c,'shu');did.push(CMDS[k].n.toLowerCase())}
     if(did.length)addLog(`Governor ${gv.name} (${GOV_MODES[c.mode||'auto']}) runs ${c.name}: ${[...new Set(did)].join(', ')}.`,'shu')}}
-function endDelegation(c,msg){if(c.purse){S.fac.shu.gold+=Math.round(c.purse.gold);S.fac.shu.rice+=Math.round(c.purse.rice)}c.gov=null;c.purse=null;c.mode=null;if(msg)addLog(msg,'shu')}
+function endDelegation(c,msg){c.gov=null;c.mode=null;if(msg)addLog(msg,'shu')}
 async function delegateDlg(c){
   const gs=gensIn(c.id).filter(g=>g.id!=='liubei').sort((a,b)=>b.pol-a.pol);let gid=c.gov||(gs[0]&&gs[0].id),mode=c.mode||'auto';
-  let gold=c.purse?0:Math.min(S.fac.shu.gold,300),rice=c.purse?0:Math.min(S.fac.shu.rice,Math.round(c.troops*RICE_CITY*6/500)*500);
   for(;;){const first=!c.gov;
     const r=await dialog(`<div class="dzh">守</div><h2>${first?'Delegate':'Governor of'} ${c.name}</h2>
-      <p class="muted">A governor runs the city every month with its own purse: the city's income goes to the purse, its troops eat from it, and his orders are paid from it. You can still ask him to send gold, rice, troops or officers.</p>
+      <p class="muted">A governor runs the city every month, paying for his orders from the city's own gold and rice. You can still order him to send gold, rice, troops or officers to your other cities.</p>
       <div class="sec">Governor</div><div class="envrow">${gs.map(g=>`<button data-r="g:${g.id}" class="${gid===g.id?'on':''}">${g.name} <i>Pol ${g.pol} · War ${g.war}</i></button>`).join('')}</div>
       <div class="sec">Policy</div><div class="envrow">${Object.entries(GOV_MODES).map(([k,n])=>`<button data-r="m:${k}" class="${mode===k?'on':''}">${n}</button>`).join('')}</div>
       <p class="muted">${{auto:'Balanced: keeps order, answers threats with recruits, then builds.',internal:'Farming and commerce first, then order and walls.',military:'Recruits troops and drills them, then repairs walls.'}[mode]}</p>
-      ${first?`<div class="sec">Starting purse (from your treasury)</div><div class="mrow"><label for="dG">Gold <b>${fmt(gold)}</b> of ${fmt(S.fac.shu.gold)}</label><input id="dG" type="range" min="0" max="${S.fac.shu.gold}" step="50" value="${gold}"></div>
-      <div class="mrow"><label for="dR">Rice <b>${fmt(rice)}</b> of ${fmt(S.fac.shu.rice)}</label><input id="dR" type="range" min="0" max="${S.fac.shu.rice}" step="500" value="${rice}"></div>`:`<p>Purse: <b>${fmt(c.purse.gold)}</b> gold · <b>${fmt(c.purse.rice)}</b> rice</p>`}`,
+      <p>${c.name} holds <b>${fmt(c.gold)}</b> gold · <b>${fmt(c.rice)}</b> rice.</p>`,
       [['cancel','Cancel'],...(first?[]:[['end','Take back direct rule']]),['go',first?'Appoint governor':'Save','primary']]);
-    const gi=document.getElementById('dG'),ri=document.getElementById('dR');if(gi)gold=+gi.value;if(ri)rice=+ri.value;
     if(r.startsWith('g:')){gid=r.slice(2);continue}if(r.startsWith('m:')){mode=r.slice(2);continue}
-    if(r==='end'){endDelegation(c,`You take back direct rule of ${c.name}. Its purse returns to the treasury.`);save();return}
+    if(r==='end'){endDelegation(c,`You take back direct rule of ${c.name}.`);save();return}
     if(r!=='go'||!gid)return;
-    if(first){S.fac.shu.gold-=gold;S.fac.shu.rice-=rice;c.purse={gold,rice};for(const g of gensIn(c.id))g.assign=null}
+    if(first){for(const g of gensIn(c.id))g.assign=null}
     c.gov=gid;c.mode=mode;addLog(`${GN(gid).name} governs ${c.name} (${GOV_MODES[mode]}).`,'shu');save();return}}
 // the sliders in delegateDlg re-render on change; keep their values between redraws
 document.addEventListener('input',e=>{if(e.target.id==='dG'||e.target.id==='dR'){const b=e.target.previousElementSibling.querySelector('b');b.textContent=fmt(+e.target.value)}});
-async function requestDlg(c){
-  const own=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
-  const r=await dialog(`<div class="dzh">令</div><h2>Request from ${c.name}</h2><p class="muted">Governor ${govOf(c).name} will carry out your order.</p>
-    <div class="dipl"><button data-r="money"><span class="czh">庫</span>Gold & rice<small>send to your treasury</small></button><button data-r="move" ${own.length?'':'disabled'}><span class="czh">運</span>Troops & officers<small>to a neighbouring city</small></button></div>`,[['cancel','Cancel']]);
-  if(r==='move'){openMarch(c.id,null,'transfer');return}
-  if(r!=='money')return;
-  const P=c.purse;const q=await dialog(`<h2>Send from ${c.name}'s purse</h2>
-    <div class="mrow"><label for="qG">Gold <b>0</b> of ${fmt(P.gold)}</label><input id="qG" type="range" min="0" max="${Math.round(P.gold)}" step="50" value="0"></div>
-    <div class="mrow"><label for="qR">Rice <b>0</b> of ${fmt(P.rice)}</label><input id="qR" type="range" min="0" max="${Math.round(P.rice)}" step="500" value="0"></div>
-    <p class="muted">The governor keeps the rest to run the city. Troops eat ${fmt(Math.round(c.troops*RICE_CITY))} rice a month here.</p>`,[['cancel','Cancel'],['go','Send','primary']]);
-  const g=+(document.getElementById('qG')||{}).value||0,rr=+(document.getElementById('qR')||{}).value||0;
-  if(q!=='go')return;P.gold-=g;P.rice-=rr;S.fac.shu.gold+=g;S.fac.shu.rice+=rr;addLog(`${c.name} sends ${fmt(g)} gold and ${fmt(rr)} rice to your treasury.`,'shu');save()}
-document.addEventListener('input',e=>{if(e.target.id==='qG'||e.target.id==='qR'){e.target.previousElementSibling.querySelector('b').textContent=fmt(+e.target.value)}});
+async function requestDlg(c){openMarch(c.id,null,'transfer')}
 // ===== tooltips (long-press on phones, hover on desktop)
 const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its population.',Training:'How well drilled the troops are. Fully trained troops hit about 30% harder.',
   Farming:'Sets the rice harvest in the 7th month (40 rice per point).',Commerce:'Sets the gold the city earns each month, scaled by order.',Walls:'Fortifications. Higher walls make defenders much stronger in sieges.',
   Order:'Public order. Low order cuts income; below 30 troops start to desert.',Population:'People living here. Limits recruiting and grows when order is 60 or more.',Harvest:'Months until the next harvest (7th month).',
   War:'War: strength in battle and duels.',Int:'Intelligence: fire attacks, searching, persuading and envoys.',Pol:'Politics: farming, commerce and walls.',Cha:'Charisma: recruiting and how loyal your officers stay.',Loy:'Loyalty: below 75 rivals can lure him away; below 60 he may leave on his own. Reward raises it.',
-  Gold:'Your treasury. Pays for commands and salaries (5 gold per officer a month).',Rice:'Feeds your troops: 0.1 a month per soldier in a city, 0.2 on the march.',Cities:'Cities you hold. Hold 10 of the 14 by the end of 215 to win.',
+  Gold:'Total gold in all your cities. Each city pays for its own orders and officers (5 gold each a month); move gold with Transfer.',Rice:'Total rice in all your cities. Troops eat from their own city: 0.1 a month per soldier, 0.2 on the march.','City gold':'Gold kept in this city. Its orders, rewards and officer salaries are paid from here.','City rice':'Rice kept in this city. Its troops eat from here and its harvest lands here.',Cities:'Cities you hold. Hold 10 of the 14 by the end of 215 to win.',
   Status:'Ready: can act this month. Done: has acted. Assigned: on a long-term task.'};
 (()=>{let t=null,tipEl=null;const show=(el,x,y)=>{hide();const k=el.dataset.tip;if(!TIPS[k])return;tipEl=document.createElement('div');tipEl.className='tipbox';tipEl.innerHTML=`<b>${k}</b> ${TIPS[k]}`;document.body.appendChild(tipEl);
     const r=tipEl.getBoundingClientRect();tipEl.style.left=Math.max(8,Math.min(innerWidth-r.width-8,x-r.width/2))+'px';tipEl.style.top=(y-r.height-14<8?y+20:y-r.height-14)+'px';SND.fx('tap')};
@@ -235,9 +229,9 @@ const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its po
   addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');if(el&&!el.title)el.title=TIPS[el.dataset.tip]||''},{passive:true})})();
 function renderCampaign(){
   if(!S)return;document.querySelectorAll('.cres>div').forEach(d=>{const k=(d.querySelector('span')||{}).textContent;if(TIPS[k])d.dataset.tip=k});renderThreats();
-  const sf=S.fac.shu,my=citiesOf('shu');
+  const my=citiesOf('shu');
   $('#cDate').textContent=dateStr();
-  $('#cGold').textContent=fmt(sf.gold);$('#cRice').textContent=fmt(sf.rice);
+  $('#cGold').textContent=fmt(facGold('shu'));$('#cRice').textContent=fmt(facRice('shu'));
   $('#cCities').textContent=`${my.length} / 14`;
   $('#cTroops').textContent=fmt(my.reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0));
   $('#endMonth').disabled=UI.busy||S.over;
@@ -278,19 +272,19 @@ function renderCity(){
   let a=`<div class="cscene" style="${sceneStyle(c)}">
     ${mine&&my.length>1?`<button class="cnav prev" data-act="prevCity" aria-label="Previous city">‹</button><button class="cnav next" data-act="nextCity" aria-label="Next city">›</button>`:''}
     <div class="cscap"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?`Your city${my.length>1?` · ${idx+1} of ${my.length}`:''}`:`${F.short} · ruled by ${F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div></div>`;
-  a+=`<div class="sgrid">${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>`;
+  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>`;
   $('#cA').innerHTML=a;
   // ---- column B: officers
   const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
   let b='';
   if(UI.mode==='cmd'&&mine&&!isDelegated(c)){
     const k=UI.cmd,v=CMDS[k],cost=Object.entries(v.cost).map(([r,n])=>`${n} ${r}`).join(', ')||'free';
-    const afford=Object.entries(v.cost).every(([r,n])=>S.fac.shu[r]>=n);
+    const afford=canPay(c,v.cost);
     let list=gs.filter(g=>k==='reward'?g.loy<100&&!isRuler(g)&&!g.rewarded:!g.acted);
     list.sort((x,y)=>k==='reward'?x.loy-y.loy:y[v.stat]-x[v.stat]);
     b+=`<div class="chead"><div><div class="sec">${v.zh} ${v.n} · ${cost}${ASSIGNABLE.includes(k)&&(UI.dur||1)>1?' a month':''}</div><p class="muted">Choose who will do it. ${v.tip}.</p></div><button data-act="back">Cancel</button></div>`;
     if(ASSIGNABLE.includes(k))b+=`<div class="durrow"><span>For</span>${[1,3,6,12].map(n=>`<button data-act="dur" data-n="${n}" class="${(UI.dur||1)===n?'on':''}">${n===1?'This month':n+' months'}</button>`).join('')}</div>${(UI.dur||1)>1?`<p class="muted">Starting this month, he repeats it at the end of every month, paying ${cost} each time. Total ${Object.entries(v.cost).map(([r,n])=>`${n*(UI.dur)} ${r}`).join(', ')||'free'}.</p>`:''}`;
-    if(!afford)b+=`<p class="bad">Not enough ${Object.keys(v.cost).join(' and ')}.</p>`;
+    if(!afford)b+=`<p class="bad">${c.name} does not have enough ${Object.keys(v.cost).join(' and ')} (${fmt(c.gold)} gold). Transfer some from another city.</p>`;
     if(!list.length)b+=`<p class="muted">${k==='reward'?'Everyone here is fully loyal or has already been rewarded this month.':'Every officer here has already acted this month.'}</p>`;
     b+=`<div class="olist">${list.map(g=>`<button class="orow pick" data-gen="${g.id}" ${afford?'':'disabled'}>${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${g.assign?`<span class="asgt">Assigned: ${assignLbl(g)}</span>`:isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="opick"><b>${v.stat==='loy'?'Loyalty':v.stat==='pol'?'Politics':v.stat==='cha'?'Charisma':v.stat==='int'?'Intelligence':'War'} ${g[v.stat]}</b><small>${cmdPreview(k,g,c)}</small></span></button>`).join('')}</div>`;
   } else {
@@ -303,8 +297,8 @@ function renderCity(){
   // ---- column C: commands and reports
   let cc='';
   if(mine&&isDelegated(c)){const gv=govOf(c);
-    cc+=`<div class="sec">Governed city</div><div class="govcard"><b>${gv?gv.name:'—'}</b><small>Governor · ${GOV_MODES[c.mode||'auto']} policy</small><div>Purse <b>${fmt(c.purse.gold)}</b> gold · <b>${fmt(c.purse.rice)}</b> rice</div></div>
-      <button class="primary wide" data-act="request"><span class="czh">令</span> Request</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
+    cc+=`<div class="sec">Governed city</div><div class="govcard"><b>${gv?gv.name:'—'}</b><small>Governor · ${GOV_MODES[c.mode||'auto']} policy</small><div><b>${fmt(c.gold)}</b> gold · <b>${fmt(c.rice)}</b> rice</div></div>
+      <button class="primary wide" data-act="request"><span class="czh">運</span> Order a transfer</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
   } else if(mine){
     cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
     cc+=`<div class="mvrow"><button class="primary" data-act="march"><span class="czh">征</span> March</button><button data-act="transfer"><span class="czh">運</span> Transfer</button></div>`;
@@ -339,13 +333,13 @@ function cmdPreview(k,g,c){
 const troopCap=c=>Math.round(c.pop*120*(c.owner==='shu'&&typeof DF==='function'&&S?DF().cap:1)/500)*500;
 function intel(f,o){if(!S.intel)S.intel={};(S.intel[f]=S.intel[f]||[]).push(o)}
 function doCmd(k,g,c,f){
-  const F=S.fac[f],v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
+  const F=c,v=CMDS[k];for(const [r,n] of Object.entries(v.cost))F[r]-=n;
   if(k!=='reward')g.acted=true;
   const s=g[v.stat];let m='';
   if(k==='farm'){const n=Math.min(c.farmMax-c.farm,Math.round(s/10)+ri(0,4));c.farm+=n;m=`${g.name} works the fields: farming +${n}.`}
   if(k==='com'){const n=Math.min(c.comMax-c.com,Math.round(s/10)+ri(0,4));c.com+=n;m=`${g.name} develops the markets: commerce +${n}.`}
   if(k==='walls'){const n=Math.min(100-c.walls,Math.round(s/15)+ri(0,3));c.walls+=n;m=`${g.name} repairs the walls: +${n}.`}
-  if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)*(f!=='shu'&&f!=='__gov'?DF().aiRec:DF().pRec)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
+  if(k==='recruit'){const n=Math.max(0,Math.min(Math.round(s*10*rnd(.8,1.2)*(f!=='shu'?DF().aiRec:DF().pRec)),troopCap(c)-c.troops));c.train=Math.round((c.train*c.troops+30*n)/Math.max(1,c.troops+n));c.troops+=n;c.pop=Math.max(20,c.pop-n/1000);c.order=Math.max(0,c.order-(n?3:0));m=n?`${g.name} raises ${fmt(n)} new troops. Order −3.`:`${g.name} finds no more men to raise: ${c.name} can support ${fmt(troopCap(c))} troops (+0).`}
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
@@ -398,13 +392,13 @@ const WELCOME={search:['I have waited long for a lord worthy of my talents. I am
   capture:['You spared me when you could have taken my head. I will repay that kindness, my lord.','I fought you as an enemy; I will serve you as a loyal officer.'],
   persuade:['Your envoy spoke truly. I am honoured to join your cause, Lord Liu Bei.','I have served the wrong master long enough. Command me.']};
 async function welcomeGen(g,c,why){
-  for(;;){const can=g.loy<100&&!g.rewarded&&S.fac.shu.gold>=100,img=portraitSrc(g);
+  for(;;){const gc=C(g.city)||c,can=g.loy<100&&!g.rewarded&&gc.gold>=100,img=portraitSrc(g);
     const r=await dialog(`<div class="welc">${img?`<img src="${img}" alt="" class="welcp">`:gseal(g,120)}<div class="welct"><span class="welck">新 New officer</span><h2>${g.name}</h2>
       <p class="muted">War ${g.war} · Int ${g.int} · Pol ${g.pol} · Cha ${g.cha} · ${TYPES[g.type].n}</p>
       <blockquote>“${pick(WELCOME[why]||WELCOME.search)}”</blockquote>
       <p>Loyalty <b class="${g.loy<60?'bad':g.loy<75?'warnc':''}">${g.loy}</b>${g.loy<75?' · <span class="warnc">low; rivals may lure him away</span>':''}</p></div></div>`,
       [...(g.loy<100&&!g.rewarded?[['rew',`賞 Reward · 100 gold, +8 loyalty`]]:[]),['ok','Welcome','primary']]);
-    if(r==='rew'){if(!can){toast('Not enough gold.');continue}S.fac.shu.gold-=100;const m=doCmd('reward',g,c,'shu');addLog(m,'shu');save();SND.fx('chime');renderCampaign();continue}
+    if(r==='rew'){if(!can){toast(`${gc.name} does not have 100 gold.`);continue}const m=doCmd('reward',g,gc,'shu');addLog(m,'shu');save();SND.fx('chime');renderCampaign();continue}
     return}}
 // ---- city command cut-in: 1s order, 1s result
 const ACT_LINES={
@@ -448,7 +442,7 @@ function dialog(html,buttons){return new Promise(res=>{
 
 // ------------------------------------------------------------ march
 function openMarch(from,to,mode){
-  const m={from,to,sel:new Set(),troops:0,rice:0,cmd:null,al:{}},xfer=mode==='transfer',purse=C(from).gov?C(from).purse:null,RS=purse||S.fac.shu;
+  const m={from,to,sel:new Set(),troops:0,rice:0,gold:0,cmd:null,al:{}},xfer=mode==='transfer',purse=C(from).gov?C(from):null,RS=C(from);
   const cmdOf=()=>m.sel.has(m.cmd)?m.cmd:(cmdOrder([...m.sel].map(GN))[0]||{}).id;
   const srcCity=C(from);
   const targets=()=>neighbours(m.from).map(C).filter(t=>xfer?t.owner==='shu':(!allied('shu',t.owner)||t.owner==='shu'));
@@ -468,7 +462,7 @@ function openMarch(from,to,mode){
   const box=$('#dlgbox');
   function draw(){
     const src=C(m.from),tgt=C(m.to),tr=travel(),own=tgt&&tgt.owner==='shu';
-    const maxT=src.troops,maxR=Math.round(RS.rice);const short=own&&m.troops>0&&m.rice<need();m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=!own&&[...m.sel].some(id=>!(m.al[id]>0));const tgtOwnTroopsOnly=own&&!m.sel.size;
+    const maxT=src.troops,maxR=Math.round(RS.rice),maxG=Math.round(RS.gold);m.gold=Math.min(m.gold,maxG);const short=own&&m.troops>0&&m.rice<need();m.troops=tot();m.rice=Math.min(m.rice,maxR);const empty=!own&&[...m.sel].some(id=>!(m.al[id]>0));const tgtOwnTroopsOnly=own&&!m.sel.size;
     const lasts=m.troops?Math.floor(m.rice/(m.troops*RICE_MARCH)):0;
     const gl=avail();const sel=[...m.sel].map(GN);
     const myP=sel.length?sel.reduce((s,g)=>s+(m.al[g.id]||0)*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*src.train/100):0;
@@ -478,19 +472,21 @@ function openMarch(from,to,mode){
     const out=!tgt?['Pick a destination','#a6977a']:own?['Reinforce','#86cc90']:!sel.length?['Choose generals','#a6977a']:ratio>1.4?['Favourable','#86cc90']:ratio>.9?['Even','#d4ad55']:ratio>.6?['Risky','#e8a05f']:['Very risky','#e88b7f'];
     const keepL=(box.querySelector('.glist.mg')||{}).scrollTop||0,keepB=box.scrollTop,keepF=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#dlgbox')?[document.activeElement.dataset.sp,document.activeElement.dataset.id]:null;
     queueMicrotask(()=>{const l=box.querySelector('.glist.mg');if(l)l.scrollTop=keepL;box.scrollTop=keepB;if(keepF&&keepF[0]){const f=box.querySelector(`[data-sp="${keepF[0]}"][data-id="${keepF[1]}"]`);if(f)f.focus({preventScroll:true})}});
-    box.innerHTML=`<h2>${xfer?'Transfer from':'March from'} ${src.name}${purse?' <small class="muted">· paid from the governor\'s purse</small>':''}</h2>
+    box.innerHTML=`<h2>${xfer?'Transfer from':'March from'} ${src.name}${purse?' <small class="muted">· governed city</small>':''}</h2>
       <div class="mrow"><span class="lbl">Destination</span><button type="button" class="destbtn${tgt?'':' empty'}" data-pickdest="1">${tgt?`<i style="background:${FACS[tgt.owner].main}"></i><b>${tgt.name}</b><small>${own?'your city':FACS[tgt.owner].short+' · '+fmt(tgt.troops)+' troops'+(reinf?` (+${fmt(reinf)} coming)`:'')} · ${tr} month${tr>1?'s':''}</small><em>Change</em>`:'<span class="dmap" aria-hidden="true">🗺</span><b>Choose on the map</b><small>Tap to see which cities you can reach</small>'}</button></div>
       <div class="mcols"><div class="mcol"><div class="sec">Generals · ${m.sel.size} / 4 · <b class="zhb">帥</b> = commander</div>
       <div class="glist mg">${gl.map(g=>`<label class="grow pick ${m.sel.has(g.id)?'on':''}"><input type="checkbox" data-g="${g.id}" ${m.sel.has(g.id)?'checked':''} ${!m.sel.has(g.id)&&m.sel.size>=4?'disabled':''}>${gseal(g,28)}<div class="gmid"><b>${g.name}</b><small>${g.assign?`<span class="asgt">${assignLbl(g)} · leaving ends it</span>`:`W${g.war} I${g.int} · ${TYPES[g.type].n}`}</small></div>${m.sel.has(g.id)?`<span class="spin"><button type="button" data-sp="-" data-id="${g.id}" aria-label="Fewer troops for ${g.name}" ${!(m.al[g.id]>0)?'disabled':''}>−</button><b>${fmt(m.al[g.id]||0)}</b><button type="button" data-sp="+" data-id="${g.id}" aria-label="More troops for ${g.name}" ${maxT-m.troops<=0?'disabled':''}>+</button></span>`:''}${m.sel.has(g.id)?`<button type="button" class="cmdpick ${cmdOf()===g.id?'on':''}" data-c="${g.id}" aria-label="Make ${g.name} commander">帥</button>`:''}</label>`).join('')||'<p class="muted">No generals are free in this city this month.</p>'}</div>
       <p class="mnote">If the 帥 commander falls in battle, the whole army retreats.</p>
-      </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}${own?' · generals may move to your own city with no troops':''}</small></div>${meet?`<p class="meet">⚔ ${FACS[meet.fac].short}'s army of ${fmt(meet.troops)} is marching the other way on this road. You will meet it in a field battle.</p>`:''}${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
-      <div class="mrow"><label for="mRice">Rice <b>${fmt(m.rice)}</b> of ${fmt(maxR)} · lasts ${lasts} month${lasts===1?'':'s'}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
+      </div><div class="mcol"><div class="mrow mtot"><span>Troops marching <b>${fmt(m.troops)}</b> of ${fmt(maxT)}</span><small>${fmt(maxT-m.troops)} stay to defend ${src.name}</small></div>${meet?`<p class="meet">⚔ ${FACS[meet.fac].short}'s army of ${fmt(meet.troops)} is marching the other way on this road. You will meet it in a field battle.</p>`:''}${empty?'<p class="bad">Give every general at least some troops with the + button.</p>':''}
+      ${own||xfer?`<div class="mrow"><label for="mGold">Gold to send <b>${fmt(m.gold)}</b> of ${fmt(maxG)}</label><input id="mGold" type="range" min="0" max="${maxG}" step="50" value="${m.gold}"></div>`:''}
+      <div class="mrow"><label for="mRice">Rice${own?' to send':''} <b>${fmt(m.rice)}</b> of ${fmt(maxR)}${own?(m.troops?` · ${fmt(Math.max(0,m.rice-need()))} arrives`:''):` · lasts ${lasts} month${lasts===1?'':'s'}`}</label><input id="mRice" type="range" min="0" max="${maxR}" step="100" value="${m.rice}"></div>
       <div class="msum"><div><span>Travel</span><b>${tgt?`${tr} month${tr>1?'s':''}`:'—'}</b></div><div><span>${own?'Arriving at':'Their army'}</span><b>${!tgt?'—':own?tgt.name:fmt(dT)+' · walls '+tgt.walls}</b>${!own&&reinf?`<small class="reinf">+${fmt(reinf)} on the way</small>`:''}</div><div><span>Outlook</span><b style="color:${out[1]}">${out[0]}</b></div></div>
-      ${own&&m.troops?`<p class="${short?'bad':'muted'}">The journey needs ${fmt(need())} rice for ${fmt(m.troops)} troops${short?' — not enough rice.':'. Rice left over joins the destination.'}</p>`:''}
+      ${own?`<p class="${short?'bad':'muted'}">${m.troops?`Troops eat ${fmt(need())} rice on the way${short?' — not enough rice.':'.'} `:''}Gold and rice arrive with the convoy in ${tr} month${tr>1?'s':''}.</p>`:''}
       ${tgt&&lasts<tr+1&&!own?'<p class="bad">Not enough rice to reach the city and fight. Troops will desert.</p>':''}</div></div>
-      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${!m.sel.size&&!m.troops||(!m.troops&&!own)||!m.to||empty||short?'disabled':''}>${own?'Transfer':'March out'}</button></div>`;
+      <div class="dbtns"><button data-r="cancel">Cancel</button><button data-r="go" class="primary" ${(!m.sel.size&&!m.troops&&!(own&&(m.gold||m.rice)))||(!m.troops&&!own)||!m.to||empty||short?'disabled':''}>${own?'Transfer':'March out'}</button></div>`;
     $('#mRice').oninput=e=>{m.rice=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.rice)};
     $('#mRice').onchange=()=>draw();
+    const gi=$('#mGold');if(gi){gi.oninput=e=>{m.gold=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=fmt(m.gold)};gi.onchange=()=>draw()}
     box.querySelectorAll('[data-g]').forEach(i=>i.onchange=()=>{const id=i.dataset.g;if(i.checked){if(m.sel.size<4){m.sel.add(id);m.al[id]=Math.min(STEP,left())}}else{m.sel.delete(id);delete m.al[id]}m.troops=tot();reRice();draw()});
   }
   box.onclick=e=>{const pk=e.target.closest('[data-pickdest]');if(pk){e.preventDefault();pickDest(m.from,m.to,targets().map(t=>t.id)).then(id=>{if(id){m.to=id;reRice();draw()}});return}
@@ -499,7 +495,7 @@ function openMarch(from,to,mode){
       m.troops=tot();reRice();draw();return}
     const cb=e.target.closest('[data-c]');if(cb){e.preventDefault();m.cmd=cb.dataset.c;draw();return}
     const b=e.target.closest('[data-r]');if(!b||b.disabled)return;
-    if(b.dataset.r==='go'){const own=C(m.to).owner==='shu',ci=cmdOf(),order=m.sel.size?[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))]:[];for(const g of order)g.assign=null;if(purse){S.fac.shu.rice+=m.rice;purse.rice-=m.rice}launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])));addLog(own?`${order.length?order.map(gnm).join(', '):'A convoy'} ${order.length?'set':'sets'} out from ${C(m.from).name} to ${C(m.to).name}${m.troops?` with ${fmt(m.troops)} troops`:''}.`:`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
+    if(b.dataset.r==='go'){const own=C(m.to).owner==='shu',ci=cmdOf(),order=m.sel.size?[GN(ci),...cmdOrder([...m.sel].filter(id=>id!==ci).map(GN))]:[];for(const g of order)g.assign=null;launchArmy('shu',m.from,m.to,order,m.troops,m.rice,Object.fromEntries(order.map(g=>[g.id,m.al[g.id]||0])),own?m.gold:0);addLog(own?`${order.length?order.map(gnm).join(', '):'A convoy'} ${order.length?'set':'sets'} out from ${C(m.from).name} to ${C(m.to).name}${[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).length?' with '+[m.troops?fmt(m.troops)+' troops':'',m.gold?fmt(m.gold)+' gold':'',m.rice?fmt(m.rice)+' rice':''].filter(Boolean).join(', '):''}.`:`${order.map(gnm).join(', ')} march from ${C(m.from).name} to ${C(m.to).name} with ${fmt(m.troops)} troops.`,'shu');save()}
     $('#dlg').hidden=true;box.onclick=null;renderCampaign()};
   box.classList.add('dwide');draw();$('#dlg').hidden=false;
 }
@@ -528,10 +524,10 @@ function pickDest(from,cur,ok){return new Promise(res=>{
     if(e.target.closest('[data-pkgo]')){d.remove();res(sel);return}
     if(e.target.closest('[data-pkx]')){if(sel&&e.target.closest('.pkinfo')){sel=null;draw();return}d.remove();res(null)}};
 })}
-function launchArmy(f,from,to,gens,troops,rice,split){
+function launchArmy(f,from,to,gens,troops,rice,split,gold){
   const src=C(from),tr=routeOf(from,to)[2];
-  src.troops-=troops;S.fac[f].rice-=rice;
-  const a={id:S.nextArmy++,fac:f,from,to,gens:gens.map(g=>g.id),troops,rice,left:tr,total:tr,train:src.train};if(split)a.split=split;
+  gold=Math.max(0,Math.min(gold||0,src.gold||0));rice=Math.max(0,Math.min(rice,src.rice||0));src.troops-=troops;src.rice-=rice;src.gold-=gold;
+  const a={id:S.nextArmy++,fac:f,from,to,gens:gens.map(g=>g.id),troops,rice,gold,left:tr,total:tr,train:src.train};if(split)a.split=split;
   for(const g of gens){g.army=a.id;g.city=null;g.acted=true}
   S.armies.push(a);if(f==='shu')SND.fx('march');return a}
 
@@ -614,13 +610,13 @@ async function doPersuade(c){
   const envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
   let env=envs[0];
   for(;;){const ts=gensIn(c.id).filter(g=>!isFounder(g)).sort((a,b)=>a.loy-b.loy);
-    const r=await dialog(`<div class="dzh">說</div><h2>Persuade an officer in ${c.name}</h2><p class="muted">Costs 100 gold and uses your envoy's action. Officers with low loyalty listen more readily.</p>
+    const r=await dialog(`<div class="dzh">說</div><h2>Persuade an officer in ${c.name}</h2><p class="muted">Costs 100 gold from the envoy's city and uses his action. Officers with low loyalty listen more readily.</p>
       <div class="envrow"><span>Envoy</span>${envs.map(g=>`<button data-r="env:${g.id}" class="${g===env?'on':''}">${g.name} <i>Int ${g.int}</i></button>`).join('')}</div>
-      <div class="tlist">${ts.map(g=>{const p=persuadeChance(env,g);return `<button data-r="t:${g.id}" ${p<=0||S.fac.shu.gold<100?'disabled':''}>${gseal(g,30)}<b>${g.name}</b><small>War ${g.war} · Int ${g.int} · Loyalty ${g.loy}</small><em>${Math.round(p*100)}%</em></button>`}).join('')||'<p class="muted">No officer here can be approached; the ruler will never betray his own cause.</p>'}</div>`,
+      <div class="tlist">${ts.map(g=>{const p=persuadeChance(env,g);return `<button data-r="t:${g.id}" ${p<=0||C(env.city).gold<100?'disabled':''}>${gseal(g,30)}<b>${g.name}</b><small>War ${g.war} · Int ${g.int} · Loyalty ${g.loy}</small><em>${Math.round(p*100)}%</em></button>`}).join('')||'<p class="muted">No officer here can be approached; the ruler will never betray his own cause.</p>'}</div>`,
       [['cancel','Cancel']]);
     if(r.startsWith('env:')){env=GN(r.slice(4));continue}
     if(!r.startsWith('t:'))return;
-    const t=GN(r.slice(2)),p=persuadeChance(env,t);S.fac.shu.gold-=100;env.acted=true;UI.busy=true;const ok=Math.random()<p;
+    const t=GN(r.slice(2)),p=persuadeChance(env,t);C(env.city).gold-=100;env.acted=true;UI.busy=true;const ok=Math.random()<p;
     let m;if(ok){moveGen(t,'shu',env.city,70);m=`${env.name} persuades ${t.name} to leave ${fs(c.owner)} and serve Liu Bei.`}else m=`${env.name} fails to sway ${t.name}.`;
     addLog(m,'shu');save();try{await actFx(env,'persuade',m.replace(env.name+' ',''),C(env.city),ok)}catch(e){}if(ok)await welcomeGen(t,C(env.city),'persuade');UI.busy=false;renderCampaign();return}}
 async function doSurrender(c){
@@ -629,36 +625,29 @@ async function doSurrender(c){
   for(;;){const p=surrenderChance(env,f),done=S.surTry&&S.surTry[f]===dateNum();
     const r=await dialog(`<div class="dzh">降</div><h2>Demand that ${FACS[f].name} surrender</h2>
       <p>If he accepts, ${citiesOf(f).length>1?`all ${citiesOf(f).length} of his cities`:'his city'}, its troops and his officers join you without a fight.</p>
-      <p class="muted">Costs 200 gold and uses your envoy's action. One attempt per month. The odds grow when your army far outnumbers his (yours ${fmt(citiesOf('shu').reduce((s,x)=>s+x.troops,0))} vs his ${fmt(citiesOf(f).reduce((s,x)=>s+x.troops,0))}).</p>
+      <p class="muted">Costs 200 gold from the envoy's city and uses his action. One attempt per month. The odds grow when your army far outnumbers his (yours ${fmt(citiesOf('shu').reduce((s,x)=>s+x.troops,0))} vs his ${fmt(citiesOf(f).reduce((s,x)=>s+x.troops,0))}).</p>
       <div class="envrow"><span>Envoy</span>${envs.map(g=>`<button data-r="env:${g.id}" class="${g===env?'on':''}">${g.name} <i>Int ${g.int}</i></button>`).join('')}</div>
       <p class="bigp">Chance: <b>${Math.round(p*100)}%</b></p>${done?'<p class="bad">You have already sent an envoy this month.</p>':''}`,
-      [['cancel','Cancel'],...(done||S.fac.shu.gold<200?[]:[['go','Send the envoy','primary']])]);
+      [['cancel','Cancel'],...(done||C(env.city).gold<200?[]:[['go','Send the envoy','primary']])]);
     if(r.startsWith('env:')){env=GN(r.slice(4));continue}
     if(r!=='go')return;
-    (S.surTry=S.surTry||{})[f]=dateNum();S.fac.shu.gold-=200;env.acted=true;UI.busy=true;const ok=Math.random()<p;let m;
+    (S.surTry=S.surTry||{})[f]=dateNum();C(env.city).gold-=200;env.acted=true;UI.busy=true;const ok=Math.random()<p;let m;
     if(ok){S['gone_'+f]=1;const cs=citiesOf(f);for(const x of cs){x.owner='shu';x.troops=Math.round(x.troops*.9);x.order=Math.max(20,x.order-10)}
       for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,isRuler(g)?55:62);
       for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';
-      S.fac.shu.gold+=S.fac[f].gold;S.fac.shu.rice+=S.fac[f].rice;S.fac[f].gold=0;S.fac[f].rice=0;S['gone_'+f]=1;
+      S['gone_'+f]=1;
       m=`${FACS[f].name} surrenders! ${cs.map(x=>x.name).join(', ')} and his officers join Liu Bei.`}
     else{(S.grudge[f]=S.grudge[f]||{}).shu=true;m=`${FACS[f].name} refuses to surrender.`}
     addLog(`<b>${m}</b>`,'shu');save();try{await actFx(env,'surrender',m,c,ok)}catch(e){}UI.busy=false;
     if(ok){renderCampaign();checkCampaignEnd()}else renderCampaign();return}}
 function economy(){
-  for(const f of Object.keys(FACS)){if(!alive(f))continue;const F=S.fac[f],cs=citiesOf(f);
-    const dl=cs.filter(isDelegated),dr=cs.filter(c=>!isDelegated(c));
-    for(const c of dl){const P=c.purse;P.gold=Math.round(P.gold+c.com*.5*c.order/100*DF().inc-gensIn(c.id).length*SALARY);P.rice=Math.round(P.rice-c.troops*RICE_CITY);
-      if(S.month===7){const h=c.farm*40;P.rice+=h;addLog(`${c.name}'s harvest brings ${fmt(h)} rice into the governor's purse.`,'shu')}
-      if(P.rice<0){P.rice=0;c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5);addLog(`<b>${c.name} has run out of rice.</b> 10% of its troops desert.`,'shu')}
-      if(P.gold<0){P.gold=0;c.order=Math.max(0,c.order-2)}}
-    const inGov=new Set(dl.flatMap(c=>gensIn(c.id).map(g=>g.id)));
-    const inc=dr.reduce((s,c)=>s+c.com*.5*c.order/100,0)*(f==='shu'?DF().inc:1),sal=gensOf(f).filter(g=>!inGov.has(g.id)).length*SALARY;
-    F.gold=Math.round(F.gold+inc-sal);
-    const use=dr.reduce((s,c)=>s+c.troops*RICE_CITY,0);F.rice=Math.round(F.rice-use);
-    if(S.month===7){const h=dr.reduce((s,c)=>s+c.farm*40,0);F.rice+=h;if(f==='shu')addLog(`The harvest brings in ${fmt(h)} rice.`,'shu')}
-    if(F.rice<0){F.rice=0;for(const c of dr){c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5)}if(f==='shu')addLog('<b>Your rice has run out.</b> 10% of your troops desert and order falls.','shu')}
-    if(F.gold<0){F.gold=0;for(const c of cs)c.order=Math.max(0,c.order-2);if(f==='shu')addLog('Your treasury is empty. Unpaid officials let order slip.','shu')}
-    for(const c of cs){if(c.order>=60)c.pop=Math.round((c.pop*1.004)*10)/10;
+  for(const f of Object.keys(FACS)){if(!alive(f))continue;const cs=citiesOf(f);let starve=0,broke=0;
+    for(const c of cs){c.gold=Math.round(c.gold+c.com*.5*c.order/100*(f==='shu'?DF().inc:1)-gensIn(c.id).length*SALARY);
+      c.rice=Math.round(c.rice-c.troops*RICE_CITY);
+      if(S.month===7){const h=c.farm*40;c.rice+=h;if(f==='shu')addLog(`${c.name}'s harvest brings in ${fmt(h)} rice.`,'shu')}
+      if(c.rice<0){c.rice=0;c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5);starve++;if(f==='shu')addLog(`<b>${c.name} has run out of rice.</b> 10% of its troops desert and order falls.`,'shu')}
+      if(c.gold<0){c.gold=0;c.order=Math.max(0,c.order-2);broke++;if(f==='shu')addLog(`${c.name} cannot pay its officials. Order slips.`,'shu')}
+      if(c.order>=60)c.pop=Math.round((c.pop*1.004)*10)/10;
       if(c.order<30){const l=Math.round(c.troops*.05);c.troops-=l;if(f==='shu')addLog(`Riots in ${c.name}: ${fmt(l)} troops desert.`,'shu')}}}
 }
 async function events(){
@@ -686,21 +675,26 @@ async function finale(win,text){save();renderCampaign();
 function armyPower(gs,troops,train){const L=gs.length?gs:[{war:45}];const per=troops/L.length;
   return L.reduce((s,g)=>s+per*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100),0)*(.7+.3*(train??60)/100)}
 function aiTurn(f){
-  const F=S.fac[f],A=FACS[f].ai;
+  const A=FACS[f].ai;
   const allTroops=citiesOf(f).reduce((s,c)=>s+c.troops,0);
   const domestic=()=>{
   for(const c of citiesOf(f)){
-    const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol);
+    const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.pol-a.pol),F=c;
     for(const g of gs){let k=null;
       if(c.order<60&&F.rice>2000)k='patrol';
-      else if(F.gold>800&&F.rice>allTroops*RICE_CITY*10&&c.troops<troopCap(c)-500&&c.order>50&&g.cha>=55)k='recruit';
+      else if(F.gold>500&&F.rice>(c.troops+1000)*RICE_CITY*8&&c.troops<troopCap(c)-500&&c.order>50&&g.cha>=55)k='recruit';
       else if(c.train<75&&g.war>=65)k='train';
       else if(c.farm<c.farmMax&&F.gold>=50&&g.pol>=50)k='farm';
       else if(c.com<c.comMax&&F.gold>=50&&g.pol>=50)k='com';
       else if(c.walls<100&&F.gold>=50)k='walls';
       else if(c.train<100)k='train';
-      if(!k)continue;if(!Object.entries(CMDS[k].cost).every(([r,n])=>F[r]>=n))continue;const t0=c.troops,msg=doCmd(k,g,c,f);intel(f,{k,c:c.id,g:g.id,n:c.troops-t0,m:msg})}}
+      if(!k)continue;if(!canPay(c,CMDS[k].cost))continue;const t0=c.troops,msg=doCmd(k,g,c,f);intel(f,{k,c:c.id,g:g.id,n:c.troops-t0,m:msg})}}
   };
+  // supply: a city short of rice or gold is fed by its richest neighbour
+  for(const c of citiesOf(f)){const lowR=c.rice<c.troops*RICE_CITY*4,lowG=c.gold<300;if(!lowR&&!lowG)continue;
+    const d=neighbours(c.id).map(C).filter(x=>x.owner===f&&!S.armies.some(a=>a.fac===f&&a.from===x.id&&a.to===c.id)).sort((x,y)=>(y.rice-y.troops*RICE_CITY*10)-(x.rice-x.troops*RICE_CITY*10))[0];if(!d)continue;
+    const sr=lowR?Math.max(0,Math.round((d.rice-d.troops*RICE_CITY*10)*.5)):0,sg=lowG?Math.max(0,Math.round((d.gold-800)*.5)):0;
+    if(sr>=1000||sg>=200)launchArmy(f,d.id,c.id,[],0,sr,null,sg)}
   if(A==='passive'){domestic();return}
   if(!allied(f,'shu')&&Math.random()<.35){const envs=citiesOf(f).flatMap(c=>gensIn(c.id).filter(g=>!g.acted&&!isRuler(g))).sort((a,b)=>b.int-a.int),env=envs[0];
     const prey=env&&citiesOf(f).flatMap(c=>neighbours(c.id)).map(C).filter(c=>c.owner==='shu').flatMap(c=>gensIn(c.id)).filter(g=>!isRuler(g)&&g.loy<70)
@@ -721,7 +715,7 @@ function aiTurn(f){
       const opts=neighbours(c.id).filter(n=>dist[n]!=null&&dist[n]<dist[c.id]).map(n=>[n,gap(n)]).sort((x,y)=>y[1]-x[1]);if(!opts.length||opts[0][1]<2000)continue;
       const to=opts[0][0],amt=Math.round(Math.min(c.troops-7000,opts[0][1],(c.troops-7000)*.6)/500)*500;if(amt<2000)continue;
       const gs=gensIn(c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war),spare=gs.filter(g=>!isRuler(g)).slice(0,Math.min(amt>=8000?2:1,gensIn(c.id).length-1));
-      const tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.min(F.rice,Math.round(amt*RICE_MARCH*tr)));intel(f,{k:'move',c:c.id,to,n:amt,gs:spare.map(g=>g.id)})}}
+      const tr=routeOf(c.id,to)[2];launchArmy(f,c.id,to,spare,amt,Math.round(amt*RICE_MARCH*tr+Math.max(0,c.rice-c.troops*RICE_CITY*8)*.5),null,Math.max(0,c.gold-600)*.5);intel(f,{k:'move',c:c.id,to,n:amt,gs:spare.map(g=>g.id)})}}
   if((A==='aggressive'&&dateNum()<210*12+1)||(S.armies.some(a=>a.fac===f&&C(a.to).owner!==f)&&Math.random()<.5)){domestic();return}
   let best=null;
   for(const c of citiesOf(f)){const gs=gensIn(c.id).filter(g=>!g.acted);if(!gs.length||c.troops<6000)continue;
@@ -733,7 +727,7 @@ function aiTurn(f){
       const inc=S.armies.filter(a=>a.to===nid&&a.fac===t.owner&&a.left<=tr).reduce((s,a)=>s+a.troops,0);
       const ratio=armyPower(go,send,c.train)/Math.max(1,armyPower(gensIn(nid).sort((a,b)=>b.war-a.war).slice(0,4),t.troops+inc,t.train)*wallF(t,f));
       const bar=(A==='aggressive'?1.25:A==='defensive'?(grudge?1.3:1.8):9)+(t.owner==='shu'?DF().aiBar:0);
-      if(ratio>bar&&F.rice>need+c.troops*RICE_CITY*4&&(!best||ratio>best.score))best={score:ratio,c,t,send,need}}}
+      if(ratio>bar&&c.rice>need+(c.troops-send)*RICE_CITY*4&&(!best||ratio>best.score))best={score:ratio,c,t,send,need}}}
   if(!best){domestic();return}
   const gs=gensIn(best.c.id).filter(g=>!g.acted).sort((a,b)=>b.war-a.war);const keep=gs.find(g=>isRuler(g))||(gensIn(best.c.id).length>1?gs[gs.length-1]:null);
   const go=gs.filter(g=>g!==keep).slice(0,3);if(!go.length){domestic();return}
@@ -747,9 +741,10 @@ function aiTurn(f){
 function cmdOrder(gs){return [...gs].sort((a,b)=>(isRuler(b)-isRuler(a))||b.war-a.war)}
 async function resolveArrival(a){
   const c=C(a.to),gens=a.gens.map(GN).filter(g=>g&&g.fac===a.fac);
-  if(!gens.length&&a.troops<=0)return;
+  if(c.owner===a.fac){c.gold+=Math.round(a.gold||0);a.gold=0}
+  if(!gens.length&&a.troops<=0){if(c.owner===a.fac)c.rice+=Math.round(a.rice);else returnHome(a,[],0);return}
   if(c.owner===a.fac){
-    c.troops+=a.troops;if(isDelegated(c))c.purse.rice+=Math.round(a.rice);else S.fac[a.fac].rice+=Math.round(a.rice);for(const g of gens){g.army=null;g.city=c.id}
+    c.troops+=a.troops;c.rice+=Math.round(a.rice);for(const g of gens){g.army=null;g.city=c.id}
     if(a.fac==='shu')addLog(`Your army reaches ${c.name}: ${fmt(a.troops)} troops join the garrison.`,'shu');return}
   if(allied(a.fac,c.owner)){returnHome(a,gens,a.troops);return}
   (S.grudge[c.owner]=S.grudge[c.owner]||{})[a.fac]=true;
@@ -830,7 +825,7 @@ function nearestOwn(f,from){const cs=citiesOf(f).filter(x=>x.id!==from);if(!cs.l
   return pool.sort((p,q)=>Math.hypot(p.x-o.x,p.y-o.y)-Math.hypot(q.x-o.x,q.y-o.y))[0]}
 function returnHome(a,gens,troops){const home=C(a.from).owner===a.fac?C(a.from):nearestOwn(a.fac,a.to);
   if(!home){for(const g of gens)g.army=null;gens.forEach(g=>{g.fac=null;g.assign=null;g.city=a.from;g.hidden=true});return}
-  home.troops+=troops;S.fac[a.fac].rice+=Math.round(a.rice*.5);for(const g of gens){g.army=null;g.city=home.id}}
+  home.troops+=troops;home.rice+=Math.round(a.rice*.5);home.gold+=Math.round(a.gold||0);for(const g of gens){g.army=null;g.city=home.id}}
 async function applyBattle(a,c,gens,defG,res){
   const caps=[];const oldOwner=c.owner;
   const aS=Object.values(res.att).reduce((s,x)=>s+x,0),dS=Object.values(res.def).reduce((s,x)=>s+x,0);
@@ -856,10 +851,10 @@ async function applyBattle(a,c,gens,defG,res){
   checkCampaignEnd();
 }
 function capAdj(g,p){return g.war>=95?0:g.war>=90?p/2:p}
-function takeCity(a,c,gens,troops,broken){if(c.gov){c.gov=null;c.purse=null;c.mode=null}
+function takeCity(a,c,gens,troops,broken){if(c.gov){c.gov=null;c.mode=null}
   c.owner=a.fac;c.troops=troops;c.train=Math.round(a.train*.85);c.order=Math.max(20,c.order-25);c.walls=Math.max(20,c.walls-25);
   c.farm=Math.round(c.farm*.9);c.com=Math.round(c.com*.85);c.pop=Math.round(c.pop*.95*10)/10;
-  S.fac[a.fac].rice+=Math.round(a.rice*.8);S.fac[a.fac].gold+=300;
+  c.gold=Math.round((c.gold||0)*.5+300+(a.gold||0));c.rice=Math.round((c.rice||0)*.5+a.rice*.8);
   for(const g of gens){g.army=null;g.city=c.id;g.acted=true}
   if(c.owner==='shu')S.sel=c.id;
 }

@@ -1,0 +1,10 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:900,height:412}});let tot=0;const seen=new Map();
+p.on('requestfinished',async r=>{try{const s=(await r.sizes()).responseBodySize;seen.set(r.url(),s)}catch(e){}});
+const mark=async n=>{await p.waitForTimeout(1500);let t=0;for(const v of seen.values())t+=v;console.log(n.padEnd(22),(t/1048576).toFixed(1)+' MB',seen.size+' files')};
+await p.goto('file:///home/claude/rtk3/index.html');await mark('title screen');console.log([...seen].sort((a,b)=>b[1]-a[1]).slice(0,8).map(([u,s])=>u.split('/').slice(-2).join('/')+' '+Math.round(s/1024)+'K').join(', '));
+await p.click('#newBtn');await p.waitForTimeout(200);await p.evaluate(()=>{const b=document.querySelector('#dlg:not([hidden]) [data-r="normal"]');b&&b.click()});await mark('campaign');
+await p.evaluate(()=>openMap());await mark('+ China map');
+for(const id of await p.evaluate(()=>Object.keys(S.cities))){await p.evaluate(id=>{closeMap();S.sel=id;renderCampaign()},id)}await mark('+ all 14 cities');
+await p.evaluate(()=>{const gens=['zhangfei','guanyu','zhaoyun'].map(GN);playCampaignBattle({id:99,fac:'shu',from:'jiangxia',to:'xiangyang',gens:gens.map(g=>g.id),troops:9000,rice:3000,left:0,total:2,train:70},C('xiangyang'),gens,[GN('caoren'),GN('yujin')])});await mark('+ first battle');
+await b.close();
