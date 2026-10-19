@@ -4,8 +4,7 @@ var SND=(()=>{
   let set={sfx:.8,mus:.55,mute:false};try{Object.assign(set,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
   const saveSet=()=>{try{localStorage.setItem(KEY,JSON.stringify(set))}catch(e){}};
   function init(){if(ctx)return ctx;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
-    ctx=new AC();master=ctx.createGain();sfxG=ctx.createGain();musG=ctx.createGain();sfxG.connect(master);musG.connect(master);master.connect(ctx.destination);
-    const comp=ctx.createDynamicsCompressor();master.disconnect();master.connect(comp);comp.connect(ctx.destination);
+    ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();sfxG=ctx.createGain();musG=ctx.createGain();sfxG.connect(master);musG.connect(master);master.connect(ctx.destination);
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;apply();return ctx}
   function apply(){if(!ctx)return;master.gain.value=set.mute?0:1;sfxG.gain.value=set.sfx;musG.gain.value=set.mus;if(cur)cur.el.volume=set.mute?0:set.mus}
   const unlock=()=>{init();if(ctx&&ctx.state==='suspended')ctx.resume();if(want&&!cur)music(want)};
@@ -63,5 +62,5 @@ function soundDlg(){const s=SND.set;const p=dialog(`<h2>Sound</h2>
   return p.then(r=>{if(r==='mute'){SND.toggleMute();updSndBtns()}})}
 function updSndBtns(){document.querySelectorAll('.sndbtn').forEach(b=>{b.textContent=SND.set.mute?'🔇':'🔊';b.setAttribute('aria-label',SND.set.mute?'Unmute sound':'Mute sound')})}
 // UI clicks
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||b.classList.contains('sndbtn'))return;
+document.addEventListener('pointerdown',e=>{if(e.button>0)return;const b=e.target.closest('button');if(!b||b.disabled||b.classList.contains('sndbtn'))return;
   const r=b.dataset.r;if(r==='cancel'||r==='no'||r==='stay'||b.dataset.pkx!=null)SND.fx('cancel');else if(b.classList.contains('primary'))SND.fx('confirm');else SND.fx('tap')},true);

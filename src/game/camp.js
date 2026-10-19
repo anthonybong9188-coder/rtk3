@@ -862,20 +862,21 @@ async function handleCapture(g,captor,c){
   if(g.id==='liubei'){S.over=true;await finale(false,`Liu Bei is captured at ${c.name}. Without him, Shu falls apart.`);return}
   const from=g.fac;
   if(captor==='shu'){
-    const ruler=isRuler(g),founder=isFounder(g);const p=Math.min(.95,(.25+(100-g.loy)/150+.15)*(ruler&&!founder?.8:1));
-    const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${founder?' · ruler of '+FACS[from].short:ruler?' · took command of '+FACS[from].short+'\'s men after his lord fell':''}</p></div></div>
-      <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>`,
+    const lordless=!citiesOf(from).length,ruler=isRuler(g)&&!lordless,founder=isFounder(g)&&!lordless;const p=Math.min(.95,(.25+(100-g.loy)/150+.15)*(ruler&&!founder?.8:1)+(lordless?.2:0));
+    const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${lordless?' · his lord has no cities left':founder?' · ruler of '+FACS[from].short:ruler?' · took command of '+FACS[from].short+'\'s men after his lord fell':''}</p></div></div>
+      <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>
+      ${lordless&&!founder?'<p class="muted">With nowhere left to serve, he is more willing to join you. If he refuses he will wander, and you can find him again by searching '+c.name+'.</p>':''}`,
       [...(founder?[]:[['rec','Recruit','primary']]),['rel','Release'],['exe','Execute']]);
     if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');if(ruler)succession(from);await welcomeGen(g,c,'capture')}
-      else{const h=nearestOwn(from,c.id);if(h){g.city=h.id}else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(`${g.name} refuses and is released.`,'shu');toast(`${g.name} refuses to serve.`)}}
-    else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(`${g.name} is released.`,'shu')}
+      else{const h=nearestOwn(from,c.id);if(h){g.city=h.id}else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(h?`${g.name} refuses and returns to ${h.name}.`:`${g.name} refuses and wanders off. Search ${c.name} to find him again.`,'shu');toast(`${g.name} refuses to serve.`)}}
+    else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(h?`${g.name} is released and returns to ${h.name}.`:`${g.name} is released and wanders off. Search ${c.name} to find him again.`,'shu')}
     else{delete S.gens[g.id];addLog(`${g.name} is executed.`,'shu');if(ruler)succession(from)}
   } else {
     if(!isRuler(g)&&Math.random()<(100-g.loy)/100*.8){g.fac=captor;g.city=c.id;g.loy=60;addLog(`${gnm({...g,fac:from})} goes over to ${fs(captor)}.`,captor)}
     else{const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(`${g.name} is captured by ${FACS[captor].short} and released.`)}
   }
 }
-function succession(f){const heir=gensOf(f).sort((a,b)=>b.cha-a.cha)[0];
+function succession(f){if(!citiesOf(f).length)return;const heir=gensOf(f).sort((a,b)=>b.cha-a.cha)[0];
   if(heir){S.rulers[f]=heir.id;addLog(`${heir.name} takes command of ${FACS[f].short}'s men.`)}}
 
 // ---------- hand-off to the tactical battle
