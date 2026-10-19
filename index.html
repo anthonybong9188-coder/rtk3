@@ -1496,7 +1496,7 @@ function playDuel0(P,E){
     parts=[];$('#cap').innerHTML=`<span><b>${P.name}</b> challenges <b>${E.name}</b> to single combat</span><span>War ${P.war} vs ${E.war}</span>`;
     $('#duelUI').hidden=false;$('#duelDone').hidden=true;$('#duelMsg').textContent='Pick a move. The enemy\'s tell is right about two times in three.';
     $('#stage').hidden=false;newRound();let last=performance.now();
-    function frame(now){const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}requestAnimationFrame(frame)})}
+    function frame(now){if(!D)return;const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}requestAnimationFrame(frame)})}
 document.querySelectorAll('.duelBtns button').forEach(b=>b.addEventListener('click',()=>{
   if(!D||D.anim||D.result)return;document.querySelectorAll('.duelBtns button').forEach(x=>x.disabled=true);
   const pc=b.dataset.c,ec=D.ec,P=D.P,E=D.E;let win='tie',dP=0,dE=0,msg;

@@ -1024,3 +1024,7 @@ r"""var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')
   addEventListener('pointerup',back,{capture:true,passive:true});addEventListener('touchend',back,{capture:true,passive:true});
   return {want:set}})();
 document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;""")
+
+# QA: duel animation could run one frame after the duel closed
+rep("function frame(now){const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}",
+    "function frame(now){if(!D)return;const dt=Math.min(50,now-last);last=now;renderDuel(now,dt);if(D)requestAnimationFrame(frame)}")
