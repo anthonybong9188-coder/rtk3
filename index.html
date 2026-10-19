@@ -1295,7 +1295,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='treach'){t.stun=1;mfx('smoke',t.x,t.y,1200);float(t,'✕ Confused','#d6a8ff');log(`<b>Treachery!</b> False orders throw ${nm(t)} into confusion.`);await sleep(500)}
   if(G.ewSplash){const l=G.ewSplash;G.ewSplash=null;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1200,COLS*.9);for(const e of l)fireHit(s,e,.5)}
   sweep();return keep?'keep':'done'}
-function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;
+function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=52/150;
   c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function drawFigure(c,f){
   if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}

@@ -1130,3 +1130,6 @@ rep("S.melee&&alive&&t>=1500&&t<=2700&&s.col===0","S.melee&&alive&&t>=1500+(s.dl
 
 # generals ride into the melee: face the enemy general when both charge, else cut into the soldiers
 rep("  A.off.tx=A.off.hx+f*22}","  A.off.tx=both?line-f*58:line-f*40}")
+
+# capture sheet was drawn ~1.6x larger than the mounted general; match sizes
+rep("const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=84/150;","const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=52/150;")
