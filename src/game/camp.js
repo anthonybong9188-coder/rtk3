@@ -81,9 +81,57 @@ const GEN_DEF=[
   ['xingdaorong','Xing Daorong','邢','liu','lingling',78,22,18,30,'spear','xing_daorong',80],
   ['zhaofan','Zhao Fan','範','zhao','guiyang',42,58,62,50,'shield','zhao_fan',100],
   ['chenying','Chen Ying','陳','zhao','guiyang',70,30,28,40,'cav','chen_ying',75],
-  ['maliang','Ma Liang','良',null,'jiangxia',36,78,86,80,'shield',null,85,1],
+  ['maliang','Ma Liang','良',null,'jiangxia',36,78,86,80,'shield','p_maliang',85,1],
   ['pangtong','Pang Tong','龐',null,'changsha',34,97,80,62,'archer','pang_tong',80,1],
-  ['jiangwan','Jiang Wan','琬',null,'lingling',30,82,88,74,'shield',null,85,1]];
+  ['jiangwan','Jiang Wan','琬',null,'lingling',30,82,88,74,'shield','p_jiangwan',85,1],
+  ['liufeng','Liu Feng','封','shu','jiangxia',78,52,40,62,'spear','p_liufeng',85],
+  ['guanping','Guan Ping','平','shu','jiangxia',82,68,58,74,'cav','p_guanping',100],
+  ['chendao','Chen Dao','到','shu','jiangxia',82,60,50,70,'shield','p_chendao',100],
+  ['zhoucang','Zhou Cang','倉','shu','jiangxia',84,36,24,60,'spear','p_zhoucang',100],
+  ['liaohua','Liao Hua','化','shu','jiangxia',74,64,58,66,'spear','p_liaohua',95],
+  ['huojun','Huo Jun','峻','shu','jiangxia',72,70,68,70,'shield','p_huojun',95],
+  ['liuqi','Liu Qi','琦','shu','jiangxia',36,62,68,78,'shield','p_liuqi',90],
+  ['yiji','Yi Ji','籍','shu','jiangxia',28,76,78,72,'shield','p_yiji',92],
+  ['mifang','Mi Fang','芳','shu','jiangxia',62,42,46,50,'cav','p_mifang',75],
+  ['luxun','Lu Xun','遜','wu','kuaiji',72,95,88,86,'archer','p_luxun',95],
+  ['lingtong','Ling Tong','統','wu','chaisang',88,52,40,72,'cav','p_lingtong',95],
+  ['chengpu','Cheng Pu','普','wu','chaisang',80,72,68,80,'spear','p_chengpu',100],
+  ['handang','Han Dang','當','wu','chaisang',80,56,48,66,'cav','p_handang',95],
+  ['jiangqin','Jiang Qin','欽','wu','jianye',82,58,50,66,'spear','p_jiangqin',95],
+  ['zhuzhi','Zhu Zhi','治','wu','kuaiji',66,70,74,72,'shield','p_zhuzhi',95],
+  ['zhugejin','Zhuge Jin','瑾','wu','jianye',40,82,86,84,'shield','p_zhugejin',95],
+  ['kanze','Kan Ze','澤','wu','jianye',20,84,82,70,'shield','p_kanze',92],
+  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'archer','p_xusheng',95],
+  ['panzhang','Pan Zhang','璋','wu','kuaiji',82,60,40,52,'cav','p_panzhang',85],
+  ['dongxi','Dong Xi','襲','wu','chaisang',85,40,32,62,'spear','p_dongxi',95],
+  ['zhuran','Zhu Ran','然','wu','chaisang',80,70,56,66,'archer','p_zhuran',95],
+  ['simayi','Sima Yi','懿','wei','xuchang',62,98,90,82,'archer','p_simayi',70],
+  ['zhanghe','Zhang He','郃','wei','wancheng',89,70,52,70,'cav','p_zhanghe',85],
+  ['xuhuang','Xu Huang','晃','wei','xiangyang',90,72,46,70,'spear','p_xuhuang',95],
+  ['caopi','Cao Pi','丕','wei','xuchang',70,80,74,80,'cav','p_caopi',100],
+  ['caozhang','Cao Zhang','彰','wei','wancheng',92,40,30,66,'cav','p_caozhang',100],
+  ['caohong','Cao Hong','洪','wei','jiangling',78,46,40,62,'cav','p_caohong',100],
+  ['caochun','Cao Chun','純','wei','jiangling',80,62,58,68,'cav','p_caochun',100],
+  ['jiaxu','Jia Xu','詡','wei','xuchang',40,96,82,60,'shield','p_jiaxu',80],
+  ['chengyu','Cheng Yu','昱','wei','xuchang',52,90,80,58,'shield','p_chengyu',90],
+  ['xunyou','Xun You','攸','wei','xuchang',36,94,84,74,'shield','p_xunyou',92],
+  ['wenpin','Wen Pin','聘','wei','xiangyang',82,64,62,70,'shield','p_wenpin',85],
+  ['litong','Li Tong','通','wei','runan',80,52,48,66,'spear','p_litong',90],
+  ['caimao','Cai Mao','瑁','wei','jiangling',70,68,60,46,'archer','p_caimao',70],
+  ['zhangyun','Zhang Yun','允','wei','jiangling',64,54,48,44,'archer','p_zhangyun',70],
+  ['zangba','Zang Ba','霸','wei','hefei',80,58,52,70,'spear','p_zangba',88],
+  ['zhuling','Zhu Ling','靈','wei','hefei',76,50,46,56,'shield','p_zhuling',85],
+  ['kuaiyue','Kuai Yue','越','wei','xiangyang',38,88,82,70,'shield','p_kuaiyue',80],
+  ['wangcan','Wang Can','粲','wei','xuchang',20,86,88,72,'shield','p_wangcan',85],
+  ['xushu','Xu Shu','庶','wei','jiangling',64,93,82,84,'archer','p_xushu',60],
+  ['yangling','Yang Ling','齡','han','changsha',70,40,36,50,'spear','p_yangling',85],
+  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'cav','p_shamoke',85],
+  ['liuxian','Liu Xian','賢','liu','lingling',70,42,40,52,'spear','p_liuxian',90],
+  ['baolong','Bao Long','龍','zhao','guiyang',78,30,24,48,'spear','p_baolong',85],
+  ['menghuo','Meng Huo','獲',null,'guiyang',88,40,36,72,'shield','p_menghuo',80,1],
+  ['liuba','Liu Ba','巴',null,'lingling',24,84,90,68,'shield','p_liuba',80,1],
+  ['xianglang','Xiang Lang','朗',null,'xiangyang',30,74,80,70,'shield','p_xianglang',80,1]
+];
 const CMDS={
   farm:{n:'Farm',zh:'農',stat:'pol',cost:{gold:50},tip:'Raise farming, so the 7th-month harvest brings more rice'},
   com:{n:'Commerce',zh:'商',stat:'pol',cost:{gold:50},tip:'Raise commerce, so the city earns more gold each month'},
@@ -884,7 +932,7 @@ async function handleCapture(g,captor,c){
     else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(h?`${g.name} is released and returns to ${h.name}.`:`${g.name} is released and wanders off. Search ${c.name} to find him again.`,'shu')}
     else{delete S.gens[g.id];addLog(`${g.name} is executed.`,'shu');if(ruler)succession(from)}
   } else {
-    if(!isRuler(g)&&Math.random()<(100-g.loy)/100*.8){g.fac=captor;g.city=c.id;g.loy=60;addLog(`${gnm({...g,fac:from})} goes over to ${fs(captor)}.`,captor)}
+    if(!isRuler(g)&&Math.random()<(100-g.loy)/100*.8){g.fac=captor;g.city=c.id;g.loy=60;g.assign=null;addLog(`${gnm({...g,fac:from})} goes over to ${fs(captor)}.`,captor)}
     else{const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(`${g.name} is captured by ${FACS[captor].short} and released.`)}
   }
 }
