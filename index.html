@@ -2808,7 +2808,7 @@ const GODN={xuannu:'Xuannü',nuwa:'Nüwa',fentian:'Fentian',yueshuang:'Yueshuang
 const LORD=()=>(S&&S.rulers&&S.rulers.shu)||'liubei';
 const LN=()=>{const g=S&&S.gens&&S.gens[LORD()];return g?g.name:'Liu Bei'};
 const isHeroMode=()=>!!(S&&S.mode==='hero');
-function applyMode(){const h=isHeroMode();
+function applyMode(){const h=isHeroMode();if(h&&S.gens&&S.gens.hero&&!S.gens.hero.img)S.gens.hero.img='hero';
   for(let i=ROUTES.length-1;i>=0;i--)if(ROUTES[i][0]==='luling')ROUTES.splice(i,1);
   if(h){ROUTES.push(...HERO_ROUTES.map(r=>r.slice()));CITY_ART.luling='art/guiyang.jpg';
     FACS.lb={name:'Liu Bei',short:'Liu Bei',zh:'劉',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',gold:1500,rice:30000,ai:'defensive'};
@@ -2824,7 +2824,7 @@ function newHeroCampaign(diff,hero){newCampaign(diff);
   for(const c of Object.values(S.cities))if(c.owner==='shu')c.owner='lb';
   const [id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train]=HERO_CITY;
   S.cities[id]={id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train,gold:5000,rice:30000};
-  S.gens.hero={id:'hero',name:hero.name,ch:'俠',fac:'shu',city:'luling',...hero.stats,type:'cav',img:null,loy:100,hidden:false,acted:false,army:null};
+  S.gens.hero={id:'hero',name:hero.name,ch:'俠',fac:'shu',city:'luling',...hero.stats,type:'cav',img:'hero',loy:100,hidden:false,acted:false,army:null};
   S.sel='luling';S.log=[];
   addLog(`Winter 208. Cao Cao has taken Jing province and Liu Bei clings to Jiangxia. Far to the south, in the little town of Luling, ${hero.name} buries his family and opens their vaults.`);
   addLog(`Five thousand gold, thirty thousand measures of rice and four thousand men loyal to his name. It is enough to begin. Hold 10 of the ${Object.keys(S.cities).length} cities by the end of 215 and the realm is his.`);
