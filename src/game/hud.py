@@ -1293,3 +1293,19 @@ rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','xuannu'])
 rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
 rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
+
+# New Hero: Eighteen Dragon-Subduing Palms + hero/consort UI styles
+rep("for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost'].includes(k))delete HERO[k];","""HERO.palm={who:'hero',zh:'降龍十八掌',n:'Dragon Palms',targets:s=>adjE(s),desc:'Eighteen Dragon-Subduing Palms: the enemy loses 25% of its troops and, with internal injuries, cannot act next turn'};
+for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm'].includes(k))delete HERO[k];""")
+rep("  if(k==='star'){","""  if(k==='palm'){mfx('ring',t.x,t.y,1200,3.2);mfx('arc',t.x,t.y,900,2.6);SND.fx('crit');await sleep(500);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
+    log(`<b>Eighteen Dragon-Subduing Palms!</b> ${nm(s)} strikes ${nm(t)}: −${dmg}. Wracked by internal injuries, they cannot act next turn.`);await sleep(900)}
+  else if(k==='star'){""")
+rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
+.hname{width:100%;font-size:20px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:inherit;margin:6px 0 2px}
+.hstats{display:grid;gap:8px;margin:10px 0}.hstat{display:grid;grid-template-columns:40px 34px 1fr;align-items:center;gap:8px}.hstat span{color:var(--muted)}.hstat b{font-size:20px}.hstat i{display:block;height:8px;border-radius:4px;background:var(--gold,#d4ad55)}
+#dlgbox.consbox{max-width:min(880px,96vw)}.cons{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.consp img{height:calc(100dvh - 140px);max-height:520px;max-width:34vw;width:auto;border-radius:10px;box-shadow:0 0 30px rgba(255,190,120,.35)}
+.const{max-height:calc(100dvh - 140px);overflow:auto}.const .cl{opacity:0;transform:translateY(6px);transition:opacity .9s,transform .9s;margin:8px 0;line-height:1.5}
+.const .cl.on{opacity:1;transform:none}.const .cl b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#d4ad55)}
+.const .cl.him{padding-left:14px;border-left:2px solid var(--gold,#d4ad55);color:#ece2c9}.const .cl.her{font-style:italic}.const .cl.vow{color:#f3dc9a;font-weight:700}
+@media (max-width:620px){.cons{grid-template-columns:1fr}.consp img{height:auto;max-height:38vh;max-width:100%}}""")

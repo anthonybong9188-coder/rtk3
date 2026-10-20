@@ -1,0 +1,12 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:915,height:412},deviceScaleFactor:2});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/rtk3-game.html');await p.waitForTimeout(1200);
+await p.evaluate(()=>{newHeroCampaign('normal',{name:'Long Aotian',stats:{war:90,int:85,pol:80,cha:88}});UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()});await p.waitForTimeout(500);
+await p.evaluate(()=>openMap());await p.waitForTimeout(700);await p.screenshot({path:'h4.png'});await p.evaluate(()=>closeMap());
+await p.evaluate(()=>{const gens=[GN('hero')];playCampaignBattle({id:99,fac:'shu',from:'luling',to:'guiyang',gens:['hero'],troops:4000,rice:2000,left:0,total:2,train:60},C('guiyang'),gens,[GN('zhaofan')]);setTimeout(()=>{document.querySelector('#dlg').hidden=true;prepBegin()},400)});
+await p.waitForTimeout(1500);
+console.log(await p.evaluate(async()=>{speed=1;const h=G.units.find(u=>u.id==='hero'),e=enemies()[0];e.x=h.x+1;e.y=h.y;e.px=e.x;e.py=e.y;const t0=e.troops;
+ G.sel=h;G.view=h;G.origin={x:h.x,y:h.y};G.reach=reach(h);G.mode='moved';G.atk=[e];updateUI();const btn=!!document.querySelector('[data-sk="palm"]:not([disabled])');
+ await heroAct('palm',h,e);return {btn,before:t0,after:e.troops,stun:e.stun,log:G.log[0].replace(/<[^>]+>/g,'')}}),errs);
+await b.close();

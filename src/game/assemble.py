@@ -198,12 +198,12 @@ TITLE_CAMP = '''
     <div class="tbig">天下三分</div>
     <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b>The Battle of Red Cliffs</b>
       <p>Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
-    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
+    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
 <div id="campaign" class="screen" hidden>
   <header class="ctop">
-    <div class="cfac"><span class="seal sm" style="background:#3f7f4a">蜀</span><div><b>Liu Bei</b><small id="cDate"></small></div></div>
+    <div class="cfac"><span class="seal sm" id="cSeal" style="background:#3f7f4a">蜀</span><div><b id="cLord">Liu Bei</b><small id="cDate"></small></div></div>
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
     <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>

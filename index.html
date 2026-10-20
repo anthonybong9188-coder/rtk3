@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中九乾二于五亮人仁伊佐侯倉偃備允八六兵典冬凌出刀分到劉劍勝化十南史司合向吳呂周咆哮商喬單四國城報壁夏夜大天太夫奇女奸威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火焚無然獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺範簡籍粲糜純絕統羽聘肅肥臘臧良芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙農通速進運道遜遭遼邢郃金釭銀長關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中九乾二于五亮人仁伊佐侯俠倉偃備允八六兵典冬凌出刀分到劉劍勝化十南史司合向吳呂周咆哮商喬單四國城報壁夏夜大天太夫奇女奸妃威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑掌探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火焚無然獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺範簡籍粲糜純絕統羽聘肅肥臘臧良芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙農通速進運道遜遭遼邢郃金釭銀長關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -446,7 +446,15 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .biot{max-height:calc(100dvh - 130px);overflow:auto;padding-right:4px}
 .bioh{display:flex;gap:12px;align-items:center}.bioh h2{margin:0}.bioh p{margin:2px 0 0}
 .bioz{font-family:var(--f-zh);font-weight:900;font-size:30px;color:#f3dc9a;line-height:1;white-space:nowrap}
-.biof{margin:8px 0}.biotr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}.biotr span{background:rgba(212,173,85,.14);border:1px solid rgba(212,173,85,.45);border-radius:8px;padding:3px 8px;font-size:13px}.trmk{font-family:var(--f-zh);color:var(--gold,#d4ad55);font-size:12px}.biofac{color:#fff;border-radius:6px;padding:1px 7px;font-size:12px;margin-right:4px}
+.biof{margin:8px 0}
+.hname{width:100%;font-size:20px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:inherit;margin:6px 0 2px}
+.hstats{display:grid;gap:8px;margin:10px 0}.hstat{display:grid;grid-template-columns:40px 34px 1fr;align-items:center;gap:8px}.hstat span{color:var(--muted)}.hstat b{font-size:20px}.hstat i{display:block;height:8px;border-radius:4px;background:var(--gold,#d4ad55)}
+#dlgbox.consbox{max-width:min(880px,96vw)}.cons{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.consp img{height:calc(100dvh - 140px);max-height:520px;max-width:34vw;width:auto;border-radius:10px;box-shadow:0 0 30px rgba(255,190,120,.35)}
+.const{max-height:calc(100dvh - 140px);overflow:auto}.const .cl{opacity:0;transform:translateY(6px);transition:opacity .9s,transform .9s;margin:8px 0;line-height:1.5}
+.const .cl.on{opacity:1;transform:none}.const .cl b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#d4ad55)}
+.const .cl.him{padding-left:14px;border-left:2px solid var(--gold,#d4ad55);color:#ece2c9}.const .cl.her{font-style:italic}.const .cl.vow{color:#f3dc9a;font-weight:700}
+@media (max-width:620px){.cons{grid-template-columns:1fr}.consp img{height:auto;max-height:38vh;max-width:100%}}.biotr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}.biotr span{background:rgba(212,173,85,.14);border:1px solid rgba(212,173,85,.45);border-radius:8px;padding:3px 8px;font-size:13px}.trmk{font-family:var(--f-zh);color:var(--gold,#d4ad55);font-size:12px}.biofac{color:#fff;border-radius:6px;padding:1px 7px;font-size:12px;margin-right:4px}
 .bstats{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;margin:6px 0 4px}
 .bst{display:grid;grid-template-columns:34px 26px 1fr;align-items:center;gap:6px;font-size:13px}.bst span{color:var(--muted)}
 .bst i{display:block;height:6px;border-radius:3px;background:var(--gold,#d4ad55)}
@@ -497,12 +505,12 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="tbig">天下三分</div>
     <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b>The Battle of Red Cliffs</b>
       <p>Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
-    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
+    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
 <div id="campaign" class="screen" hidden>
   <header class="ctop">
-    <div class="cfac"><span class="seal sm" style="background:#3f7f4a">蜀</span><div><b>Liu Bei</b><small id="cDate"></small></div></div>
+    <div class="cfac"><span class="seal sm" id="cSeal" style="background:#3f7f4a">蜀</span><div><b id="cLord">Liu Bei</b><small id="cDate"></small></div></div>
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
     <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>
@@ -644,7 +652,8 @@ Object.assign(HERO,{
  mend:{who:'nuwa',zh:'補天',n:'Mend the Sky',self:1,can:s=>true,desc:'Heal herself and adjacent allies 20%; they take half damage until her next turn'},
  burn:{who:'fentian',zh:'焚天',n:'Burning Sky',targets:s=>burnCentres(s),desc:'A 3×3 firestorm centred on a square 2 away: heavy fire damage to every enemy in it'},
  frost:{who:'yueshuang',zh:'月霜',n:'Moonfrost',self:1,can:s=>enemies().some(e=>Math.max(Math.abs(e.x-s.x),Math.abs(e.y-s.y))<=1),desc:'Freeze every enemy in the 3×3 around her: they cannot act next turn'}});
-for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost'].includes(k))delete HERO[k];
+HERO.palm={who:'hero',zh:'降龍十八掌',n:'Dragon Palms',targets:s=>adjE(s),desc:'Eighteen Dragon-Subduing Palms: the enemy loses 25% of its troops and, with internal injuries, cannot act next turn'};
+for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm'].includes(k))delete HERO[k];
 const ARW={'1,0':['→','East'],'-1,0':['←','West'],'0,1':['↓','South'],'0,-1':['↑','North']};
 function starLine(s,dx,dy){const t=[];for(let i=1;i<=6;i++){const x=s.x+dx*i,y=s.y+dy*i;if(!inb(x,y))break;t.push({x,y})}return t}
 function starDirs(s){return DIRS.map(([dx,dy])=>{const line=starLine(s,dx,dy);if(!line.length)return null;const hit=line.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);const a=ARW[dx+','+dy];
@@ -1345,7 +1354,9 @@ function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.m
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);let keep=false;
-  if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the ${t.name.toLowerCase()}.`);
+  if(k==='palm'){mfx('ring',t.x,t.y,1200,3.2);mfx('arc',t.x,t.y,900,2.6);SND.fx('crit');await sleep(500);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
+    log(`<b>Eighteen Dragon-Subduing Palms!</b> ${nm(s)} strikes ${nm(t)}: −${dmg}. Wracked by internal injuries, they cannot act next turn.`);await sleep(900)}
+  else if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the ${t.name.toLowerCase()}.`);
     line.forEach((p,i)=>setTimeout(()=>gfx('xuannu',p.x,p.y,2.2,1800),i*110));await sleep(700);
     for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');quickHit(s,e,1.5,{color:'#ffe27a'})}}await sleep(900)}
   else if(k==='mend'){gfx('nuwa',s.x,s.y,3.6,2000);await sleep(800);for(const u of [s,...adjA(s)]){const add=Math.min(u.max-u.troops,Math.round(u.max*.2));if(add>0){u.troops+=add;float(u,'+'+add,'#b4f0ff')}u.iron=Math.max(u.iron||0,1)}
@@ -1890,7 +1901,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 const ri=(a,b)=>Math.floor(rnd(a,b+1));
 const dateStr=()=>`${S.month<=3?'Spring':S.month<=6?'Summer':S.month<=9?'Autumn':'Winter'} ${S.year} · ${S.month}${({1:'st',2:'nd',3:'rd'})[S.month]||'th'} month`;
 const dateNum=()=>S.year*12+S.month;
-const allied=(a,b)=>((a==='shu'&&b==='wu')||(a==='wu'&&b==='shu'))&&dateNum()<=210*12+12;
+const allied=(a,b)=>{const P=S&&S.mode==='hero'?'lb':'shu';return ((a===P&&b==='wu')||(a==='wu'&&b===P))&&dateNum()<=210*12+12};
 const isRuler=g=>!!(g.fac&&S.rulers&&S.rulers[g.fac]===g.id);
 // the faction's original lord never changes sides; an officer who only inherited the command can
 const isFounder=g=>!!(g.fac&&FACS[g.fac]&&FACS[g.fac].ruler===g.id);
@@ -1912,7 +1923,7 @@ const DF=()=>DIFF[(S&&S.diff)||'normal'];
 // how much a city's walls multiply its defence; enemy walls are softened by difficulty when Shu attacks
 function wallF(c,attacker){const k=c.owner!=='shu'&&attacker==='shu'?DF().wall:1;return 1+(.15+c.walls/250)*k}
 function newCampaign(diff){
-  S={year:208,month:9,armies:[],log:[],grudge:{},sel:'jiangxia',over:false,nextArmy:1,cities:{},gens:{},fac:{},rulers:{}};
+  S={year:208,month:9,armies:[],log:[],grudge:{},sel:'jiangxia',over:false,nextArmy:1,cities:{},gens:{},fac:{},rulers:{}};applyMode();
   for(const f in FACS)S.rulers[f]=FACS[f].ruler;
   S.diff=diff||'normal';
   for(const d of CITY_DEF){const [id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train]=d;
@@ -1929,7 +1940,7 @@ const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
 function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
-function startFrom(sv){S=sv;if(!S)return;if(S.gens){if(S.gens.fentian)S.gens.fentian.name='Goddess Fentian';if(S.gens.xuannu)S.gens.xuannu.name='Goddess Xuannü';if(S.gens.nuwa)S.gens.nuwa.name='Goddess Nüwa';if(S.gens.yueshuang)S.gens.yueshuang.name='Goddess Yueshuang'}for(const id of ['ladygan','ladymi'])if(S.gens&&S.gens[id]&&!S.tr)S.gens[id].war=45;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+function startFrom(sv){S=sv;if(!S)return;applyMode();if(S.gens&&S.mode!=='hero'){if(S.gens.fentian)S.gens.fentian.name='Goddess Fentian';if(S.gens.xuannu)S.gens.xuannu.name='Goddess Xuannü';if(S.gens.nuwa)S.gens.nuwa.name='Goddess Nüwa';if(S.gens.yueshuang)S.gens.yueshuang.name='Goddess Yueshuang'}for(const id of ['ladygan','ladymi'])if(S.gens&&S.gens[id]&&!S.tr)S.gens[id].war=45;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
 async function saveLoadDlg(mode){
   const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
   const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
@@ -1973,7 +1984,7 @@ function runAssignments(){
 const GOV_MODES={auto:'Auto',internal:'Internal',military:'Military'};
 function govTick(){
   for(const c of citiesOf('shu')){if(!c.gov)continue;
-    if(gensIn(c.id).some(g=>g.id==='liubei')){endDelegation(c,'Liu Bei arrives and takes charge of '+c.name+' again.');continue}
+    if(gensIn(c.id).some(g=>g.id===LORD())){endDelegation(c,'Liu Bei arrives and takes charge of '+c.name+' again.');continue}
     let gv=govOf(c);if(!gv||gv.fac!=='shu'||gv.city!==c.id){const nx=gensIn(c.id).sort((a,b)=>b.pol-a.pol)[0];
       if(!nx){endDelegation(c,`${c.name} has no officer left to govern it and returns to your direct rule.`);continue}c.gov=nx.id;gv=nx;addLog(`${nx.name} takes over as governor of ${c.name}.`,'shu')}
     const P=c;const did=[];
@@ -1988,7 +1999,7 @@ function govTick(){
     if(did.length)addLog(`Governor ${gv.name} (${GOV_MODES[c.mode||'auto']}) runs ${c.name}: ${[...new Set(did)].join(', ')}.`,'shu')}}
 function endDelegation(c,msg){c.gov=null;c.mode=null;if(msg)addLog(msg,'shu')}
 async function delegateDlg(c){
-  const gs=gensIn(c.id).filter(g=>g.id!=='liubei').sort((a,b)=>b.pol-a.pol);let gid=c.gov||(gs[0]&&gs[0].id),mode=c.mode||'auto';
+  const gs=gensIn(c.id).filter(g=>g.id!==LORD()).sort((a,b)=>b.pol-a.pol);let gid=c.gov||(gs[0]&&gs[0].id),mode=c.mode||'auto';
   for(;;){const first=!c.gov;
     const r=await dialog(`<div class="dzh">守</div><h2>${first?'Delegate':'Governor of'} ${c.name}</h2>
       <p class="muted">A governor runs the city every month, paying for his orders from the city's own gold and rice. You can still order him to send gold, rice, troops or officers to your other cities.</p>
@@ -2020,12 +2031,12 @@ const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its po
   addEventListener('click',e=>{const el=e.target.closest('[data-tipped]');if(el){delete el.dataset.tipped;e.stopPropagation();e.preventDefault()}},true);
   addEventListener('scroll',hide,{capture:true,passive:true});addEventListener('pointerup',()=>setTimeout(hide,2200),{passive:true});
   addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');if(el&&!el.title)el.title=TIPS[el.dataset.tip]||''},{passive:true})})();
-function renderCampaign(){ensureTr();
+function renderCampaign(){ensureTr();{const h=isHeroMode(),el=document.getElementById('cLord'),se=document.getElementById('cSeal');if(el)el.textContent=h?S.hero.name:'Liu Bei';if(se){se.textContent=h?'俠':'蜀';se.style.background=h?'#a8791f':'#3f7f4a'}}
   if(!S)return;document.querySelectorAll('.cres>div').forEach(d=>{const k=(d.querySelector('span')||{}).textContent;if(TIPS[k])d.dataset.tip=k});renderThreats();
   const my=citiesOf('shu');
   $('#cDate').textContent=dateStr();
   $('#cGold').textContent=fmt(facGold('shu'));$('#cRice').textContent=fmt(facRice('shu'));
-  $('#cCities').textContent=`${my.length} / 14`;
+  $('#cCities').textContent=`${my.length} / ${Object.keys(S.cities).length}`;
   $('#cTroops').textContent=fmt(my.reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0));
   $('#endMonth').disabled=UI.busy||S.over;
   const inc=S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu').length;
@@ -2039,7 +2050,7 @@ const CITY_TIER={xuchang:'capital',jianye:'capital',jiangling:'large',xiangyang:
 const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};
 function underSiege(c){return S.armies.some(a=>a.to===c.id&&a.fac!==c.owner&&!allied(a.fac,c.owner))}
 function cityIcon(c,F){const t=CITY_TIER[c.id]||'small',st=underSiege(c)?'siege':'ok',src=`art/city_${t}_${st}`;
-  return `<span class="cic" style="width:${CITY_W[t][st==='ok'?0:1]}px;--fc:${F.main}"><img src="${src}_${c.owner}.png" alt=""></span>`}
+  return `<span class="cic" style="width:${CITY_W[t][st==='ok'?0:1]}px;--fc:${F.main}"><img src="${src}_${c.owner==='lb'?'shu':isHeroMode()&&c.owner==='shu'?'hero':c.owner}.png" alt=""></span>`}
 function renderMap(){
   const svg=$('#routes');let h='';
   for(const r of ROUTES){const a=C(r[0]),b=C(r[1]);h+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${r[2]>1?'long':''}"/>`}
@@ -2094,9 +2105,9 @@ function renderCity(){
       <button class="primary wide" data-act="request"><span class="czh">運</span> Order a transfer</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
   } else if(mine){
     cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
-    if(gensIn(c.id).some(g=>g.id==='liubei'))cc+=`<button class="wide" data-act="treasure"><span class="czh">寶</span> Treasures · ${trOf('shu').length}</button>`;
+    if(gensIn(c.id).some(g=>g.id===LORD()))cc+=`<button class="wide" data-act="treasure"><span class="czh">寶</span> Treasures · ${trOf('shu').length}</button>`;
     cc+=`<div class="mvrow"><button class="primary" data-act="march"><span class="czh">征</span> March</button><button data-act="transfer"><span class="czh">運</span> Transfer</button></div>`;
-    if(!gensIn(c.id).some(g=>g.id==='liubei')&&gensIn(c.id).length)cc+=`<button class="wide" data-act="delegate"><span class="czh">守</span> Delegate to a governor</button>`;
+    if(!gensIn(c.id).some(g=>g.id===LORD())&&gensIn(c.id).length)cc+=`<button class="wide" data-act="delegate"><span class="czh">守</span> Delegate to a governor</button>`;
   } else {
     const src=neighbours(c.id).map(C).filter(x=>x.owner==='shu');
     cc+=`<div class="sec">${F.short}</div>`;
@@ -2138,8 +2149,8 @@ function doCmd(k,g,c,f){
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
   if(k==='search'){const ch=Math.min(.9,(s*.6+10)/100);const hid=Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
-    const god=g.id==='liubei'&&f==='shu'&&nextGod();
-    if(god){god.hidden=false;god.fac='shu';god.city=c.id;god.acted=true;UI.found=god.id;S.godQ=S.godQ.filter(x=>x!==god.id);m=`A light falls from heaven over ${c.name}. ${god.name} descends and kneels before Liu Bei!`}
+    const god=g.id===LORD()&&f==='shu'&&nextGod();
+    if(god){god.hidden=false;god.fac='shu';god.city=c.id;god.acted=true;UI.found=god.id;S.godQ=S.godQ.filter(x=>x!==god.id);if(isHeroMode()){god.name='Consort '+GODN[god.id];god.loy=100;UI.found=null;UI.consort=god.id}m=`A light falls from heaven over ${c.name}. ${god.name} descends and kneels before ${LN()}!`}
     else if(Math.random()>ch)m=`${g.name} searches ${c.name} but finds nothing.`;
     else if(hid&&Math.random()<.6){hid.hidden=false;hid.fac=f;hid.acted=true;if(f==='shu'){hid.city=c.id;UI.found=hid.id}m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
     else if(Math.random()<.5){const n=ri(100,300);F.gold+=n;m=`${g.name} finds ${n} gold.`}
@@ -2158,6 +2169,7 @@ document.addEventListener('click',async e=>{
     const dur=ASSIGNABLE.includes(k)?(UI.dur||1):1;
     UI.busy=true;const m=doCmd(k,g,c,'shu');if(dur>1){g.assign={k,left:dur-1};addLog(`${m} <i>(assigned for ${dur} months)</i>`,'shu')}else addLog(m,'shu');save();
     try{await actFx(g,k,m,c)}catch(err){console.error(err)}
+    if(UI.consort){const ng=GN(UI.consort);UI.consort=null;try{await consortScene(ng)}catch(err){console.error(err)}}
     if(UI.found){const ng=GN(UI.found);UI.found=null;try{await welcomeGen(ng,c,'search')}catch(err){console.error(err)}}
     UI.busy=false;if(k!=='reward')UI.mode='city';renderCampaign();return}
   const a=b.dataset.act;
@@ -2193,7 +2205,7 @@ async function welcomeGen(g,c,why){
   for(;;){const gc=C(g.city)||c,can=g.loy<100&&!g.rewarded&&gc.gold>=100,img=portraitSrc(g);
     const r=await dialog(`<div class="welc">${img?`<img src="${img}" alt="" class="welcp">`:gseal(g,120)}<div class="welct"><span class="welck">新 New officer</span><h2>${g.name}</h2>
       <p class="muted">War ${g.war} · Int ${g.int} · Pol ${g.pol} · Cha ${g.cha} · ${TYPES[g.type].n}</p>
-      <blockquote>“${pick(WELCOME[why]||WELCOME.search)}”</blockquote>
+      <blockquote>“${pick(WELCOME[why]||WELCOME.search).replace(/Liu Bei/g,LN())}”</blockquote>
       <p>Loyalty <b class="${g.loy<60?'bad':g.loy<75?'warnc':''}">${g.loy}</b>${g.loy<75?' · <span class="warnc">low; rivals may lure him away</span>':''}</p></div></div>`,
       [...(g.loy<100&&!g.rewarded?[['rew',`賞 Reward · 100 gold, +8 loyalty`]]:[]),['ok','Welcome','primary']]);
     if(r==='rew'){if(!can){toast(`${gc.name} does not have 100 gold.`);continue}const m=doCmd('reward',g,gc,'shu');addLog(m,'shu');save();SND.fx('chime');renderCampaign();continue}
@@ -2397,7 +2409,7 @@ function loyaltyTick(){
     if(to){const dest=neighbours(g.city).map(C).find(c=>c.owner===to);moveGen(g,to,dest.id,70);
       if(from==='shu'||to==='shu'){addLog(`<b>${g.name}</b> leaves ${fs(from)} and goes over to ${fs(to)}.`,to);toast(to==='shu'?`${g.name} defects to you!`:`${g.name} has deserted you!`)}}
     else{g.fac=null;g.assign=null;g.hidden=true;if(from==='shu')addLog(`<b>${g.name}</b> slips away from your service.`,'shu')}}}
-function persuadeChance(env,t){if(isFounder(t))return 0;const heir=isRuler(t)?.6:1;const lb=GN('liubei');
+function persuadeChance(env,t){if(isFounder(t))return 0;const heir=isRuler(t)?.6:1;const lb=GN(LORD());
   return heir*Math.max(t.loy>=95?0:.01,Math.min(.85,((100-t.loy)/100)*(.2+env.int/300)+((env.fac==='shu'?lb.cha:loyTarget(env.fac)*1.2)-80)/400))}
 function surrenderChance(env,f){const mine=citiesOf('shu').reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac==='shu').reduce((s,a)=>s+a.troops,0);
   const theirs=Math.max(1,citiesOf(f).reduce((s,c)=>s+c.troops,0)+S.armies.filter(a=>a.fac===f).reduce((s,a)=>s+a.troops,0));
@@ -2415,7 +2427,7 @@ async function doPersuade(c){
     if(r.startsWith('env:')){env=GN(r.slice(4));continue}
     if(!r.startsWith('t:'))return;
     const t=GN(r.slice(2)),p=persuadeChance(env,t);C(env.city).gold-=100;env.acted=true;UI.busy=true;const ok=Math.random()<p;
-    let m;if(ok){moveGen(t,'shu',env.city,70);m=`${env.name} persuades ${t.name} to leave ${fs(c.owner)} and serve Liu Bei.`}else m=`${env.name} fails to sway ${t.name}.`;
+    let m;if(ok){moveGen(t,'shu',env.city,70);m=`${env.name} persuades ${t.name} to leave ${fs(c.owner)} and serve ${LN()}.`}else m=`${env.name} fails to sway ${t.name}.`;
     addLog(m,'shu');save();try{await actFx(env,'persuade',m.replace(env.name+' ',''),C(env.city),ok)}catch(e){}if(ok)await welcomeGen(t,C(env.city),'persuade');UI.busy=false;renderCampaign();return}}
 async function doSurrender(c){
   const f=c.owner,envs=envoysFor(c.id);if(!envs.length){toast('No free officer in a neighbouring city.');return}
@@ -2434,7 +2446,7 @@ async function doSurrender(c){
       for(const g of gensOf(f))moveGen(g,'shu',g.city||cs[0].id,isRuler(g)?55:62);
       for(const a of S.armies.filter(a=>a.fac===f))a.fac='shu';
       S['gone_'+f]=1;
-      m=`${FACS[f].name} surrenders! ${cs.map(x=>x.name).join(', ')} and his officers join Liu Bei.`}
+      m=`${FACS[f].name} surrenders! ${cs.map(x=>x.name).join(', ')} and his officers join ${LN()}.`}
     else{(S.grudge[f]=S.grudge[f]||{}).shu=true;m=`${FACS[f].name} refuses to surrender.`}
     addLog(`<b>${m}</b>`,'shu');save();try{await actFx(env,'surrender',m,c,ok)}catch(e){}UI.busy=false;
     if(ok){renderCampaign();checkCampaignEnd()}else renderCampaign();return}}
@@ -2460,9 +2472,9 @@ async function events(){
 function checkCampaignEnd(){
   if(S.over)return;
   const n=citiesOf('shu').length;
-  if(n>=WIN_CITIES){S.over=true;finale(true,`You hold ${n} of the 14 cities. The south and centre of the realm answer to Liu Bei.`);return}
-  if(!alive('shu')){S.over=true;finale(false,'You have no cities and no army left. Liu Bei\'s cause is lost.');return}
-  if(S.year>END_YEAR){S.over=true;finale(false,`The year 215 ends with Shu holding ${n} of 14 cities. You needed ${WIN_CITIES}.`)}
+  if(n>=WIN_CITIES){S.over=true;finale(true,`You hold ${n} of the ${Object.keys(S.cities).length} cities. The south and centre of the realm answer to ${LN()}.`);return}
+  if(!alive('shu')){S.over=true;finale(false,`You have no cities and no army left. ${LN()}'s cause is lost.`);return}
+  if(S.year>END_YEAR){S.over=true;finale(false,`The year 215 ends with Shu holding ${n} of ${Object.keys(S.cities).length} cities. You needed ${WIN_CITIES}.`)}
 }
 async function finale(win,text){save();renderCampaign();
   await dialog(`<div class="dzh" style="color:${win?'var(--gold)':'#e88b7f'}">${win?'勝':'敗'}</div><h2>${win?'Victory':'Defeat'}</h2><p>${text}</p>`,[['t','Back to title','primary']]);
@@ -2519,6 +2531,7 @@ function aiTurn(f){
   for(const c of citiesOf(f)){const gs=gensIn(c.id).filter(g=>!g.acted);if(!gs.length||c.troops<6000)continue;
     for(const nid of neighbours(c.id)){const t=C(nid);if(t.owner===f||allied(f,t.owner))continue;
       const grudge=S.grudge[f]&&S.grudge[f][t.owner];
+      if(isHeroMode()&&t.owner==='shu'&&dateNum()<209*12+7&&!grudge)continue; // the hero is still an unknown upstart
       if(S.armies.some(a=>a.fac===f&&a.to===nid))continue;
       const tr=routeOf(c.id,nid)[2],send=c.troops*.65,need=send*RICE_MARCH*(tr+3);
       const go=gs.filter(g=>!isRuler(g)).slice(0,3);if(!go.length)continue;
@@ -2657,15 +2670,15 @@ function takeCity(a,c,gens,troops,broken){if(c.gov){c.gov=null;c.mode=null}
   if(c.owner==='shu')S.sel=c.id;
 }
 async function handleCapture(g,captor,c){confiscate(g,captor);
-  if(g.id==='liubei'){S.over=true;await finale(false,`Liu Bei is captured at ${c.name}. Without him, Shu falls apart.`);return}
+  if(g.id===LORD()){S.over=true;await finale(false,`Liu Bei is captured at ${c.name}. Without him, his cause falls apart.`);return}
   const from=g.fac;
   if(captor==='shu'){
     const lordless=!citiesOf(from).length,ruler=isRuler(g)&&!lordless,founder=isFounder(g)&&!lordless;const p=Math.min(.95,(.25+(100-g.loy)/150+.15)*(ruler&&!founder?.8:1)+(lordless?.2:0));
     const r=await dialog(`<div class="cap1">${gseal(g,72)}<div><h2>${g.name} is captured</h2><p class="muted">${FACS[from].short} · War ${g.war} · Int ${g.int} · Loyalty ${g.loy}${lordless?' · his lord has no cities left':founder?' · ruler of '+FACS[from].short:ruler?' · took command of '+FACS[from].short+'\'s men after his lord fell':''}</p></div></div>
-      <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve Liu Bei.`}</p>
+      <p>${founder?'A ruler will never serve you.':`About ${Math.round(p*100)}% chance he agrees to serve ${LN()}.`}</p>
       ${lordless&&!founder?'<p class="muted">With nowhere left to serve, he is more willing to join you. If he refuses he will wander, and you can find him again by searching '+c.name+'.</p>':''}`,
       [...(founder?[]:[['rec','Recruit','primary']]),['rel','Release'],['exe','Execute']]);
-    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve Liu Bei.`,'shu');if(ruler)succession(from);await welcomeGen(g,c,'capture')}
+    if(r==='rec'){if(Math.random()<p){g.fac='shu';g.city=c.id;g.loy=70;g.acted=true;addLog(`${g.name} agrees to serve ${LN()}.`,'shu');if(ruler)succession(from);await welcomeGen(g,c,'capture')}
       else{const h=nearestOwn(from,c.id);if(h){g.city=h.id}else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(h?`${g.name} refuses and returns to ${h.name}.`:`${g.name} refuses and wanders off. Search ${c.name} to find him again.`,'shu');toast(`${g.name} refuses to serve.`)}}
     else if(r==='rel'){const h=nearestOwn(from,c.id);if(h)g.city=h.id;else{g.fac=null;g.assign=null;g.hidden=true;g.city=c.id}addLog(h?`${g.name} is released and returns to ${h.name}.`:`${g.name} is released and wanders off. Search ${c.name} to find him again.`,'shu')}
     else{delete S.gens[g.id];addLog(`${g.name} is executed.`,'shu');if(ruler)succession(from)}
@@ -2765,25 +2778,79 @@ function trFac(t){const h=S.tr[t];if(!h)return null;if(h.startsWith('v:'))return
 const trOf=f=>Object.keys(S.tr||{}).filter(t=>trFac(t)===f);
 function trMove(t,to){const h=S.tr[t];if(h&&!h.startsWith('v:'))trApply(S.gens[h],t,-1);S.tr[t]=to;if(to&&!to.startsWith('v:'))trApply(S.gens[to],t,1)}
 function confiscate(g,captor){const ts=trHeld(g.id);if(!ts.length||!captor)return;for(const t of ts)trMove(t,'v:'+captor);
-  addLog(`${g.name}'s ${ts.map(t=>TR_DEF[t][0]).join(' and ')} ${ts.length>1?'are':'is'} taken into ${captor==='shu'?'Liu Bei\'s':fs(captor)+"'s"} treasury.`,captor)}
+  addLog(`${g.name}'s ${ts.map(t=>TR_DEF[t][0]).join(' and ')} ${ts.length>1?'are':'is'} taken into ${captor==='shu'?LN()+"'s":fs(captor)+"'s"} treasury.`,captor)}
 async function treasureDlg(c){for(;;){
   const ts=trOf('shu'),here=gensIn(c.id).filter(g=>g.fac==='shu');
   const who=t=>{const h=S.tr[t];return h&&!h.startsWith('v:')?S.gens[h].name:'Treasury'};
-  const r=await dialog(`<h2>寶 Treasures</h2><p class="muted">Liu Bei can bestow a treasure on any officer here in ${c.name}. The holder gets its bonus; the new holder's loyalty rises by 10.</p>
+  const r=await dialog(`<h2>寶 Treasures</h2><p class="muted">${LN()} can bestow a treasure on any officer here in ${c.name}. The holder gets its bonus; the new holder's loyalty rises by 10.</p>
     ${ts.length?`<div class="tlist">${ts.map(t=>`<button data-r="t:${t}"><span><b>${TR_DEF[t][1]}</b> ${TR_DEF[t][0]} <small>${trBonusTxt(t)}</small></span><small>Held by ${who(t)}</small></button>`).join('')}</div>`:'<p class="muted">Shu owns no treasures yet. Search cities to find them, or capture officers who carry them.</p>'}`,[['done','Close','primary']]);
   if(!r.startsWith('t:'))return;const t=r.slice(2),cur=S.tr[t];
   const r2=await dialog(`<h2>Bestow the ${TR_DEF[t][0]}</h2><p class="muted">${TR_DEF[t][1]} · ${trBonusTxt(t)}</p><div class="tlist">${here.map(g=>`<button data-r="g:${g.id}" ${cur===g.id?'disabled':''}>${gseal(g,30)}<span>${g.name} <small>War ${g.war} · Loy ${g.loy}</small></span><small>${trHeld(g.id).map(x=>TR_DEF[x][1]).join(' ')}</small></button>`).join('')}
     ${cur&&!cur.startsWith('v:')?'<button data-r="vault"><span>Return to the treasury</span></button>':''}</div>`,[['back','Back']]);
-  if(r2==='vault'){trMove(t,'v:shu');addLog(`The ${TR_DEF[t][0]} is returned to Liu Bei's treasury.`,'shu');save();renderCampaign();continue}
+  if(r2==='vault'){trMove(t,'v:shu');addLog(`The ${TR_DEF[t][0]} is returned to ${LN()}'s treasury.`,'shu');save();renderCampaign();continue}
   if(!r2.startsWith('g:'))continue;const g=S.gens[r2.slice(2)];const prev=cur&&!cur.startsWith('v:')?S.gens[cur]:null;
-  trMove(t,g.id);if(g.id!=='liubei')g.loy=Math.min(100,g.loy+10);if(prev&&prev!==g&&prev.id!=='liubei')prev.loy=Math.max(0,prev.loy-5);
-  addLog(`Liu Bei bestows the ${TR_DEF[t][0]} (${TR_DEF[t][1]}) on ${g.name}.${prev&&prev!==g?` ${prev.name} gives it up.`:''}`,'shu');SND.fx('chime');save();renderCampaign()}}
+  trMove(t,g.id);if(g.id!==LORD())g.loy=Math.min(100,g.loy+10);if(prev&&prev!==g&&prev.id!==LORD())prev.loy=Math.max(0,prev.loy-5);
+  addLog(`${LN()} bestows the ${TR_DEF[t][0]} (${TR_DEF[t][1]}) on ${g.name}.${prev&&prev!==g?` ${prev.name} gives it up.`:''}`,'shu');SND.fx('chime');save();renderCampaign()}}
 
 // ---- God mode: the four war goddesses, found only by Liu Bei's own searches, one per search in random order
 const GODS=['xuannu','nuwa','fentian','yueshuang'];
 function godOn(){try{return localStorage.getItem('rtk3_god')==='1'}catch(e){return false}}
-function nextGod(){if(!godOn()||!S)return null;if(!S.godQ){S.godQ=GODS.slice();for(let i=S.godQ.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[S.godQ[i],S.godQ[j]]=[S.godQ[j],S.godQ[i]]}}
+function nextGod(){if(!S||!(godOn()||isHeroMode()))return null;if(!S.godQ){S.godQ=GODS.slice();for(let i=S.godQ.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[S.godQ[i],S.godQ[j]]=[S.godQ[j],S.godQ[i]]}}
   const id=S.godQ.find(x=>S.gens[x]&&S.gens[x].hidden&&!S.gens[x].fac);return id?S.gens[id]:null}
+
+// ======================================================================
+// ---- New Hero mode: play a self-made hero instead of Liu Bei ----
+// Player faction id stays 'shu' internally; Liu Bei and his officers become the AI faction 'lb'.
+const SHU0={...FACS.shu};
+const HERO_CITY=['luling','Luling','廬陵',68,88.5,'shu',4000,320,700,260,550,40,70,110,50];
+const HERO_ROUTES=[['luling','guiyang',1],['luling','changsha',2]];
+const GODN={xuannu:'Xuannü',nuwa:'Nüwa',fentian:'Fentian',yueshuang:'Yueshuang'};
+const LORD=()=>(S&&S.rulers&&S.rulers.shu)||'liubei';
+const LN=()=>{const g=S&&S.gens&&S.gens[LORD()];return g?g.name:'Liu Bei'};
+const isHeroMode=()=>!!(S&&S.mode==='hero');
+function applyMode(){const h=isHeroMode();
+  for(let i=ROUTES.length-1;i>=0;i--)if(ROUTES[i][0]==='luling')ROUTES.splice(i,1);
+  if(h){ROUTES.push(...HERO_ROUTES.map(r=>r.slice()));CITY_ART.luling='art/guiyang.jpg';
+    FACS.lb={name:'Liu Bei',short:'Liu Bei',zh:'劉',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',gold:1500,rice:30000,ai:'defensive'};
+    Object.assign(FACS.shu,{name:S.hero.name,short:S.hero.name,zh:'俠',main:'#b98a2e',dark:'#6b4c16',light:'#ecc874',ruler:'hero'});
+    BIO.hero={zh:'俠',st:'',y:'born c.178',bg:`Heir to a great merchant fortune of the south. When his family died, ${S.hero.name} inherited their gold, their granaries and their name.`,
+      h:`While warlords carve up the Han, ${S.hero.name} has spent his fortune on soldiers rather than silk, and swears to unite the realm under his own banner. Legend says he mastered the Eighteen Dragon-Subduing Palms from a wandering beggar.`,
+      f:['Inherited a merchant fortune','Master of the Eighteen Dragon-Subduing Palms','Swore to rule all under heaven'],fic:true}}
+  else{delete FACS.lb;for(const k of Object.keys(FACS.shu))if(!(k in SHU0))delete FACS.shu[k];Object.assign(FACS.shu,SHU0);delete CITY_ART.luling}}
+function rollHero(){const r=()=>75+Math.floor(Math.random()*21);return{war:r(),int:r(),pol:r(),cha:r()}}
+function newHeroCampaign(diff,hero){newCampaign(diff);
+  S.mode='hero';S.hero={name:hero.name};S.rulers.lb='liubei';S.rulers.shu='hero';applyMode();
+  for(const g of Object.values(S.gens))if(g.fac==='shu')g.fac='lb';
+  for(const c of Object.values(S.cities))if(c.owner==='shu')c.owner='lb';
+  const [id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train]=HERO_CITY;
+  S.cities[id]={id,name,zh,x,y,owner,troops,farm,farmMax,com,comMax,walls,order,pop,train,gold:5000,rice:30000};
+  S.gens.hero={id:'hero',name:hero.name,ch:'俠',fac:'shu',city:'luling',...hero.stats,type:'cav',img:null,loy:100,hidden:false,acted:false,army:null};
+  S.sel='luling';S.log=[];
+  addLog(`Winter 208. Cao Cao has taken Jing province and Liu Bei clings to Jiangxia. Far to the south, in the little town of Luling, ${hero.name} buries his family and opens their vaults.`);
+  addLog(`Five thousand gold, thirty thousand measures of rice and four thousand men loyal to his name. It is enough to begin. Hold 10 of the ${Object.keys(S.cities).length} cities by the end of 215 and the realm is his.`);
+  save()}
+$('#heroBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;
+  let name='';for(;;){const r=await dialog(`<h2>俠 A new hero</h2><p>Heir to a family fortune in the far south, he means to rule all under heaven. What is his name?</p>
+    <input id="heroName" class="hname" maxlength="15" autocomplete="off" placeholder="Up to 15 letters" value="${name.replace(/"/g,'')}">`,[['cancel','Cancel'],['ok','Next','primary']]);
+    if(r!=='ok')return;name=(document.getElementById('heroName').value||'').replace(/\s+/g,' ').trim().slice(0,15);if(name)break;toast('Give him a name first.')}
+  let st=rollHero();for(;;){const row=(k,n)=>`<div class="hstat"><span>${n}</span><b>${st[k]}</b><i style="width:${st[k]}%"></i></div>`;
+    const r=await dialog(`<h2>${name}</h2><p class="muted">Roll his talents. Every stat lands between 75 and 95. Roll as often as you like.</p>
+      <div class="hstats">${row('war','War')}${row('int','Int')}${row('pol','Pol')}${row('cha','Cha')}</div><p class="muted">Total ${st.war+st.int+st.pol+st.cha} of 380</p>`,[['cancel','Cancel'],['roll','🎲 Roll again'],['ok','Accept','primary']]);
+    if(r==='cancel')return;if(r==='roll'){st=rollHero();continue}break}
+  const dr=await dialog(`<h2>Choose difficulty</h2><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" class="${k==='normal'?'on':''}"><span class="sl"><b>${v.zh} ${v.n}</b><small>${v.d}</small></span><em>${k==='normal'?'Recommended':''}</em></button>`).join('')}</div>`,[['cancel','Cancel']]);
+  if(!DIFF[dr])return;newHeroCampaign(dr,{name,stats:st});UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
+// ---- a goddess becomes the hero's consort: a 10-second scene
+const CONSORT_LINES={
+ xuannu:[['her','I taught the Yellow Emperor to win a war that shook the heavens. In five thousand years no mortal has made me forget a battle plan.'],['him','And now?'],['her','Now I cannot remember a single one. Only the nights I watched you from the ninth sky, giving your family\'s rice to the hungry, choosing mercy where the war-books said slaughter.'],['her','Heaven gave me nine skies to guard. I am giving them up for the sound of one man\'s heartbeat.'],['her','Take my sword, and take my vow. From tonight I am your consort, in this life and in every life you will ever live.']],
+ nuwa:[['her','I shaped the first people from yellow clay by the river. I remember every face I ever made.'],['him','And mine?'],['her','Yours I did not make. That is why I came. In ten thousand years, yours is the first face that has surprised me.'],['her','Once I melted five coloured stones to mend a broken sky. Your heart cracked the night your father died. Let me mend that instead.'],['her','Hold me close. The heavens can patch themselves now. I am your consort, and I will never let you go.']],
+ fentian:[['her','So you are the fool who climbed a burning mountain to find me.'],['him','I heard a goddess lived up there. Nobody told me she was this beautiful.'],['her','Careful. Men have turned to ash for softer words than that.'],['her','But you did not burn. You did not even flinch. Do you know how long I have waited for a man who does not flinch?'],['her','Then it is settled. My fire is yours, to warm your nights and to burn your enemies. I am your consort, and I burn for you alone.']],
+ yueshuang:[['her','For a thousand years I looked down on this world from the moon. Cold. Silent. Alone.'],['him','Then why come down now?'],['her','Because one night you raised your wine to the moon and said, "You must be lonely too."'],['her','No one ever spoke to me as if I could hear. I heard. I have not stopped hearing you since.'],['her','Let the moon go dark. I would rather be warm in your arms than shine on all of China. I am your consort, forever.']]};
+async function consortScene(g){if(!g)return;const L=CONSORT_LINES[g.id];if(!L)return;const hero=GN(LORD()),src=portraitSrc(g);SND.fx('chime');
+  const p=dialog(`<div class="cons"><div class="consp">${src?`<img src="${src}" alt="${g.name}">`:gseal(g,160)}</div><div class="const"><span class="welck">妃 ${g.name}</span>
+    ${L.map(([w,t],i)=>`<p class="cl ${w}" data-i="${i}"><b>${w==='him'?hero.name:GODN[g.id]}</b>${t}</p>`).join('')}
+    <p class="cl vow" data-i="${L.length}">${GODN[g.id]} pledges herself to ${hero.name} as his consort, forever.</p></div></div>`,[['ok','Take her hand','primary']]);
+  $('#dlgbox').classList.add('dwide','consbox');const ps=[...document.querySelectorAll('.cons .cl')];ps.forEach((el,i)=>setTimeout(()=>el.classList.add('on'),300+i*1950));
+  await p;addLog(`${GODN[g.id]} descends from the heavens and becomes ${hero.name}'s consort.`,'shu');save();renderCampaign()}
 
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}

@@ -17,5 +17,5 @@ window.__inv=function(tag){const v=[];const add=m=>v.push(`[${tag}] ${S.year}/${
     if(g.fac&&g.army!=null){const a=S.armies.find(x=>x.id===g.army);if(a&&!a.gens.includes(g.id))add(`${g.id} thinks in army ${a.id} but not listed`);if(a&&a.fac!==g.fac)add(`${g.id} fac ${g.fac} in army of ${a.fac}`)}
     if(g.assign&&(g.fac!=='shu'))add(g.id+' assign on non-shu')}
   for(const f in FACS){if(!S['gone_'+f]&&alive(f)){const r=S.rulers[f];if(r&&GN(r)&&GN(r).fac&&GN(r).fac!==f)add(`ruler of ${f} (${r}) serves ${GN(r).fac}`)}}
-  try{const j=JSON.parse(JSON.stringify(S));if(Object.keys(j.cities).length!==14)add('save roundtrip lost cities')}catch(e){add('save not serializable '+e)}
+  try{const j=JSON.parse(JSON.stringify(S));if(Object.keys(j.cities).length!==Object.keys(S.cities).length)add('save roundtrip lost cities')}catch(e){add('save not serializable '+e)}
   return v};
