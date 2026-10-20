@@ -1227,3 +1227,21 @@ async function doJoint(s,t){G.jointTurn=G.turn;const ps=[s,...jointParts(t).filt
   log(`Joint attack: ${nm(t)} loses ${before-Math.max(0,t.troops)} troops. Your units keep their turns.`);sweep()}
 function hitTarget(u){""")
 rep("intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter.","intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Joint attack</b> (合, any unit): when 2 or more of your units stand next to one enemy, all of them strike it together, including units that already moved. Only the general who leads it takes a counter-attack, and no unit uses up its turn. Once per turn.")
+
+# biography popup styles
+rep("#cutin[hidden]{display:none}","""#cutin[hidden]{display:none}
+.biob{padding:0;border:0;background:none;cursor:zoom-in;display:block;line-height:0;border-radius:4px}
+.biob:focus-visible{outline:2px solid var(--gold,#d4ad55)}
+#dlgbox.biobox{max-width:min(860px,96vw)}
+.bio{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.biop img{height:calc(100dvh - 130px);max-height:520px;width:auto;max-width:34vw;border-radius:8px;border:1px solid var(--line);display:block;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.biot{max-height:calc(100dvh - 130px);overflow:auto;padding-right:4px}
+.bioh{display:flex;gap:12px;align-items:center}.bioh h2{margin:0}.bioh p{margin:2px 0 0}
+.bioz{font-family:var(--f-zh);font-weight:900;font-size:30px;color:#f3dc9a;line-height:1;white-space:nowrap}
+.biof{margin:8px 0}.biofac{color:#fff;border-radius:6px;padding:1px 7px;font-size:12px;margin-right:4px}
+.bstats{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;margin:6px 0 4px}
+.bst{display:grid;grid-template-columns:34px 26px 1fr;align-items:center;gap:6px;font-size:13px}.bst span{color:var(--muted)}
+.bst i{display:block;height:6px;border-radius:3px;background:var(--gold,#d4ad55)}
+.biot h3{margin:12px 0 2px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#d4ad55)}
+.biot p{margin:0 0 4px;line-height:1.5}.biot ul{margin:2px 0 4px;padding-left:18px;line-height:1.5}
+@media (max-width:620px){.bio{grid-template-columns:1fr}.biop img{height:auto;max-height:42vh;max-width:100%;width:auto;margin:0 auto}.biot{max-height:none}}""")

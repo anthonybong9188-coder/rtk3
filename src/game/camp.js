@@ -351,7 +351,7 @@ function renderCity(){
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
     b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
     b+=`<div class="ohead"><span></span><span>Name</span><span data-tip="War">War</span><span data-tip="Int">Int</span><span data-tip="Pol">Pol</span><span data-tip="Cha">Cha</span><span data-tip="Loy">Loy</span><span data-tip="Status">${mine?'Status':''}</span></div>`;
-    b+=`<div class="olist">${gs.map(g=>`<div class="orow">${gseal(g,36)}<span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':g.assign?'asg':''}" title="${g.assign?assignLbl(g):''}">${c.gov===g.id?'Governor':g.acted?'Done':g.assign?'Assigned':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow"><button class="biob" data-bio="${g.id}" aria-label="About ${g.name}" data-tip="Tap for biography">${gseal(g,36)}</button><span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':g.assign?'asg':''}" title="${g.assign?assignLbl(g):''}">${c.gov===g.id?'Governor':g.acted?'Done':g.assign?'Assigned':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
   }
   $('#cB').innerHTML=b;
   // ---- column C: commands and reports
@@ -996,3 +996,14 @@ async function marchOut(gens,troops,to){
       const a=Math.min(1,t/250,(DUR-t)/250);c.globalAlpha=Math.max(0,a);c.fillStyle='rgba(12,9,6,.72)';c.fillRect(W/2-70,40,140,54);c.fillStyle='#f3dc9a';c.font='900 34px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText('出陣',W/2,68);c.globalAlpha=1;c.textAlign='left';c.textBaseline='alphabetic';
       if(t<DUR)requestAnimationFrame(fr);else{SC.removeEventListener('pointerdown',onSkip);$('#stage').hidden=true;res()}}
     requestAnimationFrame(fr)})}
+
+// ---- officer biography popup ----
+function bioDlg(id){const g=S.gens[id],b=BIO[id];if(!g)return;const F=FACS[g.fac]||{main:'#5a5040',name:'Free'},src=portraitSrc(g);
+  const st=[['War',g.war],['Int',g.int],['Pol',g.pol],['Cha',g.cha]].map(([k,v])=>`<div class="bst"><span>${k}</span><b>${v}</b><i style="width:${v}%"></i></div>`).join('');
+  const p=dialog(`<div class="bio"><div class="biop">${src?`<img src="${src}" alt="${g.name}">`:gseal(g,160)}</div><div class="biot">
+    <div class="bioh"><span class="bioz">${b?b.zh:g.ch}</span><div><h2>${g.name}</h2><p class="muted">${b&&b.st?`Courtesy name ${b.st} · `:''}${b?b.y:''}</p></div></div>
+    <p class="biof"><span class="biofac" style="background:${F.main}">${g.fac?(FACS[g.fac].short||g.fac):'Free'}</span> ${TYPES[g.type].n}${g.fac?` · Loyalty ${g.loy}`:''}</p>
+    <div class="bstats">${st}</div>
+    ${b?`<h3>Background</h3><p>${b.bg}</p><h3>History</h3><p>${b.h}</p><h3>Feats</h3><ul>${b.f.map(x=>`<li>${x}</li>`).join('')}</ul>${b.fic?'<p class="muted">This character comes from the novel or folk legend rather than the historical record.</p>':''}`:'<p class="muted">No record survives.</p>'}
+  </div></div>`,[['ok','Close','primary']]);$('#dlgbox').classList.add('dwide','biobox');return p}
+addEventListener('click',e=>{const b=e.target.closest('[data-bio]');if(!b)return;e.preventDefault();e.stopPropagation();bioDlg(b.dataset.bio)},true);
