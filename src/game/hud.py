@@ -1254,3 +1254,42 @@ rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","c
 rep("const tkey=f.officer?'general':f.type;","const tkey=f.officer?(f.fem||'general'):f.type;")
 rep("if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}","if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}")
 rep("if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}","if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}")
+
+# ---- goddess skills: Nine Heavens Sword Array, Mend the Sky, Burning Sky, Moonfrost ----
+rep("for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind'].includes(k))delete HERO[k];","""Object.assign(HERO,{
+ star:{who:'xuannu',zh:'九天劍陣',n:'Sword Array',targets:s=>starDirs(s),desc:'Starlight swords strike every enemy in a straight line of 6 squares. Pick a direction'},
+ mend:{who:'nuwa',zh:'補天',n:'Mend the Sky',self:1,can:s=>true,desc:'Heal herself and adjacent allies 20%; they take half damage until her next turn'},
+ burn:{who:'fentian',zh:'焚天',n:'Burning Sky',targets:s=>burnCentres(s),desc:'A 3×3 firestorm centred on a square 2 away: heavy fire damage to every enemy in it'},
+ frost:{who:'yueshuang',zh:'月霜',n:'Moonfrost',self:1,can:s=>enemies().some(e=>Math.max(Math.abs(e.x-s.x),Math.abs(e.y-s.y))<=1),desc:'Freeze every enemy in the 3×3 around her: they cannot act next turn'}});
+for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost'].includes(k))delete HERO[k];
+const ARW={'1,0':['→','East'],'-1,0':['←','West'],'0,1':['↓','South'],'0,-1':['↑','North']};
+function starLine(s,dx,dy){const t=[];for(let i=1;i<=6;i++){const x=s.x+dx*i,y=s.y+dy*i;if(!inb(x,y))break;t.push({x,y})}return t}
+function starDirs(s){return DIRS.map(([dx,dy])=>{const line=starLine(s,dx,dy);if(!line.length)return null;const hit=line.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);const a=ARW[dx+','+dy];
+  return{fake:1,x:line[0].x,y:line[0].y,dir:[dx,dy],area:line,label:`${a[0]} ${a[1]}`,name:a[1],type:'shield',note:hit.length?`hits ${hit.map(u=>u.name).join(', ')}`:'no enemies in line'}}).filter(Boolean)}
+const area3=(cx,cy)=>{const t=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(cx+dx,cy+dy))t.push({x:cx+dx,y:cy+dy});return t};
+function burnCentres(s){const out=[];for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){if(manh(s,{x,y})!==2)continue;const area=area3(x,y),hit=area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)continue;
+  out.push({fake:1,x,y,area,label:`🔥 ${hit.length} enem${hit.length>1?'ies':'y'}`,name:'Firestorm',type:'shield',hits:hit.length,note:`burns ${hit.map(u=>u.name).join(', ')}`})}return out.sort((a,b)=>b.hits-a.hits)}
+const FXS={};function fxSheet(k){if(!FXS[k]){FXS[k]=new Image();FXS[k].src=`sprites/fx_${k}.jpg`}return FXS[k]}
+function gfx(k,x,y,s,dur){G.mfx=(G.mfx||[]);G.mfx.push({k:'sheet',sheet:k,x,y,t0:performance.now(),dur:dur||2000,s})}""")
+rep("for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];","for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];\n    if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,cx-s/2,cy-s*.62,s,s);c.restore()}continue}")
+rep("  if(HERO[k])return HERO[k].desc;\n  return ''}","  if(e&&e.fake)return e.note;\n  if(HERO[k])return HERO[k].desc;\n  return ''}")
+rep("<span>${tg.u.name} <small>${TYPES[tg.u.type].n}</small></span>","<span>${tg.u.label||tg.u.name+' <small>'+TYPES[tg.u.type].n+'</small>'}</span>")
+rep("if(G.mode==='target'){for(const tg of G.targets){const u=tg.u;","if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area){c.fillStyle=`rgba(255,170,60,${.1+pulse*.1})`;for(const p of tg.u.area)c.fillRect(p.x*T+1,p.y*T+1,T-2,T-2)}for(const tg of G.targets){const u=tg.u;")
+rep("if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u);if(tg)hitTarget(u);","if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u)||G.targets.find(t=>t.u.fake&&t.u.x===x&&t.u.y===y);if(tg)hitTarget(tg.u);")
+rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
+  if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the ${t.name.toLowerCase()}.`);
+    line.forEach((p,i)=>setTimeout(()=>gfx('xuannu',p.x,p.y,2.2,1800),i*110));await sleep(700);
+    for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');quickHit(s,e,1.5,{color:'#ffe27a'})}}await sleep(900)}
+  else if(k==='mend'){gfx('nuwa',s.x,s.y,3.6,2000);await sleep(800);for(const u of [s,...adjA(s)]){const add=Math.min(u.max-u.troops,Math.round(u.max*.2));if(add>0){u.troops+=add;float(u,'+'+add,'#b4f0ff')}u.iron=Math.max(u.iron||0,1)}
+    log(`<b>Mend the Sky!</b> Rainbow light shields ${nm(s)} and the allies beside her.`);await sleep(900)}
+  else if(k==='burn'){gfx('fentian',t.x,t.y,4.2,2000);for(const p of t.area)G.fires.push({x:p.x,y:p.y,t0:performance.now()+500,dur:1500});await sleep(800);
+    for(const p of t.area){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){fireHit(s,e,1.6);await sleep(90)}}log(`<b>Burning Sky!</b> ${nm(s)} turns the field to fire.`);await sleep(800)}
+  else if(k==='frost'){gfx('yueshuang',s.x,s.y,4.2,2000);await sleep(900);const fr=enemies().filter(e=>Math.max(Math.abs(e.x-s.x),Math.abs(e.y-s.y))<=1);for(const e of fr){e.stun=1;float(e,'❄ Frozen','#bfe4ff')}
+    log(`<b>Moonfrost!</b> ${fr.map(nm).join(', ')} ${fr.length>1?'are':'is'} frozen solid.`);await sleep(800)}""")
+
+# animated cut-in clips (4x4 frames of 256x384) for goddesses that have one
+rep("#cutin[hidden]{display:none}","#cutin[hidden]{display:none}\n.ci-clip{aspect-ratio:2/3;background-size:400% 400%;background-repeat:no-repeat}\n.ci-zoom{animation:ciZoom 2s ease-out forwards}@keyframes ciZoom{from{transform:skewX(8deg) scale(1)}to{transform:skewX(8deg) scale(1.12)}}")
+rep("const SPS=new Set([","const CLIPS=new Set(['fentian']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
+rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
+rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
+  CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
