@@ -2108,8 +2108,10 @@ function doCmd(k,g,c,f){
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
-  if(k==='search'){const ch=Math.min(.9,(s*.6+10)/100);const hid=Object.values(S.gens).find(x=>x.hidden&&x.city===c.id);
-    if(Math.random()>ch)m=`${g.name} searches ${c.name} but finds nothing.`;
+  if(k==='search'){const ch=Math.min(.9,(s*.6+10)/100);const hid=Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
+    const god=g.id==='liubei'&&f==='shu'&&nextGod();
+    if(god){god.hidden=false;god.fac='shu';god.city=c.id;god.acted=true;UI.found=god.id;S.godQ=S.godQ.filter(x=>x!==god.id);m=`A light falls from heaven over ${c.name}. ${god.name} descends and kneels before Liu Bei!`}
+    else if(Math.random()>ch)m=`${g.name} searches ${c.name} but finds nothing.`;
     else if(hid&&Math.random()<.6){hid.hidden=false;hid.fac=f;hid.acted=true;if(f==='shu'){hid.city=c.id;UI.found=hid.id}m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
     else if(Math.random()<.5){const n=ri(100,300);F.gold+=n;m=`${g.name} finds ${n} gold.`}
     else{const n=ri(5,15)*100;F.rice+=n;m=`${g.name} finds ${fmt(n)} rice.`}}
@@ -2151,7 +2153,8 @@ $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
-$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['diff',`${DF().zh} Difficulty: ${DF().n}`],['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='diff'){const dr=await dialog(`<h2>Difficulty</h2><p class="muted">You can change this at any time. Gold already in your treasury stays as it is.</p><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" ${S.diff===k?'disabled':''}><span class="sl"><b>${v.zh} ${v.n}${(S.diff||'normal')===k?' · current':''}</b><small>${v.d}</small></span></button>`).join('')}</div>`,[['cancel','Cancel']]);if(DIFF[dr]){S.diff=dr;addLog(`Difficulty set to ${DIFF[dr].n}.`,'shu');save();renderCampaign()}}
+$('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['diff',`${DF().zh} Difficulty: ${DF().n}`],['god',`神 God mode: ${godOn()?'On':'Off'}`],['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='diff'){const dr=await dialog(`<h2>Difficulty</h2><p class="muted">You can change this at any time. Gold already in your treasury stays as it is.</p><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" ${S.diff===k?'disabled':''}><span class="sl"><b>${v.zh} ${v.n}${(S.diff||'normal')===k?' · current':''}</b><small>${v.d}</small></span></button>`).join('')}</div>`,[['cancel','Cancel']]);if(DIFF[dr]){S.diff=dr;addLog(`Difficulty set to ${DIFF[dr].n}.`,'shu');save();renderCampaign()}}
+    if(r==='god'){const on=godOn();const g2=await dialog(`<h2>神 God mode</h2><p>When on, the four war goddesses (Jiutian Xuannü, Nüwa, Lady Fentian and Lady Yueshuang) can be found, but only when <b>Liu Bei himself</b> searches. Each search by Liu Bei brings one goddess, in a random order, in whichever city he is in. From a new game, he can find the first one in his first month.</p><p class="muted">When off, the goddesses cannot be found. Goddesses already serving you stay.</p>`,[['t',on?'Turn off':'Turn on','primary'],['c','Cancel']]);if(g2==='t'){try{localStorage.setItem('rtk3_god',on?'0':'1')}catch(e){}addLog(`God mode ${on?'off':'on'}.`,'shu');renderCampaign()}}
     if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};
 // ---- a new officer joins: portrait, his words, and an offer to reward him at once
 const WELCOME={search:['I have waited long for a lord worthy of my talents. I am honoured to serve you, Lord Liu Bei.','Your name for benevolence reached even my humble door. Command me, my lord.','I am honoured to serve. My life is yours to spend for the Han.'],
@@ -2746,6 +2749,12 @@ async function treasureDlg(c){for(;;){
   if(!r2.startsWith('g:'))continue;const g=S.gens[r2.slice(2)];const prev=cur&&!cur.startsWith('v:')?S.gens[cur]:null;
   trMove(t,g.id);if(g.id!=='liubei')g.loy=Math.min(100,g.loy+10);if(prev&&prev!==g&&prev.id!=='liubei')prev.loy=Math.max(0,prev.loy-5);
   addLog(`Liu Bei bestows the ${TR_DEF[t][0]} (${TR_DEF[t][1]}) on ${g.name}.${prev&&prev!==g?` ${prev.name} gives it up.`:''}`,'shu');SND.fx('chime');save();renderCampaign()}}
+
+// ---- God mode: the four war goddesses, found only by Liu Bei's own searches, one per search in random order
+const GODS=['xuannu','nuwa','fentian','yueshuang'];
+function godOn(){try{return localStorage.getItem('rtk3_god')==='1'}catch(e){return false}}
+function nextGod(){if(!godOn()||!S)return null;if(!S.godQ){S.godQ=GODS.slice();for(let i=S.godQ.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[S.godQ[i],S.godQ[j]]=[S.godQ[j],S.godQ[i]]}}
+  const id=S.godQ.find(x=>S.gens[x]&&S.gens[x].hidden&&!S.gens[x].fac);return id?S.gens[id]:null}
 
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
