@@ -1245,3 +1245,4 @@ rep("#cutin[hidden]{display:none}","""#cutin[hidden]{display:none}
 .biot h3{margin:12px 0 2px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#d4ad55)}
 .biot p{margin:0 0 4px;line-height:1.5}.biot ul{margin:2px 0 4px;padding-left:18px;line-height:1.5}
 @media (max-width:620px){.bio{grid-template-columns:1fr}.biop img{height:auto;max-height:42vh;max-width:100%;width:auto;margin:0 auto}.biot{max-height:none}}""")
+rep(".biof{margin:8px 0}",".biof{margin:8px 0}.biotr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}.biotr span{background:rgba(212,173,85,.14);border:1px solid rgba(212,173,85,.45);border-radius:8px;padding:3px 8px;font-size:13px}.trmk{font-family:var(--f-zh);color:var(--gold,#d4ad55);font-size:12px}")

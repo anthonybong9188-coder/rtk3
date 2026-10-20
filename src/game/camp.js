@@ -70,8 +70,8 @@ const GEN_DEF=[
   ['caiwenji','Cai Wenji','琰',null,'xiangyang',18,86,84,86,'shield','cai_wenji',85,1],
   ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','zhen_ji',85],
   ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,80,70,72,'archer','zhang_chunhua',90],
-  ['ladygan','Lady Gan','甘','shu','jiangxia',20,72,74,94,'shield','lady_gan',100],
-  ['ladymi','Lady Mi','糜','shu','jiangxia',46,68,62,88,'shield','lady_mi',100],
+  ['ladygan','Lady Gan','甘','shu','jiangxia',45,72,74,94,'shield','lady_gan',100],
+  ['ladymi','Lady Mi','糜','shu','jiangxia',45,68,62,88,'shield','lady_mi',100],
   ['hanxuan','Han Xuan','韓','han','changsha',48,40,40,32,'shield','han_xuan',100],
   ['huangzhong','Huang Zhong','忠','han','changsha',93,60,52,68,'archer','huang_zhong',60],
   ['weiyan','Wei Yan','延','han','changsha',92,70,44,50,'spear','wei_yan',50],
@@ -196,7 +196,7 @@ const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
 function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
-function startFrom(sv){S=sv;if(!S)return;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+function startFrom(sv){S=sv;if(!S)return;for(const id of ['ladygan','ladymi'])if(S.gens&&S.gens[id]&&!S.tr)S.gens[id].war=45;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
 async function saveLoadDlg(mode){
   const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
   const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
@@ -287,7 +287,7 @@ const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its po
   addEventListener('click',e=>{const el=e.target.closest('[data-tipped]');if(el){delete el.dataset.tipped;e.stopPropagation();e.preventDefault()}},true);
   addEventListener('scroll',hide,{capture:true,passive:true});addEventListener('pointerup',()=>setTimeout(hide,2200),{passive:true});
   addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');if(el&&!el.title)el.title=TIPS[el.dataset.tip]||''},{passive:true})})();
-function renderCampaign(){
+function renderCampaign(){ensureTr();
   if(!S)return;document.querySelectorAll('.cres>div').forEach(d=>{const k=(d.querySelector('span')||{}).textContent;if(TIPS[k])d.dataset.tip=k});renderThreats();
   const my=citiesOf('shu');
   $('#cDate').textContent=dateStr();
@@ -351,7 +351,7 @@ function renderCity(){
     const away=Object.values(S.gens).filter(g=>g.fac==='shu'&&g.army&&mine&&S.armies.some(x=>x.id===g.army&&x.from===c.id));
     b+=`<div class="chead"><div class="sec">Officers in city · ${gs.length}</div>${away.length?`<span class="muted">${away.length} away marching</span>`:''}</div>`;
     b+=`<div class="ohead"><span></span><span>Name</span><span data-tip="War">War</span><span data-tip="Int">Int</span><span data-tip="Pol">Pol</span><span data-tip="Cha">Cha</span><span data-tip="Loy">Loy</span><span data-tip="Status">${mine?'Status':''}</span></div>`;
-    b+=`<div class="olist">${gs.map(g=>`<div class="orow"><button class="biob" data-bio="${g.id}" aria-label="About ${g.name}" data-tip="Tap for biography">${gseal(g,36)}</button><span class="oname"><b>${g.name}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':g.assign?'asg':''}" title="${g.assign?assignLbl(g):''}">${c.gov===g.id?'Governor':g.acted?'Done':g.assign?'Assigned':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
+    b+=`<div class="olist">${gs.map(g=>`<div class="orow"><button class="biob" data-bio="${g.id}" aria-label="About ${g.name}" data-tip="Tap for biography">${gseal(g,36)}</button><span class="oname"><b>${g.name}${trHeld(g.id).length?' <span class="trmk" title="Holds a treasure">寶</span>':''}</b><small>${isRuler(g)?'Ruler':TYPES[g.type].n}</small></span><span class="on">${g.war}</span><span class="on">${g.int}</span><span class="on">${g.pol}</span><span class="on">${g.cha}</span><span class="on loy ${isFounder(g)?'':g.loy<60?'risk':g.loy<75?'warn':''}" title="Loyalty${g.loy<60?': may leave':g.loy<75?': can be lured':''}">${isFounder(g)?'—':g.loy}</span>${mine?`<span class="gst ${g.acted?'done':g.assign?'asg':''}" title="${g.assign?assignLbl(g):''}">${c.gov===g.id?'Governor':g.acted?'Done':g.assign?'Assigned':'Ready'}</span>`:'<span></span>'}</div>`).join('')||'<p class="muted">No officers here.</p>'}</div>`;
   }
   $('#cB').innerHTML=b;
   // ---- column C: commands and reports
@@ -361,6 +361,7 @@ function renderCity(){
       <button class="primary wide" data-act="request"><span class="czh">運</span> Order a transfer</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
   } else if(mine){
     cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
+    if(gensIn(c.id).some(g=>g.id==='liubei'))cc+=`<button class="wide" data-act="treasure"><span class="czh">寶</span> Treasures · ${trOf('shu').length}</button>`;
     cc+=`<div class="mvrow"><button class="primary" data-act="march"><span class="czh">征</span> March</button><button data-act="transfer"><span class="czh">運</span> Transfer</button></div>`;
     if(!gensIn(c.id).some(g=>g.id==='liubei')&&gensIn(c.id).length)cc+=`<button class="wide" data-act="delegate"><span class="czh">守</span> Delegate to a governor</button>`;
   } else {
@@ -428,6 +429,7 @@ document.addEventListener('click',async e=>{
   if(a==='rtab'){UI.rtab=b.dataset.t;renderCity();return}
   if(a==='dur'){UI.dur=+b.dataset.n;renderCity();return}
   if(a==='transfer'){openMarch(c.id,null,'transfer');return}
+  if(a==='treasure'){treasureDlg(c);return}
   if(a==='delegate'){UI.busy=true;try{await delegateDlg(c)}finally{UI.busy=false;renderCampaign()}return}
   if(a==='request'){UI.busy=true;try{await requestDlg(c)}finally{UI.busy=false;renderCampaign()}return}
   if(a==='back'){UI.mode='city';renderCity()}
@@ -918,7 +920,7 @@ function takeCity(a,c,gens,troops,broken){if(c.gov){c.gov=null;c.mode=null}
   for(const g of gens){g.army=null;g.city=c.id;g.acted=true}
   if(c.owner==='shu')S.sel=c.id;
 }
-async function handleCapture(g,captor,c){
+async function handleCapture(g,captor,c){confiscate(g,captor);
   if(g.id==='liubei'){S.over=true;await finale(false,`Liu Bei is captured at ${c.name}. Without him, Shu falls apart.`);return}
   const from=g.fac;
   if(captor==='shu'){
@@ -999,11 +1001,44 @@ async function marchOut(gens,troops,to){
 
 // ---- officer biography popup ----
 function bioDlg(id){const g=S.gens[id],b=BIO[id];if(!g)return;const F=FACS[g.fac]||{main:'#5a5040',name:'Free'},src=portraitSrc(g);
-  const st=[['War',g.war],['Int',g.int],['Pol',g.pol],['Cha',g.cha]].map(([k,v])=>`<div class="bst"><span>${k}</span><b>${v}</b><i style="width:${v}%"></i></div>`).join('');
+  const st=[['War',g.war],['Int',g.int],['Pol',g.pol],['Cha',g.cha]].map(([k,v])=>`<div class="bst"><span>${k}</span><b>${v}</b><i style="width:${Math.min(100,v)}%"></i></div>`).join('');
   const p=dialog(`<div class="bio"><div class="biop">${src?`<img src="${src}" alt="${g.name}">`:gseal(g,160)}</div><div class="biot">
     <div class="bioh"><span class="bioz">${b?b.zh:g.ch}</span><div><h2>${g.name}</h2><p class="muted">${b&&b.st?`Courtesy name ${b.st} · `:''}${b?b.y:''}</p></div></div>
     <p class="biof"><span class="biofac" style="background:${F.main}">${g.fac?(FACS[g.fac].short||g.fac):'Free'}</span> ${TYPES[g.type].n}${g.fac?` · Loyalty ${g.loy}`:''}</p>
-    <div class="bstats">${st}</div>
+    <div class="bstats">${st}</div>${trHeld(id).length?`<p class="biotr">${trHeld(id).map(t=>`<span>寶 ${TR_DEF[t][1]} ${TR_DEF[t][0]} <small>${trBonusTxt(t)}</small></span>`).join('')}</p>`:''}
     ${b?`<h3>Background</h3><p>${b.bg}</p><h3>History</h3><p>${b.h}</p><h3>Feats</h3><ul>${b.f.map(x=>`<li>${x}</li>`).join('')}</ul>${b.fic?'<p class="muted">This character comes from the novel or folk legend rather than the historical record.</p>':''}`:'<p class="muted">No record survives.</p>'}
   </div></div>`,[['ok','Close','primary']]);$('#dlgbox').classList.add('dwide','biobox');return p}
 addEventListener('click',e=>{const b=e.target.closest('[data-bio]');if(!b)return;e.preventDefault();e.stopPropagation();bioDlg(b.dataset.bio)},true);
+
+// ---- treasures ----
+// id: [name, chinese, bonus {war,int,pol,cha}, starting holder]
+const TR_DEF={
+  qinglong:['Green Dragon Crescent Blade','青龍偃月刀',{war:7},'guanyu'],
+  shemao:['Serpent Spear','丈八蛇矛',{war:7},'zhangfei'],
+  qinggang:['Qinggang Sword','青釭劍',{war:5},'zhaoyun'],
+  wudi:['Invincible Sword','無敵劍',{war:5},'liubei'],
+  miejue:['Destruction Sabre','滅絕刀',{war:5},'liubei']};
+const TR_STATS=['war','int','pol','cha'];
+function trBonusTxt(t){return Object.entries(TR_DEF[t][2]).map(([k,v])=>`${k[0].toUpperCase()+k.slice(1)} +${v}`).join(', ')}
+function trApply(g,t,sign){if(!g)return;for(const [k,v] of Object.entries(TR_DEF[t][2]))g[k]=(g[k]||0)+sign*v}
+// holder: officer id, or 'v:<faction>' for a faction's treasury
+function ensureTr(){if(!S)return;if(!S.tr){S.tr={}}
+  for(const t in TR_DEF)if(!(t in S.tr)){const h=TR_DEF[t][3],g=S.gens[h];if(g){S.tr[t]=h;trApply(g,t,1)}else S.tr[t]=null}}
+const trHeld=id=>Object.keys(S.tr||{}).filter(t=>S.tr[t]===id);
+function trFac(t){const h=S.tr[t];if(!h)return null;if(h.startsWith('v:'))return h.slice(2);const g=S.gens[h];return g?g.fac:null}
+const trOf=f=>Object.keys(S.tr||{}).filter(t=>trFac(t)===f);
+function trMove(t,to){const h=S.tr[t];if(h&&!h.startsWith('v:'))trApply(S.gens[h],t,-1);S.tr[t]=to;if(to&&!to.startsWith('v:'))trApply(S.gens[to],t,1)}
+function confiscate(g,captor){const ts=trHeld(g.id);if(!ts.length||!captor)return;for(const t of ts)trMove(t,'v:'+captor);
+  addLog(`${g.name}'s ${ts.map(t=>TR_DEF[t][0]).join(' and ')} ${ts.length>1?'are':'is'} taken into ${captor==='shu'?'Liu Bei\'s':fs(captor)+"'s"} treasury.`,captor)}
+async function treasureDlg(c){for(;;){
+  const ts=trOf('shu'),here=gensIn(c.id).filter(g=>g.fac==='shu');
+  const who=t=>{const h=S.tr[t];return h&&!h.startsWith('v:')?S.gens[h].name:'Treasury'};
+  const r=await dialog(`<h2>寶 Treasures</h2><p class="muted">Liu Bei can bestow a treasure on any officer here in ${c.name}. The holder gets its bonus; the new holder's loyalty rises by 10.</p>
+    ${ts.length?`<div class="tlist">${ts.map(t=>`<button data-r="t:${t}"><span><b>${TR_DEF[t][1]}</b> ${TR_DEF[t][0]} <small>${trBonusTxt(t)}</small></span><small>Held by ${who(t)}</small></button>`).join('')}</div>`:'<p class="muted">Shu owns no treasures yet. Search cities to find them, or capture officers who carry them.</p>'}`,[['done','Close','primary']]);
+  if(!r.startsWith('t:'))return;const t=r.slice(2),cur=S.tr[t];
+  const r2=await dialog(`<h2>Bestow the ${TR_DEF[t][0]}</h2><p class="muted">${TR_DEF[t][1]} · ${trBonusTxt(t)}</p><div class="tlist">${here.map(g=>`<button data-r="g:${g.id}" ${cur===g.id?'disabled':''}>${gseal(g,30)}<span>${g.name} <small>War ${g.war} · Loy ${g.loy}</small></span><small>${trHeld(g.id).map(x=>TR_DEF[x][1]).join(' ')}</small></button>`).join('')}
+    ${cur&&!cur.startsWith('v:')?'<button data-r="vault"><span>Return to the treasury</span></button>':''}</div>`,[['back','Back']]);
+  if(r2==='vault'){trMove(t,'v:shu');addLog(`The ${TR_DEF[t][0]} is returned to Liu Bei's treasury.`,'shu');save();renderCampaign();continue}
+  if(!r2.startsWith('g:'))continue;const g=S.gens[r2.slice(2)];const prev=cur&&!cur.startsWith('v:')?S.gens[cur]:null;
+  trMove(t,g.id);if(g.id!=='liubei')g.loy=Math.min(100,g.loy+10);if(prev&&prev!==g&&prev.id!=='liubei')prev.loy=Math.max(0,prev.loy-5);
+  addLog(`Liu Bei bestows the ${TR_DEF[t][0]} (${TR_DEF[t][1]}) on ${g.name}.${prev&&prev!==g?` ${prev.name} gives it up.`:''}`,'shu');SND.fx('chime');save();renderCampaign()}}

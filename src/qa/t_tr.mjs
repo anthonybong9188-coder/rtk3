@@ -1,0 +1,12 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:915,height:412},deviceScaleFactor:2});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/rtk3-game.html');await p.click('#newBtn');await p.waitForTimeout(200);await p.click('[data-r="normal"]');await p.waitForTimeout(800);
+const W=()=>p.evaluate(()=>['liubei','guanyu','zhangfei','zhaoyun','ladygan','ladymi','chendao'].map(id=>id+':'+S.gens[id].war+'/'+S.gens[id].loy).join(' '));
+console.log('start',await W(),await p.evaluate(()=>JSON.stringify(S.tr)));
+await p.click('[data-act="treasure"]');await p.waitForTimeout(300);await p.screenshot({path:'tr1.png'});
+await p.click('[data-r="t:wudi"]');await p.waitForTimeout(300);await p.click('[data-r="g:chendao"]');await p.waitForTimeout(300);await p.click('[data-r="done"]');
+console.log('after bestow',await W());
+console.log(await p.evaluate(async()=>{trMove('qinggang','caoren');const w0=S.gens.caoren.war;await Promise.race([handleCapture(S.gens.caoren,'shu',C('jiangxia')),new Promise(r=>setTimeout(r,800))]);return [w0,S.gens.caoren.war,S.tr.qinggang]}));
+await p.evaluate(()=>{document.querySelectorAll('#dlg').forEach(d=>d.hidden=true);bioDlg('guanyu')});await p.waitForTimeout(300);await p.screenshot({path:'tr2.png'});
+console.log(errs);await b.close();
