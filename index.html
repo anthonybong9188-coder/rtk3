@@ -552,7 +552,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
       </div>
       <div>
         <h4>Specials (Shu only)</h4>
-        <p><b>Charge</b> (cavalry): ×1.5 damage, weak counter, rides through to the square behind. <b>Brace</b> (spearmen): until Wei's turn ends, intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Joint attack</b> (合, any unit): when 2 or more of your units stand next to one enemy, all of them strike it together, including units that already moved. No counter-attack, and no unit uses up its turn. Once per turn. <b>Push</b> (shield infantry): shoves an adjacent enemy back, no counter, full damage if blocked. <b>Volley</b> (archers): shoots an enemy exactly 2 squares away with no counter, plus 60% splash on one enemy beside it. <b>Fire</b> (Int 75+): burns an enemy within 3 squares. Each recovers in 3 turns.</p>
+        <p><b>Charge</b> (cavalry): ×1.5 damage, weak counter, rides through to the square behind. <b>Brace</b> (spearmen): until Wei's turn ends, intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Joint attack</b> (合, any unit): when 2 or more of your units stand next to one enemy, all of them strike it together, including units that already moved. Only the general who leads it takes a counter-attack, and no unit uses up its turn. Once per turn. <b>Push</b> (shield infantry): shoves an adjacent enemy back, no counter, full damage if blocked. <b>Volley</b> (archers): shoots an enemy exactly 2 squares away with no counter, plus 60% splash on one enemy beside it. <b>Fire</b> (Int 75+): burns an enemy within 3 squares. Each recovers in 3 turns.</p>
       </div>
     </div>
   </details>
@@ -959,7 +959,7 @@ function updateUI(){
   if(G.mode==='moved'&&G.sel&&G.phase==='player'){const s=G.sel;
     ah+=rb('data-a="attack"',s.type==='archer'?'射':'攻',s.type==='archer'?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
     for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
-    {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together: no losses, no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
+    {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
     ah+=rb('data-a="duel" title="Challenge an adjacent officer"','挑','Duel',duelTargets(s).length>0);
     ah+=rb('data-a="wait" title="End this unit\'s turn"','待','Wait',true);
   }
@@ -970,9 +970,9 @@ function updateUI(){
 const jointParts=e=>G.units.filter(u=>u.side==='shu'&&manh(u,e)===1);
 function jointTargets(s){if(!G||G.jointTurn===G.turn)return[];return enemies().filter(e=>manh(s,e)===1&&jointParts(e).length>=2)}
 async function doJoint(s,t){G.jointTurn=G.turn;const ps=[s,...jointParts(t).filter(u=>u!==s)],before=t.troops;
-  log(`<b>Joint attack!</b> ${ps.map(nm).join(', ')} fall on ${nm(t)} together.`);for(const u of ps)mfx('arc',u.x,u.y,700,1.2);SND.fx('shout');await sleep(250);
-  await doAttack(s,t,{noCounter:true,label:'Joint Attack',verb:'leads a joint attack on'});
-  for(const u of ps.slice(1)){if(!G.units.includes(t)||t.troops<=0)break;mfx('arc',t.x,t.y,600,1.5);SND.fx('hit');quickHit(u,t,1,{color:'#ffd27a'});await sleep(260)}
+  log(`<b>Joint attack!</b> ${ps.map(nm).join(', ')} fall on ${nm(t)} together.`);
+  await doAttack(s,t,{label:'Joint Attack',verb:'leads a joint attack on'});
+  for(const u of ps.slice(1)){if(!G.units.includes(t)||t.troops<=0)break;quickHit(u,t,1,{color:'#ffd27a'})}
   log(`Joint attack: ${nm(t)} loses ${before-Math.max(0,t.troops)} troops. Your units keep their turns.`);sweep()}
 function hitTarget(u){const s=G.sel;if(G.tmode==='attack'&&!inRange(s.type,manh(s,u))){const t=G.reach&&bestAttackTile(s,u);if(t){moveThenAttack(s,u,t);return}}execTarget(u)}
 function onAct(e){
@@ -986,7 +986,7 @@ function onAct(e){
   const a=b.dataset.a;
   if(a==='attack'){G.prevMode=G.mode;G.tmode='attack';const list=G.mode==='moved'?enemies().filter(e=>inRange(s.type,manh(s,e))):(G.atk||[]);G.targets=list.map(e=>{const f=forecast(s,e);return{u:e,note:`deal ~${f.deal} · take ~${f.take}${f.m>1?' ▲':f.m<1?' ▼':''}`}});G.mode='target'}
   if(a==='duel'){G.prevMode=G.mode;G.tmode='duel';G.targets=duelTargets(s).map(e=>{const ch=duelOdds(s,e);return{u:e,note:`War ${s.war} vs ${e.war}${s.war-e.war>30?' · will refuse':ch<.3?' · may refuse':''}`}});G.mode='target'}
-  if(a==='joint'){G.prevMode=G.mode;G.tmode='joint';G.targets=jointTargets(s).map(e=>{const ps=jointParts(e);return{u:e,note:`${ps.length} units · deal ~${ps.reduce((n,u)=>n+forecast(u,e).deal,0)} · take 0`}});G.mode='target'}
+  if(a==='joint'){G.prevMode=G.mode;G.tmode='joint';G.targets=jointTargets(s).map(e=>{const ps=jointParts(e);return{u:e,note:`${ps.length} units · deal ~${ps.reduce((n,u)=>n+forecast(u,e).deal,0)} · ${s.name} takes ~${forecast(s,e).take}`}});G.mode='target'}
   if(a==='wait'){finish(s);return}
   if(a==='back'){G.mode=G.prevMode||'moved';G.targets=[]}
   if(a==='cancel'){s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.reach=reach(s);G.mode='select'}
@@ -1659,9 +1659,9 @@ var SND=(()=>{
   function fx(name,delay){if(set.mute||!init()||ctx.state!=='running'||!FX[name])return;try{FX[name](T()+(delay||0))}catch(e){}}
   // music: plays music/<name>.mp3 if it exists, cross-fading; silent otherwise
   // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
-  const TRACKS=new Set([]);
+  const TRACKS=new Set(['battle1','battle2']);
   let cur=null,want=null;const missing=new Set();
-  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(cur&&cur.name===name)return;
+  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
     if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat/.test(name);el.volume=0;
     el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
@@ -1672,7 +1672,7 @@ var SND=(()=>{
 function soundDlg(){const s=SND.set;const p=dialog(`<h2>Sound</h2>
   <div class="mrow"><label for="vSfx">Effects <b id="vSfxV">${Math.round(s.sfx*100)}%</b></label><input id="vSfx" type="range" min="0" max="100" value="${Math.round(s.sfx*100)}"></div>
   <div class="mrow"><label for="vMus">Music <b id="vMusV">${Math.round(s.mus*100)}%</b></label><input id="vMus" type="range" min="0" max="100" value="${Math.round(s.mus*100)}"></div>
-  <p class="muted">Music plays once the track files are added. Effects are built into the game.</p>`,[['mute',s.mute?'🔊 Unmute':'🔇 Mute all'],['ok','Done','primary']]);
+  <p class="muted">Battle music is in. Map and title music will come later.</p>`,[['mute',s.mute?'🔊 Unmute':'🔇 Mute all'],['ok','Done','primary']]);
   setTimeout(()=>{const a=document.getElementById('vSfx'),b=document.getElementById('vMus');if(a)a.oninput=e=>{SND.setVol('sfx',e.target.value/100);document.getElementById('vSfxV').textContent=e.target.value+'%'};if(a)a.onchange=()=>SND.fx('clash');
     if(b)b.oninput=e=>{SND.setVol('mus',e.target.value/100);document.getElementById('vMusV').textContent=e.target.value+'%'}},0);
   return p.then(r=>{if(r==='mute'){SND.toggleMute();updSndBtns()}})}

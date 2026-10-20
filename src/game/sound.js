@@ -43,9 +43,9 @@ var SND=(()=>{
   function fx(name,delay){if(set.mute||!init()||ctx.state!=='running'||!FX[name])return;try{FX[name](T()+(delay||0))}catch(e){}}
   // music: plays music/<name>.mp3 if it exists, cross-fading; silent otherwise
   // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
-  const TRACKS=new Set([]);
+  const TRACKS=new Set(['battle1','battle2']);
   let cur=null,want=null;const missing=new Set();
-  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(cur&&cur.name===name)return;
+  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
     if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat/.test(name);el.volume=0;
     el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
@@ -56,7 +56,7 @@ var SND=(()=>{
 function soundDlg(){const s=SND.set;const p=dialog(`<h2>Sound</h2>
   <div class="mrow"><label for="vSfx">Effects <b id="vSfxV">${Math.round(s.sfx*100)}%</b></label><input id="vSfx" type="range" min="0" max="100" value="${Math.round(s.sfx*100)}"></div>
   <div class="mrow"><label for="vMus">Music <b id="vMusV">${Math.round(s.mus*100)}%</b></label><input id="vMus" type="range" min="0" max="100" value="${Math.round(s.mus*100)}"></div>
-  <p class="muted">Music plays once the track files are added. Effects are built into the game.</p>`,[['mute',s.mute?'🔊 Unmute':'🔇 Mute all'],['ok','Done','primary']]);
+  <p class="muted">Battle music is in. Map and title music will come later.</p>`,[['mute',s.mute?'🔊 Unmute':'🔇 Mute all'],['ok','Done','primary']]);
   setTimeout(()=>{const a=document.getElementById('vSfx'),b=document.getElementById('vMus');if(a)a.oninput=e=>{SND.setVol('sfx',e.target.value/100);document.getElementById('vSfxV').textContent=e.target.value+'%'};if(a)a.onchange=()=>SND.fx('clash');
     if(b)b.oninput=e=>{SND.setVol('mus',e.target.value/100);document.getElementById('vMusV').textContent=e.target.value+'%'}},0);
   return p.then(r=>{if(r==='mute'){SND.toggleMute();updSndBtns()}})}

@@ -1215,15 +1215,15 @@ rep("${nm(s)}'s next Fire will be doubled and spread.`","${nm(s)}'s next Fire wi
 
 # ---- Joint attack (合擊): every friendly unit adjacent to the target strikes together; no counter, no turns used; once per turn ----
 rep("    ah+=rb('data-a=\"duel\" title=\"Challenge an adjacent officer\"','挑','Duel',duelTargets(s).length>0);",
-"    {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a=\"joint\" title=\"${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together: no losses, no turns used. Once per turn.'}\"`,'合','Joint',jt.length>0,'atk')}\n    ah+=rb('data-a=\"duel\" title=\"Challenge an adjacent officer\"','挑','Duel',duelTargets(s).length>0);")
-rep("  if(a==='wait'){finish(s);return}","  if(a==='joint'){G.prevMode=G.mode;G.tmode='joint';G.targets=jointTargets(s).map(e=>{const ps=jointParts(e);return{u:e,note:`${ps.length} units · deal ~${ps.reduce((n,u)=>n+forecast(u,e).deal,0)} · take 0`}});G.mode='target'}\n  if(a==='wait'){finish(s);return}")
+"    {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a=\"joint\" title=\"${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}\"`,'合','Joint',jt.length>0,'atk')}\n    ah+=rb('data-a=\"duel\" title=\"Challenge an adjacent officer\"','挑','Duel',duelTargets(s).length>0);")
+rep("  if(a==='wait'){finish(s);return}","  if(a==='joint'){G.prevMode=G.mode;G.tmode='joint';G.targets=jointTargets(s).map(e=>{const ps=jointParts(e);return{u:e,note:`${ps.length} units · deal ~${ps.reduce((n,u)=>n+forecast(u,e).deal,0)} · ${s.name} takes ~${forecast(s,e).take}`}});G.mode='target'}\n  if(a==='wait'){finish(s);return}")
 rep("  if(mode==='charge')await doCharge(s,t);","  if(mode==='joint'){await doJoint(s,t);G.busy=false;if(checkEnd())return;if(G.units.includes(s)){G.mode='moved';G.reach=reachFrom(s,G.origin)}else autoSel();updateUI();return}\n  if(mode==='charge')await doCharge(s,t);")
 rep("function hitTarget(u){","""const jointParts=e=>G.units.filter(u=>u.side==='shu'&&manh(u,e)===1);
 function jointTargets(s){if(!G||G.jointTurn===G.turn)return[];return enemies().filter(e=>manh(s,e)===1&&jointParts(e).length>=2)}
 async function doJoint(s,t){G.jointTurn=G.turn;const ps=[s,...jointParts(t).filter(u=>u!==s)],before=t.troops;
-  log(`<b>Joint attack!</b> ${ps.map(nm).join(', ')} fall on ${nm(t)} together.`);for(const u of ps)mfx('arc',u.x,u.y,700,1.2);SND.fx('shout');await sleep(250);
-  await doAttack(s,t,{noCounter:true,label:'Joint Attack',verb:'leads a joint attack on'});
-  for(const u of ps.slice(1)){if(!G.units.includes(t)||t.troops<=0)break;mfx('arc',t.x,t.y,600,1.5);SND.fx('hit');quickHit(u,t,1,{color:'#ffd27a'});await sleep(260)}
+  log(`<b>Joint attack!</b> ${ps.map(nm).join(', ')} fall on ${nm(t)} together.`);
+  await doAttack(s,t,{label:'Joint Attack',verb:'leads a joint attack on'});
+  for(const u of ps.slice(1)){if(!G.units.includes(t)||t.troops<=0)break;quickHit(u,t,1,{color:'#ffd27a'})}
   log(`Joint attack: ${nm(t)} loses ${before-Math.max(0,t.troops)} troops. Your units keep their turns.`);sweep()}
 function hitTarget(u){""")
-rep("intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter.","intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Joint attack</b> (合, any unit): when 2 or more of your units stand next to one enemy, all of them strike it together, including units that already moved. No counter-attack, and no unit uses up its turn. Once per turn.")
+rep("intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter.","intercepts cavalry and spear attacks on any unit within 2 squares (diagonals included), with full counter. <b>Joint attack</b> (合, any unit): when 2 or more of your units stand next to one enemy, all of them strike it together, including units that already moved. Only the general who leads it takes a counter-attack, and no unit uses up its turn. Once per turn.")
