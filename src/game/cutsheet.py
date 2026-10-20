@@ -19,7 +19,9 @@ im = np.asarray(_src.convert('RGB')).astype(np.int16)
 ALPHA = np.asarray(_src.convert('RGBA'))[..., 3]
 H, W, _ = im.shape
 mx, mn = im.max(2), im.min(2)
-neutral = (mx - mn < 18) & (mn > 185)                  # checkerboard greys and whites
+import os
+TH = int(os.environ.get('BGTH', '185'))
+neutral = (mx - mn < 18) & (mn > TH)                  # checkerboard greys and whites
 # background = neutral pixels connected to the image border
 lab, n = ndimage.label(neutral)
 border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}

@@ -1246,7 +1246,7 @@ function drawSprite(c,f,sh){
   else if(f.run!=null){row=1;fr=Math.floor(f.run/2.6)%4}
   else{row=0;const p=Math.floor(now/320+sd*3)%6;fr=[0,1,2,3,2,1][p]}
   let dir=f.face*(f.turn??1);
-  const tkey=f.officer?'general':f.type;
+  const tkey=f.officer?(f.fem||'general'):f.type;
   if(f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
   const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
@@ -1283,9 +1283,9 @@ function playFire(u,e,dmg,before){SND.fx('fire');
         if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
         else{const fate=S.nA===0?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
           if(fate==='capture'&&t>2500){const k3=t>3000,hx=o.hx-S.face*Math.max(0,t-3000)*.32;
-            if(k3){items.push({y:o.y-1,f:{cap:true,fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-            else items.push({y:o.y,f:{cap:true,fr:t<2750?0:1,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-          else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
+            if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+            else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2750?0:1,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+          else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,fem:femKey(S.u),run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
       items.sort((a,b)=>a.y-b.y);
       for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
       for(const it of items){if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
@@ -1355,8 +1355,8 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
 function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)return false;const k=52/150;
   c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function drawFigure(c,f){
-  if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}
-  if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
+  if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}
+  if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   const F=FAC[f.fac]||FAC.shu,O='#1a1410',skin='#e6bb8e';c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(0,1,f.type==='cav'?22:9,3,0,0,Math.PI*2);c.fill()}
@@ -1475,7 +1475,8 @@ function drawFightHud(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-function sprLoad(fk){return ['spear','shield','archer','cav','general','general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);
+function sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
@@ -1523,9 +1524,9 @@ function playBattle0(att,def,r){
         if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
         if(flee){orun=t*(fate==='breakout'?.045:.03);oface=-S.face}
         if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
-          if(k3){items.push({y:o.y-1,f:{cap:true,fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-          else items.push({y:o.y,f:{cap:true,fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=1050&&t<=2500:S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+          if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+          else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,fem:femKey(S.u),run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=1050&&t<=2500:S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;

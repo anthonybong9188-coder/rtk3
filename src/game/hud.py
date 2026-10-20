@@ -1246,3 +1246,11 @@ rep("#cutin[hidden]{display:none}","""#cutin[hidden]{display:none}
 .biot p{margin:0 0 4px;line-height:1.5}.biot ul{margin:2px 0 4px;padding-left:18px;line-height:1.5}
 @media (max-width:620px){.bio{grid-template-columns:1fr}.biop img{height:auto;max-height:42vh;max-width:100%;width:auto;margin:0 auto}.biot{max-height:none}}""")
 rep(".biof{margin:8px 0}",".biof{margin:8px 0}.biotr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}.biotr span{background:rgba(212,173,85,.14);border:1px solid rgba(212,173,85,.45);border-radius:8px;padding:3px 8px;font-size:13px}.trmk{font-family:var(--f-zh);color:var(--gold,#d4ad55);font-size:12px}")
+
+# ---- female general battle sprite (fgeneral_<fac>.png); no turn/capture sheets yet, so those fall back to flip / defeat frames
+rep("f:{cap:true,","f:{cap:true,fem:femKey(S.u),",6)
+rep("officer:true,ch:S.u.ch,","officer:true,ch:S.u.ch,fem:femKey(S.u),",2)
+rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);\nfunction sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),")
+rep("const tkey=f.officer?'general':f.type;","const tkey=f.officer?(f.fem||'general'):f.type;")
+rep("if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}","if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}")
+rep("if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}","if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}")
