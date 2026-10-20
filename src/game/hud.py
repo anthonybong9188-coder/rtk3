@@ -1289,7 +1289,7 @@ rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
 
 # animated cut-in clips (4x4 frames of 256x384) for goddesses that have one
 rep("#cutin[hidden]{display:none}","#cutin[hidden]{display:none}\n.ci-clip{aspect-ratio:2/3;background-size:400% 400%;background-repeat:no-repeat}\n.ci-zoom{animation:ciZoom 2s ease-out forwards}@keyframes ciZoom{from{transform:skewX(8deg) scale(1)}to{transform:skewX(8deg) scale(1.12)}}")
-rep("const SPS=new Set([","const CLIPS=new Set(['fentian']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
+rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
 rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
 rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
