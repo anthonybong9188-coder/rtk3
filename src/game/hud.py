@@ -1156,7 +1156,7 @@ rep("im.src='portraits/sp_'+p+'.png'","im.src='portraits/sp_'+p+'.webp'")
 rep('src="portraits/sp_${p}.png"','src="portraits/sp_${p}.webp"')
 
 # only these generals have special cut-in art; others use their normal portrait directly
-rep("const SPC={};function spPre(p){","const SPS=new Set(['gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){")
+rep("const SPC={};function spPre(p){","const SPS=new Set(['xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){")
 rep("im.src='portraits/sp_'+p+'.webp';","im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;")
 rep('src="portraits/sp_${p}.webp"','src="portraits/${SPS.has(p)?\'sp_\':\'\'}${p}.webp"')
 
