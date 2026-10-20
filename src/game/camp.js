@@ -69,7 +69,7 @@ const GEN_DEF=[
   ['zhurong','Zhurong','融',null,'guiyang',86,42,30,74,'cav','zhurong',80,1],
   ['caiwenji','Cai Wenji','琰',null,'xiangyang',18,86,84,86,'shield','cai_wenji',85,1],
   ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','zhen_ji',85],
-  ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,90,70,72,'archer','zhang_chunhua',90],
+  ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,80,70,72,'archer','zhang_chunhua',90],
   ['ladygan','Lady Gan','甘','shu','jiangxia',20,72,74,94,'shield','lady_gan',100],
   ['ladymi','Lady Mi','糜','shu','jiangxia',46,68,62,88,'shield','lady_mi',100],
   ['hanxuan','Han Xuan','韓','han','changsha',48,40,40,32,'shield','han_xuan',100],
@@ -148,7 +148,7 @@ const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
 function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
-function startFrom(sv){S=sv;if(!S)return;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+function startFrom(sv){S=sv;if(!S)return;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
 async function saveLoadDlg(mode){
   const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
   const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
