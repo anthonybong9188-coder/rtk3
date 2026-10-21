@@ -213,7 +213,7 @@ function loadSave(){try{const t=localStorage.getItem('rtk3-save');return t?JSON.
 
 // ------------------------------------------------------------ rendering
 function showScreen(id){SND.music(id==='title'?'title':id==='campaign'?'map':'battle');for(const s of ['title','campaign','battleView'])$('#'+s).hidden=s!==id;document.body.classList.toggle('lock',id!=='battleView');if(id==='battleView')window.scrollTo(0,0)}
-function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
+function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(e){}setTitleMode(m);$('#heroBtn').classList.toggle('primary',m==='hero'&&!has);$('#newBtn').classList.toggle('primary',m==='lb'&&!has)}if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
 function threats(){return S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu'&&!allied('shu',a.fac)).sort((x,y)=>x.left-y.left)}
 function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElement('div');el.id='threatBar';el.setAttribute('role','alert');$('#campaign .ctop').after(el)}
   const T=threats();el.hidden=!T.length;
@@ -1119,3 +1119,12 @@ async function consortScene(g){if(!g)return;const L=CONSORT_LINES[g.id];if(!L)re
     <p class="cl vow" data-i="${L.length}">${GODN[g.id]} pledges herself to ${hero.name} as his consort, forever.</p></div></div>`,[['ok','Take her hand','primary']]);
   $('#dlgbox').classList.add('dwide','consbox');const ps=[...document.querySelectorAll('.cons .cl')];ps.forEach((el,i)=>setTimeout(()=>el.classList.add('on'),300+i*1950));
   await p;addLog(`${GODN[g.id]} descends from the heavens and becomes ${hero.name}'s consort.`,'shu');save();renderCampaign()}
+// ---- title screen: switch between Liu Bei and New Hero
+const TMODE={lb:{img:'art/title_liubei.jpg',logo:'赤壁之戰',t:'The Battle of Red Cliffs',p:'Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.'},hero:{img:'art/title_hero.jpg',logo:'天命英雄',t:'The Hero of Destiny',p:'Heir to a great family fortune in far-southern Luling, an unknown hero with 4,000 men sets out to conquer the realm, and four goddesses of war descend to stand at his side. Hold 10 of the 15 cities by the end of 215.'}};
+function setTitleMode(m){if(!TMODE[m])m='lb';try{localStorage.setItem('rtk3_tmode',m)}catch(e){}const T=TMODE[m];
+  const im=document.getElementById('tbg');if(im&&!im.src.endsWith(T.img)){im.style.opacity=0;setTimeout(()=>{im.src=T.img;im.onload=()=>im.style.opacity=1},180)}
+  $('#tlogo').textContent=T.logo;$('#tscenT').textContent=T.t;$('#tscenP').textContent=T.p;document.getElementById('title').classList.toggle('tm-hero',m==='hero');$('#tlogo').classList.toggle('hero',m==='hero');
+  document.querySelectorAll('[data-tm]').forEach(b=>b.classList.toggle('on',b.dataset.tm===m));
+  $('#newBtn').hidden=m!=='lb';$('#heroBtn').hidden=m!=='hero';$('#heroBtn').classList.toggle('primary',m==='hero')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tm]');if(b)setTitleMode(b.dataset.tm)});
+setTimeout(()=>{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(e){}setTitleMode(m);new Image().src=TMODE.hero.img},0);

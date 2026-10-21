@@ -47,7 +47,7 @@ var SND=(()=>{
   let cur=null,want=null;const missing=new Set();
   function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
-    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat/.test(name);el.volume=0;
+    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat|^battle\d$/.test(name);if(/^battle\d$/.test(name))el.onended=()=>{if(cur&&cur.el===el)music(name==='battle1'?'battle2':'battle1')};el.volume=0;
     el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
   function fade(el,to,ms,done){const from=el.volume,t0=performance.now();const st=()=>{const k=Math.min(1,(performance.now()-t0)/ms);el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)requestAnimationFrame(st);else done&&done()};st()}
   document.addEventListener('visibilitychange',()=>{if(!cur)return;if(document.hidden)cur.el.pause();else cur.el.play().catch(()=>{})});

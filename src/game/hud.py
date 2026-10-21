@@ -1269,13 +1269,14 @@ function starDirs(s){return DIRS.map(([dx,dy])=>{const line=starLine(s,dx,dy);if
 const area3=(cx,cy)=>{const t=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(cx+dx,cy+dy))t.push({x:cx+dx,y:cy+dy});return t};
 function burnCentres(s){const out=[];for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){if(manh(s,{x,y})!==2)continue;const area=area3(x,y),hit=area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)continue;
   out.push({fake:1,x,y,area,label:`🔥 ${hit.length} enem${hit.length>1?'ies':'y'}`,name:'Firestorm',type:'shield',hits:hit.length,note:`burns ${hit.map(u=>u.name).join(', ')}`})}return out.sort((a,b)=>b.hits-a.hits)}
+const FXF={};function fxFrame(k,im,fr){const key=k+fr;if(FXF[key])return FXF[key];const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,0,0,256,256);const g=x.createRadialGradient(128,128,70,128,128,128);g.addColorStop(0,'#000');g.addColorStop(1,'rgba(0,0,0,0)');x.globalCompositeOperation='destination-in';x.fillStyle=g;x.fillRect(0,0,256,256);FXF[key]=cv;return cv}
 const FXS={};function fxSheet(k){if(!FXS[k]){FXS[k]=new Image();FXS[k].src=`sprites/fx_${k}.jpg`}return FXS[k]}
 function gfx(k,x,y,s,dur){G.mfx=(G.mfx||[]);G.mfx.push({k:'sheet',sheet:k,x,y,t0:performance.now(),dur:dur||2000,s})}""")
-rep("for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];","for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];\n    if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,cx-s/2,cy-s*.62,s,s);c.restore()}continue}")
+rep("for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];","for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];\n    if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame(f.sheet,im,fr),cx-s/2,cy-s*.62,s,s);c.restore()}continue}")
 rep("  if(HERO[k])return HERO[k].desc;\n  return ''}","  if(e&&e.fake)return e.note;\n  if(HERO[k])return HERO[k].desc;\n  return ''}")
 rep("<span>${tg.u.name} <small>${TYPES[tg.u.type].n}</small></span>","<span>${tg.u.label||tg.u.name+' <small>'+TYPES[tg.u.type].n+'</small>'}</span>")
 rep("if(G.mode==='target'){for(const tg of G.targets){const u=tg.u;","if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area){c.fillStyle=`rgba(255,170,60,${.1+pulse*.1})`;for(const p of tg.u.area)c.fillRect(p.x*T+1,p.y*T+1,T-2,T-2)}for(const tg of G.targets){const u=tg.u;")
-rep("if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u);if(tg)hitTarget(u);","if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u)||G.targets.find(t=>t.u.fake&&t.u.x===x&&t.u.y===y);if(tg)hitTarget(tg.u);")
+rep("if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u);if(tg)hitTarget(u);","if(G.mode==='target'){const inA=t=>t.u.area&&t.u.area.some(q=>q.x===x&&q.y===y);const tg=G.targets.find(t=>t.u===u)||G.targets.find(t=>t.u.fake&&t.u.x===x&&t.u.y===y)||G.targets.filter(inA).sort((a,b)=>(b.u.hits||0)-(a.u.hits||0))[0];if(tg)hitTarget(tg.u);")
 rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
   if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the ${t.name.toLowerCase()}.`);
     line.forEach((p,i)=>setTimeout(()=>gfx('xuannu',p.x,p.y,2.2,1800),i*110));await sleep(700);
@@ -1329,3 +1330,11 @@ rep(".legend button{padding:2px 9px;",""".mapview .mvhead{flex-wrap:nowrap;gap:8
 .mapview #mapClose{flex:none;min-height:0;padding:4px 10px}
 .mapview .mvbody{padding-top:42px!important}
 .legend button{white-space:nowrap;padding:2px 9px;""")
+rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
+#tbg{transition:opacity .25s}
+.tlogo{position:absolute;left:max(24px,env(safe-area-inset-left,0px));top:max(14px,env(safe-area-inset-top,0px));font-family:var(--f-zh);font-weight:900;font-size:clamp(44px,11vh,96px);line-height:1;letter-spacing:.06em;color:#ffd77a;background:linear-gradient(180deg,#fff2c4,#f0b33c 55%,#b8641c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #5a1c0c) drop-shadow(0 0 18px rgba(0,0,0,.65));pointer-events:none}
+.tmode{display:inline-flex;gap:4px;padding:3px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line);width:max-content}
+.tmode button{min-height:0;padding:5px 14px;border-radius:999px;border:0;background:none;color:#cfc4aa;font-size:14px}
+.tmode button.on{background:var(--gold,#d4ad55);color:#1a140c;font-weight:700}
+@media (orientation:portrait){.tlogo{font-size:clamp(40px,12vw,72px)}}""")
+rep(".tmode{display:inline-flex;",".tm-hero .tbg{object-position:78% 0%}@media (orientation:portrait){.tm-hero .tbg{left:-66vw!important}}\n.tmode{display:inline-flex;")

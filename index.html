@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中九乾二于五亮人仁伊佐侯俠倉偃備允八六兵典冬凌出刀分到劉劍勝化十南史司合向吳呂周咆哮商喬單四國城報壁夏夜大天太夫奇女奸妃威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑掌探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火焚無然獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺範簡籍粲糜純絕統羽聘肅肥臘臧良芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙農通速進運道遜遭遼邢郃金釭銀長關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中之九乾二于五亮人仁伊佐侯俠倉偃備允八六兵典冬凌出刀分到劉劍勝化十南史司合向吳呂周命咆哮商喬單四國城報壁夏夜大天太夫奇女奸妃威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑掌探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火焚無然獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺範簡籍粲糜純絕統羽聘肅肥臘臧良芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙農通速進運道遜遭遼邢郃金釭銀長關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -447,6 +447,13 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .bioh{display:flex;gap:12px;align-items:center}.bioh h2{margin:0}.bioh p{margin:2px 0 0}
 .bioz{font-family:var(--f-zh);font-weight:900;font-size:30px;color:#f3dc9a;line-height:1;white-space:nowrap}
 .biof{margin:8px 0}
+#tbg{transition:opacity .25s}
+.tlogo{position:absolute;left:max(24px,env(safe-area-inset-left,0px));top:max(14px,env(safe-area-inset-top,0px));font-family:var(--f-zh);font-weight:900;font-size:clamp(44px,11vh,96px);line-height:1;letter-spacing:.06em;color:#ffd77a;background:linear-gradient(180deg,#fff2c4,#f0b33c 55%,#b8641c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #5a1c0c) drop-shadow(0 0 18px rgba(0,0,0,.65));pointer-events:none}
+.tm-hero .tbg{object-position:78% 0%}@media (orientation:portrait){.tm-hero .tbg{left:-66vw!important}}
+.tmode{display:inline-flex;gap:4px;padding:3px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line);width:max-content}
+.tmode button{min-height:0;padding:5px 14px;border-radius:999px;border:0;background:none;color:#cfc4aa;font-size:14px}
+.tmode button.on{background:var(--gold,#d4ad55);color:#1a140c;font-weight:700}
+@media (orientation:portrait){.tlogo{font-size:clamp(40px,12vw,72px)}}
 .mapview .mvhead{position:absolute;top:0;left:0;right:0;z-index:5;background:linear-gradient(180deg,rgba(10,8,6,.92),rgba(10,8,6,.65));border-bottom:0}
 .mapview .mvbody{padding:0;align-items:flex-start;justify-content:flex-start}
 .mapview .mapbox{width:calc(max(100vw, (100dvh)*1.5) * var(--mz,1))!important;border-radius:0;border:0}
@@ -514,13 +521,14 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 
 
 <div id="title" class="screen" hidden>
-  <img class="tbg" src="art/title.png" alt="">
+  <img class="tbg" id="tbg" src="art/title_liubei.jpg" alt=""><div class="tlogo" id="tlogo">赤壁之戰</div>
   <div class="tshade"></div>
   <div class="tcontent">
     <div class="tbrand"><div class="seal">國</div><div><div class="tname">RTK3</div><div class="tsub">A strategy game of the Three Kingdoms</div></div></div>
     <div class="tbig">天下三分</div>
-    <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b>The Battle of Red Cliffs</b>
-      <p>Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
+    <div class="tmode" role="tablist"><button data-tm="lb" class="on" role="tab">劉 Liu Bei</button><button data-tm="hero" role="tab">俠 New Hero</button></div>
+    <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b id="tscenT">The Battle of Red Cliffs</b>
+      <p id="tscenP">Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
     <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
@@ -677,6 +685,7 @@ function starDirs(s){return DIRS.map(([dx,dy])=>{const line=starLine(s,dx,dy);if
 const area3=(cx,cy)=>{const t=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(cx+dx,cy+dy))t.push({x:cx+dx,y:cy+dy});return t};
 function burnCentres(s){const out=[];for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){if(manh(s,{x,y})!==2)continue;const area=area3(x,y),hit=area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)continue;
   out.push({fake:1,x,y,area,label:`🔥 ${hit.length} enem${hit.length>1?'ies':'y'}`,name:'Firestorm',type:'shield',hits:hit.length,note:`burns ${hit.map(u=>u.name).join(', ')}`})}return out.sort((a,b)=>b.hits-a.hits)}
+const FXF={};function fxFrame(k,im,fr){const key=k+fr;if(FXF[key])return FXF[key];const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,0,0,256,256);const g=x.createRadialGradient(128,128,70,128,128,128);g.addColorStop(0,'#000');g.addColorStop(1,'rgba(0,0,0,0)');x.globalCompositeOperation='destination-in';x.fillStyle=g;x.fillRect(0,0,256,256);FXF[key]=cv;return cv}
 const FXS={};function fxSheet(k){if(!FXS[k]){FXS[k]=new Image();FXS[k].src=`sprites/fx_${k}.jpg`}return FXS[k]}
 function gfx(k,x,y,s,dur){G.mfx=(G.mfx||[]);G.mfx.push({k:'sheet',sheet:k,x,y,t0:performance.now(),dur:dur||2000,s})}
 for(const [k,h] of Object.entries(HERO))SKILLS[k]={n:h.n,zh:h.zh[0],who:u=>u.id===h.who,desc:h.desc};
@@ -955,7 +964,7 @@ function drawMap(now){
   for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
   G.mfx=(G.mfx||[]).filter(f=>now-f.t0<f.dur);
   for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];
-    if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,cx-s/2,cy-s*.62,s,s);c.restore()}continue}
+    if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame(f.sheet,im,fr),cx-s/2,cy-s*.62,s,s);c.restore()}continue}
     if(row!=null&&SKFX.complete&&SKFX.naturalWidth){const fr=Math.min(3,Math.floor(p*4)),s=T*(f.s||1.8);c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.75?(1-p)*4:1;c.drawImage(SKFX,fr*256,row*256,256,256,cx-s/2,cy-s/2,s,s);c.restore();continue}
     c.save();
     if(f.k==='ring'){for(let i=0;i<2;i++){const q=clamp(p*1.3-i*.25);c.strokeStyle=`rgba(255,226,160,${(1-q)*.9})`;c.lineWidth=T*.08*(1-q)+1;c.beginPath();c.arc(cx,cy,T*(.3+q*1.5),0,7);c.stroke()}}
@@ -1074,7 +1083,7 @@ MC.addEventListener('click',e=>{
   if(G.phase!=='player'||G.busy||G.over)return;
   const r=MC.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/T),y=Math.floor((e.clientY-r.top)/T);if(!inb(x,y))return;
   const u=unitAt(x,y);
-  if(G.mode==='target'){const tg=G.targets.find(t=>t.u===u)||G.targets.find(t=>t.u.fake&&t.u.x===x&&t.u.y===y);if(tg)hitTarget(tg.u);else{G.mode=G.prevMode||'moved';G.targets=[];updateUI()}return}
+  if(G.mode==='target'){const inA=t=>t.u.area&&t.u.area.some(q=>q.x===x&&q.y===y);const tg=G.targets.find(t=>t.u===u)||G.targets.find(t=>t.u.fake&&t.u.x===x&&t.u.y===y)||G.targets.filter(inA).sort((a,b)=>(b.u.hits||0)-(a.u.hits||0))[0];if(tg)hitTarget(tg.u);else{G.mode=G.prevMode||'moved';G.targets=[];updateUI()}return}
   if((G.mode==='select'||G.mode==='moved')&&G.sel&&u&&u.side==='wei'&&G.atk&&G.atk.includes(u)){
     const s=G.sel;G.tmode='attack';
     if(inRange(s.type,manh(s,u))){execTarget(u);return}
@@ -1734,7 +1743,7 @@ var SND=(()=>{
   let cur=null,want=null;const missing=new Set();
   function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
-    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat/.test(name);el.volume=0;
+    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat|^battle\d$/.test(name);if(/^battle\d$/.test(name))el.onended=()=>{if(cur&&cur.el===el)music(name==='battle1'?'battle2':'battle1')};el.volume=0;
     el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
   function fade(el,to,ms,done){const from=el.volume,t0=performance.now();const st=()=>{const k=Math.min(1,(performance.now()-t0)/ms);el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)requestAnimationFrame(st);else done&&done()};st()}
   document.addEventListener('visibilitychange',()=>{if(!cur)return;if(document.hidden)cur.el.pause();else cur.el.play().catch(()=>{})});
@@ -1969,7 +1978,7 @@ function loadSave(){try{const t=localStorage.getItem('rtk3-save');return t?JSON.
 
 // ------------------------------------------------------------ rendering
 function showScreen(id){SND.music(id==='title'?'title':id==='campaign'?'map':'battle');for(const s of ['title','campaign','battleView'])$('#'+s).hidden=s!==id;document.body.classList.toggle('lock',id!=='battleView');if(id==='battleView')window.scrollTo(0,0)}
-function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
+function renderTitle(){const sv=loadSave(),has=!!(sv&&!sv.over);$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});$('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(e){}setTitleMode(m);$('#heroBtn').classList.toggle('primary',m==='hero'&&!has);$('#newBtn').classList.toggle('primary',m==='lb'&&!has)}if(sv&&!sv.over)$('#contInfo').textContent=`${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month`}
 function threats(){return S.armies.filter(a=>a.fac!=='shu'&&C(a.to).owner==='shu'&&!allied('shu',a.fac)).sort((x,y)=>x.left-y.left)}
 function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElement('div');el.id='threatBar';el.setAttribute('role','alert');$('#campaign .ctop').after(el)}
   const T=threats();el.hidden=!T.length;
@@ -2875,6 +2884,15 @@ async function consortScene(g){if(!g)return;const L=CONSORT_LINES[g.id];if(!L)re
     <p class="cl vow" data-i="${L.length}">${GODN[g.id]} pledges herself to ${hero.name} as his consort, forever.</p></div></div>`,[['ok','Take her hand','primary']]);
   $('#dlgbox').classList.add('dwide','consbox');const ps=[...document.querySelectorAll('.cons .cl')];ps.forEach((el,i)=>setTimeout(()=>el.classList.add('on'),300+i*1950));
   await p;addLog(`${GODN[g.id]} descends from the heavens and becomes ${hero.name}'s consort.`,'shu');save();renderCampaign()}
+// ---- title screen: switch between Liu Bei and New Hero
+const TMODE={lb:{img:'art/title_liubei.jpg',logo:'赤壁之戰',t:'The Battle of Red Cliffs',p:'Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.'},hero:{img:'art/title_hero.jpg',logo:'天命英雄',t:'The Hero of Destiny',p:'Heir to a great family fortune in far-southern Luling, an unknown hero with 4,000 men sets out to conquer the realm, and four goddesses of war descend to stand at his side. Hold 10 of the 15 cities by the end of 215.'}};
+function setTitleMode(m){if(!TMODE[m])m='lb';try{localStorage.setItem('rtk3_tmode',m)}catch(e){}const T=TMODE[m];
+  const im=document.getElementById('tbg');if(im&&!im.src.endsWith(T.img)){im.style.opacity=0;setTimeout(()=>{im.src=T.img;im.onload=()=>im.style.opacity=1},180)}
+  $('#tlogo').textContent=T.logo;$('#tscenT').textContent=T.t;$('#tscenP').textContent=T.p;document.getElementById('title').classList.toggle('tm-hero',m==='hero');$('#tlogo').classList.toggle('hero',m==='hero');
+  document.querySelectorAll('[data-tm]').forEach(b=>b.classList.toggle('on',b.dataset.tm===m));
+  $('#newBtn').hidden=m!=='lb';$('#heroBtn').hidden=m!=='hero';$('#heroBtn').classList.toggle('primary',m==='hero')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tm]');if(b)setTitleMode(b.dataset.tm)});
+setTimeout(()=>{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(e){}setTitleMode(m);new Image().src=TMODE.hero.img},0);
 
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}

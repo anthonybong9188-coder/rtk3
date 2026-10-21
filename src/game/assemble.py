@@ -191,13 +191,14 @@ rep('''          <tr><td>Fort</td><td>1.5</td></tr>''', '''          <tr><td>For
 
 TITLE_CAMP = '''
 <div id="title" class="screen" hidden>
-  <img class="tbg" src="art/title.png" alt="">
+  <img class="tbg" id="tbg" src="art/title_liubei.jpg" alt=""><div class="tlogo" id="tlogo">赤壁之戰</div>
   <div class="tshade"></div>
   <div class="tcontent">
     <div class="tbrand"><div class="seal">國</div><div><div class="tname">RTK3</div><div class="tsub">A strategy game of the Three Kingdoms</div></div></div>
     <div class="tbig">天下三分</div>
-    <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b>The Battle of Red Cliffs</b>
-      <p>Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
+    <div class="tmode" role="tablist"><button data-tm="lb" class="on" role="tab">劉 Liu Bei</button><button data-tm="hero" role="tab">俠 New Hero</button></div>
+    <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b id="tscenT">The Battle of Red Cliffs</b>
+      <p id="tscenP">Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
     <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
