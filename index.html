@@ -446,7 +446,23 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .biot{max-height:calc(100dvh - 130px);overflow:auto;padding-right:4px}
 .bioh{display:flex;gap:12px;align-items:center}.bioh h2{margin:0}.bioh p{margin:2px 0 0}
 .bioz{font-family:var(--f-zh);font-weight:900;font-size:30px;color:#f3dc9a;line-height:1;white-space:nowrap}
-.biof{margin:8px 0}.chr{display:flex;align-items:center;gap:8px}.chead .trbtn{padding:0 10px!important;height:26px!important;min-height:0!important;min-width:0!important;line-height:24px;font-size:13px!important;border-radius:999px;font-weight:700;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(212,173,85,.6);background:rgba(212,173,85,.12);color:#f3dc9a}.trbtn .czh{font-size:13px}
+.biof{margin:8px 0}
+.mapview .mvhead{position:absolute;top:0;left:0;right:0;z-index:5;background:linear-gradient(180deg,rgba(10,8,6,.92),rgba(10,8,6,.65));border-bottom:0}
+.mapview .mvbody{padding:0;align-items:flex-start;justify-content:flex-start}
+.mapview .mapbox{width:calc(max(100vw, (100dvh)*1.5) * var(--mz,1))!important;border-radius:0;border:0}
+.mapview .mvhead{flex-wrap:nowrap;gap:8px;padding-block:4px}
+.mapview .mvhead .muted{display:none}
+.mapview .mvhead .mvt{white-space:nowrap;font-size:15px}
+.mapview .legend{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.mapview .legend::-webkit-scrollbar{display:none}
+.mapview .mvhead .spacer{display:none}
+.mapview #mapClose{flex:none;min-height:0;padding:4px 10px}
+.mapview .mvbody{padding-top:42px!important}
+.legend button{white-space:nowrap;padding:2px 9px;border-radius:99px;border:1px solid;font-size:11.5px;min-height:0;background:rgba(0,0,0,.35);color:inherit;cursor:pointer}
+.legend button.on{font-weight:700}
+.mapbox.mfilter .city{opacity:.35;filter:grayscale(.7);transition:opacity .25s}.mapbox.mfilter .city.mhl{opacity:1;filter:none;transform:translate(-50%,-50%) scale(1.12)}
+#mfacInfo{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;background:rgba(18,15,11,.93);border:1px solid var(--line);border-radius:12px;padding:8px 14px;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;max-width:calc(100vw - 24px);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+#mfacInfo[hidden]{display:none}.chr{display:flex;align-items:center;gap:8px}.chead .trbtn{padding:0 10px!important;height:26px!important;min-height:0!important;min-width:0!important;line-height:24px;font-size:13px!important;border-radius:999px;font-weight:700;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(212,173,85,.6);background:rgba(212,173,85,.12);color:#f3dc9a}.trbtn .czh{font-size:13px}
 .hname{width:100%;font-size:20px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:inherit;margin:6px 0 2px}
 .hstats{display:grid;gap:8px;margin:10px 0}.hstat{display:grid;grid-template-columns:40px 34px 1fr;align-items:center;gap:8px}.hstat span{color:var(--muted)}.hstat b{font-size:20px}.hstat i{display:block;height:8px;border-radius:4px;background:var(--gold,#d4ad55)}
 #dlgbox.consbox{max-width:min(880px,96vw)}.cons{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
@@ -2044,7 +2060,8 @@ function renderCampaign(){ensureTr();{const h=isHeroMode(),el=document.getElemen
   if(!$('#mapView').hidden)renderMap();
   renderCity();
 }
-function openMap(){$('#mapView').hidden=false;renderMap()}
+function openMap(){$('#mapView').hidden=false;UI.mfac=null;renderMap();requestAnimationFrame(()=>{const b=document.querySelector('#cityLayer .city.sel'),body=document.querySelector('.mapview .mvbody');if(b&&body){const r=b.getBoundingClientRect(),q=body.getBoundingClientRect();body.scrollTop+=r.top-q.top-q.height/2;body.scrollLeft+=r.left-q.left-q.width/2}})}
+document.addEventListener('click',e=>{const p=e.target.closest('[data-mfac]');if(!p)return;UI.mfac=UI.mfac===p.dataset.mfac?null:p.dataset.mfac;renderMap()});
 function closeMap(){$('#mapView').hidden=true}
 const CITY_TIER={xuchang:'capital',jianye:'capital',jiangling:'large',xiangyang:'large',chaisang:'large',runan:'large',hefei:'large'};
 const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};
@@ -2065,7 +2082,12 @@ function renderMap(){
     al+=`<div class="army" style="left:${lerp(f.x,t.x,p)}%;top:${lerp(f.y,t.y,p)}%;background:${F.dark};border-color:${F.light}"><span>${F.zh}</span>${(a.troops/1000).toFixed(1)}k</div>`}
   $('#armyLayer').innerHTML=al;
   const fl=[...new Set(Object.values(S.cities).map(c=>c.owner))];
-  $('#mapLegend').innerHTML=fl.map(f=>`<span style="border-color:${FACS[f].main}">${FACS[f].short} · ${citiesOf(f).length}</span>`).join('');
+  $('#mapLegend').innerHTML=fl.map(f=>`<button data-mfac="${f}" class="${UI.mfac===f?'on':''}" style="border-color:${FACS[f].main};${UI.mfac===f?`background:${FACS[f].main};color:#fff`:''}">${FACS[f].short} · ${citiesOf(f).length}</button>`).join('');
+  const box=document.querySelector('.mapview .mapbox');if(box)box.classList.toggle('mfilter',!!UI.mfac);
+  document.querySelectorAll('#cityLayer .city').forEach(b=>b.classList.toggle('mhl',C(b.dataset.city).owner===UI.mfac));
+  let inf=document.getElementById('mfacInfo');if(!inf){inf=document.createElement('div');inf.id='mfacInfo';document.querySelector('.mapview .mvbody').appendChild(inf)}
+  if(UI.mfac&&FACS[UI.mfac]){const f=UI.mfac,F=FACS[f],cs=citiesOf(f),gs=Object.values(S.gens).filter(g=>g.fac===f),rl=GN(S.rulers[f]),tr=cs.reduce((n,c)=>n+c.troops,0)+S.armies.filter(a=>a.fac===f).reduce((n,a)=>n+a.troops,0);
+    inf.innerHTML=`<b style="color:${F.light}">${F.zh} ${F.name}</b><span>Ruler <b>${rl?rl.name:'—'}</b></span><span>${cs.length} cit${cs.length===1?'y':'ies'}: ${cs.map(c=>c.name).join(', ')}</span><span>${fmt(tr)} troops · ${gs.length} officers</span>${f!=='shu'&&allied('shu',f)?'<span class="adv">Allied with you</span>':''}`;inf.hidden=false}else inf.hidden=true;
 }
 function statRow(label,val,max){return `<div class="srow" data-tip="${label}"><span>${label}</span><b>${val}${max!=null?` <i>/ ${max}</i>`:''}</b>${max!=null?`<div class="sbar"><i style="width:${Math.round(100*clamp(parseFloat(String(val).replace(/,/g,''))/max))}%"></i></div>`:''}</div>`}
 function sceneStyle(c){return CITY_ART[c.id]?`background-image:url(${CITY_ART[c.id]});background-size:cover;background-position:50% 55%`:`background-image:url(art/map.jpg);background-size:420% auto;background-position:${c.x}% ${c.y}%`}

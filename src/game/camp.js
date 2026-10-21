@@ -304,7 +304,8 @@ function renderCampaign(){ensureTr();{const h=isHeroMode(),el=document.getElemen
   if(!$('#mapView').hidden)renderMap();
   renderCity();
 }
-function openMap(){$('#mapView').hidden=false;renderMap()}
+function openMap(){$('#mapView').hidden=false;UI.mfac=null;renderMap();requestAnimationFrame(()=>{const b=document.querySelector('#cityLayer .city.sel'),body=document.querySelector('.mapview .mvbody');if(b&&body){const r=b.getBoundingClientRect(),q=body.getBoundingClientRect();body.scrollTop+=r.top-q.top-q.height/2;body.scrollLeft+=r.left-q.left-q.width/2}})}
+document.addEventListener('click',e=>{const p=e.target.closest('[data-mfac]');if(!p)return;UI.mfac=UI.mfac===p.dataset.mfac?null:p.dataset.mfac;renderMap()});
 function closeMap(){$('#mapView').hidden=true}
 const CITY_TIER={xuchang:'capital',jianye:'capital',jiangling:'large',xiangyang:'large',chaisang:'large',runan:'large',hefei:'large'};
 const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};
@@ -325,7 +326,12 @@ function renderMap(){
     al+=`<div class="army" style="left:${lerp(f.x,t.x,p)}%;top:${lerp(f.y,t.y,p)}%;background:${F.dark};border-color:${F.light}"><span>${F.zh}</span>${(a.troops/1000).toFixed(1)}k</div>`}
   $('#armyLayer').innerHTML=al;
   const fl=[...new Set(Object.values(S.cities).map(c=>c.owner))];
-  $('#mapLegend').innerHTML=fl.map(f=>`<span style="border-color:${FACS[f].main}">${FACS[f].short} · ${citiesOf(f).length}</span>`).join('');
+  $('#mapLegend').innerHTML=fl.map(f=>`<button data-mfac="${f}" class="${UI.mfac===f?'on':''}" style="border-color:${FACS[f].main};${UI.mfac===f?`background:${FACS[f].main};color:#fff`:''}">${FACS[f].short} · ${citiesOf(f).length}</button>`).join('');
+  const box=document.querySelector('.mapview .mapbox');if(box)box.classList.toggle('mfilter',!!UI.mfac);
+  document.querySelectorAll('#cityLayer .city').forEach(b=>b.classList.toggle('mhl',C(b.dataset.city).owner===UI.mfac));
+  let inf=document.getElementById('mfacInfo');if(!inf){inf=document.createElement('div');inf.id='mfacInfo';document.querySelector('.mapview .mvbody').appendChild(inf)}
+  if(UI.mfac&&FACS[UI.mfac]){const f=UI.mfac,F=FACS[f],cs=citiesOf(f),gs=Object.values(S.gens).filter(g=>g.fac===f),rl=GN(S.rulers[f]),tr=cs.reduce((n,c)=>n+c.troops,0)+S.armies.filter(a=>a.fac===f).reduce((n,a)=>n+a.troops,0);
+    inf.innerHTML=`<b style="color:${F.light}">${F.zh} ${F.name}</b><span>Ruler <b>${rl?rl.name:'—'}</b></span><span>${cs.length} cit${cs.length===1?'y':'ies'}: ${cs.map(c=>c.name).join(', ')}</span><span>${fmt(tr)} troops · ${gs.length} officers</span>${f!=='shu'&&allied('shu',f)?'<span class="adv">Allied with you</span>':''}`;inf.hidden=false}else inf.hidden=true;
 }
 function statRow(label,val,max){return `<div class="srow" data-tip="${label}"><span>${label}</span><b>${val}${max!=null?` <i>/ ${max}</i>`:''}</b>${max!=null?`<div class="sbar"><i style="width:${Math.round(100*clamp(parseFloat(String(val).replace(/,/g,''))/max))}%"></i></div>`:''}</div>`}
 function sceneStyle(c){return CITY_ART[c.id]?`background-image:url(${CITY_ART[c.id]});background-size:cover;background-position:50% 55%`:`background-image:url(art/map.jpg);background-size:420% auto;background-position:${c.x}% ${c.y}%`}

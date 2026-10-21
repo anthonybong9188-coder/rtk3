@@ -1310,3 +1310,22 @@ rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
 .const .cl.him{padding-left:14px;border-left:2px solid var(--gold,#d4ad55);color:#ece2c9}.const .cl.her{font-style:italic}.const .cl.vow{color:#f3dc9a;font-weight:700}
 @media (max-width:620px){.cons{grid-template-columns:1fr}.consp img{height:auto;max-height:38vh;max-width:100%}}""")
 rep(".biof{margin:8px 0}",".biof{margin:8px 0}.chr{display:flex;align-items:center;gap:8px}.chead .trbtn{padding:0 10px!important;height:26px!important;min-height:0!important;min-width:0!important;line-height:24px;font-size:13px!important;border-radius:999px;font-weight:700;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(212,173,85,.6);background:rgba(212,173,85,.12);color:#f3dc9a}.trbtn .czh{font-size:13px}")
+# full-screen world map + clickable ruler pills
+rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
+.mapview .mvhead{position:absolute;top:0;left:0;right:0;z-index:5;background:linear-gradient(180deg,rgba(10,8,6,.92),rgba(10,8,6,.65));border-bottom:0}
+.mapview .mvbody{padding:0;align-items:flex-start;justify-content:flex-start}
+.mapview .mapbox{width:calc(max(100vw, (100dvh)*1.5) * var(--mz,1))!important;border-radius:0;border:0}
+.legend button{padding:2px 9px;border-radius:99px;border:1px solid;font-size:11.5px;min-height:0;background:rgba(0,0,0,.35);color:inherit;cursor:pointer}
+.legend button.on{font-weight:700}
+.mapbox.mfilter .city{opacity:.35;filter:grayscale(.7);transition:opacity .25s}.mapbox.mfilter .city.mhl{opacity:1;filter:none;transform:translate(-50%,-50%) scale(1.12)}
+#mfacInfo{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;background:rgba(18,15,11,.93);border:1px solid var(--line);border-radius:12px;padding:8px 14px;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;max-width:calc(100vw - 24px);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+#mfacInfo[hidden]{display:none}""")
+rep(".legend button{padding:2px 9px;",""".mapview .mvhead{flex-wrap:nowrap;gap:8px;padding-block:4px}
+.mapview .mvhead .muted{display:none}
+.mapview .mvhead .mvt{white-space:nowrap;font-size:15px}
+.mapview .legend{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.mapview .legend::-webkit-scrollbar{display:none}
+.mapview .mvhead .spacer{display:none}
+.mapview #mapClose{flex:none;min-height:0;padding:4px 10px}
+.mapview .mvbody{padding-top:42px!important}
+.legend button{white-space:nowrap;padding:2px 9px;""")
