@@ -683,7 +683,8 @@ function starLine(s,dx,dy){const t=[];for(let i=1;i<=6;i++){const x=s.x+dx*i,y=s
 function starDirs(s){return DIRS.map(([dx,dy])=>{const line=starLine(s,dx,dy);if(!line.length)return null;const hit=line.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);const a=ARW[dx+','+dy];
   return{fake:1,x:line[0].x,y:line[0].y,dir:[dx,dy],area:line,label:`${a[0]} ${a[1]}`,name:a[1],type:'shield',note:hit.length?`hits ${hit.map(u=>u.name).join(', ')}`:'no enemies in line'}}).filter(Boolean)}
 const area3=(cx,cy)=>{const t=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(cx+dx,cy+dy))t.push({x:cx+dx,y:cy+dy});return t};
-function burnCentres(s){const out=[];for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){if(manh(s,{x,y})!==2)continue;const area=area3(x,y),hit=area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)continue;
+function selfArea(k,s){if(k==='frost')return area3(s.x,s.y);if(['mend','roar','sweep'].includes(k))return [{x:s.x,y:s.y},...DIRS.map(([dx,dy])=>({x:s.x+dx,y:s.y+dy})).filter(p=>inb(p.x,p.y))];return [{x:s.x,y:s.y}]}
+function burnCentres(s){const out=[];for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){const d=manh(s,{x,y}),eh=unitAt(x,y);if(!(d===2||(d>=1&&d<=2&&eh&&eh.side!==s.side)))continue;const area=area3(x,y),hit=area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)continue;
   out.push({fake:1,x,y,area,label:`🔥 ${hit.length} enem${hit.length>1?'ies':'y'}`,name:'Firestorm',type:'shield',hits:hit.length,note:`burns ${hit.map(u=>u.name).join(', ')}`})}return out.sort((a,b)=>b.hits-a.hits)}
 const FXF={};function fxFrame(k,im,fr){const key=k+fr;if(FXF[key])return FXF[key];const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.drawImage(im,(fr%4)*256,Math.floor(fr/4)*256,256,256,0,0,256,256);const g=x.createRadialGradient(128,128,70,128,128,128);g.addColorStop(0,'#000');g.addColorStop(1,'rgba(0,0,0,0)');x.globalCompositeOperation='destination-in';x.fillStyle=g;x.fillRect(0,0,256,256);FXF[key]=cv;return cv}
 const FXS={};function fxSheet(k){if(!FXS[k]){FXS[k]=new Image();FXS[k].src=`sprites/fx_${k}.jpg`}return FXS[k]}
@@ -1048,7 +1049,7 @@ function onAct(e){
   const s=G.sel;
   if(b.dataset.sk){const k=b.dataset.sk;G.prevMode=G.mode==='select'?'moved':G.mode;G.mode='moved';
     if(k==='guard'){doGuard(s);return}
-    if(HERO[k]&&HERO[k].self){(async()=>{G.busy=true;G.mode='busy';G.targets=[];updateUI();const r=await heroAct(k,s,null);G.busy=false;if(checkEnd())return;if(r==='keep'){G.mode='moved';G.reach=reachFrom(s,G.origin);updateUI()}else finish(s)})();return}
+    if(HERO[k]&&HERO[k].self){G.tmode=k;G.targets=[{u:{fake:1,self:1,x:s.x,y:s.y,area:selfArea(k,s),label:`✦ Cast ${HERO[k].n} here`,name:s.name,type:s.type},note:HERO[k].desc}];G.mode='target';updateUI();return}
     G.tmode=k;G.targets=skillTargets(k,s).map(e=>({u:e,note:skillNote(k,s,e)}));G.mode='target';updateUI();return}
   const a=b.dataset.a;
   if(a==='attack'){G.prevMode=G.mode;G.tmode='attack';const list=G.mode==='moved'?enemies().filter(e=>inRange(s.type,manh(s,e))):(G.atk||[]);G.targets=list.map(e=>{const f=forecast(s,e);return{u:e,note:`deal ~${f.deal} · take ~${f.take}${f.m>1?' ▲':f.m<1?' ▼':''}`}});G.mode='target'}
