@@ -1078,7 +1078,7 @@ const LN=()=>{const g=S&&S.gens&&S.gens[LORD()];return g?g.name:'Liu Bei'};
 const isHeroMode=()=>!!(S&&S.mode==='hero');
 function applyMode(){const h=isHeroMode();if(h&&S.gens&&S.gens.hero&&!S.gens.hero.img)S.gens.hero.img='hero';
   for(let i=ROUTES.length-1;i>=0;i--)if(ROUTES[i][0]==='luling')ROUTES.splice(i,1);
-  if(h){ROUTES.push(...HERO_ROUTES.map(r=>r.slice()));CITY_ART.luling='art/guiyang.jpg';
+  if(h){ROUTES.push(...HERO_ROUTES.map(r=>r.slice()));CITY_ART.luling='art/luling.jpg';
     FACS.lb={name:'Liu Bei',short:'Liu Bei',zh:'劉',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',gold:1500,rice:30000,ai:'defensive'};
     Object.assign(FACS.shu,{name:S.hero.name,short:S.hero.name,zh:'俠',main:'#b98a2e',dark:'#6b4c16',light:'#ecc874',ruler:'hero'});
     BIO.hero={zh:'俠',st:'',y:'born c.178',bg:`Heir to a great merchant fortune of the south. When his family died, ${S.hero.name} inherited their gold, their granaries and their name.`,
