@@ -1297,7 +1297,7 @@ rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}",""
 # New Hero: Eighteen Dragon-Subduing Palms + hero/consort UI styles
 rep("for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost'].includes(k))delete HERO[k];","""HERO.palm={who:'hero',zh:'降龍十八掌',n:'Dragon Palms',targets:s=>adjE(s),desc:'Eighteen Dragon-Subduing Palms: the enemy loses 25% of its troops and, with internal injuries, cannot act next turn'};
 for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm'].includes(k))delete HERO[k];""")
-rep("  if(k==='star'){","""  if(k==='palm'){mfx('ring',t.x,t.y,1200,3.2);mfx('arc',t.x,t.y,900,2.6);SND.fx('crit');await sleep(500);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
+rep("  if(k==='star'){","""  if(k==='palm'){gfx('hero',t.x,t.y,3.6,2000);SND.fx('crit');await sleep(1000);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
     log(`<b>Eighteen Dragon-Subduing Palms!</b> ${nm(s)} strikes ${nm(t)}: −${dmg}. Wracked by internal injuries, they cannot act next turn.`);await sleep(900)}
   else if(k==='star'){""")
 rep(".biof{margin:8px 0}",""".biof{margin:8px 0}

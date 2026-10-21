@@ -1354,7 +1354,7 @@ function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.m
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);let keep=false;
-  if(k==='palm'){mfx('ring',t.x,t.y,1200,3.2);mfx('arc',t.x,t.y,900,2.6);SND.fx('crit');await sleep(500);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
+  if(k==='palm'){gfx('hero',t.x,t.y,3.6,2000);SND.fx('crit');await sleep(1000);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
     log(`<b>Eighteen Dragon-Subduing Palms!</b> ${nm(s)} strikes ${nm(t)}: −${dmg}. Wracked by internal injuries, they cannot act next turn.`);await sleep(900)}
   else if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the ${t.name.toLowerCase()}.`);
     line.forEach((p,i)=>setTimeout(()=>gfx('xuannu',p.x,p.y,2.2,1800),i*110));await sleep(700);
