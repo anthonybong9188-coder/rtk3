@@ -1309,3 +1309,4 @@ rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
 .const .cl.on{opacity:1;transform:none}.const .cl b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#d4ad55)}
 .const .cl.him{padding-left:14px;border-left:2px solid var(--gold,#d4ad55);color:#ece2c9}.const .cl.her{font-style:italic}.const .cl.vow{color:#f3dc9a;font-weight:700}
 @media (max-width:620px){.cons{grid-template-columns:1fr}.consp img{height:auto;max-height:38vh;max-width:100%}}""")
+rep(".biof{margin:8px 0}",".biof{margin:8px 0}.chr{display:flex;align-items:center;gap:8px}.chead .trbtn{padding:0 10px!important;height:26px!important;min-height:0!important;min-width:0!important;line-height:24px;font-size:13px!important;border-radius:999px;font-weight:700;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(212,173,85,.6);background:rgba(212,173,85,.12);color:#f3dc9a}.trbtn .czh{font-size:13px}")
