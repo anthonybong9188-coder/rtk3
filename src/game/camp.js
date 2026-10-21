@@ -220,7 +220,7 @@ function renderThreats(){let el=$('#threatBar');if(!el){el=document.createElemen
   el.innerHTML=T.map(a=>`<button data-city="${a.to}" class="${a.left<=1?'soon':''}"><b>⚠</b> ${FACS[a.fac].short} army of <b>${fmt(a.troops)}</b>${a.gens.length?` (${a.gens.map(id=>GN(id).name).slice(0,2).join(', ')}${a.gens.length>2?'…':''})`:''} reaches <b>${C(a.to).name}</b> ${a.left<=1?'next month':`in ${a.left} months`}</button>`).join('')}
 // ===== long-term assignments (farm / commerce / train for N months)
 const ASSIGNABLE=['farm','com','train'];
-const assignLbl=g=>g.assign?`${CMDS[g.assign.k].n} · ${g.assign.left} mo`:'';
+const assignLbl=g=>g.assign?`${CMDS[g.assign.k].n} · ${g.assign.left} mo left${g.assign.tot?` · +${g.assign.tot} so far`:''}`:'';
 const govOf=c=>c&&c.gov?GN(c.gov):null;
 const isDelegated=c=>!!(c&&c.owner==='shu'&&c.gov);
 // each city keeps its own gold and rice; a faction's wealth is the sum of its cities
@@ -240,7 +240,10 @@ function runAssignments(){
   for(const g of gensOf('shu')){if(!g.assign||g.army||g.acted)continue;const c=C(g.city);if(!c||c.owner!=='shu'||isDelegated(c)){g.assign=null;continue}
     const k=g.assign.k,afford=canPay(c,CMDS[k].cost);
     if(!afford){addLog(`${g.name} cannot carry out his ${CMDS[k].n.toLowerCase()} assignment: ${c.name} is short of gold.`,'shu');continue}
-    const m=doCmd(k,g,c,'shu');g.assign.left--;addLog(`${m} <i>(assigned${g.assign.left?`, ${g.assign.left} month${g.assign.left>1?'s':''} left`:', finished'})</i>`,'shu');if(!g.assign.left)g.assign=null}}
+    const A=g.assign,fld=ASF[k],f0=fld?c[fld]:0,m=doCmd(k,g,c,'shu');A.left--;if(fld)A.tot=(A.tot||0)+(c[fld]-f0);const D=A.dur||0,n=D?D-A.left:0;
+    addLog(`${m} <i>(${D?`month ${n} of ${D}`:'assigned'}${A.left?'':', finished'})</i>`,'shu');
+    if(!A.left){if(D&&fld)addLog(`<b>${g.name} completes his ${D}-month ${ASN[k]} assignment in ${c.name}:</b> ${ASN[k]} +${A.tot} in total (${A.from} → ${c[fld]}).`,'shu');g.assign=null}}}
+const ASF={farm:'farm',com:'com',train:'train'},ASN={farm:'farming',com:'commerce',train:'training'};
 const GOV_MODES={auto:'Auto',internal:'Internal',military:'Military'};
 function govTick(){
   for(const c of citiesOf('shu')){if(!c.gov)continue;
@@ -432,7 +435,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.gen){const g=GN(b.dataset.gen),k=UI.cmd;
     if(k!=='reward'&&g.assign){UI.busy=true;const ok=await confirmBreakAssign(g);UI.busy=false;if(!ok){renderCampaign();return}}
     const dur=ASSIGNABLE.includes(k)?(UI.dur||1):1;
-    UI.busy=true;const m=doCmd(k,g,c,'shu');if(dur>1){g.assign={k,left:dur-1};addLog(`${m} <i>(assigned for ${dur} months)</i>`,'shu')}else addLog(m,'shu');save();
+    UI.busy=true;const f0=ASF[k]?c[ASF[k]]:0;const m=doCmd(k,g,c,'shu');if(dur>1){g.assign={k,left:dur-1,dur,from:f0,tot:ASF[k]?c[ASF[k]]-f0:0};addLog(`${m} <i>(month 1 of ${dur})</i>`,'shu')}else addLog(m,'shu');save();
     try{await actFx(g,k,m,c)}catch(err){console.error(err)}
     if(UI.consort){const ng=GN(UI.consort);UI.consort=null;try{await consortScene(ng)}catch(err){console.error(err)}}
     if(UI.found){const ng=GN(UI.found);UI.found=null;try{await welcomeGen(ng,c,'search')}catch(err){console.error(err)}}
