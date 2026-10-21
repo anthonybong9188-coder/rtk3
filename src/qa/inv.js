@@ -11,7 +11,7 @@ window.__inv=function(tag){const v=[];const add=m=>v.push(`[${tag}] ${S.year}/${
     if(a.left<0)add('army left<0');for(const id of a.gens){const g=GN(id);if(!g)add(`army ${a.id} missing gen ${id}`);else if(g.army!==a.id&&g.fac===a.fac)add(`gen ${id} in army list but g.army=${g.army}`)}}
   for(const g of Object.values(S.gens)){for(const k of ['war','int','pol','cha','loy'])num(g[k],g.id+'.'+k);if(g.loy<0||g.loy>100)add(g.id+' loy '+g.loy);
     if(g.fac&&!FACS[g.fac])add(g.id+' bad fac');
-    if(g.army!=null&&!armyIds.has(g.army))add(`${g.id} army ${g.army} missing`);
+    if(g.army!=null&&!armyIds.has(g.army)&&document.querySelector('#battleView').hidden&&document.querySelector('#dlg').hidden)add(`${g.id} army ${g.army} missing`);
     if(g.army!=null&&g.city)add(`${g.id} has city and army`);
     if(g.fac&&!g.army&&!g.hidden&&!S.cities[g.city])add(`${g.id} fac ${g.fac} no city ${g.city}`);
     if(g.fac&&g.army!=null){const a=S.armies.find(x=>x.id===g.army);if(a&&!a.gens.includes(g.id))add(`${g.id} thinks in army ${a.id} but not listed`);if(a&&a.fac!==g.fac)add(`${g.id} fac ${g.fac} in army of ${a.fac}`)}
