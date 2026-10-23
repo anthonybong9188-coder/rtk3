@@ -10,4 +10,4 @@ rm -f RTK3-android.zip && zip -qr RTK3-android.zip RTK3 -x '*/build/*' '*/.gradl
 cd /home/claude/rtk3 && git add -A && git commit -qm "$1
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_0111XNMMrJnBfRdJHxiYc5DP" && git pull -q --rebase && git push -q && git log --oneline -1 && git status -sb | head -1
+Claude-Session: https://claude.ai/code/session_0111XNMMrJnBfRdJHxiYc5DP" && if [ "$PUSH" = "1" ]; then git pull -q --rebase && git push -q; else echo "(committed locally, not pushed: run with PUSH=1 when asked)"; fi && git log --oneline -1 && git status -sb | head -1
