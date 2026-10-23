@@ -2633,7 +2633,7 @@ async function fieldBattles(){
     S.armies=S.armies.filter(x=>x!==L);returnHome(L,lostG.filter(g=>!caps.includes(g)),L.troops);
     if(W.troops<=0&&!W.gens.length)S.armies=S.armies.filter(x=>x!==W);
     addLog(`${fs(W.fac)} defeats ${fs(L.fac)} on ${road.name}. The beaten army falls back to ${C(L.from).owner===L.fac?C(L.from).name:'its lands'}.`,W.fac);
-    if(playerIn&&!res.fromField){const w=W.fac==='shu';await dialog(`<div class="dzh" style="color:${w?'var(--gold)':'#e88b7f'}">${w?'勝':'敗'}</div><h2>${w?'The road is yours':'Your army is driven back'}</h2><p>${w?`${fs(L.fac)}'s army falls back. Your army marches on to ${C(W.to).name} with ${fmt(W.troops)} troops.`:`Your army retreats toward ${C(L.from).name} with ${fmt(L.troops)} troops.`}</p>`,[['ok','Continue','primary']])}
+    if(playerIn){const w=W.fac==='shu';await dialog(`<div class="dzh" style="color:${w?'var(--gold)':'#e88b7f'}">${w?'勝':'敗'}</div><h2>${w?'The road is yours':'Your army is driven back'}</h2><p>${w?`This was a battle in the open field against ${fs(L.fac)}'s marching army, not the siege of the city. ${fs(L.fac)}'s army falls back. Your army marches on to ${C(W.to).name} with ${fmt(W.troops)} troops and will storm it ${W.left<=1?'when it arrives':`in ${W.left} months`}.`:`Your army retreats toward ${C(L.from).name} with ${fmt(L.troops)} troops.`}</p>`,[['ok','Continue','primary']])}
     const home=C(W.from).owner===W.fac?C(W.from):C(W.to);
     for(const g of caps)await handleCapture(g,W.fac,home);
     if(S.over)return}}
