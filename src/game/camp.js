@@ -959,7 +959,34 @@ function succession(f){if(!citiesOf(f).length)return;const heir=gensOf(f).sort((
   if(heir){S.rulers[f]=heir.id;addLog(`${heir.name} takes command of ${FACS[f].short}'s men.`)}}
 
 // ---------- hand-off to the tactical battle
-function genBattleMap(fortSide,river,seed){
+// battlefield themes by region, so fields look different from place to place
+const CITY_THEME={xuchang:'plains',runan:'plains',wancheng:'hills',hefei:'marsh',xiangyang:'river',jiangling:'river',jiangxia:'river',chaisang:'marsh',jianye:'marsh',kuaiji:'hills',wuling:'forest',changsha:'forest',lingling:'hills',guiyang:'forest',luling:'forest'};
+const THEMES={
+ plains:{f:.05,h:.04,clump:3,ridge:0,lakes:0,river:.15,name:'open plains'},
+ hills:{f:.07,h:.16,clump:3,ridge:1,lakes:0,river:.15,name:'hill country'},
+ forest:{f:.22,h:.06,clump:8,ridge:0,lakes:0,river:.2,name:'deep forest'},
+ river:{f:.07,h:.05,clump:4,ridge:0,lakes:0,river:1,name:'river valley'},
+ marsh:{f:.08,h:.03,clump:4,ridge:0,lakes:3,river:.3,name:'marshland'},
+ pass:{f:.05,h:.10,clump:2,ridge:2,lakes:0,river:0,name:'mountain pass'}};
+function themeFor(a,c){const ids=c.field?[a.from,a.to]:[c.id];const t=CITY_THEME[ids[Math.floor(Math.random()*ids.length)]]||'plains';
+  return Math.random()<.2?['plains','hills','forest','pass','marsh'][Math.floor(Math.random()*5)]:t}
+function mapPassable(rows){const H=rows.length,W=rows[0].length,seen=new Set(),q=[];for(let y=0;y<H;y++)if(rows[y][1]!=='w'){q.push([1,y]);seen.add('1,'+y)}
+  while(q.length){const [x,y]=q.pop();if(x>=W-2)return true;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=nx+','+ny;if(nx<0||ny<0||nx>=W||ny>=H||seen.has(k)||rows[ny][nx]==='w')continue;seen.add(k);q.push([nx,ny])}}return false}
+function genThemedMap(fortSide,theme,seed){const P=THEMES[theme]||THEMES.plains,r=rng(seed),rows=[];
+  for(let y=0;y<ROWS;y++){const row=[];for(let x=0;x<COLS;x++){const v=r();row.push(v<P.f?'f':v<P.f+P.h?'h':'.')}rows.push(row)}
+  for(let k=0;k<P.clump;k++){const x=2+Math.floor(r()*(COLS-4)),y=Math.floor(r()*ROWS),t=r()<P.f/(P.f+P.h)?'f':'h';for(const [dx,dy] of [[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1]])if(r()<.7&&x+dx>=0&&x+dx<COLS&&y+dy>=0&&y+dy<ROWS)rows[y+dy][x+dx]=t}
+  for(let k=0;k<P.ridge;k++){const x=4+Math.floor(r()*(COLS-8)),gap=1+Math.floor(r()*(ROWS-2));for(let y=0;y<ROWS;y++)if(Math.abs(y-gap)>(theme==='pass'?0:1))rows[y][x]=r()<.8?'h':'f'}
+  for(let k=0;k<P.lakes;k++){const cx=4+Math.floor(r()*(COLS-8)),cy=Math.floor(r()*ROWS);for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(r()<.75&&cy+dy>=0&&cy+dy<ROWS)rows[cy+dy][cx+dx]='w'}
+  const river=r()<P.river,rc=Math.floor(COLS/2)-(r()<.5?1:0);
+  if(river){let x=rc;for(let y=0;y<ROWS;y++){rows[y][x]='w';if(r()<.3){const nx=Math.max(rc-1,Math.min(rc+1,x+(r()<.5?-1:1)));if(nx!==x){rows[y][nx]='w';x=nx}}}}
+  for(const x of [0,1,2,3,COLS-4,COLS-3,COLS-2,COLS-1])for(let y=1;y<ROWS-1;y++)if(rows[y][x]!=='w')rows[y][x]='.';
+  let y=3+Math.floor(r()*2);
+  for(let x=0;x<COLS;x++){if(x>1&&x<COLS-2&&rows[y][x]!=='w'&&r()<.3){const ny=Math.max(2,Math.min(5,y+(r()<.5?-1:1)));rows[y][x]=rows[y][x]==='w'?'=':'p';y=ny}rows[y][x]=rows[y][x]==='w'?'=':'p'}
+  if(river){for(let yy=0;yy<ROWS;yy++)for(let xx=rc-1;xx<=rc+1;xx++)if(rows[yy][xx]==='w'&&(yy===1||yy===6)&&r()<.75)rows[yy][xx]='='}
+  if(fortSide!=='N'){const fc=fortSide==='R'?COLS-2:1;for(const yy of [2,4,6])rows[yy][fc]='c'}
+  const out=rows.map(r=>r.join(''));return mapPassable(rows)?out:null}
+function genBattleMap(fortSide,river,seed,theme){if(theme){for(let i=0;i<8;i++){const m=genThemedMap(fortSide,theme,seed+i*7919);if(m)return m}}return genBattleMap0(fortSide,river,seed)}
+function genBattleMap0(fortSide,river,seed){
   const r=rng(seed),rows=[];
   for(let y=0;y<ROWS;y++){const row=[];for(let x=0;x<COLS;x++){const v=r();row.push(v<.09?'f':v<.15?'h':'.')}rows.push(row)}
   for(let k=0;k<5;k++){const x=2+Math.floor(r()*(COLS-4)),y=Math.floor(r()*ROWS);for(const [dx,dy] of [[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1]])if(r()<.7&&x+dx>=0&&x+dx<COLS&&y+dy>=0&&y+dy<ROWS)rows[y+dy][x+dx]='f'}
@@ -984,8 +1011,9 @@ function playCampaignBattle(a,c,gens,defG){
   const aT=armySplit(a,gens),dT=unitSplit(dGs,c.troops);
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
-  return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6)),
-    playerAttacks:me,title:c.field?`Battle on ${c.name}`:`Battle of ${c.name}`,sub:c.field?`Field battle · ${FACS[a.fac].short} meets ${FACS[c.owner].short} in the open, no walls`:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls}`})
+  const thm=route&&route[3]?'river':themeFor(a,c);window.BTHEME=thm;const THN={plains:'open plains',hills:'rolling hills',forest:'deep forest',river:'river valley',marsh:'marshland',pass:'mountain pass'};
+  return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6),thm),
+    playerAttacks:me,title:c.field?`Battle on ${c.name}`:`Battle of ${c.name}`,sub:c.field?`Field battle · ${FACS[a.fac].short} meets ${FACS[c.owner].short} in the open, no walls · ${THN[thm]||''}`:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls} · ${THN[thm]||''}`})
     .then(r=>{const att={},def={},attBroken=[],defBroken=[];
       const read=(gs,tr,side,out,brk)=>gs.forEach((g,i)=>{if(r.left[g.id]!=null)out[g.id]=r.left[g.id];else{out[g.id]=0;brk.push(g.id)}});
       read(gens,aT,'',att,attBroken);read(dGs,dT,'',def,defBroken);

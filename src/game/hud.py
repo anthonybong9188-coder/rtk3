@@ -1344,3 +1344,9 @@ rep(".tmode{display:inline-flex;",".tm-hero .tbg{object-position:78% 0%}@media (
 rep("sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}","sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}")
 rep("for(const it of items){if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);",
     "for(const it of items){if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);")
+
+# themed terrain tint + props
+rep("c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);",
+"c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);const TH=window.BTHEME||'';const TW={plains:['rgba(225,190,90,.30)','overlay'],hills:['rgba(150,110,60,.38)','multiply'],forest:['rgba(10,60,25,.42)','multiply'],river:['rgba(60,150,90,.18)','overlay'],marsh:['rgba(70,95,80,.45)','multiply'],pass:['rgba(140,130,115,.55)','color']}[TH];if(TW){c.save();c.globalCompositeOperation=TW[1];c.fillStyle=TW[0];c.fillRect(0,0,W,H);c.restore()}")
+rep("else if(t==='.'&&r()<.16){const k=['tuft1','tuft2','bush','rock2','reeds'][Math.floor(r()*5)];",
+"else if(t==='.'&&r()<({forest:.34,marsh:.32,pass:.30,hills:.24,plains:.12}[window.BTHEME]||.16)){const PK={forest:['bush','bush','tuft1','tuft2'],marsh:['reeds','reeds','reeds','tuft2'],pass:['rock2','rock2','rock2','tuft1'],hills:['rock2','tuft1','bush','tuft2'],plains:['tuft1','tuft2','tuft1','bush']}[window.BTHEME]||['tuft1','tuft2','bush','rock2','reeds'];const k=PK[Math.floor(r()*PK.length)];")
