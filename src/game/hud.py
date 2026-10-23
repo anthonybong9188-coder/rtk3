@@ -1250,7 +1250,7 @@ rep(".biof{margin:8px 0}",".biof{margin:8px 0}.biotr{display:flex;flex-wrap:wrap
 # ---- female general battle sprite (fgeneral_<fac>.png); no turn/capture sheets yet, so those fall back to flip / defeat frames
 rep("f:{cap:true,","f:{cap:true,fem:femKey(S.u),",6)
 rep("officer:true,ch:S.u.ch,","officer:true,ch:S.u.ch,fem:femKey(S.u),",2)
-rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={diaochan:'g_diaochan',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);\nfunction sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),")
+rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={huangwenjing:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);\nfunction sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),")
 rep("const tkey=f.officer?'general':f.type;","const tkey=f.officer?(f.fem||'general'):f.type;")
 rep("if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}","if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}")
 rep("if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}","if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}")
@@ -1291,7 +1291,7 @@ rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
 
 # animated cut-in clips (4x4 frames of 256x384) for goddesses that have one
 rep("#cutin[hidden]{display:none}","#cutin[hidden]{display:none}\n.ci-clip{aspect-ratio:2/3;background-size:400% 400%;background-repeat:no-repeat}\n.ci-zoom{animation:ciZoom 2s ease-out forwards}@keyframes ciZoom{from{transform:skewX(8deg) scale(1)}to{transform:skewX(8deg) scale(1.12)}}")
-rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
+rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
 rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
 rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
@@ -1389,8 +1389,31 @@ rep("setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))","con
 
 # Diaochan: Petal Dance
 rep("for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm'].includes(k))delete HERO[k];",
-    "HERO.petal={who:'diaochan',zh:'閉月花舞',n:'Petal Dance',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A storm of petals hits an enemy up to 2 squares away and up to 2 enemies beside it (×0.8, no counter). The main target is charmed and loses its next turn'};\nfor(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm','petal'].includes(k))delete HERO[k];")
+    "HERO.melody={who:'huangwenjing',zh:'震天曲',n:'Heaven-Shaking Melody',self:1,can:s=>enemies().some(e=>manh(s,e)<=2),desc:'Blades of sound hit every enemy within 2 squares (×0.8, no counter); until your next turn they cannot strike back'};HERO.bagua={who:'huangyueying',zh:'八卦陣',n:'Bagua Formation',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Paint a spinning bagua over an enemy up to 3 squares away: it and every enemy around it take ×0.9 damage (no counter) and lose 20% attack for 2 turns'};HERO.crescent={who:'guanyinping',zh:'青龍月牙',n:'Dragon Crescent',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A crescent wave of dragon energy hits an enemy up to 2 squares away (×1.3, no counter) and the enemy directly behind it (×0.8)'};HERO.petal={who:'diaochan',zh:'閉月花舞',n:'Petal Dance',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A storm of petals hits an enemy up to 2 squares away and up to 2 enemies beside it (×0.8, no counter). The main target is charmed and loses its next turn'};\nfor(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm','petal','crescent','bagua','melody'].includes(k))delete HERO[k];")
 rep("  if(k==='palm'){","""  if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];for(const e of hit)mfx('ring',e.x,e.y,900);SND.fx('special');await sleep(500);
     let tot=0;for(const e of hit)tot+=quickHit(s,e,.8,{color:'#ffb4d8'});if(G.units.includes(t)){t.stun=1;setTimeout(()=>G.units.includes(t)&&float(t,'Charmed','#ffb4d8'),350)}
     log(`<b>Petal Dance!</b> ${nm(s)} dances; petals tear through ${hit.map(nm).join(', ')}: −${tot}. ${nm(t)} is charmed and loses its next turn.`);await sleep(800)}
   else if(k==='palm'){""")
+
+# Guan Yinping: Dragon Crescent;  5-row on-foot sheets: row 4 is the fall row
+rep("  if(k==='petal'){","""  if(k==='crescent'){const dx=Math.sign(t.x-s.x),dy=Math.sign(t.y-s.y),bh=unitAt(t.x+dx,t.y+dy),hit=[t];if(bh&&bh.side!==s.side&&(dx||dy))hit.push(bh);for(const e of hit)mfx('arc',e.x,e.y,800);SND.fx('crit');await sleep(450);
+    let tot=quickHit(s,t,1.3,{color:'#9cff9c'});if(hit[1]&&G.units.includes(hit[1]))tot+=quickHit(s,hit[1],.8,{color:'#9cff9c'});
+    log(`<b>Dragon Crescent!</b> ${nm(s)}'s blade wave cuts through ${hit.map(nm).join(' and ')}: −${tot}.`);await sleep(700)}
+  else if(k==='petal'){""")
+rep("c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k)","if(row===3&&sh.naturalHeight>800)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k)")
+
+# Huang Yueying: Bagua Formation
+rep("  if(k==='crescent'){","""  if(k==='bagua'){const hit=[t,...enemies().filter(e=>e!==t&&Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1)];mfx('ring',t.x,t.y,1100,2.6);for(const e of hit)mfx('arc',e.x,e.y,900);SND.fx('special');await sleep(550);
+    let tot=0;for(const e of hit){tot+=quickHit(s,e,.9,{color:'#a8ffb0'});if(G.units.includes(e)){e.fear=2;setTimeout(()=>G.units.includes(e)&&float(e,'Attack −20%','#a8ffb0'),350)}}
+    log(`<b>Bagua Formation!</b> ${nm(s)} paints the eight trigrams over ${hit.map(nm).join(', ')}: −${tot}. Their attack drops for 2 turns.`);await sleep(700)}
+  else if(k==='crescent'){""")
+
+# Huang Wenjing: Heaven-Shaking Melody (mute = no counter-attacks)
+rep("let ctr=0;const ctrOn=!o.noCounter&&","let ctr=0;const ctrOn=!o.noCounter&&!d.mute&&")
+rep("const ctrVis=!o.noCounter&&","const ctrVis=!o.noCounter&&!d.mute&&")
+rep("for(const u of G.units){if(u.fear)u.fear--;","for(const u of G.units){if(u.fear)u.fear--;if(u.mute)u.mute--;")
+rep("  if(k==='bagua'){","""  if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);SND.fx('special');await sleep(550);
+    let tot=0;for(const e of hit){tot+=quickHit(s,e,.8,{color:'#9ad8ff'});if(G.units.includes(e)){e.mute=2;setTimeout(()=>G.units.includes(e)&&float(e,'Stunned by sound','#9ad8ff'),350)}}
+    log(`<b>Heaven-Shaking Melody!</b> ${nm(s)}'s strings send blades of sound through ${hit.map(nm).join(', ')}: −${tot}. They cannot strike back until your next turn.`);await sleep(700)}
+  else if(k==='bagua'){""")
+rep("function selfArea(k,s){if(k==='frost')return area3(s.x,s.y);","function selfArea(k,s){if(k==='frost')return area3(s.x,s.y);if(k==='melody'){const a=[];for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++)if(Math.abs(dx)+Math.abs(dy)<=2&&inb(s.x+dx,s.y+dy))a.push({x:s.x+dx,y:s.y+dy});return a}")
