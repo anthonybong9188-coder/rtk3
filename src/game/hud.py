@@ -1291,7 +1291,7 @@ rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
 
 # animated cut-in clips (4x4 frames of 256x384) for goddesses that have one
 rep("#cutin[hidden]{display:none}","#cutin[hidden]{display:none}\n.ci-clip{aspect-ratio:2/3;background-size:400% 400%;background-repeat:no-repeat}\n.ci-zoom{animation:ciZoom 2s ease-out forwards}@keyframes ciZoom{from{transform:skewX(8deg) scale(1)}to{transform:skewX(8deg) scale(1.12)}}")
-rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','xuannu','hero']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
+rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set([]);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
 rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
 rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
@@ -1382,3 +1382,7 @@ rep("showScreen('title');renderTitle();", open(os.path.join(D,'lm.js')).read()+"
 rep("for(const S of [SL,SR]){const loss=S.before-S.after;if(!loss)continue;const t0=kindOf(S)==='arrow'?1450:1750;","for(const S of (window.LM_NONUM?[]:[SL,SR])){const loss=S.before-S.after;if(!loss)continue;const t0=kindOf(S)==='arrow'?1450:1750;")
 rep('CUTIN.innerHTML=`<div class="ci-band">','CUTIN.innerHTML=`<div class="ci-lines"></div><div class="ci-title"><span>${h.n}</span></div><div class="ci-band">')
 rep("</style>", open(os.path.join(D,'lm.css')).read()+"\n</style>")
+
+# skill cut-in can play a real video (portraits/vid_<id>.mp4) when one exists
+rep("${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\"","${p&&VIDS.has(p)?`<video class=\"ci-port ci-vid\" src=\"portraits/vid_${p}.mp4\" autoplay muted playsinline></video>`:p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\"")
+rep("setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))","const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;vid.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))")

@@ -28,7 +28,8 @@ border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
 bg = np.isin(lab, list(border))
 # enclosed checkerboard holes (between legs, under arms): large neutral patches
 sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(n + 1))
-holes = [i for i in range(1, n + 1) if i not in border and sizes[i] > 60]
+HOLEMIN = int(os.environ.get('HOLEMIN', '60'))
+holes = [i for i in range(1, n + 1) if i not in border and sizes[i] > HOLEMIN]
 bg |= np.isin(lab, holes)
 fg = ~bg
 if HAS_A:
