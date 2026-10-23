@@ -1339,3 +1339,8 @@ rep(".biof{margin:8px 0}",""".biof{margin:8px 0}
 .tmode button.on{background:var(--gold,#d4ad55);color:#1a140c;font-weight:700}
 @media (orientation:portrait){.tlogo{font-size:clamp(40px,12vw,72px)}}""")
 rep(".tmode{display:inline-flex;",".tm-hero .tbg{object-position:78% 0%}@media (orientation:portrait){.tm-hero .tbg{left:-66vw!important}}\n.tmode{display:inline-flex;")
+
+# fire caster: women, goddesses and the hero use their own sprite (attack row) instead of the male signal pose
+rep("sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}","sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}")
+rep("for(const it of items){if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);",
+    "for(const it of items){if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);")
