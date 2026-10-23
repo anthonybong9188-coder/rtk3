@@ -648,7 +648,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="tmode" role="tablist"><button data-tm="lb" class="on" role="tab">劉 Liu Bei</button><button data-tm="hero" role="tab">俠 New Hero</button></div>
     <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b id="tscenT">The Battle of Red Cliffs</b>
       <p id="tscenP">Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
-    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
+    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="hulaoBtn">⚔ Hu Lao Gate · vs Lü Bu</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
   </div>
 </div>
 <div id="campaign" class="screen" hidden>
@@ -838,7 +838,7 @@ function dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd){
   const p=aTroops/1000*(60+aWar*.6);
   const gen=1+Math.max(0,aWar-80)/100;
   return Math.max(0,Math.round(p*2.2*m*gen/T_INFO[dTile].def*(rnd?.9+Math.random()*.2:1)))}
-const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1);
+const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1)*(typeof G!=='undefined'&&G&&G.cfg&&G.cfg.hulao?(u.side==='shu'?.5:.1):1);
 function fireDmg(u,e,rnd){const t=terAt(e.x,e.y);const m=t==='f'?1.8:t==='c'?.6:t==='='?1.2:1;return Math.round((110+u.int*1.4)*m*(rnd?.9+Math.random()*.2:1))}
 function forecast(a,d,o={}){
   const dist=manh(a,d),ranged=dist>1;
@@ -889,7 +889,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
+  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -1295,6 +1295,7 @@ function sweep(){for(const u of G.units.filter(u=>u.troops<=0)){const f=u.fate||
 function checkEnd(){
   if(G.over)return true;
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
+  if(G.cfg&&G.cfg.hulao){if(!G.units.some(u=>u.side==='shu'))return endGame(false,'All five heroines have fallen. Lü Bu holds Hu Lao Gate.');if(!enemies().length)return endGame(true,`Lü Bu is defeated on turn ${G.turn}! Hu Lao Gate is yours.`);return false}
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
@@ -1370,7 +1371,7 @@ async function endTurn(){
 function planEnemy(e){
   const players=G.units.filter(u=>u.side==='shu');const R=reach(e);
   let tiles=R.tiles;
-  if(e.cmd&&G.cfg.playerAttacks&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];
+  if(e.cmd&&G.cfg.playerAttacks&&!G.cfg.hulao&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];
   let best=null;
   for(const t of tiles){const tt=terAt(t.x,t.y);
     for(const p of players){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(e.type,dist))continue;
@@ -2103,7 +2104,7 @@ function newCampaign(diff){
   addLog('Your goal: hold 10 of the 14 cities by the end of 215. The Shu–Wu alliance lasts until the end of 210.');
   save();
 }
-function save(){try{if(S.over)localStorage.removeItem('rtk3-save');else localStorage.setItem('rtk3-save',JSON.stringify(S))}catch(e){}}
+function save(){if(S&&S.hulao)return;try{if(S.over)localStorage.removeItem('rtk3-save');else localStorage.setItem('rtk3-save',JSON.stringify(S))}catch(e){}}
 const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
@@ -3358,6 +3359,20 @@ function lmRegion(c,tiles,fill,edge){if(!tiles||!tiles.length)return;c.save();co
 
 if(typeof PORT!=='undefined'&&!PORT.lubu)PORT.lubu='lu_bu';
 
+// ===== Hu Lao Gate: test battlefield — five heroines vs Lü Bu =====
+async function startHulao(){
+  const sv=save;save=()=>{};try{newCampaign('easy')}finally{save=sv}
+  S.hulao=true;PORT.lubu='lu_bu';
+  const W5=['diaochan','guanyinping','huangyueying','huangwenjing','sunshangxiang'],pos=[[2,1],[2,3],[1,4],[2,5],[2,7]];
+  const units=W5.map((id,i)=>{const g=S.gens[id];return {id,name:g.name,ch:g.ch,side:'shu',type:g.type,war:g.war,int:g.int,troops:5000,x:pos[i][0],y:pos[i][1],cmd:i===0,train:80}});
+  units.push({id:'lubu',name:'Lü Bu',ch:'呂',side:'wei',type:'cav',war:100,int:30,troops:20000,x:COLS-3,y:4,cmd:true,train:90});
+  window.BTHEME='pass';
+  const r=await startBattle({units,foe:'han',walls:0,hulao:true,map:genBattleMap('N',false,Math.floor(Math.random()*1e6),'pass'),playerAttacks:true,
+    title:'Battle of Hu Lao Gate',sub:'Five heroines stand against the unrivalled Lü Bu · easy mode'});
+  S=null;showScreen('title');renderTitle();
+}
+
+$('#hulaoBtn').onclick=()=>startHulao();
 showScreen('title');renderTitle();updSndBtns();
 </script>
 

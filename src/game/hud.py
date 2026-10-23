@@ -1437,3 +1437,12 @@ rep("  if(k==='musou'){","""  if(k==='chakram'){mfx('ring',t.x,t.y,800);SND.fx('
 # video-built soldier sheets have no matching turn sheet: mirror instead
 rep("const TURNSH={spear:1,","const TURNSH={")
 rep("const TURNSH={shield:1,","const TURNSH={")
+
+# ===== Hu Lao Gate test battle =====
+rep('<button id="heroBtn">New game as a New Hero</button>','<button id="heroBtn">New game as a New Hero</button><button id="hulaoBtn">⚔ Hu Lao Gate · vs Lü Bu</button>')
+rep("function save(){try{","function save(){if(S&&S.hulao)return;try{")
+rep("const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1);","const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1)*(typeof G!=='undefined'&&G&&G.cfg&&G.cfg.hulao?(u.side==='shu'?.5:.1):1);")
+rep("  if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,","  if(G.cfg&&G.cfg.hulao){if(!G.units.some(u=>u.side==='shu'))return endGame(false,'All five heroines have fallen. Lü Bu holds Hu Lao Gate.');if(!enemies().length)return endGame(true,`Lü Bu is defeated on turn ${G.turn}! Hu Lao Gate is yours.`);return false}\n  if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,")
+rep("showScreen('title');renderTitle();", open(os.path.join(D,'hulao.js')).read()+"\n$('#hulaoBtn').onclick=()=>startHulao();\nshowScreen('title');renderTitle();")
+rep("  if(e.cmd&&G.cfg.playerAttacks&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];","  if(e.cmd&&G.cfg.playerAttacks&&!G.cfg.hulao&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];")
+rep("turn:1,maxTurn:15","turn:1,maxTurn:cfg.hulao?30:15")
