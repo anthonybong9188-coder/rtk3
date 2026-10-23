@@ -1434,3 +1434,5 @@ rep("  let dir=f.face*(f.turn??1);","""  {const nf=Math.round(sh.naturalWidth/25
 rep("  if(k==='musou'){","""  if(k==='chakram'){mfx('ring',t.x,t.y,800);SND.fx('crit');await sleep(400);let tot=quickHit(s,t,.7,{color:'#ffb060'});await sleep(350);if(G.units.includes(t)){mfx('ring',t.x,t.y,800);tot+=quickHit(s,t,.7,{color:'#ffb060'})}
     log(`<b>Flaming Chakrams!</b> ${nm(s)}'s blazing rings strike ${nm(t)} twice: −${tot}.`);await sleep(600)}
   else if(k==='musou'){""")
+# video-built soldier sheets have no matching turn sheet: mirror instead
+rep("const TURNSH={spear:1,","const TURNSH={")
