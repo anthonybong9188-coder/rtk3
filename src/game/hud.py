@@ -1424,3 +1424,9 @@ rep("  if(k==='melody'){","""  if(k==='musou'){const hit=G.units.filter(e=>e.sid
     log(`<b>Heaven-Splitting Sweep!</b> ${nm(s)} whirls the Sky Piercer through ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(700)}
   else if(k==='melody'){""")
 rep("if(k==='melody'){const a=[];","if(k==='melody'||k==='musou'){const a=[];")
+# sheets with more than 4 frames per row (built from video): play every frame
+rep("  let dir=f.face*(f.turn??1);","""  {const nf=Math.round(sh.naturalWidth/256);if(nf>4){const pp=(p,n)=>{p%=(2*n-2);return p<n?p:2*n-2-p};
+    if(f.fall>0)fr=Math.min(nf-1,Math.floor(f.fall*nf));else if(f.defeat>0)fr=Math.min(nf-1,Math.floor(clamp(f.defeat)*nf*.6));
+    else if(row===2&&f.officer&&!f.fight&&f.swing>0)fr=Math.min(nf-1,Math.floor(f.swing*nf));
+    else if(row===2)fr=Math.floor(now/(f.slow?90:55)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/110+sd*7),nf)}}
+  let dir=f.face*(f.turn??1);""")
