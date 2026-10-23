@@ -1436,3 +1436,4 @@ rep("  if(k==='musou'){","""  if(k==='chakram'){mfx('ring',t.x,t.y,800);SND.fx('
   else if(k==='musou'){""")
 # video-built soldier sheets have no matching turn sheet: mirror instead
 rep("const TURNSH={spear:1,","const TURNSH={")
+rep("const TURNSH={shield:1,","const TURNSH={")
