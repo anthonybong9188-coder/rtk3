@@ -1250,7 +1250,7 @@ rep(".biof{margin:8px 0}",".biof{margin:8px 0}.biotr{display:flex;flex-wrap:wrap
 # ---- female general battle sprite (fgeneral_<fac>.png); no turn/capture sheets yet, so those fall back to flip / defeat frames
 rep("f:{cap:true,","f:{cap:true,fem:femKey(S.u),",6)
 rep("officer:true,ch:S.u.ch,","officer:true,ch:S.u.ch,fem:femKey(S.u),",2)
-rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);\nfunction sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),")
+rep("function sprLoad(fk){return ['spear','shield','archer','cav','general',","const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={diaochan:'g_diaochan',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);\nfunction sprLoad(fk){return ['spear','shield','archer','cav','general','fgeneral',...Object.values(GSHEET),")
 rep("const tkey=f.officer?'general':f.type;","const tkey=f.officer?(f.fem||'general'):f.type;")
 rep("if(f.cap){if(drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}","if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}")
 rep("if(f.officer){const sh=sprSheet('general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}","if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}")
@@ -1291,7 +1291,7 @@ rep("  await cutIn(s,h);let keep=false;","""  await cutIn(s,h);let keep=false;
 
 # animated cut-in clips (4x4 frames of 256x384) for goddesses that have one
 rep("#cutin[hidden]{display:none}","#cutin[hidden]{display:none}\n.ci-clip{aspect-ratio:2/3;background-size:400% 400%;background-repeat:no-repeat}\n.ci-zoom{animation:ciZoom 2s ease-out forwards}@keyframes ciZoom{from{transform:skewX(8deg) scale(1)}to{transform:skewX(8deg) scale(1.12)}}")
-rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
+rep("const SPS=new Set([","const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set([")
 rep("CUTIN.innerHTML=`<div class=\"ci-band\">${p?`<img class=\"ci-port\"","CUTIN.innerHTML=`<div class=\"ci-band\">${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\" style=\"background-image:url(portraits/clip_${p}.webp)\"></div>`:p?`<img class=\"ci-port${GODIDS.has(p)?' ci-zoom':''}\"")
 rep("  CUTIN.onpointerdown=end;setTimeout(end,1250/Math.max(.6,speed||1))})}","""  const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}""")
@@ -1386,3 +1386,11 @@ rep("</style>", open(os.path.join(D,'lm.css')).read()+"\n</style>")
 # skill cut-in can play a real video (portraits/vid_<id>.mp4) when one exists
 rep("${p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\"","${p&&VIDS.has(p)?'':p&&CLIPS.has(p)?`<div class=\"ci-port ci-clip\"")
 rep("setTimeout(end,(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))","const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))")
+
+# Diaochan: Petal Dance
+rep("for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm'].includes(k))delete HERO[k];",
+    "HERO.petal={who:'diaochan',zh:'閉月花舞',n:'Petal Dance',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A storm of petals hits an enemy up to 2 squares away and up to 2 enemies beside it (×0.8, no counter). The main target is charmed and loses its next turn'};\nfor(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm','petal'].includes(k))delete HERO[k];")
+rep("  if(k==='palm'){","""  if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];for(const e of hit)mfx('ring',e.x,e.y,900);SND.fx('special');await sleep(500);
+    let tot=0;for(const e of hit)tot+=quickHit(s,e,.8,{color:'#ffb4d8'});if(G.units.includes(t)){t.stun=1;setTimeout(()=>G.units.includes(t)&&float(t,'Charmed','#ffb4d8'),350)}
+    log(`<b>Petal Dance!</b> ${nm(s)} dances; petals tear through ${hit.map(nm).join(', ')}: −${tot}. ${nm(t)} is charmed and loses its next turn.`);await sleep(800)}
+  else if(k==='palm'){""")
