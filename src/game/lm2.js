@@ -22,10 +22,14 @@ function lmDivAlpha(SL,SR,t){const CS=SL.ch||SR.ch,both=SL.melee&&SR.melee,one=S
 function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.lineWidth=3;c.beginPath();c.arc(x,y,r,0,7);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(x,y,r*.82,0,7);c.stroke();
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
   c.lineWidth=1;c.beginPath();for(let i=0;i<6;i++){const a=i/6*Math.PI*2-Math.PI/2,b=(i+2)/6*Math.PI*2-Math.PI/2;c.moveTo(x+Math.cos(a)*r*.82,y+Math.sin(a)*r*.82);c.lineTo(x+Math.cos(b)*r*.82,y+Math.sin(b)*r*.82)}c.stroke();c.restore()}
+// transparent cut-out portraits (background removed) for the fight scene
+const LM_CUTS=new Set(['xuannu']),LM_CI={};
+function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
 function lmHalfPort(c,u,side){const im=portImg(u.id),h=196,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+18;
   lmCircle(c,side==='L'?78:W-78,H-46,88,'#d9b75a');
   if(!im){c.fillStyle=FAC[u.side].main;circ(c,side==='L'?70:W-70,H-60,50);c.fill();c.fillStyle='#fff';c.font='900 52px "Noto Serif TC",serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,side==='L'?70:W-70,H-58);c.textBaseline='alphabetic';return}
-  const k=PK(im);c.save();if(side==='R'){c.translate(2*x+w,0);c.scale(-1,1)}c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=12;c.drawImage(im,0,0,360*k,540*k,x,y,w,h);c.restore()}
+  const cut=cutImg(u.id);c.save();if(side==='R'){c.translate(2*x+w,0);c.scale(-1,1)}c.shadowColor='rgba(0,0,0,.75)';c.shadowBlur=14;
+  if(cut)c.drawImage(cut,x,y,w,h);else c.drawImage(fadePort(im),x,y,w,h);c.restore()}
 function lmBurstPath(c,x,y,rx,ry,n,seed){c.beginPath();for(let i=0;i<n*2;i++){const a=i/(n*2)*Math.PI*2,j=1+((Math.sin(i*12.9898+seed)*43758.5)%1)*.12,r=i%2?.72:1.0*j;c.lineTo(x+Math.cos(a)*rx*r,y+Math.sin(a)*ry*r)}c.closePath()}
 function lmDmgBurst(c,x,y,n,crit,p){const sc=p<.12?.4+p/.12*.75:p<.2?1.15-(p-.12)/.08*.15:1;c.save();c.translate(x,y);c.scale(sc,sc);
   lmBurstPath(c,0,0,66,34,13,3);c.fillStyle=crit?'#ffd23a':'#fffef6';c.fill();c.lineWidth=5;c.strokeStyle='#ff7a14';c.stroke();c.lineWidth=2;c.strokeStyle='#c81e0a';c.stroke();

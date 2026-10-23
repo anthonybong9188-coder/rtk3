@@ -631,6 +631,10 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #cutin.on .ci-title{animation:ciTitle .3s .1s ease-out forwards}
 #cutin .ci-title span{font:italic 700 clamp(18px,4.2vh,30px) var(--f-display);color:#fff;letter-spacing:.03em;text-shadow:0 0 10px rgba(120,190,255,.7)}
 @keyframes ciTitle{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
+/* full-height video cut-in */
+#cutin .ci-vid{position:fixed;left:max(4vw,env(safe-area-inset-left,0px));top:0;height:100dvh;width:auto;aspect-ratio:2/3;object-fit:cover;transform:none;z-index:1;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent),linear-gradient(180deg,#000 85%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);filter:drop-shadow(0 0 24px rgba(120,180,255,.45))}
+#cutin:has(.ci-vid) .ci-band{margin-left:calc(100dvh*2/3 + 2vw);max-width:calc(100vw - 100dvh*2/3 - 4vw)}
 
 </style>
 
@@ -1482,15 +1486,15 @@ function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
 const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:dur||900,s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
-const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set([]);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
+const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
 function spPreAll(units){for(const u of units||[])if(PORT[u.id])spPre(PORT[u.id])}
 const CUTIN=document.createElement('div');CUTIN.id='cutin';CUTIN.hidden=true;document.body.appendChild(CUTIN);
 async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.id]);if(P0&&!P0.im.complete)await Promise.race([P0.pr,sleep(450)]);SND.fx('special');return new Promise(res=>{const p=PORT[u.id];
-  CUTIN.innerHTML=`<div class="ci-lines"></div><div class="ci-title"><span>${h.n}</span></div><div class="ci-band">${p&&VIDS.has(p)?`<video class="ci-port ci-vid" src="portraits/vid_${p}.mp4" autoplay muted playsinline></video>`:p&&CLIPS.has(p)?`<div class="ci-port ci-clip" style="background-image:url(portraits/clip_${p}.webp)"></div>`:p?`<img class="ci-port${GODIDS.has(p)?' ci-zoom':''}" src="portraits/${SPS.has(p)?'sp_':''}${p}.webp" onerror="this.onerror=null;this.src='portraits/${p}.webp'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
+  CUTIN.innerHTML=`<div class="ci-lines"></div><div class="ci-title"><span>${h.n}</span></div>${p&&VIDS.has(p)?`<video class="ci-port ci-vid" autoplay muted playsinline><source src="portraits/vid_${p}.mp4" type="video/mp4"><source src="portraits/vid_${p}.webm" type="video/webm"></video>`:""}<div class="ci-band">${p&&VIDS.has(p)?'':p&&CLIPS.has(p)?`<div class="ci-port ci-clip" style="background-image:url(portraits/clip_${p}.webp)"></div>`:p?`<img class="ci-port${GODIDS.has(p)?' ci-zoom':''}" src="portraits/${SPS.has(p)?'sp_':''}${p}.webp" onerror="this.onerror=null;this.src='portraits/${p}.webp'" alt="">`:''}<div class="ci-txt"><div class="ci-zh">${h.zh}</div><div class="ci-en">${h.n}!</div><div class="ci-name">${u.name}</div></div></div>`;
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
-  CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;vid.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
+  CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
 function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)*mult*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
@@ -3227,7 +3231,7 @@ function lmIntro(c,SL,SR,t){const a=t<110?t/110:t>620?Math.max(0,1-(t-620)/260):
   for(const [S,L] of [[SL,true],[SR,false]]){const fr=S.u.side==='shu',c1=fr?'rgba(20,95,215,.94)':'rgba(190,30,20,.94)',c2=fr?'#9fd6ff':'#ffb09e';
     c.save();c.translate((1-e)*(L?-W:W),0);c.beginPath();if(L){c.moveTo(0,64);c.lineTo(W*.60,64);c.lineTo(W*.50,214);c.lineTo(0,214)}else{c.moveTo(W,216);c.lineTo(W*.50,216);c.lineTo(W*.40,366);c.lineTo(W,366)}c.closePath();
     const g=c.createLinearGradient(L?0:W,0,L?W*.6:W*.4,0);g.addColorStop(0,c1);g.addColorStop(1,lmHexA(fr?'#0a3c8c':'#7a0e08',.9));c.fillStyle=g;c.fill();c.strokeStyle=c2;c.lineWidth=3;c.stroke();
-    const im=portImg(S.u.id);if(im){const fp=fadePort(im),ph=250,pw=ph*256/384;c.save();c.clip();if(L)c.drawImage(fp,24,20,pw,ph);else{c.translate(W-24,0);c.scale(-1,1);c.drawImage(fp,0,172,pw,ph)}c.restore()}
+    const im=portImg(S.u.id);if(im){const fp=(typeof cutImg==='function'&&cutImg(S.u.id))||fadePort(im),ph=250,pw=ph*256/384;c.save();c.clip();if(L)c.drawImage(fp,24,20,pw,ph);else{c.translate(W-24,0);c.scale(-1,1);c.drawImage(fp,0,172,pw,ph)}c.restore()}
     c.textAlign=L?'left':'right';c.lineJoin='round';const tx=L?210:W-210,ty=L?132:284;
     c.font='900 34px "Alegreya SC", Georgia, serif';c.lineWidth=6;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(S.u.name,tx,ty);c.fillStyle='#fff';c.fillText(S.u.name,tx,ty);
     const O=L?SR:SL,m=typeMult(S.u.type,O.u.type),sub=`${TYPES[S.u.type].n} · War ${S.u.war}  ${m>1?'▲':m<1?'▼':''}`;c.font='700 16px "Alegreya Sans", sans-serif';c.lineWidth=4;c.strokeText(sub,tx,ty+26);c.fillStyle=m>1?'#8dff8a':m<1?'#ffb0a0':c2;c.fillText(sub,tx,ty+26);
@@ -3260,10 +3264,14 @@ function lmDivAlpha(SL,SR,t){const CS=SL.ch||SR.ch,both=SL.melee&&SR.melee,one=S
 function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.lineWidth=3;c.beginPath();c.arc(x,y,r,0,7);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(x,y,r*.82,0,7);c.stroke();
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
   c.lineWidth=1;c.beginPath();for(let i=0;i<6;i++){const a=i/6*Math.PI*2-Math.PI/2,b=(i+2)/6*Math.PI*2-Math.PI/2;c.moveTo(x+Math.cos(a)*r*.82,y+Math.sin(a)*r*.82);c.lineTo(x+Math.cos(b)*r*.82,y+Math.sin(b)*r*.82)}c.stroke();c.restore()}
+// transparent cut-out portraits (background removed) for the fight scene
+const LM_CUTS=new Set(['xuannu']),LM_CI={};
+function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
 function lmHalfPort(c,u,side){const im=portImg(u.id),h=196,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+18;
   lmCircle(c,side==='L'?78:W-78,H-46,88,'#d9b75a');
   if(!im){c.fillStyle=FAC[u.side].main;circ(c,side==='L'?70:W-70,H-60,50);c.fill();c.fillStyle='#fff';c.font='900 52px "Noto Serif TC",serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,side==='L'?70:W-70,H-58);c.textBaseline='alphabetic';return}
-  const k=PK(im);c.save();if(side==='R'){c.translate(2*x+w,0);c.scale(-1,1)}c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=12;c.drawImage(im,0,0,360*k,540*k,x,y,w,h);c.restore()}
+  const cut=cutImg(u.id);c.save();if(side==='R'){c.translate(2*x+w,0);c.scale(-1,1)}c.shadowColor='rgba(0,0,0,.75)';c.shadowBlur=14;
+  if(cut)c.drawImage(cut,x,y,w,h);else c.drawImage(fadePort(im),x,y,w,h);c.restore()}
 function lmBurstPath(c,x,y,rx,ry,n,seed){c.beginPath();for(let i=0;i<n*2;i++){const a=i/(n*2)*Math.PI*2,j=1+((Math.sin(i*12.9898+seed)*43758.5)%1)*.12,r=i%2?.72:1.0*j;c.lineTo(x+Math.cos(a)*rx*r,y+Math.sin(a)*ry*r)}c.closePath()}
 function lmDmgBurst(c,x,y,n,crit,p){const sc=p<.12?.4+p/.12*.75:p<.2?1.15-(p-.12)/.08*.15:1;c.save();c.translate(x,y);c.scale(sc,sc);
   lmBurstPath(c,0,0,66,34,13,3);c.fillStyle=crit?'#ffd23a':'#fffef6';c.fill();c.lineWidth=5;c.strokeStyle='#ff7a14';c.stroke();c.lineWidth=2;c.strokeStyle='#c81e0a';c.stroke();
