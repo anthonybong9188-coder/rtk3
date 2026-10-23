@@ -2,7 +2,7 @@
 const LM_TZ={spear:'槍',shield:'盾',archer:'弓',cav:'騎'},LM_FR='#3ab4ff',LM_FO='#ff4b3a';
 function lmHexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${n>>8&255},${n&255},${a})`}
 function lmGrade(cv,flt){try{const o=document.createElement('canvas');o.width=cv.width;o.height=cv.height;const x=o.getContext('2d');if(!('filter' in x))return cv;x.filter=flt;x.drawImage(cv,0,0);return o}catch(e){return cv}}
-function renderTerrain(T){return lmGrade(renderTerrain0(T),'saturate(1.22) contrast(1.07) brightness(1.05)')}
+function renderTerrain(T){return lmGrade(renderTerrain0(T),'saturate(1.45) contrast(1.1) brightness(1.1)')}
 function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),'saturate(1.3) contrast(1.08) brightness(1.08)')}
 
 // ---------- map: units as sprites on a friend/foe ring ----------

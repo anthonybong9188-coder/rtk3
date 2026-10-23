@@ -1347,7 +1347,7 @@ rep("for(const it of items){if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it
 
 # themed terrain tint + props
 rep("c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);",
-"c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);const TH=window.BTHEME||'';const TW={plains:['rgba(225,200,110,.12)','overlay'],hills:['rgba(150,110,60,.38)','multiply'],forest:['rgba(10,60,25,.42)','multiply'],river:['rgba(60,150,90,.18)','overlay'],marsh:['rgba(70,95,80,.45)','multiply'],pass:['rgba(140,130,115,.55)','color']}[TH];if(TW){c.save();c.globalCompositeOperation=TW[1];c.fillStyle=TW[0];c.fillRect(0,0,W,H);c.restore()}")
+"c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);const TH=window.BTHEME||'';const TW={plains:['rgba(225,200,110,.12)','overlay'],hills:['rgba(200,150,80,.18)','overlay'],forest:['rgba(20,110,40,.22)','overlay'],river:['rgba(60,150,90,.18)','overlay'],marsh:['rgba(60,140,120,.22)','overlay'],pass:['rgba(200,170,120,.16)','overlay']}[TH];if(TW){c.save();c.globalCompositeOperation=TW[1];c.fillStyle=TW[0];c.fillRect(0,0,W,H);c.restore()}")
 rep("else if(t==='.'&&r()<.16){const k=['tuft1','tuft2','bush','rock2','reeds'][Math.floor(r()*5)];",
 "else if(t==='.'&&r()<({forest:.34,marsh:.32,pass:.30,hills:.24,plains:.12}[window.BTHEME]||.16)){const PK={forest:['bush','bush','tuft1','tuft2'],marsh:['reeds','reeds','reeds','tuft2'],pass:['rock2','rock2','rock2','tuft1'],hills:['rock2','tuft1','bush','tuft2'],plains:['tuft1','tuft2','tuft1','bush']}[window.BTHEME]||['tuft1','tuft2','bush','rock2','reeds'];const k=PK[Math.floor(r()*PK.length)];")
 
@@ -1446,3 +1446,14 @@ rep("  if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,","  if(G.c
 rep("showScreen('title');renderTitle();", open(os.path.join(D,'hulao.js')).read()+"\n$('#hulaoBtn').onclick=()=>startHulao();\nshowScreen('title');renderTitle();")
 rep("  if(e.cmd&&G.cfg.playerAttacks&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];","  if(e.cmd&&G.cfg.playerAttacks&&!G.cfg.hulao&&!players.some(p=>manh(p,e)<=3))tiles=[{x:e.x,y:e.y}];")
 rep("turn:1,maxTurn:15","turn:1,maxTurn:cfg.hulao?30:15")
+
+# ===== feedback round: defender holds & fights back, instant turns, no run-back =====
+rep("const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);","const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*150}")
+rep("S.hold?alive&&t>=1050&&t<=2500&&s.col===0","S.hold?alive&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)&&s.col<=(S.holdC||0)")
+rep("S.hold?!flee&&t>=1050&&t<=2500","S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)")
+rep("}else if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}","}else if(S.melee&&alive&&!S.hold){if(t>600&&t<1500)run=t*.03+s.seed;")
+rep("if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}","if(t>600&&t<1500)orun=t*.03+1;")
+rep("if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}","return s.tx}")
+rep("function TURNK(t,ts){","function TURNK(t,ts){return null;")
+rep("function TURN(t,ts){","function TURN(t,ts){return 1;")
+rep('<div class="ci-title"><span>${h.n}</span></div>','<div class="ci-title"><b>${h.zh}</b><span>${h.n}</span><small>${u.name}</small></div>')

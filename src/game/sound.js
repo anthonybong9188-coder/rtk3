@@ -7,7 +7,7 @@ var SND=(()=>{
     ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();sfxG=ctx.createGain();musG=ctx.createGain();sfxG.connect(master);musG.connect(master);master.connect(ctx.destination);
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;apply();return ctx}
   function apply(){if(!ctx)return;master.gain.value=set.mute?0:1;sfxG.gain.value=set.sfx;musG.gain.value=set.mus;if(cur)cur.el.volume=set.mute?0:set.mus}
-  const unlock=()=>{init();if(ctx&&ctx.state==='suspended')ctx.resume();if(want&&!cur)music(want)};
+  const unlock=()=>{init();if(ctx&&ctx.state==='suspended')ctx.resume().then(()=>{if(want&&!cur)music(want)}).catch(()=>{});if(want&&!cur)music(want)};
   ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}));
   // building blocks
   const T=()=>ctx.currentTime;
@@ -45,10 +45,10 @@ var SND=(()=>{
   // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
   const TRACKS=new Set(['battle1','battle2']);
   let cur=null,want=null;const missing=new Set();
-  function music(name){want=name;if(!ctx||ctx.state!=='running'||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
+  function music(name){want=name;if(!ctx||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
     if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat|^battle\d$/.test(name);if(/^battle\d$/.test(name))el.onended=()=>{if(cur&&cur.el===el)music(name==='battle1'?'battle2':'battle1')};el.volume=0;
-    el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{})}
+    el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{if(cur&&cur.el===el)cur=null})}
   function fade(el,to,ms,done){const from=el.volume,t0=performance.now();const st=()=>{const k=Math.min(1,(performance.now()-t0)/ms);el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)requestAnimationFrame(st);else done&&done()};st()}
   document.addEventListener('visibilitychange',()=>{if(!cur)return;if(document.hidden)cur.el.pause();else cur.el.play().catch(()=>{})});
   return {fx,music,init,get set(){return set},setVol(k,v){set[k]=v;saveSet();apply()},toggleMute(){set.mute=!set.mute;saveSet();init();apply();if(!set.mute&&want&&!cur)music(want);return set.mute}};
