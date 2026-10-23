@@ -1,0 +1,15 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const pre=process.argv[2]||'ui';const W=+(process.argv[3]||915),H=+(process.argv[4]||412);
+const b=await chromium.launch();const p=await b.newPage({viewport:{width:W,height:H},deviceScaleFactor:2,hasTouch:true});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/rtk3-game.html');await p.waitForFunction(()=>typeof newCampaign==='function');
+await p.evaluate(()=>{newCampaign('normal');UI={mode:'city',cmd:null,busy:false};showScreen('campaign')});
+await p.evaluate(()=>{window.BTHEME='plains';const m=genBattleMap('R',false,777,'plains');
+ const mk=(id,side,type,x,y,cmd)=>({id,name:S.gens[id]?.name||id,ch:S.gens[id]?.ch||'X',side,type,war:85,int:70,troops:3000,x,y,cmd,train:70});
+ startBattle({units:[mk('guanyu','shu','cav',4,4,true),mk('zhaoyun','shu','spear',3,2),mk('zhugeliang','shu','archer',2,3),mk('caoren','wei','shield',7,4,true),mk('xuchu','wei','cav',9,2),mk('yujin','wei','archer',10,5)],foe:'wei',walls:50,map:m,playerAttacks:true,title:'Battle',sub:'test'});
+ setTimeout(()=>{document.querySelector('#dlg').hidden=true;try{prepBegin()}catch(e){}},300)});
+await p.waitForTimeout(3600);await p.screenshot({path:`${pre}_sel.png`});
+await p.evaluate(async()=>{const s=G.sel;await moveSel(s.x+1,s.y)});await p.waitForTimeout(700);await p.screenshot({path:`${pre}_moved.png`});
+await p.evaluate(()=>{document.querySelector('#acts [data-a="attack"]')?.click()});await p.waitForTimeout(500);await p.screenshot({path:`${pre}_target.png`});
+await p.evaluate(()=>{G.mode='moved';G.targets=[];updateUI();const e=G.units.find(u=>u.id==='xuchu');G.sel=null;G.mode='idle';G.view=e;G.enemyTiles=reach(e).tiles;updateUI()});await p.waitForTimeout(400);await p.screenshot({path:`${pre}_enemy.png`});
+console.log(errs);await b.close();

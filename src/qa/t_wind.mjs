@@ -6,7 +6,7 @@ await p.evaluate(()=>{const gens=['zhugeliang','guanyu'].map(GN);playCampaignBat
 await p.waitForTimeout(1500);
 const r=await p.evaluate(async()=>{speed=0;const z=G.units.find(u=>u.id==='zhugeliang'),e=enemies()[0];e.x=z.x+2;e.y=z.y;e.px=e.x;e.py=e.y;
  G.sel=z;G.view=z;G.origin={x:z.x,y:z.y};G.reach=reach(z);G.mode='moved';G.atk=[];updateUI();
- const ks=[...document.querySelectorAll('[data-sk]')].map(b=>b.dataset.sk+(b.disabled?'(off)':''));if(!document.querySelector('[data-sk="wind"]'))return {ks,type:z.type};document.querySelector('[data-sk="wind"]').click();await new Promise(r=>setTimeout(r,1800));
+ const ks=[...document.querySelectorAll('[data-sk]')].map(b=>b.dataset.sk+(b.disabled?'(off)':''));if(!document.querySelector('[data-sk="wind"]'))return {ks,type:z.type};document.querySelector('[data-sk="wind"]').click();if(G.mode==='target')hitTarget(G.targets[0].u);await new Promise(r=>setTimeout(r,1800));
  const after={acted:z.acted,mode:G.mode,ew:z.eastWind,fireBtn:!!document.querySelector('[data-sk="fire"]:not([disabled])')};
  const t0=e.troops;document.querySelector('[data-sk="fire"]').click();await new Promise(r=>setTimeout(r,300));
  const tg=G.targets.find(x=>x.u===e);if(tg){hitTarget(e)}await new Promise(r=>setTimeout(r,1500));

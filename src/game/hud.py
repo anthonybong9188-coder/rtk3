@@ -1347,6 +1347,36 @@ rep("for(const it of items){if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it
 
 # themed terrain tint + props
 rep("c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);",
-"c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);const TH=window.BTHEME||'';const TW={plains:['rgba(225,190,90,.30)','overlay'],hills:['rgba(150,110,60,.38)','multiply'],forest:['rgba(10,60,25,.42)','multiply'],river:['rgba(60,150,90,.18)','overlay'],marsh:['rgba(70,95,80,.45)','multiply'],pass:['rgba(140,130,115,.55)','color']}[TH];if(TW){c.save();c.globalCompositeOperation=TW[1];c.fillStyle=TW[0];c.fillRect(0,0,W,H);c.restore()}")
+"c.fillStyle=pat('tex_grass',2.6);c.fillRect(0,0,W,H);const TH=window.BTHEME||'';const TW={plains:['rgba(225,200,110,.12)','overlay'],hills:['rgba(150,110,60,.38)','multiply'],forest:['rgba(10,60,25,.42)','multiply'],river:['rgba(60,150,90,.18)','overlay'],marsh:['rgba(70,95,80,.45)','multiply'],pass:['rgba(140,130,115,.55)','color']}[TH];if(TW){c.save();c.globalCompositeOperation=TW[1];c.fillStyle=TW[0];c.fillRect(0,0,W,H);c.restore()}")
 rep("else if(t==='.'&&r()<.16){const k=['tuft1','tuft2','bush','rock2','reeds'][Math.floor(r()*5)];",
 "else if(t==='.'&&r()<({forest:.34,marsh:.32,pass:.30,hills:.24,plains:.12}[window.BTHEME]||.16)){const PK={forest:['bush','bush','tuft1','tuft2'],marsh:['reeds','reeds','reeds','tuft2'],pass:['rock2','rock2','rock2','tuft1'],hills:['rock2','tuft1','bush','tuft2'],plains:['tuft1','tuft2','tuft1','bush']}[window.BTHEME]||['tuft1','tuft2','bush','rock2','reeds'];const k=PK[Math.floor(r()*PK.length)];")
+
+# ===== Langrisser-style battle presentation (game/lm.js) =====
+rep("function drawToken(c,u,now){","function drawToken0(c,u,now){")
+rep("function updateUI(){","function updateUI0(){")
+rep("function drawFightHud(c,SL,SR,sl,sr){","function drawFightHud0(c,SL,SR,sl,sr){")
+rep("function makeBG(ter,defSide,duel){","function makeBG0(ter,defSide,duel){")
+rep("function renderTerrain(T){","function renderTerrain0(T){")
+rep("function playBattle0(att,def,r){","function playBattle0_(att,def,r){")
+rep("drawFightHud(c,SL,SR,shownT(SL,t),shownT(SR,t));","drawFightHud(c,SL,SR,shownT(SL,t),shownT(SR,t),t,1);")
+rep("v.addColorStop(1,'rgba(0,0,0,.55)')","v.addColorStop(1,'rgba(0,0,0,.28)')")
+rep("v.addColorStop(1,'rgba(0,0,0,.32)')","v.addColorStop(1,'rgba(0,0,0,.16)')")
+rep("if(G.enemyTiles){c.fillStyle='rgba(200,70,50,.15)';for(const t of G.enemyTiles)c.fillRect(t.x*T+1,t.y*T+1,T-2,T-2)}",
+    "if(G.threat&&G.phase==='player')lmRegion(c,threatTiles(),'rgba(255,50,30,.20)','rgba(255,110,90,.9)');if(G.enemyTiles)lmRegion(c,G.enemyTiles,'rgba(255,60,40,.30)','rgba(255,140,120,1)');")
+rep("if((G.mode==='select'||G.mode==='moved')&&G.reach){for(const t of G.reach.tiles)if(!(G.mode==='moved'&&t.x===G.sel.x&&t.y===G.sel.y))hl(t,'rgba(60,120,255,.13)','rgba(150,200,255,.95)')}",
+    "if((G.mode==='select'||G.mode==='moved')&&G.reach)lmRegion(c,G.reach.tiles,'rgba(40,140,255,.40)','rgba(150,215,255,1)');")
+rep("if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved')){for(const t of G.rangeTiles)hl(t,'rgba(235,60,50,.10)','rgba(255,140,120,.9)')}",
+    "if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved'))lmRegion(c,G.rangeTiles,'rgba(255,55,40,.24)','rgba(255,120,100,.95)');")
+rep("if(G.sel){c.strokeStyle='#d4ad55';c.lineWidth=2.5;c.strokeRect(G.sel.px*T+2,G.sel.py*T+2,T-4,T-4)}\n  else if(G.view){c.strokeStyle='rgba(236,226,201,.7)';c.lineWidth=1.5;c.strokeRect(G.view.px*T+2,G.view.py*T+2,T-4,T-4)}",
+    "if(G.pv&&G.pv.u)lmPvMark(c,now);")
+rep("const u=unitAt(x,y);","const u=unitAt(x,y);if(G.pv&&u!==G.pv.u)G.pv=null;")
+rep("""    const s=G.sel;G.tmode='attack';
+    if(inRange(s.type,manh(s,u))){execTarget(u);return}""","""    const s=G.sel;G.tmode='attack';
+    if(!G.pv||G.pv.u!==u){G.pv={s,u};updateUI();return}G.pv=null;
+    if(inRange(s.type,manh(s,u))){execTarget(u);return}""")
+rep("$('#fsBtn').textContent=f?'⛶ Exit':'⛶ Full';","$('#fsBtn').textContent='⛶';$('#fsBtn').classList.toggle('on',f);")
+rep('''<div class="pills"><button class="pill sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill" aria-label="Fullscreen">⛶ Full</button><button id="speedBtn" class="pill"></button><button id="logBtn" class="pill">Log</button><button id="retreatBtn" class="pill">Retreat</button></div>''',
+    '''<div class="pills"><button id="threatBtn" class="pill ic" aria-label="Show enemy range" title="Enemy range">👁</button><button id="autoBtn" class="pill" title="Auto battle">AUTO</button><button id="speedBtn" class="pill" title="Battle scene speed"></button><button class="pill ic sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="fsBtn" class="pill ic" aria-label="Fullscreen">⛶</button><button id="logBtn" class="pill ic" aria-label="Battle log" title="Battle log">☰</button><button id="retreatBtn" class="pill ic" aria-label="Retreat">⚑</button></div>''')
+rep('<div id="acts" class="acts2"></div>','<div id="acts" class="acts2"></div><div id="pv" hidden></div><div id="phaseBan"><b></b><small></small></div>')
+rep("showScreen('title');renderTitle();", open(os.path.join(D,'lm.js')).read()+"\nshowScreen('title');renderTitle();")
+rep("</style>", open(os.path.join(D,'lm.css')).read()+"\n</style>")

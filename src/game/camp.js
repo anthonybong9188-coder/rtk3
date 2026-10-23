@@ -832,7 +832,7 @@ async function resolveArrival(a){
   if(c.troops<=0&&!defG.length){takeCity(a,c,gens,a.troops,[]);if(playerIn)addLog(`${c.name} falls without a fight.`);return}
   let res;
   if(playerIn&&UI.snap){try{localStorage.setItem(PRE,UI.snap)}catch(e){}}
-  if(playerIn&&c.owner==='shu'&&gensIn(c.id).length){defG=await pickDefenders(a,c,gens,defG);if(!defG)defG=cmdOrder(gensIn(c.id)).slice(0,4)}
+  if(playerIn&&c.owner==='shu'&&gensIn(c.id).length){defG=await pickDefenders(a,c,gens,defG);if(defG==='flee'){await abandonCity(a,c,gens);return}if(!defG)defG=cmdOrder(gensIn(c.id)).slice(0,4)}
   if(playerIn){
     const me=a.fac==='shu',foe=me?c.owner:a.fac;
     const html=`<div class="dzh">戰</div><h2>Battle at ${c.name}</h2>
@@ -864,7 +864,7 @@ async function fieldBattles(){
     A.troops=aS;B.troops=bS;
     const caps=lostG.filter(g=>res.captured&&res.captured.length?res.captured.includes(g.id):lostBrk.includes(g.id)&&Math.random()<capAdj(g,.4));
     for(const g of caps){L.gens=L.gens.filter(id=>id!==g.id);g.army=null}
-    S.armies=S.armies.filter(x=>x!==L);returnHome(L,lostG.filter(g=>!caps.includes(g)),L.troops);
+    S.armies=S.armies.filter(x=>x!==L);{const bk=lostG.filter(g=>!caps.includes(g));returnHome(L,bk,L.troops,await pickRetreat(L,bk,L.troops))}
     if(W.troops<=0&&!W.gens.length)S.armies=S.armies.filter(x=>x!==W);
     addLog(`${fs(W.fac)} defeats ${fs(L.fac)} on ${road.name}. The beaten army falls back to ${C(L.from).owner===L.fac?C(L.from).name:'its lands'}.`,W.fac);
     if(playerIn){const w=W.fac==='shu';await dialog(`<div class="dzh" style="color:${w?'var(--gold)':'#e88b7f'}">${w?'勝':'敗'}</div><h2>${w?'The road is yours':'Your army is driven back'}</h2><p>${w?`This was a battle in the open field against ${fs(L.fac)}'s marching army, not the siege of the city. ${fs(L.fac)}'s army falls back. Your army marches on to ${C(W.to).name} with ${fmt(W.troops)} troops and will storm it ${W.left<=1?'when it arrives':`in ${W.left} months`}.`:`Your army retreats toward ${C(L.from).name} with ${fmt(L.troops)} troops.`}</p>`,[['ok','Continue','primary']])}
@@ -872,17 +872,21 @@ async function fieldBattles(){
     for(const g of caps)await handleCapture(g,W.fac,home);
     if(S.over)return}}
 async function pickDefenders(a,c,gens,def0){
-  const all=cmdOrder(gensIn(c.id));const sel=new Set(def0.map(g=>g.id));let cmd=def0[0]&&def0[0].id;
+  const all=cmdOrder(gensIn(c.id)),sel=new Set(def0.map(g=>g.id)),tot=c.troops,step=Math.max(100,Math.round(tot/20/100)*100),MIN=Math.min(300,Math.floor(tot/8));
+  let cmd=def0[0]&&def0[0].id,al={};const even=()=>{al={};const ids=[...sel],n=ids.length||1;ids.forEach((id,i)=>al[id]=Math.floor(tot/n)+(i===0?tot%n:0))};even();
   for(;;){if(!sel.has(cmd))cmd=[...sel][0];
+    const card=g=>{const on=sel.has(g.id);return `<div class="dac ${on?'on':''}"><button class="dtog" data-r="tog:${g.id}" ${!on&&sel.size>=4?'disabled':''}>${gseal(g,30)}<span><b>${on?'✓ ':''}${g.name}</b><small>War ${g.war} · Int ${g.int} · ${TYPES[g.type].n}</small></span></button>${on?`<button class="dcmd ${cmd===g.id?'on':''}" data-r="cmd:${g.id}" title="Make commander">帥</button><div class="dstep"><button data-r="sub:${g.id}" ${al[g.id]-step<MIN||sel.size<2?'disabled':''} aria-label="Fewer troops">−</button><b>${fmt(al[g.id])}</b><button data-r="add:${g.id}" ${sel.size<2?'disabled':''} aria-label="More troops">+</button></div>`:''}</div>`};
     const r=await dialog(`<div class="dzh">守</div><h2>${FACS[a.fac].short} attacks ${c.name}</h2>
-      <p>${fmt(a.troops)} troops led by ${gens.map(g=>g.name).join(', ')||'no general'} are at the gates. Your ${fmt(c.troops)} troops are split evenly between the officers you send out.</p>
-      <p class="muted">Pick up to 4 officers to defend, then choose the 帥 commander. If he falls, the defence collapses.</p>
-      <div class="tlist dpick">${all.map(g=>`<button data-r="tog:${g.id}" class="${sel.has(g.id)?'on':''}" ${!sel.has(g.id)&&sel.size>=4?'disabled':''}>${gseal(g,30)}<b>${sel.has(g.id)?'✓ ':''}${g.name}</b><small>War ${g.war} · Int ${g.int} · ${TYPES[g.type].n}</small><em>${cmd===g.id?'帥':''}</em></button>`).join('')}</div>
-      <div class="envrow"><span>Commander</span>${[...sel].map(id=>`<button data-r="cmd:${id}" class="${cmd===id?'on':''}">帥 ${GN(id).name}</button>`).join('')}</div>`,
-      [['go',`Defend with ${sel.size} officer${sel.size>1?'s':''}`,'primary']]);
-    if(r.startsWith('tog:')){const id=r.slice(4);if(sel.has(id)){if(sel.size>1)sel.delete(id)}else if(sel.size<4)sel.add(id);continue}
+      <p class="muted">${fmt(a.troops)} troops under ${gens.map(g=>g.name).join(', ')||'no general'} are at the gates. Tap officers to send up to 4, tap 帥 to pick the commander (if he falls the defence collapses), and use − / + to share out your ${fmt(tot)} troops.</p>
+      <div class="dalloc">${[...all.filter(g=>sel.has(g.id)),...all.filter(g=>!sel.has(g.id))].map(card).join('')}</div>`,
+      [...(citiesOf('shu').length>1?[['flee','Abandon city']]:[]),['even','Split evenly'],['go',`Defend with ${sel.size} officer${sel.size>1?'s':''}`,'primary']]);
+    if(r==='flee')return 'flee';
+    if(r==='even'){even();continue}
+    if(r.startsWith('tog:')){const id=r.slice(4);if(sel.has(id)){if(sel.size>1)sel.delete(id)}else if(sel.size<4)sel.add(id);even();continue}
     if(r.startsWith('cmd:')){cmd=r.slice(4);continue}
-    const rest=cmdOrder([...sel].filter(id=>id!==cmd).map(GN));return [GN(cmd),...rest]}}
+    if(r.startsWith('add:')){const id=r.slice(4),d=[...sel].filter(x=>x!==id&&al[x]-step>=MIN).sort((x,y)=>al[y]-al[x])[0];if(d){al[d]-=step;al[id]+=step}continue}
+    if(r.startsWith('sub:')){const id=r.slice(4),d=[...sel].filter(x=>x!==id).sort((x,y)=>al[x]-al[y])[0];if(d&&al[id]-step>=MIN){al[id]-=step;al[d]+=step}continue}
+    c._dsplit={...al};const rest=cmdOrder([...sel].filter(id=>id!==cmd).map(GN));return [GN(cmd),...rest]}}
 function unitSplit(gs,total){const n=gs.length||1;return gs.map(()=>Math.floor(total/n))}
 // player armies carry a per-general split; scale it to what is left after desertion
 function armySplit(a,gs){if(!a.split)return unitSplit(gs,a.troops);const w=gs.map(g=>a.split[g.id]||0),t=w.reduce((x,y)=>x+y,0);
@@ -902,7 +906,15 @@ function autoBattle(a,c,gens,defG){
 function nearestOwn(f,from){const cs=citiesOf(f).filter(x=>x.id!==from);if(!cs.length)return null;const o=C(from);
   const adj=cs.filter(x=>neighbours(from).includes(x.id));const pool=adj.length?adj:cs;
   return pool.sort((p,q)=>Math.hypot(p.x-o.x,p.y-o.y)-Math.hypot(q.x-o.x,q.y-o.y))[0]}
-function returnHome(a,gens,troops){const home=C(a.from).owner===a.fac?C(a.from):nearestOwn(a.fac,a.to);
+async function abandonCity(a,c,gens){const gs=gensIn(c.id),dest=await pickRetreat({fac:'shu',from:c.id,to:c.id,abandon:true},gs,c.troops)||nearestOwn('shu',c.id);
+  if(dest){dest.troops+=c.troops;const g2=Math.round(c.gold*.5),r2=Math.round(c.rice*.5);dest.gold+=g2;dest.rice+=r2;c.gold-=g2;c.rice-=r2;for(const g of gs){g.city=dest.id;g.assign=null}}
+  c.troops=0;takeCity(a,c,gens,a.troops,[]);addLog(`You abandon <b>${c.name}</b>. ${gs.length>3?`${gs[0].name} and ${gs.length-1} officers`:gs.map(g=>g.name).join(', ')||'The garrison'} fall back to ${dest?dest.name:'the hills'} with the garrison and half the stores.`,'shu')}
+async function pickRetreat(a,gens,troops){if(a.fac!=='shu'||(!gens.length&&troops<=0))return null;const cs=citiesOf('shu').filter(x=>x.id!==a.to);if(!cs.length)return null;if(cs.length===1&&a.abandon)return cs[0];
+  const o=C(a.to)||C(a.from),nb=neighbours(a.to);
+  const list=[...cs].sort((p,q)=>(q.id===a.from)-(p.id===a.from)||(nb.includes(q.id)-nb.includes(p.id))||Math.hypot(p.x-o.x,p.y-o.y)-Math.hypot(q.x-o.x,q.y-o.y));
+  const r=await dialog(`<div class="dzh" style="color:#e88b7f">退</div><h2>Retreat to which city?</h2><p class="muted">${gens.length?gens.map(g=>g.name).join(', '):'The survivors'} fall back with ${fmt(troops)} troops. Choose where they regroup.</p><div class="rchoice">${list.map(x=>`<button data-r="${x.id}"><b>${x.name}${x.id===a.from?' · marched from here':nb.includes(x.id)?' · nearest':''}</b><small>${fmt(x.troops)} troops · ${gensIn(x.id).length} officers${underSiege(x)?' · under threat':''}</small></button>`).join('')}</div>`,[]);
+  return C(r)||null}
+function returnHome(a,gens,troops,dest){const home=dest&&dest.owner===a.fac?dest:C(a.from).owner===a.fac?C(a.from):nearestOwn(a.fac,a.to);
   if(!home){for(const g of gens)g.army=null;gens.forEach(g=>{g.fac=null;g.assign=null;g.city=a.from;g.hidden=true});return}
   home.troops+=troops;home.rice+=Math.round(a.rice*.5);home.gold+=Math.round(a.gold||0);for(const g of gens){g.army=null;g.city=home.id}}
 async function applyBattle(a,c,gens,defG,res){
@@ -919,7 +931,7 @@ async function applyBattle(a,c,gens,defG,res){
   } else {
     c.troops=dS+(res.reserve||0);c.order=Math.min(100,c.order+3);
     const back=[];for(const g of gens){const cap=res.captured?res.captured.includes(g.id):res.attBroken.includes(g.id)&&Math.random()<capAdj(g,.4);if(cap){caps.push(g);g.army=null;g.city=null}else back.push(g)}
-    returnHome(a,back,aS);
+    returnHome(a,back,aS,await pickRetreat(a,back,aS));
     addLog(`${fs(oldOwner)} holds <b>${c.name}</b> against ${fs(a.fac)}.`,oldOwner);
   }
   const captor=res.attWin?a.fac:oldOwner;
@@ -1008,7 +1020,7 @@ function playCampaignBattle(a,c,gens,defG){
   const SPA=sd=>sd==='L'?[[3,4],[3,2],[3,6],[2,3]]:[[COLS-4,4],[COLS-4,2],[COLS-4,6],[COLS-3,3]];
   const SPD=sd=>sd==='L'?[[1,4],[1,2],[1,6],[0,3]]:[[COLS-2,4],[COLS-2,2],[COLS-2,6],[COLS-1,3]];
   const dGs=defG.length?defG:[{id:'garrison',name:'Garrison captain',ch:'守',type:'shield',war:50,int:40}];
-  const aT=armySplit(a,gens),dT=unitSplit(dGs,c.troops);
+  const aT=armySplit(a,gens),dT=(()=>{const sp=c._dsplit;c._dsplit=null;if(!sp||!dGs.every(g=>sp[g.id]>0))return unitSplit(dGs,c.troops);const w=dGs.map(g=>sp[g.id]),t=w.reduce((x,y)=>x+y,0);return w.map(v=>Math.floor(c.troops*v/t))})();
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
   const thm=route&&route[3]?'river':themeFor(a,c);window.BTHEME=thm;const THN={plains:'open plains',hills:'rolling hills',forest:'deep forest',river:'river valley',marsh:'marshland',pass:'mountain pass'};
