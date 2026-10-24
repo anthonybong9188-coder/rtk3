@@ -1584,3 +1584,9 @@ rep("const GSHEET={tigerking:'tiger',","const GSHEET={tigerking:'tiger',wolfking
 rep("for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)],O,","for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)]||O.off,O,")
 rep("const GSHEET={tigerking:'tiger',","const GSHEET={xiaoming:'g_xiaoming',tigerking:'tiger',")
 rep("const GSHEET={xiaoming:'g_xiaoming',","const GSHEET={xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',")
+# ===== beast packs (tiger, wolf) have no general =====
+rep("const HPM=u=>u.id==='garrison'?300:","const HPM=u=>(u.type==='tiger'||u.type==='wolf')?0:u.id==='garrison'?300:")
+rep("officer:true,wave:S.wave,","officer:true,nohero:!S.u.hpMax,wave:S.wave,")
+rep("function drawFigure(c,f){","function drawFigure(c,f){if(f.nohero)return;")
+rep("const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!e.dueled);","const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!e.dueled&&e.hpMax);")
+rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',")

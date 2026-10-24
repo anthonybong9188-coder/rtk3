@@ -60,7 +60,7 @@ function drawFightHud(c,SL,SR,sl,sr,t,main){
     if(S._pf!=null&&frac<S._pf-.002)S._fl=1;S._pf=frac;S._fl=Math.max(0,(S._fl||0)-dtm/240);
     const nx=L?cxm-62:cxm+62,bw=cxm-130-x0,bx=L?x0+10:cxm+120;
     for(const yy of [y+5,y+23]){c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-40,yy);c.lineTo(nx+40,yy);c.lineTo(nx+35,yy+17);c.lineTo(nx-35,yy+17);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.1;c.stroke()}
-    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(hero)),nx,y+19);c.fillStyle='#fff';c.fillText(String(Math.round(hero)),nx,y+19);c.strokeText(String(DSOL(S.u,sol)),nx,y+37);
+    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';{const ht=hm?String(Math.round(hero)):'—';c.strokeText(ht,nx,y+19);c.fillStyle='#fff';c.fillText(ht,nx,y+19)}c.strokeText(String(DSOL(S.u,sol)),nx,y+37);
     const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(DSOL(S.u,sol)),nx,y+37);
     lmBar(c,bx,y+7,bw,10,hm?hero/hm:0,hm?hero/hm:0,fr,!L,0);lmBar(c,bx,y+25,bw,11,frac,S._g,fr,!L,S._fl);
     const O=L?SR:SL,m=typeMult(S.u.type,O.u.type);c.font='600 11.5px "Alegreya Sans",sans-serif';c.textAlign=L?'left':'right';c.fillStyle='#d8c9a0';

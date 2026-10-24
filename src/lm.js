@@ -20,9 +20,9 @@ function drawToken(c,u,now){
   c.lineWidth=T*(sel?.075:.05);c.strokeStyle=done?'rgba(170,170,170,.55)':sel?`rgba(255,230,110,${.65+.35*pulse})`:lmHexA(ring,.95);c.beginPath();c.arc(0,0,T*.4,0,7);c.stroke();
   if(u.cmd){c.lineWidth=T*.022;c.strokeStyle='#ffd45a';c.beginPath();c.arc(0,0,T*.47,0,7);c.stroke()}
   c.restore();
-  const n=u.troops<=0?0:u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22]],run=moving?now*.03:G.sel===u?now*.012:null,items=[];
+  const n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22],[.12,.04]],run=moving?now*.03:G.sel===u?now*.012:null,items=[];
   for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
-  items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
+  if(u.hpMax!==0)items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
   items.sort((a,b)=>a.y-b.y);
   c.save();if(done){if('filter' in c)c.filter='grayscale(1) brightness(.75)';else c.globalAlpha=.6}
   for(const it of items)drawSprite(c,it.f,it.f.officer?osh:ssh);
@@ -71,7 +71,7 @@ function lmPost(){if(!G)return;
   const u=G.view,box=$('#info');box.classList.toggle('fo',!!u&&u.side!=='shu');
   if(u){const fr=u.side==='shu',chips=[];
     if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
-    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?`<div class="ubar hb"><i style="width:\${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero \${HP(u)} / \${u.hpMax||0}</span></div>`:'<div class="ubar hb"><span>No general · beast pack</span></div>'}<div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
   const acts=$('#acts');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
   const pv=$('#pv');if(G.pv){pv.innerHTML=lmPvHTML(G.pv.s,G.pv.u);pv.hidden=false}else{pv.hidden=true;pv.innerHTML=''}
