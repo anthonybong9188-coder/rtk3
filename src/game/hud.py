@@ -1522,3 +1522,5 @@ rep("function hitTarget(u){","function hitTarget(u){if(G.mode==='target'&&G.tmod
 # lady generals commanding shield troops use the twin-sword heroine sheet
 rep("const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);","const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':'fgeneral'):false);")
 rep("['spear','shield','archer','cav','general','fgeneral',","['spear','shield','archer','cav','general','fgeneral','fshield',")
+rep("(u.type==='shield'?'fshield':'fgeneral')","(u.type==='shield'?'fshield':u.type==='archer'?'farcher':'fgeneral')")
+rep("'fgeneral','fshield',","'fgeneral','fshield','farcher',")
