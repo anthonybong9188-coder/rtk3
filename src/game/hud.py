@@ -1608,3 +1608,4 @@ rep("const GSHEET={ladygan:'f_ladygan',","const GSHEET={consortzhao:'f_consortzh
 rep("if(it.burn)fx(c,1,Math.floor(t/90+it.bx)%4,","if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,")
 rep("if(t<burnEnd)fx(c,1,Math.floor(t/95+f.ph)%4,","if(t<burnEnd)fx(c,1,Math.floor(t/125+f.ph)%8,")
 rep("const GSHEET={consortzhao:'f_consortzhao',","const GSHEET={consortyan:'f_consortyan',consortzhao:'f_consortzhao',")
+rep("const GSHEET={consortyan:'f_consortyan',","const GSHEET={consortli:'f_consortli',consortyan:'f_consortyan',")
