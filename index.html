@@ -850,9 +850,10 @@ HERO.assassin={who:'renrui',zh:'暗殺刃',n:'Assassin\'s Blade',targets:s=>enem
 HERO.bless={who:'miren',zh:'春華',n:'Spring Blessing',self:1,can:s=>G.units.some(u=>u.side===s.side&&u.troops<u.max),desc:'Restore 20% troops to every allied unit on the field. Ready again after 4 turns'};
 HERO.grace={who:'mishao',zh:'韶光',n:'Gentle Grace',self:1,can:s=>G.units.some(u=>u.side===s.side&&u.troops<u.max),desc:'Restore 15% troops to every allied unit on the field. Ready again after 4 turns'};
 HERO.linked={who:'ladygan',zh:'連珠箭',n:'Linked Arrows',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Three arrows in a row at an enemy up to 3 squares away (×0.5 each, no counter)'};
-HERO.rain={who:'ladymi',zh:'箭雨',n:'Arrow Rain',targets:s=>enemies().filter(e=>manh(s,e)<=4),desc:'Arrows rain on the 3×3 around an enemy up to 4 squares away (×0.6 to every enemy in it, no counter)'};
-HERO.pierce={who:'daqiao',zh:'破甲箭',n:'Armour-Piercing Shot',targets:s=>enemies().filter(e=>manh(s,e)<=4),desc:'One arrow at an enemy up to 4 squares away (×1.6, no counter); it takes 20% more damage for 2 turns'};
-HERO.firearrow={who:'xiaoqiao',zh:'火矢',n:'Fire Arrows',targets:s=>enemies().filter(e=>manh(s,e)<=4),desc:'A burning arrow at an enemy up to 4 squares away: fire damage based on Intelligence, and the square catches fire'};
+function lineDirs(s,n){return DIRS.map(([dx,dy])=>{const line=[];for(let i=1;i<=n;i++){const x=s.x+dx*i,y=s.y+dy*i;if(!inb(x,y))break;line.push({x,y})}const hit=line.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length)return null;const a=ARW[dx+','+dy];return{fake:1,x:line[0].x,y:line[0].y,dir:[dx,dy],area:line,label:`${a[0]} ${a[1]}`,name:a[1],type:'shield',note:`hits ${hit.map(u=>u.name).join(', ')}`}}).filter(Boolean)}
+HERO.rain={who:'ladymi',zh:'箭雨',n:'Arrow Rain',targets:s=>lineDirs(s,2),desc:'Arrows rain on a straight line of 2 squares: every enemy in it takes ×0.6 (no counter). Pick a direction'};
+HERO.pierce={who:'daqiao',zh:'破甲箭',n:'Armour-Piercing Shot',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'One arrow at an enemy up to 3 squares away (×1.2, no counter); it takes 20% more damage for 2 turns'};
+HERO.firearrow={who:'xiaoqiao',zh:'火矢',n:'Fire Arrows',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'A burning arrow at an enemy up to 3 squares away: fire damage based on Intelligence, and the square catches fire'};
 HERO.palm={who:'hero',zh:'降龍十八掌',n:'Dragon Palms',targets:s=>adjE(s),desc:'Eighteen Dragon-Subduing Palms: the enemy loses 25% of its troops and, with internal injuries, cannot act next turn'};
 HERO.chakram={who:'sunshangxiang',zh:'烈焰飛輪',n:'Flaming Chakrams',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Hurl flaming chakrams at an enemy up to 3 squares away: it is struck twice (×0.7 each, no counter)'};HERO.musou={who:'lubu',zh:'無雙亂舞',n:'Heaven-Splitting Sweep',self:1,can:s=>G.units.some(e=>e.side!==s.side&&manh(s,e)<=2),desc:'Lü Bu whirls the Sky Piercer: every enemy within 2 squares takes ×1.2 damage, no counter'};HERO.melody={who:'caiwenji',zh:'震天曲',n:'Heaven-Shaking Melody',self:1,can:s=>enemies().some(e=>manh(s,e)<=2),desc:'Blades of sound hit every enemy within 2 squares (×0.8, no counter); until your next turn they cannot strike back'};HERO.bagua={who:'huangyueying',zh:'八卦陣',n:'Bagua Formation',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Paint a spinning bagua over an enemy up to 3 squares away: it and every enemy around it take ×0.9 damage (no counter) and lose 20% attack for 2 turns'};HERO.crescent={who:'guanyinping',zh:'青龍月牙',n:'Dragon Crescent',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A crescent wave of dragon energy hits an enemy up to 2 squares away (×1.3, no counter) and the enemy directly behind it (×0.8)'};HERO.petal={who:'diaochan',zh:'閉月花舞',n:'Petal Dance',targets:s=>enemies().filter(e=>manh(s,e)<=2),desc:'A storm of petals hits an enemy up to 2 squares away and up to 2 enemies beside it (×0.8, no counter). The main target is charmed and loses its next turn'};
 for(const k of Object.keys(HERO))if(!['roar','sweep','lone','wind','star','mend','burn','frost','palm','petal','crescent','bagua','melody','musou','chakram','thunder','flood','meteor','assassin','bless','grace','linked','rain','pierce','firearrow'].includes(k))delete HERO[k];
@@ -1360,7 +1361,7 @@ function sweep(){for(const u of G.units.filter(u=>u.troops<=0)){const f=u.fate||
 function checkEnd(){
   if(G.over)return true;
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
-  if(G.cfg&&G.cfg.hulao){if(!G.units.some(u=>u.side==='shu'))return endGame(false,'All five heroines have fallen. Lü Bu holds Hu Lao Gate.');if(!enemies().length||!G.units.some(u=>u.id==='lubu'))return endGame(true,`Lü Bu is defeated on turn ${G.turn}! Hu Lao Gate is yours.`);return false}
+  if(G.cfg&&G.cfg.hulao){if(!G.units.some(u=>u.side==='shu'))return endGame(false,'All sixteen heroines have fallen. Lü Bu holds Hu Lao Gate.');if(!enemies().length||!G.units.some(u=>u.id==='lubu'))return endGame(true,`Lü Bu is defeated on turn ${G.turn}! Hu Lao Gate is yours.`);return false}
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
@@ -1593,8 +1594,8 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='palm'){gfx('hero',t.x,t.y,3.6,2000);SND.fx('crit');await sleep(1000);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);
     log(`<b>Eighteen Dragon-Subduing Palms!</b> ${nm(s)} strikes ${nm(t)}: −${dmg}. Wracked by internal injuries, they cannot act next turn.`);await sleep(900)}
   else if(k==='linked'){SND.fx('arrows');let tot=0;for(let i=0;i<3&&G.units.includes(t);i++){mfx('hit',t.x,t.y,1000,1.4);tot+=quickHit(s,t,.5,{color:'#ffe08a'});await sleep(260)}log(`<b>Linked Arrows!</b> ${nm(s)} looses three arrows at ${nm(t)}: −${tot}.`);await sleep(600)}
-  else if(k==='rain'){SND.fx('arrows');const hit=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1);for(const p of area3(t.x,t.y))mfx('hit',p.x,p.y,1000,1.1);await sleep(400);let tot=0;for(const e of hit){tot+=quickHit(s,e,.6,{color:'#ffe08a'});await sleep(90)}log(`<b>Arrow Rain!</b> ${nm(s)}\'s arrows fall on ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(600)}
-  else if(k==='pierce'){SND.fx('arrows');mfx('hit',t.x,t.y,1000,2);await sleep(300);const dmg=quickHit(s,t,1.6,{color:'#ffe08a'});if(G.units.includes(t)){t.pierceT=G.turn+2;setTimeout(()=>G.units.includes(t)&&float(t,'Armour broken','#ffb08a'),350)}log(`<b>Armour-Piercing Shot!</b> ${nm(s)} hits ${nm(t)}: −${dmg}. It takes 20% more damage for 2 turns.`);await sleep(700)}
+  else if(k==='rain'){SND.fx('arrows');const hit=t.area.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);for(const p of t.area)mfx('hit',p.x,p.y,1000,1.3);await sleep(400);let tot=0;for(const e of hit){tot+=quickHit(s,e,.6,{color:'#ffe08a'});await sleep(90)}log(`<b>Arrow Rain!</b> ${nm(s)}\'s arrows fall on ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(600)}
+  else if(k==='pierce'){SND.fx('arrows');mfx('hit',t.x,t.y,1000,2);await sleep(300);const dmg=quickHit(s,t,1.2,{color:'#ffe08a'});if(G.units.includes(t)){t.pierceT=G.turn+2;setTimeout(()=>G.units.includes(t)&&float(t,'Armour broken','#ffb08a'),350)}log(`<b>Armour-Piercing Shot!</b> ${nm(s)} hits ${nm(t)}: −${dmg}. It takes 20% more damage for 2 turns.`);await sleep(700)}
   else if(k==='firearrow'){SND.fx('arrows');await sleep(250);const dmg=fireHit(s,t,3);log(`<b>Fire Arrows!</b> ${nm(s)}\'s burning arrow strikes ${nm(t)}: −${dmg}.`);await sleep(700)}
   else if(k==='grace'){s.cd.grace=4;SND.fx('chime');let tot=0;for(const u of G.units.filter(u=>u.side===s.side)){const add=Math.min(u.max-u.troops,Math.round(u.max*.15));mfx('heal',u.x,u.y,1100,1.8);if(add>0){u.troops+=add;tot+=add;float(u,'+'+add,'#b8ffc4')}}log(`<b>Gentle Grace!</b> ${nm(s)}\'s light heals the whole army: +${tot} troops.`);await sleep(900)}
   else if(k==='bless'){s.cd.bless=4;SND.fx('chime');let tot=0;for(const u of G.units.filter(u=>u.side===s.side)){const add=Math.min(u.max-u.troops,Math.round(u.max*.2));mfx('heal',u.x,u.y,1100,1.8);if(add>0){u.troops+=add;tot+=add;float(u,'+'+add,'#b8ffc4')}}log(`<b>Spring Blessing!</b> ${nm(s)}\'s light heals the whole army: +${tot} troops.`);await sleep(900)}
@@ -3480,20 +3481,21 @@ $('#pv').addEventListener('click',e=>{const b=e.target.closest('[data-sk]');if(!
   $('#acts').addEventListener('click',e=>{if(fired){e.stopImmediatePropagation();e.preventDefault();fired=false}},true);
   $('#acts').addEventListener('contextmenu',e=>e.preventDefault());}
 
-// ===== Hu Lao Gate: test battlefield — five heroines vs Lü Bu =====
+// ===== Hu Lao Gate: test battlefield — sixteen heroines vs Lü Bu =====
 async function startHulao(){
   const sv=save;save=()=>{};try{newCampaign('easy')}finally{save=sv}
   S.hulao=true;PORT.lubu='lu_bu';PORT.xiaoming='xiao_ming';PORT.xiaohei='xiao_hei';PORT.jiangchen='jiang_chen';
-  const W5=['diaochan','guanyinping','huangyueying','caiwenji','sunshangxiang'],pos=[[2,1],[2,3],[1,4],[2,5],[2,7]];
-  const units=W5.map((id,i)=>{const g=S.gens[id];return {id,name:g.name,ch:g.ch,side:'shu',type:g.type,war:g.war,int:g.int,troops:5000,x:pos[i][0],y:pos[i][1],cmd:i===0,train:80}});
-  units.push({id:'xiaoming',name:'Xiao Ming',ch:'明',side:'wei',type:'peasant',war:42,int:35,troops:500,x:COLS-2,y:1,train:40},{id:'xiaohei',name:'Xiao Hei',ch:'黑',side:'wei',type:'peasant',war:48,int:28,troops:500,x:COLS-2,y:ROWS-2,train:40});
-  units.push({id:'jiangchen',name:'Jiang Chen',ch:'屍',side:'wei',type:'undead',war:66,int:88,troops:500,x:COLS-1,y:3,train:90});
-  units.push({id:'tigerking',name:'Tiger pack',ch:'虎',side:'wei',type:'tiger',war:85,int:20,troops:500,x:COLS-3,y:6,train:90});
-  units.push({id:'wolfking',name:'Wolf pack',ch:'狼',side:'wei',type:'wolf',war:75,int:25,troops:400,x:COLS-3,y:2,train:85});
+  const W5=['diaochan','guanyinping','huangyueying','caiwenji','sunshangxiang','xuannu','huangyi','renrui','zhurong','zhenji','ladygan','ladymi','daqiao','xiaoqiao','miren','mishao'];
+  const pos=[];for(let y=0;y<ROWS;y++)pos.push([1,y]);for(let y=0;y<ROWS;y++)pos.push([0,y]);
+  const units=W5.filter(id=>S.gens[id]).map((id,i)=>{const g=S.gens[id];return {id,name:g.name,ch:g.ch,side:'shu',type:g.type,war:g.war,int:g.int,troops:5000,x:pos[i][0],y:pos[i][1],cmd:i===0,train:80}});
+  units.push({id:'xiaoming',name:'Xiao Ming',ch:'明',side:'wei',type:'peasant',war:42,int:35,troops:2000,x:COLS-2,y:1,train:40},{id:'xiaohei',name:'Xiao Hei',ch:'黑',side:'wei',type:'peasant',war:48,int:28,troops:2000,x:COLS-2,y:ROWS-2,train:40});
+  units.push({id:'jiangchen',name:'Jiang Chen',ch:'屍',side:'wei',type:'undead',war:66,int:88,troops:2000,x:COLS-1,y:3,train:90});
+  units.push({id:'tigerking',name:'Tiger pack',ch:'虎',side:'wei',type:'tiger',war:85,int:20,troops:2000,x:COLS-3,y:6,train:90});
+  units.push({id:'wolfking',name:'Wolf pack',ch:'狼',side:'wei',type:'wolf',war:75,int:25,troops:1600,x:COLS-3,y:2,train:85});
   units.push({id:'lubu',name:'Lü Bu',ch:'呂',side:'wei',type:'cav',war:100,int:30,troops:20000,x:COLS-3,y:4,cmd:true,train:90});
   window.BTHEME='pass';
   const r=await startBattle({units,foe:'han',walls:0,hulao:true,map:genBattleMap('N',false,Math.floor(Math.random()*1e6),'pass'),playerAttacks:true,
-    title:'Battle of Hu Lao Gate',sub:'Five heroines stand against the unrivalled Lü Bu with peasant levies and Jiang Chen’s undead horde · easy mode'});
+    title:'Battle of Hu Lao Gate',sub:'Sixteen heroines stand against the unrivalled Lü Bu with peasant levies and Jiang Chen’s undead horde · easy mode'});
   S=null;showScreen('title');renderTitle();
 }
 function battleStats(win){
