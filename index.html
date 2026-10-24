@@ -1618,7 +1618,7 @@ function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)retu
 function drawFigure(c,f){if(f.nohero)return;
   if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}
   if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
-  else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
+  else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   const F=FAC[f.fac]||FAC.shu,O='#1a1410',skin='#e6bb8e';c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(0,1,f.type==='cav'?22:9,3,0,0,Math.PI*2);c.fill()}
   if(f.fall)c.rotate(-f.fall*1.4);
@@ -1737,7 +1737,7 @@ function drawFightHud0(c,SL,SR,sl,sr){
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
 const FEM=new Set(['sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',huangwenjing:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
-function sprLoad(fk){return ['spear','shield','archer','cav','wu','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+function sprLoad(fk){return ['spear','shield','archer','cav','wu','wu2','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}

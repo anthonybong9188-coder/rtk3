@@ -1590,3 +1590,6 @@ rep("officer:true,wave:S.wave,","officer:true,nohero:!S.u.hpMax,wave:S.wave,")
 rep("function drawFigure(c,f){","function drawFigure(c,f){if(f.nohero)return;")
 rep("const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!e.dueled);","const duelTargets=s=>s.war<70?[]:enemies().filter(e=>manh(s,e)===1&&e.war>=70&&!e.dueled&&e.hpMax);")
 rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',")
+# martial artists: alternate palm-wave and side-kick fighters within the ranks
+rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));")
+rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
