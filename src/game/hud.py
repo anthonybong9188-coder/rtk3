@@ -1641,3 +1641,19 @@ rep("if(f.k==='sheet'){const im=fxSheet","if(f.k==='streak'){if(METEOR.complete&
 rep("else if(k==='star'){","else if(k==='meteor'){const [dx,dy]=t.dir,line=t.area;log(`<b>Shooting Star Sword!</b> ${nm(s)} flashes across the field to the ${t.name.toLowerCase()}.`);\n    G.mfx=(G.mfx||[]);G.mfx.push({k:'streak',x:s.x,y:s.y,dx,dy,n:line.length,t0:performance.now(),dur:900});SND.fx('special');await sleep(380);\n    let last=null,tot=0;for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;await sleep(70)}}\n    if(last){const li=line.indexOf(last),cand=[line[li+1],...line.slice(0,li).reverse()].filter(Boolean);const free=cand.find(p=>terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y));if(free){s.x=s.px=free.x;s.y=s.py=free.y;mfx('speed',s.x,s.y,700)}}\n    log(`Her blade strikes everything in its path: −${tot}.`);await sleep(800)}\n  else if(k==='star'){")
 
 rep("const GSHEET={zhurong:'f_zhurong',","const GSHEET={renrui:'f_renrui',zhurong:'f_zhurong',")
+
+# ---- Goddesses removed: their four skills go to lady generals ----
+rep("star:{who:'xuannu',zh:'九天劍陣',n:'Sword Array',targets:s=>starDirs(s),desc:'Starlight swords","star:{who:'renrui',zh:'千刃',n:'Thousand Blades',targets:s=>starDirs(s),desc:'A storm of thrown shadow blades")
+rep("<b>Nine Heavens Sword Array!</b> ${nm(s)} calls down starlight to the","<b>Thousand Blades!</b> ${nm(s)} hurls a storm of blades to the")
+rep("mend:{who:'nuwa',zh:'補天',n:'Mend the Sky',","mend:{who:'caiwenji',zh:'胡笳',n:'Song of Solace',")
+rep("<b>Mend the Sky!</b> Rainbow light shields ${nm(s)} and the allies beside her.","<b>Song of Solace!</b> ${nm(s)}'s music heals and shields the allies beside her.")
+rep("burn:{who:'fentian',zh:'焚天',n:'Burning Sky',","burn:{who:'zhurong',zh:'祝融烈火',n:'Fire God\\'s Wrath',")
+rep("<b>Burning Sky!</b> ${nm(s)} turns the field to fire.","<b>Fire God\\'s Wrath!</b> ${nm(s)} calls down the fire of her ancestor Zhurong.")
+rep("frost:{who:'yueshuang',zh:'月霜',n:'Moonfrost',","frost:{who:'zhenji',zh:'凌波',n:'Frost Lotus',")
+rep("<b>Moonfrost!</b>","<b>Frost Lotus!</b>")
+rep(",yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'}","}")
+rep("VIDS=new Set(['xuannu',","VIDS=new Set([")
+# strategy scroll + hit spark (8-frame art, rows 10–11)
+rep("speed:6,iron:7,dust:8,rally:9,","speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,")
+rep("function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;","function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;mfx('hit',d.x,d.y,1000,1.5);")
+rep("async function doAttack(a,d,o={}){","async function doAttack(a,d,o={}){mfx('hit',d.x,d.y,1000,1.5);")

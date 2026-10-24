@@ -15,6 +15,6 @@ for i,name in enumerate('abcdefgh'):
   for half in range(2):
     for f in range(8):
       rr=half*2+f//4;cc=f%4
-      c=src.crop((round(cc*cw),round(rr*ch),round(cc*cw+cw),round(rr*ch+ch))).resize((256,256),Image.LANCZOS)
-      o.paste(c,(f*256,(i*2+half)*256))
+      c=src.crop((round(cc*cw),round(rr*ch),round(cc*cw+cw),round(rr*ch+ch)));k=256/max(c.size);c=c.resize((round(c.width*k),round(c.height*k)),Image.LANCZOS)
+      o.paste(c,(f*256+(256-c.width)//2,(i*2+half)*256+(256-c.height)//2))
 o.save(f'{S}/sprites/skill_fx.jpg',quality=90);o.resize((1024,128*NR)).save(f'{S}/fx8_view.png')
