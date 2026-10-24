@@ -1595,3 +1595,10 @@ rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if
 rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
 rep("const GSHEET={jiangchen:'g_jiangchen',","const GSHEET={ganning:'g_ganning',jiangchen:'g_jiangchen',")
 rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['consortli','consortyan','consortzhao','sunshangxiang'")
+
+# 8-frame battlefield skill effects at 8 fps (skill_fx.jpg is now 8 cols x 6 rows)
+rep("const fr=Math.min(3,Math.floor(p*4)),s=T*(f.s||1.8)","const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8)")
+rep("function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:dur||900,s})}","function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}")
+
+# Lady Gan / Lady Mi own 8-frame sheets (idle, run, attack, fall)
+rep("const GSHEET={ganning:'g_ganning',","const GSHEET={ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',")
