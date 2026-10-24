@@ -1451,9 +1451,9 @@ rep("turn:1,maxTurn:15","turn:1,maxTurn:cfg.hulao?30:15")
 rep("const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);","const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*150}")
 rep("S.hold?alive&&t>=1050&&t<=2500&&s.col===0","S.hold?alive&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)&&s.col<=(S.holdC||0)")
 rep("S.hold?!flee&&t>=1050&&t<=2500","S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)")
-rep("}else if(S.melee&&alive){if(t>600&&t<1500)run=t*.03+s.seed;else if(t>2700&&t<3500){run=t*.03+s.seed;face=-S.face}","}else if(S.melee&&alive&&!S.hold){if(t>600&&t<1500)run=t*.03+s.seed;")
-rep("if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}","if(t>600&&t<1500)orun=t*.03+1;")
-rep("if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}","return s.tx}")
-rep("function TURNK(t,ts){","function TURNK(t,ts){return null;")
-rep("function TURN(t,ts){","function TURN(t,ts){return 1;")
 rep('<div class="ci-title"><span>${h.n}</span></div>','<div class="ci-title"><b>${h.zh}</b><span>${h.n}</span><small>${u.name}</small></div>')
+
+# turning: no paper-squash. Snap through a front-facing idle frame mid-turn
+rep("function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return Math.sign(k-.5)*Math.max(.12,Math.abs(2*k-1))}return 1}",
+    "function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return (k<.5?-1:1)*(Math.abs(2*k-1)<.6?.999:1)}return 1}")
+rep("  let dir=f.face*(f.turn??1);","  if(Math.abs(f.turn??1)===.999){row=0;fr=0}\n  let dir=f.face*Math.sign(f.turn??1);")
