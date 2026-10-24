@@ -3357,7 +3357,7 @@ function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.li
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
   c.lineWidth=1;c.beginPath();for(let i=0;i<6;i++){const a=i/6*Math.PI*2-Math.PI/2,b=(i+2)/6*Math.PI*2-Math.PI/2;c.moveTo(x+Math.cos(a)*r*.82,y+Math.sin(a)*r*.82);c.lineTo(x+Math.cos(b)*r*.82,y+Math.sin(b)*r*.82)}c.stroke();c.restore()}
 // transparent cut-out portraits (background removed) for the fight scene
-const LM_CUTS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming']),LM_CI={};
+const LM_CUTS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei']),LM_CI={};
 function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
 function lmHalfPort(c,u,side){const im=portImg(u.id),h=196,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+18;
   lmCircle(c,side==='L'?78:W-78,H-46,88,'#d9b75a');
@@ -3456,7 +3456,7 @@ $('#pv').addEventListener('click',e=>{const b=e.target.closest('[data-sk]');if(!
 // ===== Hu Lao Gate: test battlefield — five heroines vs Lü Bu =====
 async function startHulao(){
   const sv=save;save=()=>{};try{newCampaign('easy')}finally{save=sv}
-  S.hulao=true;PORT.lubu='lu_bu';PORT.xiaoming='xiao_ming';
+  S.hulao=true;PORT.lubu='lu_bu';PORT.xiaoming='xiao_ming';PORT.xiaohei='xiao_hei';
   const W5=['diaochan','guanyinping','huangyueying','huangwenjing','sunshangxiang'],pos=[[2,1],[2,3],[1,4],[2,5],[2,7]];
   const units=W5.map((id,i)=>{const g=S.gens[id];return {id,name:g.name,ch:g.ch,side:'shu',type:g.type,war:g.war,int:g.int,troops:5000,x:pos[i][0],y:pos[i][1],cmd:i===0,train:80}});
   units.push({id:'xiaoming',name:'Xiao Ming',ch:'明',side:'wei',type:'peasant',war:42,int:35,troops:500,x:COLS-2,y:1,train:40},{id:'xiaohei',name:'Xiao Hei',ch:'黑',side:'wei',type:'peasant',war:48,int:28,troops:500,x:COLS-2,y:ROWS-2,train:40});

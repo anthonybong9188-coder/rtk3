@@ -1,7 +1,7 @@
 // ===== Hu Lao Gate: test battlefield — five heroines vs Lü Bu =====
 async function startHulao(){
   const sv=save;save=()=>{};try{newCampaign('easy')}finally{save=sv}
-  S.hulao=true;PORT.lubu='lu_bu';PORT.xiaoming='xiao_ming';
+  S.hulao=true;PORT.lubu='lu_bu';PORT.xiaoming='xiao_ming';PORT.xiaohei='xiao_hei';
   const W5=['diaochan','guanyinping','huangyueying','huangwenjing','sunshangxiang'],pos=[[2,1],[2,3],[1,4],[2,5],[2,7]];
   const units=W5.map((id,i)=>{const g=S.gens[id];return {id,name:g.name,ch:g.ch,side:'shu',type:g.type,war:g.war,int:g.int,troops:5000,x:pos[i][0],y:pos[i][1],cmd:i===0,train:80}});
   units.push({id:'xiaoming',name:'Xiao Ming',ch:'明',side:'wei',type:'peasant',war:42,int:35,troops:500,x:COLS-2,y:1,train:40},{id:'xiaohei',name:'Xiao Hei',ch:'黑',side:'wei',type:'peasant',war:48,int:28,troops:500,x:COLS-2,y:ROWS-2,train:40});
