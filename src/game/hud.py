@@ -1704,3 +1704,7 @@ rep("else if(k==='frost'){gfx('yueshuang',s.x,s.y,4.2,2000);","else if(k==='fros
 rep("thunder:12,flood:13,guard:14,guardloop:15}","thunder:12,flood:13,guard:14,guardloop:15,petal:16,bagua:17}")
 rep("else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];for(const e of hit)mfx('ring',e.x,e.y,900);","else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];mfx('petal',t.x,t.y,1000,2.8);for(const e of hit)if(e!==t)mfx('petal',e.x,e.y,1000,1.6);")
 rep("mfx('ring',t.x,t.y,1100,2.6);for(const e of hit)mfx('arc',e.x,e.y,900);","mfx('bagua',t.x,t.y,1000,3.4);")
+# Sheet 2: sound waves (Cai Wenji) + halberd whirlwind (Lü Bu)
+rep("petal:16,bagua:17}","petal:16,bagua:17,sound:18,whirl:19}")
+rep("else if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);","else if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('sound',s.x,s.y,1000,4.2);")
+rep("else if(k==='musou'){const hit=G.units.filter(e=>e.side!==s.side&&manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);","else if(k==='musou'){const hit=G.units.filter(e=>e.side!==s.side&&manh(s,e)<=2);mfx('whirl',s.x,s.y,1000,4.2);")
