@@ -1512,7 +1512,7 @@ rep("function renderDuel(now,dt){","""function duelSheet(c,u,x,y,s,face,fac){con
   c.restore();return true}
 function renderDuel(now,dt){""")
 # brighter LM-style range colours
-rep("lmRegion(c,G.reach.tiles,'rgba(40,140,255,.40)','rgba(150,215,255,1)');","lmRegion(c,G.reach.tiles,'rgba(30,150,255,.62)','rgba(200,240,255,1)',1);")
-rep("lmRegion(c,G.rangeTiles,'rgba(255,55,40,.24)','rgba(255,120,100,.95)');","lmRegion(c,G.rangeTiles,'rgba(255,35,25,.55)','rgba(255,200,180,1)',1);")
+rep("lmRegion(c,G.reach.tiles,'rgba(40,140,255,.40)','rgba(150,215,255,1)');","lmRegion(c,G.reach.tiles,'rgba(30,150,255,.5)','rgba(200,240,255,1)',1);")
+rep("lmRegion(c,G.rangeTiles,'rgba(255,55,40,.24)','rgba(255,120,100,.95)');","lmRegion(c,G.rangeTiles,'rgba(255,35,25,.48)','rgba(255,200,180,1)',1);")
 rep("lmRegion(c,G.enemyTiles,'rgba(255,60,40,.30)','rgba(255,140,120,1)');","lmRegion(c,G.enemyTiles,'rgba(255,35,25,.50)','rgba(255,200,180,1)',1);")
 rep("lmRegion(c,threatTiles(),'rgba(255,50,30,.20)','rgba(255,110,90,.9)');","lmRegion(c,threatTiles(),'rgba(255,40,30,.38)','rgba(255,170,150,1)',1);")
