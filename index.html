@@ -1292,7 +1292,7 @@ function finish(u){
   if(G.units.filter(x=>x.side==='shu').every(x=>x.acted))setTimeout(endTurn,450)}
 
 // ---------- actions ----------
-async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');
+async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');if(a.type==='cav'&&manh(a,d)<=1)mfx('dust',a.x,a.y,1000,2);
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
   let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;
   let ctr=0;const ctrOn=!o.noCounter&&!d.mute&&(o.forceCounter||inRange(d.type,dist));
@@ -1543,7 +1543,7 @@ const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong
   ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
   liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
 function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
-const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7};
+const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
@@ -1587,7 +1587,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
     for(const p of t.area){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){fireHit(s,e,1.6);await sleep(90)}}log(`<b>Burning Sky!</b> ${nm(s)} turns the field to fire.`);await sleep(800)}
   else if(k==='frost'){gfx('yueshuang',s.x,s.y,4.2,2000);await sleep(900);const fr=enemies().filter(e=>Math.max(Math.abs(e.x-s.x),Math.abs(e.y-s.y))<=1);for(const e of fr){e.stun=1;float(e,'❄ Frozen','#bfe4ff')}
     log(`<b>Moonfrost!</b> ${fr.map(nm).join(', ')} ${fr.length>1?'are':'is'} frozen solid.`);await sleep(800)}
-  if(k==='roar'){mfx('ring',s.x,s.y,1100,3.2);await sleep(350);for(const e of adjE(s)){e.stun=1;float(e,'✕ Stunned','#f3d27a')}log(`<b>Roar!</b> ${nm(s)}'s roar freezes ${adjE(s).map(nm).join(', ')} in their tracks.`);await sleep(500)}
+  if(k==='roar'){mfx('rally',s.x,s.y,1100,3.2);await sleep(350);for(const e of adjE(s)){e.stun=1;float(e,'✕ Stunned','#f3d27a')}log(`<b>Roar!</b> ${nm(s)}'s roar freezes ${adjE(s).map(nm).join(', ')} in their tracks.`);await sleep(500)}
   else if(k==='sweep'){const es=adjE(s).sort((a,b)=>b.troops-a.troops);mfx('arc',s.x,s.y,900,3.4);await doAttack(s,es[0],{mult:1,noCounter:true,label:'Green Dragon Sweep',tint:'rgba(40,200,110,.10)'});
     for(const e of es.slice(1)){if(!G.units.includes(e))continue;mfx('arc',e.x,e.y,700,1.6);quickHit(s,e,.9,{color:'#8dffb5'});await sleep(220)}log(`<b>Green Dragon Sweep!</b> ${nm(s)} cuts through ${es.length} enemy units.`)}
   else if(k==='lone'){const b=behind(s,t),via={x:t.x,y:t.y};mfx('speed',s.x,s.y,700);await doAttack(s,t,{mult:1.4,noCounter:true,charge:true,label:'Lone Rider',verb:'rides straight through'});if(G.units.includes(s)&&openSq(b)){await animateMove(s,[via,b])}}

@@ -1612,3 +1612,7 @@ rep("const GSHEET={consortyan:'f_consortyan',","const GSHEET={consortli:'f_conso
 
 rep("const GSHEET={consortli:'f_consortli',","const GSHEET={huangyi:'f_huangyi',consortli:'f_consortli',")
 rep("const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5}","const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7}")
+# charge dust (cavalry melee) and rally aura (Roar)
+rep("speed:6,iron:7}","speed:6,iron:7,dust:8,rally:9}")
+rep("if(k==='roar'){mfx('ring',s.x,s.y,1100,3.2);","if(k==='roar'){mfx('rally',s.x,s.y,1100,3.2);")
+rep("async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');","async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');if(a.type==='cav'&&manh(a,d)<=1)mfx('dust',a.x,a.y,1000,2);")
