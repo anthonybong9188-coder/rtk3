@@ -1623,3 +1623,12 @@ rep("HERO.palm={","HERO.thunder={who:'pangtong',zh:'天雷',n:'Heavenly Thunder'
 rep("else if(k==='frost'){gfx('yueshuang'","else if(k==='thunder'){mfx('thunder',t.x,t.y,1000,2.6);SND.fx('crit');await sleep(450);if(G.units.includes(t)){let dmg=Math.min(t.troops,Math.round(fireDmg(s,t,true)*3*(t.iron?.5:1)));dmg=ironSave(t,dmg);t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);else t.stun=1;float(t,'-'+dmg,'#d6a8ff');log(`<b>Heavenly Thunder!</b> Lightning strikes ${nm(t)}: −${dmg}${t.troops>0?', and it is stunned':''}.`)}await sleep(700)}\n   else if(k==='flood'){const hit=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1);mfx('flood',t.x,t.y,1000,3.4);SND.fx('special');await sleep(450);let tot=0;for(const e of hit){tot+=quickHit(s,e,.9,{color:'#8fd0ff'});await sleep(120)}log(`<b>Flood the Seven Armies!</b> ${nm(s)} unleashes the river on ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(700)}\n   else if(k==='frost'){gfx('yueshuang'")
 rep("'melody','musou','chakram'].includes(k))delete HERO[k];","'melody','musou','chakram','thunder','flood'].includes(k))delete HERO[k];")
 rep("const GSHEET={huangyi:'f_huangyi',","const GSHEET={zhurong:'f_zhurong',huangyi:'f_huangyi',")
+
+# Brace (spear guard): 8-frame activation + looping guard ring on the unit and the 4 squares beside it
+rep("thunder:12,flood:13}","thunder:12,flood:13,guard:14,guardloop:15}")
+rep("function doGuard(s){s.guard=true;","function doGuard(s){s.guard=true;s.guardT0=performance.now();mfx('guard',s.x,s.y,1000,2.2);")
+rep("""  c.setLineDash([]);
+  if(G.pv&&G.pv.u)lmPvMark(c,now);""","""  c.setLineDash([]);
+  if(SKFX.complete&&SKFX.naturalHeight>=4096)for(const g of G.units.filter(u=>u.guard&&now-(u.guardT0||0)>1000)){const fr=Math.floor(now/125)%8;c.save();c.globalCompositeOperation='lighter';
+    for(const [dx,dy,sc,al] of [[0,0,2.2,1],[1,0,1.1,.5],[-1,0,1.1,.5],[0,1,1.1,.5],[0,-1,1.1,.5]]){if(!inb(g.x+dx,g.y+dy))continue;const s=T*sc,cx=(g.x+dx)*T+T/2,cy=(g.y+dy)*T+T/2;c.globalAlpha=al;c.drawImage(SKFX,fr*256,15*256,256,256,cx-s/2,cy-s/2,s,s)}c.restore()}
+  if(G.pv&&G.pv.u)lmPvMark(c,now);""")

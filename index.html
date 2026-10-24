@@ -1133,6 +1133,8 @@ function drawMap(now){
   c.setLineDash([5,4]);c.strokeStyle='rgba(212,173,85,.85)';c.lineWidth=1.6;
   for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4)}
   c.setLineDash([]);
+  if(SKFX.complete&&SKFX.naturalHeight>=4096)for(const g of G.units.filter(u=>u.guard&&now-(u.guardT0||0)>1000)){const fr=Math.floor(now/125)%8;c.save();c.globalCompositeOperation='lighter';
+    for(const [dx,dy,sc,al] of [[0,0,2.2,1],[1,0,1.1,.5],[-1,0,1.1,.5],[0,1,1.1,.5],[0,-1,1.1,.5]]){if(!inb(g.x+dx,g.y+dy))continue;const s=T*sc,cx=(g.x+dx)*T+T/2,cy=(g.y+dy)*T+T/2;c.globalAlpha=al;c.drawImage(SKFX,fr*256,15*256,256,256,cx-s/2,cy-s/2,s,s)}c.restore()}
   if(G.pv&&G.pv.u)lmPvMark(c,now);
   for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
   G.mfx=(G.mfx||[]).filter(f=>now-f.t0<f.dur);
@@ -1319,7 +1321,7 @@ async function doVolley(a,d){
   await doAttack(a,d,{noCounter:true,label:'Volley',verb:'looses a volley on'});
   if(n&&G.units.includes(n)&&G.units.includes(a)){const dm=Math.min(n.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true)*.6));
     n.troops-=dm;float(n,'-'+dm,'#ff9a86');log(`Arrows fall on ${nm(n)} as well: −${dm}.`);await sleep(350);sweep()}}
-function doGuard(s){s.guard=true;s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.`);finish(s)}
+function doGuard(s){s.guard=true;s.guardT0=performance.now();mfx('guard',s.x,s.y,1000,2.2);s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.`);finish(s)}
 async function doFire(u,e){
   u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*(ew?2:1)*(e.iron?.5:1))),before=e.troops;dmg=ironSave(e,dmg);
   G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});
@@ -1545,7 +1547,7 @@ const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong
   ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
   liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
 function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
-const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,thunder:12,flood:13};
+const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,thunder:12,flood:13,guard:14,guardloop:15};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
