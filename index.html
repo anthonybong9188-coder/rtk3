@@ -1109,11 +1109,11 @@ function drawToken0(c,u,now){
 function drawMap(now){
   if(!mctx||!G)return;const c=mctx;c.clearRect(0,0,COLS*T,ROWS*T);c.drawImage(terrainCv,0,0,COLS*T,ROWS*T);
   const pulse=(Math.sin(now/220)+1)/2;
-  if(G.threat&&G.phase==='player')lmRegion(c,threatTiles(),'rgba(255,50,30,.20)','rgba(255,110,90,.9)');if(G.enemyTiles)lmRegion(c,G.enemyTiles,'rgba(255,60,40,.30)','rgba(255,140,120,1)');
+  if(G.threat&&G.phase==='player')lmRegion(c,threatTiles(),'rgba(255,40,30,.38)','rgba(255,170,150,1)',1);if(G.enemyTiles)lmRegion(c,G.enemyTiles,'rgba(255,35,25,.50)','rgba(255,200,180,1)',1);
   const hl=(t,f,s)=>{rr(c,t.x*T+3,t.y*T+3,T-6,T-6,T*.12);c.fillStyle=f;c.fill();c.lineWidth=2;c.strokeStyle=s;c.stroke()};
-  if((G.mode==='select'||G.mode==='moved')&&G.reach)lmRegion(c,G.reach.tiles,'rgba(40,140,255,.40)','rgba(150,215,255,1)');
+  if((G.mode==='select'||G.mode==='moved')&&G.reach)lmRegion(c,G.reach.tiles,'rgba(30,150,255,.62)','rgba(200,240,255,1)',1);
   if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area){c.fillStyle=`rgba(255,170,60,${.1+pulse*.1})`;for(const p of tg.u.area)c.fillRect(p.x*T+1,p.y*T+1,T-2,T-2)}for(const tg of G.targets){const u=tg.u;c.fillStyle=`rgba(200,60,40,${.22+pulse*.2})`;c.fillRect(u.x*T+1,u.y*T+1,T-2,T-2);c.strokeStyle='#e5634f';c.lineWidth=2;c.strokeRect(u.x*T+2,u.y*T+2,T-4,T-4)}}
-  if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved'))lmRegion(c,G.rangeTiles,'rgba(255,55,40,.24)','rgba(255,120,100,.95)');
+  if(G.rangeTiles&&(G.mode==='select'||G.mode==='moved'))lmRegion(c,G.rangeTiles,'rgba(255,35,25,.55)','rgba(255,200,180,1)',1);
   if(G.atk&&(G.mode==='select'||G.mode==='moved')){for(const e of G.atk){c.fillStyle=`rgba(215,55,40,${.12+pulse*.12})`;c.fillRect(e.x*T+1,e.y*T+1,T-2,T-2);c.strokeStyle=`rgba(255,120,95,${.65+pulse*.35})`;c.lineWidth=2.5;c.strokeRect(e.x*T+2.5,e.y*T+2.5,T-5,T-5)}}
   c.setLineDash([5,4]);c.strokeStyle='rgba(212,173,85,.85)';c.lineWidth=1.6;
   for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4)}
@@ -3408,8 +3408,9 @@ function lmFightFx(c,SL,SR,t,now){
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.32*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}}
 // map: LM-style rounded squares with a gap between them
-function lmRegion(c,tiles,fill,edge){if(!tiles||!tiles.length)return;c.save();const m=T*.045,r=T*.16,s=T-2*m;
-  for(const t of tiles){const x=t.x*T+m,y=t.y*T+m;rr(c,x,y,s,s,r);c.fillStyle=fill;c.fill();c.lineWidth=Math.max(1.6,T*.032);c.strokeStyle=edge;c.stroke();
+function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;c.save();const m=T*.045,r=T*.16,s=T-2*m;
+  if(bright){c.save();c.globalCompositeOperation='screen';for(const t of tiles){rr(c,t.x*T+m,t.y*T+m,s,s,r);c.fillStyle=fill;c.fill()}c.restore()}
+  for(const t of tiles){const x=t.x*T+m,y=t.y*T+m;rr(c,x,y,s,s,r);c.fillStyle=fill;c.fill();c.lineWidth=Math.max(2,T*.04);c.strokeStyle=edge;if(bright){c.shadowColor=edge;c.shadowBlur=6}c.stroke();c.shadowBlur=0;
     rr(c,x+T*.07,y+T*.07,s-T*.14,s-T*.14,r*.7);c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=1;c.stroke()}
   c.restore()}
 
