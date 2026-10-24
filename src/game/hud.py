@@ -1570,3 +1570,13 @@ rep("f.type==='undead'?60:58)/150","f.type==='undead'?60:f.type==='tiger'?108:58
 rep("k=((sh.src||'').includes('f_lubu')?1.3:1)","k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:1)")
 rep("const kk=(sh.src.includes('f_lubu')?1.3:1)","const kk=(sh.src.includes('f_lubu')?1.3:sh.src.includes('/tiger_')?1.9:1)")
 rep("const GSHEET={","const GSHEET={tigerking:'tiger',")
+# ===== wolves (狼): 1 wolf = 2 soldiers =====
+rep("const TYPES={tiger:","const TYPES={wolf:{n:'Wolf pack',mv:5,rng:[1,1]},tiger:")
+rep("undead:'屍',tiger:'虎'},TSHORT={","undead:'屍',tiger:'虎',wolf:'狼'},TSHORT={")
+rep("undead:'Undead',tiger:'Tigers'};const DSOL=(u,n)=>u&&u.type==='tiger'?Math.ceil(n/5):Math.round(n)","undead:'Undead',tiger:'Tigers',wolf:'Wolves'};const BEAST={tiger:5,wolf:2};const DSOL=(u,n)=>u&&BEAST[u.type]?Math.ceil(n/BEAST[u.type]):Math.round(n)")
+rep("undead:1,tiger:1}","undead:1,tiger:1,wolf:1}")
+rep("'undead','tiger','general',","'undead','tiger','wolf','general',")
+rep("order={archer:0,wu:1,cav:1,tiger:1,","order={archer:0,wu:1,cav:1,tiger:1,wolf:1,",2)
+rep("f.type==='tiger'?108:58)/150","f.type==='tiger'?108:f.type==='wolf'?90:58)/150")
+rep("k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:1)","k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:(sh.src||'').includes('/wolf_')?1.6:1)")
+rep("const GSHEET={tigerking:'tiger',","const GSHEET={tigerking:'tiger',wolfking:'wolf',")
