@@ -1496,3 +1496,18 @@ rep("  if(G.mode==='moved')return;","  if(G.mode==='moved'){if(!u&&G.sel&&G.orig
 rep("G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select';G.targets=[];","G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved';G.targets=[];")
 rep("if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}","if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}")
 rep("if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}","if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}")
+
+# ===== animated duels for generals with full sprite sheets (idle / strike / wave-feint / fall) =====
+rep("function drawDuelist(c,u,x,y,s,face,fac,fr){","function drawDuelist(c,u,x,y,s,face,fac,fr){if(duelSheet(c,u,x,y,s,face,fac))return true;")
+rep("function renderDuel(now,dt){","""function duelSheet(c,u,x,y,s,face,fac){const fk=femKey(u),sh=fk&&sprSheet(fk,sprFac(fac));if(!sh||sh.naturalHeight<800||!D)return false;
+  const nf=Math.max(4,Math.round(sh.naturalWidth/256)),now=performance.now(),me=u===D.P,A=D.anim,pp=(p,n)=>{p%=(2*n-2);return p<n?p:2*n-2-p};
+  let row=0,fr=pp(Math.floor(now/110+(me?0:5)),nf),guard=0;
+  if(D.result&&((D.result==='win'&&!me)||(D.result==='lose'&&me))){row=4;fr=nf-1}
+  else if(A){const t=now-A.t0,mv=me?A.pc:A.ec,lost=A.win===(me?'E':'P');
+    if(lost&&t>=470&&t<1000){row=4;fr=Math.min(nf-1,Math.floor((t-470)/530*nf*.45))}
+    else if(t>=200&&t<1000){const k=clamp((t-200)/650);if(mv==='strike'||mv==='crit'){row=2;fr=Math.min(nf-1,Math.floor(k*nf))}else if(mv==='feint'){row=3;fr=Math.min(nf-1,Math.floor(k*nf))}else{row=0;fr=0;guard=Math.sin(k*Math.PI)}}}
+  const kk=(sh.src.includes('f_lubu')?1.3:1)*84/150;c.save();c.translate(x,y);c.scale(s*face,s);c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,22,3,0,0,Math.PI*2);c.fill();
+  c.drawImage(sh,fr*256,row*176,256,176,-128*kk,-168*kk,256*kk,176*kk);
+  if(guard>0){c.globalCompositeOperation='lighter';c.strokeStyle=`rgba(140,200,255,${.9*guard})`;c.lineWidth=5;c.shadowColor='#7cc8ff';c.shadowBlur=14;c.beginPath();c.arc(14,-40,46,-1.2,1.2);c.stroke();c.lineWidth=2;c.strokeStyle=`rgba(255,230,150,${guard})`;c.beginPath();c.arc(14,-40,38,-1,1);c.stroke()}
+  c.restore();return true}
+function renderDuel(now,dt){""")
