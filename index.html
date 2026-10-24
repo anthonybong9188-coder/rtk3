@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中之九乾亂二于五亮人仁伊佐侯俠倉偃備允八六兵典冬凌出刀分到劉劍勝化十南卦史司合向吳呂周命咆哮商喬單四國城報壁夏夜大天太夫奇女奸妃威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑掌探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火烈焚無焰然牙獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺箏範簡籍粲糜純絕統羽聘肅肥臘臧舞良花芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙輪農返退通速進運道遜遭遼邢郃金釭銀長閉關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青靜鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中之九乾亂二于五亮人仁伊佐侯俠倉偃備允八六兵典冬凌出刀分到劉劍勝化十南卦史司合向吳呂周命咆哮商喬單四國城報壁夏夜大天太夫奇女奸妃威媧孟孫守安宛寧寵寶封射小尚屈屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒挑掌探推摩撫操擒攸攻敗敵文斬新旋昌易春昭昱晃普曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武汝江沙治泰洪淵滅滿潘澤火烈焚無焰然牙獲玄王琦琬琰瑁瑜瑾璋甄甘當盛盾矛祝神禁秋程稽突竺箏範簡籍粲糜純絕統羽聘肅肥臘臧舞良花芳英荀華葛董蒙蒯蓋蔡蔣虎虛蛇蜀融蟬衛補褚襄襲計訓許詡說諸貂賈賞賢赤越趙輪農退通速進運道遜遭遼邢郃金釭銀長閉關闞降陣陳陵陸陽隆雄雍雙難雲零震霍霜霸靈青靜鞏韓風飛馬騎魏魯鮑黃齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -1249,7 +1249,7 @@ MC.addEventListener('click',e=>{
     const t=bestAttackTile(s,u);if(t){moveThenAttack(s,u,t);return}}
   if(G.mode==='moved'&&G.sel&&G.reach&&!(x===G.sel.x&&y===G.sel.y)&&!u&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   if(G.mode==='moved'&&u&&u.side==='shu'&&!u.acted&&u!==G.sel){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select';G.targets=[];updateUI();return}
-  if(G.mode==='moved')return;
+  if(G.mode==='moved'){if(!u&&G.sel&&G.origin){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=null;G.reach=null;G.mode='idle';G.targets=[];G.pv=null;updateUI()}return}
   if(G.mode==='select'&&G.sel&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   G.enemyTiles=null;
   if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}
@@ -3216,7 +3216,6 @@ function lmPost(){if(!G)return;
     if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
     box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>Soldiers ${SOL(u)} / ${u.max-(u.hpMax||0)}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
   const acts=$('#acts');
-  if(G.mode==='moved'&&G.sel&&G.phase==='player'&&acts.innerHTML&&!acts.querySelector('[data-a="cancel"]'))acts.insertAdjacentHTML('afterbegin','<button class="rbtn cancel" data-a="cancel" title="Undo the move"><span class="rzh">返</span><span class="rl">Cancel</span></button>');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
   const pv=$('#pv');if(G.pv){pv.innerHTML=lmPvHTML(G.pv.s,G.pv.u);pv.hidden=false}else{pv.hidden=true;pv.innerHTML=''}
   $('.hud.bl').hidden=!!acts.innerHTML||!$('#tpanel').hidden||!!G.pv||G.phase==='prep';

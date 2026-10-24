@@ -1490,3 +1490,5 @@ s=s.replace("<span>Tap to skip</span>","<span>Tap to skip</span><span class=\"sk
 rep("setTimeout(end,vid?5600:","setTimeout(end,vid?7600:")
 rep("hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),","hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),")
 rep("G={units:cfg.units.map(","G={roster:cfg.units.map(u=>({id:u.id,name:u.name,side:u.side,hpMax:HPM(u),max:u.troops+HPM(u)})),dealt:{},units:cfg.units.map(")
+# tapping empty ground after moving undoes the move and drops focus (no Cancel button)
+rep("  if(G.mode==='moved')return;","  if(G.mode==='moved'){if(!u&&G.sel&&G.origin){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=null;G.reach=null;G.mode='idle';G.targets=[];G.pv=null;updateUI()}return}")
