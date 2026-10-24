@@ -1668,3 +1668,7 @@ rep("kk=(sh.src.includes('f_lubu')?1.3:sh.src.includes('/tiger_')?1.9:1)*84/150;
 # no turn-around frames anywhere (cavalry charge was still using them): always an instant flip
 rep("if(f.tk&&!f.fall&&TURNSH[tkey]){","if(false&&f.tk&&!f.fall&&TURNSH[tkey]){")
 rep("...Object.keys(TURNSH).map(t=>t+'_turn')]","]")
+
+# Fire God's Wrath: aim at an enemy up to 3 squares away; the 3×3 around it burns
+rep("if(!(d===2||(d>=1&&d<=2&&eh&&eh.side!==s.side)))continue;","if(!(d>=1&&d<=3&&eh&&eh.side!==s.side))continue;")
+rep("desc:'A 3×3 firestorm centred on a square 2 away: heavy fire damage to every enemy in it'","desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and every enemy around it'")
