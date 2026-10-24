@@ -1552,7 +1552,7 @@ const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong
   ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
   liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
 function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
-const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,thunder:12,flood:13,guard:14,guardloop:15};
+const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,thunder:12,flood:13,guard:14,guardloop:15,petal:16,bagua:17};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
@@ -1576,13 +1576,13 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);SND.fx('special');await sleep(550);
     let tot=0;for(const e of hit){tot+=quickHit(s,e,.8,{color:'#9ad8ff'});if(G.units.includes(e)){e.mute=2;setTimeout(()=>G.units.includes(e)&&float(e,'Stunned by sound','#9ad8ff'),350)}}
     log(`<b>Heaven-Shaking Melody!</b> ${nm(s)}'s strings send blades of sound through ${hit.map(nm).join(', ')}: −${tot}. They cannot strike back until your next turn.`);await sleep(700)}
-  else if(k==='bagua'){const hit=[t,...enemies().filter(e=>e!==t&&Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1)];mfx('ring',t.x,t.y,1100,2.6);for(const e of hit)mfx('arc',e.x,e.y,900);SND.fx('special');await sleep(550);
+  else if(k==='bagua'){const hit=[t,...enemies().filter(e=>e!==t&&Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1)];mfx('bagua',t.x,t.y,1000,3.4);SND.fx('special');await sleep(550);
     let tot=0;for(const e of hit){tot+=quickHit(s,e,.9,{color:'#a8ffb0'});if(G.units.includes(e)){e.fear=2;setTimeout(()=>G.units.includes(e)&&float(e,'Attack −20%','#a8ffb0'),350)}}
     log(`<b>Bagua Formation!</b> ${nm(s)} paints the eight trigrams over ${hit.map(nm).join(', ')}: −${tot}. Their attack drops for 2 turns.`);await sleep(700)}
   else if(k==='crescent'){const dx=Math.sign(t.x-s.x),dy=Math.sign(t.y-s.y),bh=unitAt(t.x+dx,t.y+dy),hit=[t];if(bh&&bh.side!==s.side&&(dx||dy))hit.push(bh);for(const e of hit)mfx('arc',e.x,e.y,800);SND.fx('crit');await sleep(450);
     let tot=quickHit(s,t,1.3,{color:'#9cff9c'});if(hit[1]&&G.units.includes(hit[1]))tot+=quickHit(s,hit[1],.8,{color:'#9cff9c'});
     log(`<b>Dragon Crescent!</b> ${nm(s)}'s blade wave cuts through ${hit.map(nm).join(' and ')}: −${tot}.`);await sleep(700)}
-  else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];for(const e of hit)mfx('ring',e.x,e.y,900);SND.fx('special');await sleep(500);
+  else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];mfx('petal',t.x,t.y,1000,2.8);for(const e of hit)if(e!==t)mfx('petal',e.x,e.y,1000,1.6);SND.fx('special');await sleep(500);
     let tot=0;for(const e of hit)tot+=quickHit(s,e,.8,{color:'#ffb4d8'});if(G.units.includes(t)){t.stun=1;setTimeout(()=>G.units.includes(t)&&float(t,'Charmed','#ffb4d8'),350)}
     log(`<b>Petal Dance!</b> ${nm(s)} dances; petals tear through ${hit.map(nm).join(', ')}: −${tot}. ${nm(t)} is charmed and loses its next turn.`);await sleep(800)}
   else if(k==='palm'){gfx('hero',t.x,t.y,3.6,2000);SND.fx('crit');await sleep(1000);const dmg=Math.min(t.troops,Math.max(1,Math.round(t.troops*.25)));t.troops-=dmg;if(t.troops<=0)t.fate=fateRoll(t,s);t.stun=1;float(t,'-'+dmg,'#ffd27a');setTimeout(()=>G.units.includes(t)&&float(t,'Internal injury','#ff9a86'),350);

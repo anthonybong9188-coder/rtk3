@@ -1700,3 +1700,7 @@ rep("HERO.palm={","HERO.bless={who:'miren',zh:'春華',n:'Spring Blessing',self:
 rep("'thunder','flood','meteor','assassin'].includes(k))delete HERO[k];","'thunder','flood','meteor','assassin','bless'].includes(k))delete HERO[k];")
 rep("else if(k==='assassin'){","else if(k==='bless'){s.cd.bless=4;SND.fx('chime');let tot=0;for(const u of G.units.filter(u=>u.side===s.side)){const add=Math.min(u.max-u.troops,Math.round(u.max*.2));mfx('heal',u.x,u.y,1100,1.8);if(add>0){u.troops+=add;tot+=add;float(u,'+'+add,'#b8ffc4')}}log(`<b>Spring Blessing!</b> ${nm(s)}\\'s light heals the whole army: +${tot} troops.`);await sleep(900)}\n  else if(k==='assassin'){")
 rep("else if(k==='frost'){gfx('yueshuang',s.x,s.y,4.2,2000);","else if(k==='frost'){gfx('frostlotus',s.x,s.y,4.2,2000);")
+# Sheet 1: petal storm (Diaochan) + bagua (Huang Yueying)
+rep("thunder:12,flood:13,guard:14,guardloop:15}","thunder:12,flood:13,guard:14,guardloop:15,petal:16,bagua:17}")
+rep("else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];for(const e of hit)mfx('ring',e.x,e.y,900);","else if(k==='petal'){const hit=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1).slice(0,2)];mfx('petal',t.x,t.y,1000,2.8);for(const e of hit)if(e!==t)mfx('petal',e.x,e.y,1000,1.6);")
+rep("mfx('ring',t.x,t.y,1100,2.6);for(const e of hit)mfx('arc',e.x,e.y,900);","mfx('bagua',t.x,t.y,1000,3.4);")
