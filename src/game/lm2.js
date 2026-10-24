@@ -54,16 +54,17 @@ function drawFightHud(c,SL,SR,sl,sr,t,main){
   c.fillStyle='#c9a24a';c.beginPath();c.moveTo(cxm-90,y);c.quadraticCurveTo(cxm-40,y-10,cxm-14,y-14);c.lineTo(cxm,y-22);c.lineTo(cxm+14,y-14);c.quadraticCurveTo(cxm+40,y-10,cxm+90,y);c.closePath();c.fill();
   c.fillStyle='#16110a';c.beginPath();c.moveTo(cxm,y-17);c.lineTo(cxm+9,y-6);c.lineTo(cxm,y+5);c.lineTo(cxm-9,y-6);c.closePath();c.fill();c.fillStyle='#4fb4ff';circ(c,cxm,y-6,3.5);c.fill();
   
-  for(const [S,v,side] of [[SL,sl,'L'],[SR,sr,'R']]){const L=side==='L',fr=S.u.side==='shu',frac=clamp(v/Math.max(1,S.u.max||S.before));
+  c.font='700 11px "Alegreya SC",Georgia,serif';c.textAlign='center';c.fillStyle='#e6cf8e';c.fillText('Hero',cxm,y+19);c.fillText('Soldier',cxm,y+37);
+  for(const [S,v,side] of [[SL,sl,'L'],[SR,sr,'R']]){const L=side==='L',fr=S.u.side==='shu',hm=S.u.hpMax||0,smax=Math.max(1,(S.u.max||S.before)-hm),sol=Math.max(0,v-hm),hero=Math.min(hm,Math.max(0,v)),frac=clamp(sol/smax);
     const dtm=S._gt?Math.min(60,now-S._gt):0;S._gt=now;if(S._g==null||(t!=null&&t<40))S._g=frac;if(frac<S._g&&(S._hold=(S._hold||0)+dtm)>260)S._g=Math.max(frac,S._g-dtm*.0004);if(frac>=S._g){S._g=frac;S._hold=0}
     if(S._pf!=null&&frac<S._pf-.002)S._fl=1;S._pf=frac;S._fl=Math.max(0,(S._fl||0)-dtm/240);
-    const nx=L?cxm-50:cxm+50,bw=cxm-108-x0,bx=L?x0+10:cxm+98;
-    c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-46,y+8);c.lineTo(nx+46,y+8);c.lineTo(nx+40,y+34);c.lineTo(nx-40,y+34);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.2;c.stroke();
-    c.font='900 23px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=4;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(v)),nx,y+30);
-    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(Math.round(v)),nx,y+30);
-    lmBar(c,bx,y+14,bw,14,frac,S._g,fr,!L,S._fl);
+    const nx=L?cxm-62:cxm+62,bw=cxm-130-x0,bx=L?x0+10:cxm+120;
+    for(const yy of [y+5,y+23]){c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-40,yy);c.lineTo(nx+40,yy);c.lineTo(nx+35,yy+17);c.lineTo(nx-35,yy+17);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.1;c.stroke()}
+    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(hero)),nx,y+19);c.fillStyle='#fff';c.fillText(String(Math.round(hero)),nx,y+19);c.strokeText(String(Math.round(sol)),nx,y+37);
+    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(Math.round(sol)),nx,y+37);
+    lmBar(c,bx,y+7,bw,10,hm?hero/hm:0,hm?hero/hm:0,fr,!L,0);lmBar(c,bx,y+25,bw,11,frac,S._g,fr,!L,S._fl);
     const O=L?SR:SL,m=typeMult(S.u.type,O.u.type);c.font='600 11.5px "Alegreya Sans",sans-serif';c.textAlign=L?'left':'right';c.fillStyle='#d8c9a0';
-    const lab=`${S.u.name} · ${TYPES[S.u.type].n}`;c.fillText(lab,L?bx:bx+bw,y+48);if(m!==1){const w=c.measureText(lab).width;c.font='900 12px sans-serif';c.fillStyle=m>1?'#6dff7a':'#ff6a5a';c.fillText(m>1?'▲':'▼',L?bx+w+6:bx+bw-w-6,y+48)}
+    const lab=`${S.u.name} · ${TYPES[S.u.type].n}`;c.fillText(lab,L?bx:bx+bw,y+52);if(m!==1){const w=c.measureText(lab).width;c.font='900 12px sans-serif';c.fillStyle=m>1?'#6dff7a':'#ff6a5a';c.fillText(m>1?'▲':'▼',L?bx+w+6:bx+bw-w-6,y+52)}
     // damage burst
     if(main&&t!=null){const loss=Math.round(S.before-v);if(loss>0){if(S._bt==null)S._bt=now;const p=clamp((now-S._bt)/700),crit=(S.before-S.after)/Math.max(1,S.before)>=.3;lmDmgBurst(c,L?cxm-150:cxm+150,y-36,loss,crit,p)}}}
   c.restore();
@@ -83,6 +84,9 @@ function lmFightFx(c,SL,SR,t,now){
   // stacked metallic numbers over the ranks that fall, like LM
   for(const o of X.imp){const p=(now-o.t0)/1000;if(p>1||!o.n)continue;lmSilver(c,String(o.n),o.x+14,o.y-16-p*22,p<.08?20+p*120:30,o.crit,p>.75?(1-p)/.25:1)}
   X.imp=X.imp.filter(o=>now-o.t0<1000);
+  for(const S of [SL,SR]){const loss=S.before-S.after;if(loss<=0)continue;const ww0=(S===SL?SR:SL).shoot?1290:w0;if(t<ww0||t>w1)continue;
+    if(Math.random()<dt/110){const al=S.sol.filter(s=>t<s.deathT);const s0=al.length?al[Math.floor(Math.random()*al.length)]:S.off;
+      X.imp.push({x:sX(s0,S,t)-cam+(Math.random()-.5)*30,y:(s0.hy||s0.y)-20*(s0.s||1)-Math.random()*20,t0:now,n:Math.max(1,Math.round(loss/(16+Math.random()*10))),crit:false,q:1})}}
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.32*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}}
 // map: LM-style rounded squares with a gap between them

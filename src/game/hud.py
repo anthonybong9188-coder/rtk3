@@ -1457,3 +1457,18 @@ rep('<div class="ci-title"><span>${h.n}</span></div>','<div class="ci-title"><b>
 rep("function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return Math.sign(k-.5)*Math.max(.12,Math.abs(2*k-1))}return 1}",
     "function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return (k<.5?-1:1)*(Math.abs(2*k-1)<.6?.999:1)}return 1}")
 rep("  let dir=f.face*(f.turn??1);","  if(Math.abs(f.turn??1)===.999){row=0;fr=0}\n  let dir=f.face*Math.sign(f.turn??1);")
+
+# ===== LM rules: general HP (soldiers die first), war-gap, sword-wave generals =====
+rep("max:u.troops,","hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),")
+rep("const tf=u=>","const HPM=u=>u.id==='garrison'?300:Math.round(1000*clamp(.8+.4*((u.war||60)-60)/40,.6,1.3)),SOL=u=>Math.max(0,u.troops-(u.hpMax||0)),HP=u=>Math.min(u.hpMax||0,Math.max(0,u.troops));\nconst gapF=(a,d)=>d.hpMax&&d.troops<=d.hpMax?Math.max(.6,1+.15*((a.war||60)-(d.war||60))/10):1;\nconst tf=u=>")
+rep("let dmg=Math.min(d.troops,Math.round(tf(a)*","let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*",2)
+rep("for(const u of G.units)left[u.id]=Math.max(0,Math.round(u.troops));","for(const u of G.units)left[u.id]=Math.max(0,Math.round(SOL(u)));")
+rep("const nB=Math.min(12,Math.ceil(before/100)),nA=Math.min(nB,Math.ceil(after/100))","const hm=u.hpMax||0,nB=Math.min(12,Math.ceil(Math.max(0,before-hm)/100)),nA=Math.min(nB,Math.ceil(Math.max(0,after-hm)/100))")
+s=s.replace("S.nA===0","(S.after<=0)")
+rep("else if(f.fight){row=2;","else if(f.fight){row=f.wave?3:2;")
+rep("if(row===3&&sh.naturalHeight>800)row=4;","if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;")
+rep("officer:true,ch:S.u.ch,fem:femKey(S.u),run:orun,","officer:true,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,")
+rep("const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);","const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&sh.naturalHeight>800&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}")
+# Lü Bu (enemy heroes) use their skill on the enemy turn
+rep("const plan=planEnemy(e);G.view=e;updateUI();","if(HERO.musou&&e.id==='lubu'&&!(e.cd&&e.cd.musou)&&G.units.filter(p=>p.side!==e.side&&manh(p,e)<=2).length>=2){G.view=e;updateUI();await heroAct('musou',e,e);e.cd=e.cd||{};e.cd.musou=3;if(checkEnd())return;await sleep(300);continue}\n    const plan=planEnemy(e);G.view=e;updateUI();")
+rep("G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){","for(const u of enemies())for(const k in (u.cd||{}))if(u.cd[k]>0)u.cd[k]--;\n  G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){")

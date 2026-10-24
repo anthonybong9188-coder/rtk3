@@ -654,6 +654,8 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .hud.tp .tlist button[data-a="back"]{background:rgba(255,255,255,.08)}
 #cutin.on:has(.ci-vid){background:rgba(4,6,14,.92)!important}#cutin:has(.ci-vid) .ci-lines{opacity:.35!important}
 
+.ubar.hb{height:10px;margin-bottom:2px}.ubar.hb i{background:linear-gradient(180deg,#bfeaff,#3ab4ff)}.fo .ubar.hb i{background:linear-gradient(180deg,#ffe0b0,#ff9a3a)}.ubar.hb span{font-size:9px;line-height:10px}
+
 </style>
 
 
@@ -856,6 +858,8 @@ function dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd){
   const p=aTroops/1000*(60+aWar*.6);
   const gen=1+Math.max(0,aWar-80)/100;
   return Math.max(0,Math.round(p*2.2*m*gen/T_INFO[dTile].def*(rnd?.9+Math.random()*.2:1)))}
+const HPM=u=>u.id==='garrison'?300:Math.round(1000*clamp(.8+.4*((u.war||60)-60)/40,.6,1.3)),SOL=u=>Math.max(0,u.troops-(u.hpMax||0)),HP=u=>Math.min(u.hpMax||0,Math.max(0,u.troops));
+const gapF=(a,d)=>d.hpMax&&d.troops<=d.hpMax?Math.max(.6,1+.15*((a.war||60)-(d.war||60))/10):1;
 const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1)*(typeof G!=='undefined'&&G&&G.cfg&&G.cfg.hulao?(u.side==='shu'?.5:.1):1);
 function fireDmg(u,e,rnd){const t=terAt(e.x,e.y);const m=t==='f'?1.8:t==='c'?.6:t==='='?1.2:1;return Math.round((110+u.int*1.4)*m*(rnd?.9+Math.random()*.2:1))}
 function forecast(a,d,o={}){
@@ -907,7 +911,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,max:u.troops,acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
+  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -1261,7 +1265,7 @@ function finish(u){
 // ---------- actions ----------
 async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
-  let dmg=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;
+  let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;
   let ctr=0;const ctrOn=!o.noCounter&&!d.mute&&(o.forceCounter||inRange(d.type,dist));
   if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr}
   const ctrVis=!o.noCounter&&!d.mute&&(o.forceCounter||inRange(d.type,dist));
@@ -1318,7 +1322,7 @@ function checkEnd(){
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
 function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
-$('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(u.troops));
+$('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(SOL(u)));
   const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
 $('#retreatBtn').onclick=async()=>{if(G.over)return;
   if(G.auto){G.auto=false;speed=G.autoSpeed??speed;log('You take back command.');updateUI();return}
@@ -1374,6 +1378,7 @@ async function endTurn(){
   for(const e of list){
     if(!G.units.includes(e))continue;
     if(e.stun){e.stun=0;log(`${nm(e)} is still rallying his troops.`);continue}
+    if(HERO.musou&&e.id==='lubu'&&!(e.cd&&e.cd.musou)&&G.units.filter(p=>p.side!==e.side&&manh(p,e)<=2).length>=2){G.view=e;updateUI();await heroAct('musou',e,e);e.cd=e.cd||{};e.cd.musou=3;if(checkEnd())return;await sleep(300);continue}
     const plan=planEnemy(e);G.view=e;updateUI();
     if(plan.path.length){await animateMove(e,plan.path);await sleep(120)}
     if(plan.target&&G.units.includes(e)){let tgt=plan.target,o={};
@@ -1384,6 +1389,7 @@ async function endTurn(){
     await sleep(160)}
   G.turn++;for(const u of G.units){if(u.fear)u.fear--;if(u.mute)u.mute--;if(u.iron){u.iron--;if(!u.iron)u.ironSave=false}u.guardBy=null;u.swift=false}
   if(G.turn>G.maxTurn){endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?'Fifteen turns pass and the walls still stand. Your army withdraws.':'Fifteen turns pass and the attackers give up the siege.');return}
+  for(const u of enemies())for(const k in (u.cd||{}))if(u.cd[k]>0)u.cd[k]--;
   G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){u.guard=false;for(const k in u.cd)if(u.cd[k]>0)u.cd[k]--;u.acted=!!u.stun;if(u.stun){log(`${nm(u)} spends the turn rallying.`);u.stun=0}}
   G.view=null;log(`Turn ${G.turn}.`);autoSel();updateUI();if(G.auto)setTimeout(autoTurn,250)}
 function planEnemy(e){
@@ -1433,7 +1439,7 @@ function drawSprite(c,f,sh){
   if(f.fall>0){row=3;fr=Math.min(3,Math.floor(f.fall*4))}
   else if(f.defeat>0){row=3;fr=f.defeat<.5?0:1}
   else if(f.officer&&!f.fight&&f.swing>0){row=2;fr=f.swing>.6?2:1}
-  else if(f.fight){row=2;fr=Math.floor(now/(f.slow?220:120)+sd*5)%4}
+  else if(f.fight){row=f.wave?3:2;fr=Math.floor(now/(f.slow?220:120)+sd*5)%4}
   else if(f.shoot){row=2;fr=Math.floor(now/190+sd*3)%4}
   else if(f.run!=null){row=1;fr=Math.floor(f.run/2.6)%4}
   else{row=0;const p=Math.floor(now/320+sd*3)%6;fr=[0,1,2,3,2,1][p]}
@@ -1447,7 +1453,7 @@ function drawSprite(c,f,sh){
   if(f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
   const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
-  if(row===3&&sh.naturalHeight>800)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
+  if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
 function drawSig(c,f){const sh=sprSheet('general_sig',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
@@ -1478,7 +1484,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
           items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
         const o=S.off;
         if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}})}
-        else{const fate=S.nA===0?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
+        else{const fate=(S.after<=0)?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
           if(fate==='capture'&&t>2500){const k3=t>3000,hx=o.hx-S.face*Math.max(0,t-3000)*.32;
             if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
             else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2750?0:1,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
@@ -1520,7 +1526,7 @@ async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
-function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)*mult*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
+function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)*mult*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);let keep=false;
@@ -1639,7 +1645,7 @@ function makeBG0(ter,defSide,duel){
   const v=c.createRadialGradient(W/2,H*.55,H*.3,W/2,H*.55,W*.65);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.28)');c.fillStyle=v;c.fillRect(0,0,W,H);
   return cv}
 function buildSide(u,side,before,after){
-  const nB=Math.min(12,Math.ceil(before/100)),nA=Math.min(nB,Math.ceil(after/100)),face=side==='L'?1:-1,sol=[];
+  const hm=u.hpMax||0,nB=Math.min(12,Math.ceil(Math.max(0,before-hm)/100)),nA=Math.min(nB,Math.ceil(Math.max(0,after-hm)/100)),face=side==='L'?1:-1,sol=[];
   const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
   for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
@@ -1715,7 +1721,7 @@ function playBattle0_(att,def,r){
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
-    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*150}
+    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&sh.naturalHeight>800&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*150}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
     schedule(SL,SL.nB-SL.nA,SR.shoot?'arrow':'melee');schedule(SR,SR.nB-SR.nA,SL.shoot?'arrow':'melee');
@@ -1735,7 +1741,7 @@ function playBattle0_(att,def,r){
       const both2=SL.melee&&SR.melee,heavy=Math.max((SL.before-SL.after)/Math.max(1,SL.before),(SR.before-SR.after)/Math.max(1,SR.before));
       const zk=1+(both2||SL.ch||SR.ch?.07:.03)*Math.sin(Math.PI*clamp((t-1300)/1700)),sh=t>1550&&t<1950?Math.min(6,2+heavy*14)*Math.sin(t*.09)*(1-(t-1550)/400):0;
       sctx.save();sctx.translate(W/2+sh,GROUND+40+sh*.4);sctx.scale(zk,zk);sctx.translate(-W/2,-(GROUND+40));
-      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t),capS=[SL,SR].find(S=>S.nA===0&&S.u.fate==='capture'),capX=capS?sX(capS.off,capS,2700):0;
+      const c=sctx,CS=SL.ch?SL:SR.ch?SR:null,cam=chCam(CS,t),capS=[SL,SR].find(S=>(S.after<=0)&&S.u.fate==='capture'),capX=capS?sX(capS.off,capS,2700):0;
       if(cam){const bx=-cam*.5;c.drawImage(bg,bx,0,W,H);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);c.drawImage(bg,0,0,W,H);c.restore()}else c.drawImage(bg,0,0,W,H);
       c.save();c.translate(-cam,0);const items=[];
       for(const S of [SL,SR]){
@@ -1745,14 +1751,14 @@ function playBattle0_(att,def,r){
           if((S.ch?chf:S.melee&&alive&&t>1500+(s.dl||0)&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
           let srd=false;if(capS&&S!==capS&&alive&&t>3000){const k=ease(clamp((t-3000)/650)),sg=s.i%2?1:-1,tx2=capX+sg*(38+((s.i>>1)%3)*22);x=lerp(x,tx2,k);face=x<capX?1:-1;if(k<1)run=t*.03+s.seed;else run=null;sw=0;srd=true}
           items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)&&s.col<=(S.holdC||0):S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
-        const fate=S.nA===0?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sX(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
+        const fate=(S.after<=0)?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sX(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
         let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
         if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
         if(flee){orun=t*(fate==='breakout'?.045:.03);oface=-S.face}
         if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,ch:S.u.ch,fem:femKey(S.u),run:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,officer:true,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
@@ -1766,7 +1772,7 @@ function playBattle0_(att,def,r){
         const pop=p<.12?.6+p/.12*.55:p<.2?1.15-(p-.12)/.08*.15:1,a=p>.8?1-(p-.8)/.2:1;
         c.save();c.globalAlpha=a;c.translate(S.side==='L'?W/2-120:W/2+120,GROUND-34-p*26);c.scale(pop,pop);c.font='900 46px "Alegreya Sans", sans-serif';c.textAlign='center';c.lineJoin='round';
         c.lineWidth=8;c.strokeStyle='#14110d';c.strokeText('−'+loss,0,0);c.fillStyle=S.u.side==='shu'?'#ffb4a6':'#ffe08a';c.fillText('−'+loss,0,0);c.restore()}
-      for(const S of [SL,SR]){const fate=S.nA===0?S.u.fate||'escape':null;if(!fate)continue;const t0=fate==='capture'?3150:fate==='breakout'?2700:2950;if(t<t0)continue;
+      for(const S of [SL,SR]){const fate=(S.after<=0)?S.u.fate||'escape':null;if(!fate)continue;const t0=fate==='capture'?3150:fate==='breakout'?2700:2950;if(t<t0)continue;
         const p=clamp((t-t0)/250),txt=fate==='capture'?`擒  ${S.u.name} captured!`:fate==='breakout'?`${S.u.name} breaks free!`:`${S.u.name} escapes`;
         c.save();c.globalAlpha=p;c.font=`900 ${fate==='capture'?34:28}px "Noto Serif TC","Alegreya Sans",serif`;c.textAlign='center';c.lineWidth=6;c.strokeStyle='#14110d';
         const y=78-(1-p)*12;c.strokeText(txt,W/2,y);c.fillStyle=fate==='capture'?'#ff7a64':fate==='breakout'?'#f3d27a':'#e8dcc0';c.fillText(txt,W/2,y);c.restore()}
@@ -3152,7 +3158,8 @@ function drawToken(c,u,now){
   for(const it of items)drawSprite(c,it.f,it.f.officer?osh:ssh);
   c.restore();
   // troop bar with a round face beside it
-  const bw=T*.62,bh=Math.max(4,T*.085),bx=X-bw/2+T*.1,by=Y+T*.40,frac=clamp(u.troops/u.max);
+  const bw=T*.62,bh=Math.max(4,T*.085),bx=X-bw/2+T*.1,by=Y+T*.40,hm=u.hpMax||0,frac=clamp((u.troops-hm)/Math.max(1,u.max-hm)),hf=hm?clamp(u.troops/hm):0;
+  if(hm){const hy=by-Math.max(3,T*.05)-2;c.fillStyle='rgba(0,0,0,.78)';rr(c,bx-1,hy-1,bw+2,Math.max(3,T*.05)+2,2);c.fill();c.fillStyle=fr?'#7dd8ff':'#ffb36a';rr(c,bx,hy,Math.max(2,bw*hf),Math.max(3,T*.05),2);c.fill()}
   c.fillStyle='rgba(0,0,0,.78)';rr(c,bx-1.5,by-1.5,bw+3,bh+3,bh);c.fill();
   const gg=c.createLinearGradient(0,by,0,by+bh);if(fr){gg.addColorStop(0,'#b4ff9e');gg.addColorStop(1,'#1fa636')}else{gg.addColorStop(0,'#ffa08c');gg.addColorStop(1,'#c8261a')}
   if(frac>0){c.fillStyle=gg;rr(c,bx,by,Math.max(bh,bw*frac),bh,bh/2);c.fill()}
@@ -3191,7 +3198,7 @@ function lmPost(){if(!G)return;
   const u=G.view,box=$('#info');box.classList.toggle('fo',!!u&&u.side!=='shu');
   if(u){const fr=u.side==='shu',chips=[];
     if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
-    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar"><i style="width:${100*clamp(u.troops/u.max)}%"></i><span>${u.troops} / ${u.max}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>Soldiers ${SOL(u)} / ${u.max-(u.hpMax||0)}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
   const acts=$('#acts');
   if(G.mode==='moved'&&G.sel&&G.phase==='player'&&acts.innerHTML&&!acts.querySelector('[data-a="cancel"]'))acts.insertAdjacentHTML('afterbegin','<button class="rbtn cancel" data-a="cancel" title="Undo the move"><span class="rzh">返</span><span class="rl">Cancel</span></button>');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
@@ -3204,7 +3211,7 @@ function lmPost(){if(!G)return;
   if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}`,'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
 function lmPvHTML(s,e){const f=forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
   const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const nw=clamp((u.troops-loss)/u.max),ls=clamp(loss/u.max);
-    return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">${u.troops} → <em>${u.troops-loss}</em></span></div></div>`};
+    const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h1=Math.min(hm,Math.max(0,u.troops-loss));return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">Soldiers ${s0} → <em>${s1}</em>${h1<Math.min(hm,u.troops)?` · Hero → <em>${h1}</em>`:''}</span></div></div>`};
   return side(s,f.take,true,m>1?up:m<1?dn:'')+`<div class="pvvs">VS</div>`+side(e,f.deal,false,m<1?up:m>1?dn:'')+`<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>`}
 function lmBanner(t,sub,cls){const b=$('#phaseBan');b.className='';b.querySelector('b').textContent=t;b.querySelector('small').textContent=sub||'';void b.offsetWidth;b.className='show '+(cls||'')}
 $('#pv').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!G||!G.pv||G.busy)return;const {s,u}=G.pv;G.pv=null;if(b.dataset.pv!=='go'){updateUI();return}
@@ -3266,7 +3273,7 @@ function lmFightFx(c,SL,SR,t,now){
   X.imp=X.imp.filter(o=>now-o.t0<900);
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.3*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}
-  for(const S of [SL,SR]){const lr=(S.before-S.after)/Math.max(1,S.before);if(lr<.3||S.nA===0)continue;const t0=1800;if(t<t0||t>3300)continue;const p=clamp((t-t0)/180),a=t>3000?1-(t-3000)/300:1;
+  for(const S of [SL,SR]){const lr=(S.before-S.after)/Math.max(1,S.before);if(lr<.3||(S.after<=0))continue;const t0=1800;if(t<t0||t>3300)continue;const p=clamp((t-t0)/180),a=t>3000?1-(t-3000)/300:1;
     c.save();c.globalAlpha=a;c.translate(S.side==='L'?W/2-120:W/2+120,GROUND-86);c.rotate(-.12);const sc=1.7-.7*ease(p);c.scale(sc,sc);c.font='900 italic 26px "Alegreya Sans",sans-serif';c.textAlign='center';c.lineJoin='round';c.lineWidth=6;c.strokeStyle='#3a0a00';c.strokeText('CRITICAL!',0,0);
     const g=c.createLinearGradient(0,-22,0,4);g.addColorStop(0,'#fff6b0');g.addColorStop(1,'#ff8a1a');c.fillStyle=g;c.fillText('CRITICAL!',0,0);c.restore()}}
 function lmIntro(c,SL,SR,t){const a=t<110?t/110:t>620?Math.max(0,1-(t-620)/260):1;if(a<=0)return;const e=ease(clamp(t/300));
@@ -3339,16 +3346,17 @@ function drawFightHud(c,SL,SR,sl,sr,t,main){
   c.fillStyle='#c9a24a';c.beginPath();c.moveTo(cxm-90,y);c.quadraticCurveTo(cxm-40,y-10,cxm-14,y-14);c.lineTo(cxm,y-22);c.lineTo(cxm+14,y-14);c.quadraticCurveTo(cxm+40,y-10,cxm+90,y);c.closePath();c.fill();
   c.fillStyle='#16110a';c.beginPath();c.moveTo(cxm,y-17);c.lineTo(cxm+9,y-6);c.lineTo(cxm,y+5);c.lineTo(cxm-9,y-6);c.closePath();c.fill();c.fillStyle='#4fb4ff';circ(c,cxm,y-6,3.5);c.fill();
   
-  for(const [S,v,side] of [[SL,sl,'L'],[SR,sr,'R']]){const L=side==='L',fr=S.u.side==='shu',frac=clamp(v/Math.max(1,S.u.max||S.before));
+  c.font='700 11px "Alegreya SC",Georgia,serif';c.textAlign='center';c.fillStyle='#e6cf8e';c.fillText('Hero',cxm,y+19);c.fillText('Soldier',cxm,y+37);
+  for(const [S,v,side] of [[SL,sl,'L'],[SR,sr,'R']]){const L=side==='L',fr=S.u.side==='shu',hm=S.u.hpMax||0,smax=Math.max(1,(S.u.max||S.before)-hm),sol=Math.max(0,v-hm),hero=Math.min(hm,Math.max(0,v)),frac=clamp(sol/smax);
     const dtm=S._gt?Math.min(60,now-S._gt):0;S._gt=now;if(S._g==null||(t!=null&&t<40))S._g=frac;if(frac<S._g&&(S._hold=(S._hold||0)+dtm)>260)S._g=Math.max(frac,S._g-dtm*.0004);if(frac>=S._g){S._g=frac;S._hold=0}
     if(S._pf!=null&&frac<S._pf-.002)S._fl=1;S._pf=frac;S._fl=Math.max(0,(S._fl||0)-dtm/240);
-    const nx=L?cxm-50:cxm+50,bw=cxm-108-x0,bx=L?x0+10:cxm+98;
-    c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-46,y+8);c.lineTo(nx+46,y+8);c.lineTo(nx+40,y+34);c.lineTo(nx-40,y+34);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.2;c.stroke();
-    c.font='900 23px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=4;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(v)),nx,y+30);
-    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(Math.round(v)),nx,y+30);
-    lmBar(c,bx,y+14,bw,14,frac,S._g,fr,!L,S._fl);
+    const nx=L?cxm-62:cxm+62,bw=cxm-130-x0,bx=L?x0+10:cxm+120;
+    for(const yy of [y+5,y+23]){c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-40,yy);c.lineTo(nx+40,yy);c.lineTo(nx+35,yy+17);c.lineTo(nx-35,yy+17);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.1;c.stroke()}
+    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(hero)),nx,y+19);c.fillStyle='#fff';c.fillText(String(Math.round(hero)),nx,y+19);c.strokeText(String(Math.round(sol)),nx,y+37);
+    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(Math.round(sol)),nx,y+37);
+    lmBar(c,bx,y+7,bw,10,hm?hero/hm:0,hm?hero/hm:0,fr,!L,0);lmBar(c,bx,y+25,bw,11,frac,S._g,fr,!L,S._fl);
     const O=L?SR:SL,m=typeMult(S.u.type,O.u.type);c.font='600 11.5px "Alegreya Sans",sans-serif';c.textAlign=L?'left':'right';c.fillStyle='#d8c9a0';
-    const lab=`${S.u.name} · ${TYPES[S.u.type].n}`;c.fillText(lab,L?bx:bx+bw,y+48);if(m!==1){const w=c.measureText(lab).width;c.font='900 12px sans-serif';c.fillStyle=m>1?'#6dff7a':'#ff6a5a';c.fillText(m>1?'▲':'▼',L?bx+w+6:bx+bw-w-6,y+48)}
+    const lab=`${S.u.name} · ${TYPES[S.u.type].n}`;c.fillText(lab,L?bx:bx+bw,y+52);if(m!==1){const w=c.measureText(lab).width;c.font='900 12px sans-serif';c.fillStyle=m>1?'#6dff7a':'#ff6a5a';c.fillText(m>1?'▲':'▼',L?bx+w+6:bx+bw-w-6,y+52)}
     // damage burst
     if(main&&t!=null){const loss=Math.round(S.before-v);if(loss>0){if(S._bt==null)S._bt=now;const p=clamp((now-S._bt)/700),crit=(S.before-S.after)/Math.max(1,S.before)>=.3;lmDmgBurst(c,L?cxm-150:cxm+150,y-36,loss,crit,p)}}}
   c.restore();
@@ -3368,6 +3376,9 @@ function lmFightFx(c,SL,SR,t,now){
   // stacked metallic numbers over the ranks that fall, like LM
   for(const o of X.imp){const p=(now-o.t0)/1000;if(p>1||!o.n)continue;lmSilver(c,String(o.n),o.x+14,o.y-16-p*22,p<.08?20+p*120:30,o.crit,p>.75?(1-p)/.25:1)}
   X.imp=X.imp.filter(o=>now-o.t0<1000);
+  for(const S of [SL,SR]){const loss=S.before-S.after;if(loss<=0)continue;const ww0=(S===SL?SR:SL).shoot?1290:w0;if(t<ww0||t>w1)continue;
+    if(Math.random()<dt/110){const al=S.sol.filter(s=>t<s.deathT);const s0=al.length?al[Math.floor(Math.random()*al.length)]:S.off;
+      X.imp.push({x:sX(s0,S,t)-cam+(Math.random()-.5)*30,y:(s0.hy||s0.y)-20*(s0.s||1)-Math.random()*20,t0:now,n:Math.max(1,Math.round(loss/(16+Math.random()*10))),crit:false,q:1})}}
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.32*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}}
 // map: LM-style rounded squares with a gap between them

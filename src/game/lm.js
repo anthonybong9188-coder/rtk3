@@ -28,7 +28,8 @@ function drawToken(c,u,now){
   for(const it of items)drawSprite(c,it.f,it.f.officer?osh:ssh);
   c.restore();
   // troop bar with a round face beside it
-  const bw=T*.62,bh=Math.max(4,T*.085),bx=X-bw/2+T*.1,by=Y+T*.40,frac=clamp(u.troops/u.max);
+  const bw=T*.62,bh=Math.max(4,T*.085),bx=X-bw/2+T*.1,by=Y+T*.40,hm=u.hpMax||0,frac=clamp((u.troops-hm)/Math.max(1,u.max-hm)),hf=hm?clamp(u.troops/hm):0;
+  if(hm){const hy=by-Math.max(3,T*.05)-2;c.fillStyle='rgba(0,0,0,.78)';rr(c,bx-1,hy-1,bw+2,Math.max(3,T*.05)+2,2);c.fill();c.fillStyle=fr?'#7dd8ff':'#ffb36a';rr(c,bx,hy,Math.max(2,bw*hf),Math.max(3,T*.05),2);c.fill()}
   c.fillStyle='rgba(0,0,0,.78)';rr(c,bx-1.5,by-1.5,bw+3,bh+3,bh);c.fill();
   const gg=c.createLinearGradient(0,by,0,by+bh);if(fr){gg.addColorStop(0,'#b4ff9e');gg.addColorStop(1,'#1fa636')}else{gg.addColorStop(0,'#ffa08c');gg.addColorStop(1,'#c8261a')}
   if(frac>0){c.fillStyle=gg;rr(c,bx,by,Math.max(bh,bw*frac),bh,bh/2);c.fill()}
@@ -67,7 +68,7 @@ function lmPost(){if(!G)return;
   const u=G.view,box=$('#info');box.classList.toggle('fo',!!u&&u.side!=='shu');
   if(u){const fr=u.side==='shu',chips=[];
     if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
-    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar"><i style="width:${100*clamp(u.troops/u.max)}%"></i><span>${u.troops} / ${u.max}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div><div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>Soldiers ${SOL(u)} / ${u.max-(u.hpMax||0)}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
   const acts=$('#acts');
   if(G.mode==='moved'&&G.sel&&G.phase==='player'&&acts.innerHTML&&!acts.querySelector('[data-a="cancel"]'))acts.insertAdjacentHTML('afterbegin','<button class="rbtn cancel" data-a="cancel" title="Undo the move"><span class="rzh">返</span><span class="rl">Cancel</span></button>');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
@@ -80,7 +81,7 @@ function lmPost(){if(!G)return;
   if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}`,'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
 function lmPvHTML(s,e){const f=forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
   const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const nw=clamp((u.troops-loss)/u.max),ls=clamp(loss/u.max);
-    return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">${u.troops} → <em>${u.troops-loss}</em></span></div></div>`};
+    const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h1=Math.min(hm,Math.max(0,u.troops-loss));return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">Soldiers ${s0} → <em>${s1}</em>${h1<Math.min(hm,u.troops)?` · Hero → <em>${h1}</em>`:''}</span></div></div>`};
   return side(s,f.take,true,m>1?up:m<1?dn:'')+`<div class="pvvs">VS</div>`+side(e,f.deal,false,m<1?up:m>1?dn:'')+`<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>`}
 function lmBanner(t,sub,cls){const b=$('#phaseBan');b.className='';b.querySelector('b').textContent=t;b.querySelector('small').textContent=sub||'';void b.offsetWidth;b.className='show '+(cls||'')}
 $('#pv').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!G||!G.pv||G.busy)return;const {s,u}=G.pv;G.pv=null;if(b.dataset.pv!=='go'){updateUI();return}
