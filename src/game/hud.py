@@ -1583,3 +1583,4 @@ rep("const GSHEET={tigerking:'tiger',","const GSHEET={tigerking:'tiger',wolfking
 # archers shooting a unit with no soldiers left: aim at the general
 rep("for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)],O,","for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)]||O.off,O,")
 rep("const GSHEET={tigerking:'tiger',","const GSHEET={xiaoming:'g_xiaoming',tigerking:'tiger',")
+rep("const GSHEET={xiaoming:'g_xiaoming',","const GSHEET={xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',")
