@@ -1594,3 +1594,4 @@ rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',
 rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));")
 rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
 rep("const GSHEET={jiangchen:'g_jiangchen',","const GSHEET={ganning:'g_ganning',jiangchen:'g_jiangchen',")
+rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['consortli','consortyan','consortzhao','sunshangxiang'")
