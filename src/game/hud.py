@@ -1538,3 +1538,13 @@ rep("const SPRITES={spear:1,shield:1,archer:1,cav:1}","const SPRITES={spear:1,sh
 rep("['spear','shield','archer','cav','general','fgeneral',","['spear','shield','archer','cav','wu','general','fgeneral',")
 rep("order={archer:0,cav:1,spear:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,shield:3}",2)
 rep("f.type==='archer'?62:58)/150","f.type==='archer'?62:f.type==='wu'?70:58)/150")
+
+# ===== peasant levies (民) =====
+rep("const TYPES={wu:","const TYPES={peasant:{n:'Peasant levy',mv:3,rng:[1,1]},wu:")
+rep("function typeMult(a,d){","function typeMult(a,d){if(d==='peasant'&&a!=='peasant')return 1.3;if(a==='peasant'&&d!=='peasant')return .75;")
+rep("TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry',wu:'Martial'}","TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武',peasant:'民'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry',wu:'Martial',peasant:'Peasants'}")
+rep("const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1}","const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1}")
+rep("['spear','shield','archer','cav','wu','general',","['spear','shield','archer','cav','wu','peasant','general',")
+rep("order={archer:0,wu:1,cav:1,spear:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,peasant:2,shield:3}",2)
+rep("f.type==='wu'?70:58)/150","f.type==='wu'?70:f.type==='peasant'?62:58)/150")
+rep("if(!enemies().length)return endGame(true,`Lü Bu","if(!enemies().length||!G.units.some(u=>u.id==='lubu'))return endGame(true,`Lü Bu")

@@ -1,5 +1,5 @@
 // ===== Langrisser-style battle presentation: map sprites, regions, HUD, preview, phase banner, fight-scene FX =====
-const LM_TZ={spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武'},LM_FR='#3ab4ff',LM_FO='#ff4b3a';
+const LM_TZ={spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武',peasant:'民'},LM_FR='#3ab4ff',LM_FO='#ff4b3a';
 function lmHexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${n>>8&255},${n&255},${a})`}
 function lmGrade(cv,flt){try{const o=document.createElement('canvas');o.width=cv.width;o.height=cv.height;const x=o.getContext('2d');if(!('filter' in x))return cv;x.filter=flt;x.drawImage(cv,0,0);return o}catch(e){return cv}}
 function renderTerrain(T){return lmGrade(renderTerrain0(T),'saturate(1.45) contrast(1.1) brightness(1.1)')}
