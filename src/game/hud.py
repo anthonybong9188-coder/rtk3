@@ -1558,3 +1558,15 @@ rep("const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1}","const SPRI
 rep("'wu','peasant','general',","'wu','peasant','undead','general',")
 rep("order={archer:0,wu:1,cav:1,spear:2,peasant:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,peasant:2,undead:2,shield:3}",2)
 rep("f.type==='peasant'?62:58)/150","f.type==='peasant'?62:f.type==='undead'?60:58)/150")
+
+# ===== tigers (虎): 1 tiger = 5 soldiers of HP and attack; counts shown in tigers =====
+rep("const TYPES={undead:","const TYPES={tiger:{n:'Tigers',mv:4,rng:[1,1]},undead:")
+rep("undead:'屍'},TSHORT={","undead:'屍',tiger:'虎'},TSHORT={")
+rep("peasant:'Peasants',undead:'Undead'}","peasant:'Peasants',undead:'Undead',tiger:'Tigers'};const DSOL=(u,n)=>u&&u.type==='tiger'?Math.ceil(n/5):Math.round(n)")
+rep("const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1}","const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1}")
+rep("'peasant','undead','general',","'peasant','undead','tiger','general',")
+rep("order={archer:0,wu:1,cav:1,spear:2,peasant:2,undead:2,shield:3}","order={archer:0,wu:1,cav:1,tiger:1,spear:2,peasant:2,undead:2,shield:3}",2)
+rep("f.type==='undead'?60:58)/150","f.type==='undead'?60:f.type==='tiger'?108:58)/150")
+rep("k=((sh.src||'').includes('f_lubu')?1.3:1)","k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:1)")
+rep("const kk=(sh.src.includes('f_lubu')?1.3:1)","const kk=(sh.src.includes('f_lubu')?1.3:sh.src.includes('/tiger_')?1.9:1)")
+rep("const GSHEET={","const GSHEET={tigerking:'tiger',")

@@ -23,7 +23,7 @@ function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.li
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
   c.lineWidth=1;c.beginPath();for(let i=0;i<6;i++){const a=i/6*Math.PI*2-Math.PI/2,b=(i+2)/6*Math.PI*2-Math.PI/2;c.moveTo(x+Math.cos(a)*r*.82,y+Math.sin(a)*r*.82);c.lineTo(x+Math.cos(b)*r*.82,y+Math.sin(b)*r*.82)}c.stroke();c.restore()}
 // transparent cut-out portraits (background removed) for the fight scene
-const LM_CUTS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei']),LM_CI={};
+const LM_CUTS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei','jiang_chen']),LM_CI={};
 function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
 function lmHalfPort(c,u,side){const im=portImg(u.id),h=196,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+18;
   lmCircle(c,side==='L'?78:W-78,H-46,88,'#d9b75a');
@@ -60,8 +60,8 @@ function drawFightHud(c,SL,SR,sl,sr,t,main){
     if(S._pf!=null&&frac<S._pf-.002)S._fl=1;S._pf=frac;S._fl=Math.max(0,(S._fl||0)-dtm/240);
     const nx=L?cxm-62:cxm+62,bw=cxm-130-x0,bx=L?x0+10:cxm+120;
     for(const yy of [y+5,y+23]){c.fillStyle='#0b0907';c.beginPath();c.moveTo(nx-40,yy);c.lineTo(nx+40,yy);c.lineTo(nx+35,yy+17);c.lineTo(nx-35,yy+17);c.closePath();c.fill();c.strokeStyle='#8a6d2e';c.lineWidth=1.1;c.stroke()}
-    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(hero)),nx,y+19);c.fillStyle='#fff';c.fillText(String(Math.round(hero)),nx,y+19);c.strokeText(String(Math.round(sol)),nx,y+37);
-    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(Math.round(sol)),nx,y+37);
+    c.font='900 16px "Alegreya SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.lineJoin='round';c.strokeStyle='#000';c.strokeText(String(Math.round(hero)),nx,y+19);c.fillStyle='#fff';c.fillText(String(Math.round(hero)),nx,y+19);c.strokeText(String(DSOL(S.u,sol)),nx,y+37);
+    const ng=c.createLinearGradient(0,y+12,0,y+32);ng.addColorStop(0,'#fff6c8');ng.addColorStop(.5,'#f2c84a');ng.addColorStop(1,'#a8740e');c.fillStyle=S._fl>.2?'#fff':ng;c.fillText(String(DSOL(S.u,sol)),nx,y+37);
     lmBar(c,bx,y+7,bw,10,hm?hero/hm:0,hm?hero/hm:0,fr,!L,0);lmBar(c,bx,y+25,bw,11,frac,S._g,fr,!L,S._fl);
     const O=L?SR:SL,m=typeMult(S.u.type,O.u.type);c.font='600 11.5px "Alegreya Sans",sans-serif';c.textAlign=L?'left':'right';c.fillStyle='#d8c9a0';
     const lab=`${S.u.name} · ${TYPES[S.u.type].n}`;c.fillText(lab,L?bx:bx+bw,y+52);if(m!==1){const w=c.measureText(lab).width;c.font='900 12px sans-serif';c.fillStyle=m>1?'#6dff7a':'#ff6a5a';c.fillText(m>1?'▲':'▼',L?bx+w+6:bx+bw-w-6,y+52)}
