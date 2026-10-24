@@ -1528,3 +1528,13 @@ rep("u.type==='archer'?'farcher':'fgeneral'","u.type==='archer'?'farcher':u.type
 rep("'fshield','farcher',","'fshield','farcher','fcav',")
 rep("u.type==='cav'?'fcav':'fgeneral'","u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'")
 rep("'farcher','fcav',","'farcher','fcav','fspear',")
+
+# ===== new troop type 武 Martial artists (special lady generals only) =====
+rep("const TYPES={shield:{n:'Shield infantry',mv:3,rng:[1,1]},","const TYPES={wu:{n:'Martial artists',mv:4,rng:[1,2]},shield:{n:'Shield infantry',mv:3,rng:[1,1]},")
+rep("function typeMult(a,d){","function typeMult(a,d){if(a==='wu'&&(d==='shield'||d==='spear'))return 1.3;if(a==='cav'&&d==='wu')return 1.3;if(a==='wu'&&d==='cav')return .8;")
+rep("const TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry'};","const TZH={spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武'},TSHORT={spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry',wu:'Martial'};const WU_GENS=new Set(['diaochan','huangyueying','huangwenjing']);")
+rep("${['spear','shield','archer','cav'].map(t=>","${['spear','shield','archer','cav',...(WU_GENS.has(u.id)?['wu']:[])].map(t=>")
+rep("const SPRITES={spear:1,shield:1,archer:1,cav:1}","const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1}")
+rep("['spear','shield','archer','cav','general','fgeneral',","['spear','shield','archer','cav','wu','general','fgeneral',")
+rep("order={archer:0,cav:1,spear:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,shield:3}",2)
+rep("f.type==='archer'?62:58)/150","f.type==='archer'?62:f.type==='wu'?70:58)/150")
