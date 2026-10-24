@@ -1657,3 +1657,10 @@ rep("VIDS=new Set(['xuannu',","VIDS=new Set([")
 rep("speed:6,iron:7,dust:8,rally:9,","speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,")
 rep("function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;","function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;mfx('hit',d.x,d.y,1000,1.5);")
 rep("async function doAttack(a,d,o={}){","async function doAttack(a,d,o={}){mfx('hit',d.x,d.y,1000,1.5);")
+
+# per-sheet scale so every general's head is about the same size (sheets with tall weapons/feathers were cut smaller)
+rep("function drawToken(c,u,now){","const GSCALE={f_lubu:1.5,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.25,f_zhurong:1.3,f_renrui:1.25,tiger:1.9,wolf:1.6};\nfunction sprK(src){const m=/sprites\\/([a-z0-9_]+?)_(shu|wei|wu|ind)\\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}\nfunction drawToken(c,u,now){")
+rep("k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:(sh.src||'').includes('/wolf_')?1.6:1)","k=sprK(sh.src)")
+# defenders: every rank joins the melee (front rank first), not only the front column
+rep("S.hold?alive&&t>=(S.holdT||1050)&&t<=(S.holdE||2500)&&s.col<=(S.holdC||0)","S.hold?alive&&t>=(S.holdT||1050)+s.col*110&&t<=(S.holdE||2500)")
+rep("kk=(sh.src.includes('f_lubu')?1.3:sh.src.includes('/tiger_')?1.9:1)*84/150;","kk=sprK(sh.src)*84/150;")

@@ -25,8 +25,8 @@ function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.li
 // transparent cut-out portraits (background removed) for the fight scene
 const LM_CUTS=new Set(['diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei','jiang_chen','lady_gan','lady_mi','consort_zhao','consort_li','consort_yan','huang_yi','zhurong','ren_rui']),LM_CI={};
 function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
-function lmHalfPort(c,u,side){const im=portImg(u.id),h=196,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+18;
-  lmCircle(c,side==='L'?78:W-78,H-46,88,'#d9b75a');
+function lmHalfPort(c,u,side){const im=portImg(u.id),h=157,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+14;
+  lmCircle(c,side==='L'?64:W-64,H-38,70,'#d9b75a');
   if(!im){c.fillStyle=FAC[u.side].main;circ(c,side==='L'?70:W-70,H-60,50);c.fill();c.fillStyle='#fff';c.font='900 52px "Noto Serif TC",serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.ch,side==='L'?70:W-70,H-58);c.textBaseline='alphabetic';return}
   const cut=cutImg(u.id);c.save();if(side==='R'){c.translate(2*x+w,0);c.scale(-1,1)}c.shadowColor='rgba(0,0,0,.75)';c.shadowBlur=14;
   if(cut)c.drawImage(cut,x,y,w,h);else c.drawImage(fadePort(im),x,y,w,h);c.restore()}
