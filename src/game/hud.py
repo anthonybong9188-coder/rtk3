@@ -1749,3 +1749,5 @@ rep("const GSCALE={f_lubu:1.45,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,
 rep("VIDS=new Set(['xuannu',","VIDS=new Set(['huang_yi','xuannu',")
 # Ren Rui Grok cut-in video (25 Oct)
 rep("VIDS=new Set(['huang_yi',","VIDS=new Set(['ren_rui','huang_yi',")
+# Zhu Rong Grok cut-in video (25 Oct)
+rep("VIDS=new Set(['ren_rui',","VIDS=new Set(['zhurong','ren_rui',")
