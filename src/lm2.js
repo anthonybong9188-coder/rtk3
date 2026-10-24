@@ -96,3 +96,25 @@ function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;c.sa
   c.restore()}
 
 if(typeof PORT!=='undefined'&&!PORT.lubu)PORT.lubu='lu_bu';
+// skill range: every tile the caster can reach with this skill (distance of farthest legal target, min 1)
+function skRange(){const s=G.sel;if(!s)return[];const tg=G.targets.map(t=>t.u);let R=1;
+  for(const u of tg){if(u.area)for(const p of u.area)R=Math.max(R,Math.abs(p.x-s.x)+Math.abs(p.y-s.y));else R=Math.max(R,Math.abs(u.x-s.x)+Math.abs(u.y-s.y))}
+  R=Math.min(R,6);const out=[];for(let dx=-R;dx<=R;dx++)for(let dy=-R;dy<=R;dy++){const d=Math.abs(dx)+Math.abs(dy);if(!d||d>R)continue;const x=s.x+dx,y=s.y+dy;if(inb(x,y))out.push({x,y})}return out}
+function skPost(){const tp=$('#tpanel'),pv=$('#pv');
+  if(G.mode!=='target'||G.tmode==='attack'||!G.sel){G.skc=null;return}
+  const k=G.tmode,h=HERO[k]||SKILLS[k]||{},nm=h.n||k,zh=h.zh||'';
+  const self=G.targets.some(t=>t.u.fake);
+  if(!self)tp.innerHTML=`<div class="skhint"><span>Select a unit in range.</span><button data-a="back">Cancel</button></div>`;
+  const u=G.skc;if(u&&G.targets.some(t=>t.u===u)){const tg=G.targets.find(t=>t.u===u);
+    pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${u.fake?`<div class="skt">Cast here · ${tg.note}</div>`:`<div class="skt">${lmPortHTML(u)}<div><b>${u.name}</b><small>${tg.note||''}</small></div></div>`}</div><div class="pvbtns"><button data-sk="go" class="go">Use</button><button data-sk="no">Cancel</button></div>`;pv.hidden=false;tp.hidden=true}
+  else G.skc=null}
+$('#pv').addEventListener('click',e=>{const b=e.target.closest('[data-sk]');if(!b||!G||!G.skc||G.busy)return;e.stopPropagation();const u=G.skc;if(b.dataset.sk==='go')hitTarget(u);else{G.skc=null;updateUI()}},true);
+{const _u=updateUI;updateUI=function(){_u();try{skPost()}catch(e){console.error(e)}}}
+// long-press a skill button for its description
+{let lt=null,fired=false;const tip=document.createElement('div');tip.id='skTip';tip.hidden=true;document.querySelector('.bv').appendChild(tip);
+  const hide=()=>{tip.hidden=true};
+  $('#acts').addEventListener('pointerdown',e=>{const b=e.target.closest('[data-sk]');if(!b)return;fired=false;clearTimeout(lt);lt=setTimeout(()=>{fired=true;const k=b.dataset.sk,h=HERO[k]||{},S=SKILLS[k]||{},s=G.sel,cd=s&&s.cd&&s.cd[k];
+    tip.innerHTML=`<div class="tth"><b>${h.zh||S.zh||''}</b><span>${h.n||S.n||k}</span></div><div class="ttm"><span>Cooldown</span><em>${cd?`ready in ${cd} turn${cd>1?'s':''}`:'Ready'}</em>${h.once?'<span>Once per battle</span>':''}</div><p>${h.desc||S.desc||''}</p>`;tip.hidden=false},450)});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('#acts').addEventListener(ev,()=>{clearTimeout(lt);if(fired)setTimeout(hide,1800)}));
+  $('#acts').addEventListener('click',e=>{if(fired){e.stopImmediatePropagation();e.preventDefault();fired=false}},true);
+  $('#acts').addEventListener('contextmenu',e=>e.preventDefault());}

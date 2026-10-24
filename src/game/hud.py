@@ -1516,3 +1516,6 @@ rep("lmRegion(c,G.reach.tiles,'rgba(40,140,255,.40)','rgba(150,215,255,1)');","l
 rep("lmRegion(c,G.rangeTiles,'rgba(255,55,40,.24)','rgba(255,120,100,.95)');","lmRegion(c,G.rangeTiles,'rgba(255,35,25,.48)','rgba(255,200,180,1)',1);")
 rep("lmRegion(c,G.enemyTiles,'rgba(255,60,40,.30)','rgba(255,140,120,1)');","lmRegion(c,G.enemyTiles,'rgba(255,35,25,.50)','rgba(255,200,180,1)',1);")
 rep("lmRegion(c,threatTiles(),'rgba(255,50,30,.20)','rgba(255,110,90,.9)');","lmRegion(c,threatTiles(),'rgba(255,40,30,.38)','rgba(255,170,150,1)',1);")
+# ===== LM-style special attack flow: yellow range, red markers, confirm, long-press info =====
+rep("if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area)","if(G.mode==='target'&&G.sel&&G.tmode!=='attack')lmRegion(c,skRange(),'rgba(255,205,30,.42)','rgba(255,240,150,1)',1);\n  if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area)")
+rep("function hitTarget(u){","function hitTarget(u){if(G.mode==='target'&&G.tmode!=='attack'&&G.skc!==u){G.skc=u;updateUI();return}G.skc=null;")

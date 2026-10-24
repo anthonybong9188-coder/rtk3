@@ -152,3 +152,15 @@
 .rstat tr.dead{opacity:.5}
 .mvp{margin:4px 0 8px;color:#ffd27a;font-size:13px}
 #phaseBan.warn::before{background:linear-gradient(90deg,transparent,rgba(200,120,10,.92) 18%,rgba(200,120,10,.92) 82%,transparent)}
+.skhint{display:flex;align-items:center;gap:12px;padding:2px 4px 2px 14px}
+.skhint span{font:600 14px var(--f-display);color:#f3e6c4}
+.skhint button{min-height:38px;padding:0 18px;border-radius:19px;background:linear-gradient(180deg,#3a6ab0,#173468);border:1.5px solid #9ad0ff;color:#fff;font-weight:800}
+.skc{display:flex;flex-direction:column;gap:6px;min-width:220px}
+.skn{display:flex;align-items:baseline;gap:10px}.skn b{font:900 22px var(--f-zh);background:linear-gradient(180deg,#fff8d0,#ffc340);-webkit-background-clip:text;background-clip:text;color:transparent}.skn span{font:italic 700 15px var(--f-display);color:#fff}
+.skt{display:flex;align-items:center;gap:8px;color:#e8f1ff;font-size:12.5px}.skt img,.skt .useal{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 6%;border:2px solid var(--fo)}.skt b{display:block;font-size:14px}.skt small{color:#ffd27a}
+#skTip{position:absolute;z-index:7;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));width:min(420px,92vw);padding:10px 14px 12px;border-radius:10px;background:linear-gradient(180deg,#f4e8cc,#e2cfa4);color:#3a2a14;border:2px solid #8a6a2e;box-shadow:0 8px 24px rgba(0,0,0,.6);pointer-events:none}
+#skTip[hidden]{display:none}
+#skTip .tth{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(90,60,20,.35);padding-bottom:4px;margin-bottom:6px}#skTip .tth b{font:900 20px var(--f-zh);color:#7a1a0a}#skTip .tth span{font:700 17px var(--f-display)}
+#skTip .ttm{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin-bottom:6px}#skTip .ttm span{padding:1px 8px;border-radius:9px;background:#6a4e22;color:#fff3d6}#skTip .ttm em{font-style:normal;padding:1px 8px;border-radius:9px;background:#3a2a14;color:#ffd27a}
+#skTip p{margin:0;font-size:13px;line-height:1.4}
+.rbtn{-webkit-touch-callout:none;user-select:none}
