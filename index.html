@@ -657,6 +657,20 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .ubar.hb{height:10px;margin-bottom:2px}.ubar.hb i{background:linear-gradient(180deg,#bfeaff,#3ab4ff)}.fo .ubar.hb i{background:linear-gradient(180deg,#ffe0b0,#ff9a3a)}.ubar.hb span{font-size:9px;line-height:10px}
 /* skill video: fit whole frame; landscape videos fill the screen width */
 #cutin .ci-vid{width:100vw!important;height:100dvh!important;aspect-ratio:auto!important;object-fit:contain!important;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)!important;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)!important}
+#stage .cap .skipall{padding:2px 10px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:11px;cursor:pointer}
+#stage .cap>span:last-child.skipall{background:rgba(255,255,255,.14);color:#fff}
+#modal .modal{max-height:94dvh;overflow:auto}
+#mImg{display:block;width:96px;height:96px;object-fit:cover;object-position:50% 8%;border-radius:50%;margin:0 auto 6px;border:3px solid var(--gold);box-shadow:0 0 18px rgba(255,200,80,.6)}
+#mImg[hidden]{display:none}
+.rstat{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0;font-variant-numeric:tabular-nums}
+.rstat th{font-size:11px;color:var(--muted);font-weight:600;text-align:right;padding:2px 6px}
+.rstat td{padding:3px 6px;text-align:right;border-top:1px solid rgba(255,255,255,.08)}
+.rstat td:first-child{text-align:left;display:flex;align-items:center;gap:6px}
+.rstat td img{width:24px;height:24px;border-radius:50%;object-fit:cover;object-position:50% 8%}
+.rstat tr.fr td:first-child b{color:#9fd6ff}.rstat tr.fo td:first-child b{color:#ffb09e}
+.rstat tr.dead{opacity:.5}
+.mvp{margin:4px 0 8px;color:#ffd27a;font-size:13px}
+#phaseBan.warn::before{background:linear-gradient(90deg,transparent,rgba(200,120,10,.92) 18%,rgba(200,120,10,.92) 82%,transparent)}
 
 </style>
 
@@ -772,7 +786,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="big" id="mBig">勝</div>
     <h2 id="mTitle">Victory</h2>
     <p id="mText"></p>
-    <button class="primary" id="mBtn">Return to map</button>
+    <img id="mImg" alt="" hidden><div id="mStats"></div><button class="primary" id="mBtn">Return to map</button>
   </div>
 </div>
 <div id="dlg" class="overlay dlgo" hidden><div class="dlgbox" id="dlgbox" role="dialog" aria-modal="true"></div></div>
@@ -913,7 +927,7 @@ function startBattle(cfg){
   for(const g of Object.values(S.gens))if(g.img)PORT[g.id]=g.img;
   $('#bTitle').textContent=cfg.title;$('#bSub').textContent=cfg.sub;
   showScreen('battleView');$('#log').innerHTML='';
-  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={units:cfg.units.map(u=>({...u,hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
+  setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);G={roster:cfg.units.map(u=>({id:u.id,name:u.name,side:u.side,hpMax:HPM(u),max:u.troops+HPM(u)})),dealt:{},units:cfg.units.map(u=>({...u,hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
   G.pcName=pc.name;G.ecName=ec.name;
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
@@ -1267,9 +1281,9 @@ function finish(u){
 // ---------- actions ----------
 async function doAttack(a,d,o={}){if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
-  let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;
+  let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)*(o.mult||1)*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;
   let ctr=0;const ctrOn=!o.noCounter&&!d.mute&&(o.forceCounter||inRange(d.type,dist));
-  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr}
+  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)*(o.ctrMult??.65)));a.troops-=ctr;(G.dealt=G.dealt||{})[d.id]=(G.dealt[d.id]||0)+ctr}
   const ctrVis=!o.noCounter&&!d.mute&&(o.forceCounter||inRange(d.type,dist));
   if(d.troops<=0)d.fate=fateRoll(d,a);if(a.troops<=0)a.fate=fateRoll(a,d);
   await playBattle(a,d,{aB,dB,dmg,ctr,ctrOn:ctrOn||ctrVis,ranged,charge:o.charge,push:o.push,label:o.label,tint:o.tint});
@@ -1323,7 +1337,7 @@ function checkEnd(){
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
-function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;$('#modal').hidden=false;return true}
+function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;try{battleStats(win)}catch(e){console.error(e)}$('#modal').hidden=false;return true}
 $('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(SOL(u)));
   const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
 $('#retreatBtn').onclick=async()=>{if(G.over)return;
@@ -1403,7 +1417,7 @@ function planEnemy(e){
     for(const p of players){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(e.type,dist))continue;
       const ranged=dist>1,deal=Math.min(p.troops,tf(e)*dmgCalc(e.type,e.war,e.troops,p.type,terAt(p.x,p.y),ranged,false));
       const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,(p.troops+left)/2,e.type,tt,ranged,false)*.65:0;
-      const sc=deal-take*.7+(left<=0?300:0)+(p.cmd?70:0)+T_INFO[tt].def*25+(e.cmd&&tt==='c'?60:0);
+      const sc=(G.cfg.hulao&&e.id==='lubu'?(1-p.troops/p.max)*900:0)+deal-take*.7+(left<=0?300:0)+(p.cmd?70:0)+T_INFO[tt].def*25+(e.cmd&&tt==='c'?60:0);
       if(!best||sc>best.sc)best={sc,t,p}}}
   if(best)return{path:pathTo(R,e,best.t.x,best.t.y),target:best.p};
   const F=field(players,e.type);let bt=null,bv=Infinity;
@@ -1473,7 +1487,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
     const fires=[];for(let i=0;i<Math.round(9*big);i++){const tg=tgts[i%tgts.length];fires.push({x:tg.hx+(Math.random()-.5)*50,y:(tg.hy||tg.y)+6+Math.random()*6,t0:1250+Math.random()*450,s:(.32+Math.random()*.22)*big,ph:Math.random()*4})}
     fires.sort((a,b)=>a.y-b.y);
     const bg=makeBG(ter,e===R?'R':'L',false);ST.u.fate=e.troops<=0?e.fate:null;
-    $('#cap').innerHTML=`<span><b style="color:#ffb15a">Fire!</b> <b>${u.name}</b> sets fire to <b>${e.name}</b>${ter==='f'?' · <span class="adv">the forest burns</span>':ter==='w'||ter==='='?' · <span class="dis">damp ground</span>':''}</span><span>Tap to skip</span>`;
+    $('#cap').innerHTML=`<span><b style="color:#ffb15a">Fire!</b> <b>${u.name}</b> sets fire to <b>${e.name}</b>${ter==='f'?' · <span class="adv">the forest burns</span>':ter==='w'||ter==='='?' · <span class="dis">damp ground</span>':''}</span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip all ⏭</span>`;
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];
     const END=4300,start=performance.now();let skip=false,last=start;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
     function frame(now){
@@ -1527,8 +1541,8 @@ async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.
   CUTIN.hidden=false;CUTIN.className='';void CUTIN.offsetWidth;CUTIN.className='on';let done=false;
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
-  CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?5600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
-function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)*mult*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
+  CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?7600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
+function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)*mult*(d.iron?.5:1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);let keep=false;
@@ -1732,7 +1746,7 @@ function playBattle0_(att,def,r){
     for(const [S,O] of [[SL,SR],[SR,SL]])if(S.shoot)S.sol.forEach((s,i)=>{for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)],O,t0:650+i*50+k*180+Math.random()*40,dur:600,jx:(Math.random()-.5)*18})});
     const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);
     const m=typeMult(att.type,def.type);
-    $('#cap').innerHTML=`<span>${r.label?`<b style="color:var(--gold)">${r.label}!</b> `:''}<b>${att.name}</b> attacks <b>${def.name}</b>${m>1?' · <span class="adv">advantage</span>':m<1?' · <span class="dis">disadvantage</span>':''}${r.ranged?' · from range':''}</span><span>Tap to skip</span>`;
+    $('#cap').innerHTML=`<span>${r.label?`<b style="color:var(--gold)">${r.label}!</b> `:''}<b>${att.name}</b> attacks <b>${def.name}</b>${m>1?' · <span class="adv">advantage</span>':m<1?' · <span class="dis">disadvantage</span>':''}${r.ranged?' · from range':''}</span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip all ⏭</span>`;
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];DUST=[];
     const END=4100,start=performance.now();let skip=false,last=start;
     const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
@@ -2981,7 +2995,7 @@ async function marchOut(gens,troops,to){
     for(let i=0;i<per;i++){const row=i%3,col=Math.floor(i/3);figs.push({x0:x-col*GAP-(row%2)*22+Math.random()*10,y:GROUND+62+row*34,s:1.45+row*.12,type:t,seed:Math.random()*6})}
     x-=Math.ceil(per/3)*GAP+90});
   const len=-x,v=(W+Math.min(len,700)+120)/DUR,bg=makeBG('p','L',false);
-  $('#cap').innerHTML=`<span><b>${gens.map(gnm).join(', ')}</b> march on <b>${to.name}</b> · ${fmt(troops)} troops</span><span>Tap to skip</span>`;
+  $('#cap').innerHTML=`<span><b>${gens.map(gnm).join(', ')}</b> march on <b>${to.name}</b> · ${fmt(troops)} troops</span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip all ⏭</span>`;
   $('#duelUI').hidden=true;$('#stage').hidden=false;SND.fx('march');SND.fx('gallop',.2);SND.fx('shout',.4);
   return new Promise(res=>{let skip=false;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);const st=performance.now();
     function fr(now){const t=skip?DUR:now-st;c.drawImage(bg,0,0,W,H);
@@ -3152,7 +3166,7 @@ function drawToken(c,u,now){
   c.lineWidth=T*(sel?.075:.05);c.strokeStyle=done?'rgba(170,170,170,.55)':sel?`rgba(255,230,110,${.65+.35*pulse})`:lmHexA(ring,.95);c.beginPath();c.arc(0,0,T*.4,0,7);c.stroke();
   if(u.cmd){c.lineWidth=T*.022;c.strokeStyle='#ffd45a';c.beginPath();c.arc(0,0,T*.47,0,7);c.stroke()}
   c.restore();
-  const n=u.troops<=0?0:u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22]],run=moving?now*.03:null,items=[];
+  const n=u.troops<=0?0:u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22]],run=(moving||G.sel===u)?now*.03:null,items=[];
   for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
   items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
   items.sort((a,b)=>a.y-b.y);
@@ -3210,7 +3224,7 @@ function lmPost(){if(!G)return;
   const rb=$('#retreatBtn');rb.textContent='⚑';rb.title='Retreat';rb.classList.remove('autoon');
   const ab=$('#autoBtn');ab.classList.toggle('on',!!G.auto);ab.disabled=!!G.over||(!G.auto&&(G.phase!=='player'||G.busy));
   $('#threatBtn').classList.toggle('on',!!G.threat);
-  if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}`,'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
+  if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}${G.maxTurn-G.turn<3?` · ${G.maxTurn-G.turn+1} turn${G.maxTurn-G.turn?'s':''} left!`:''}`,G.maxTurn-G.turn<3?'warn':'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
 function lmPvHTML(s,e){const f=forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
   const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const nw=clamp((u.troops-loss)/u.max),ls=clamp(loss/u.max);
     const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h1=Math.min(hm,Math.max(0,u.troops-loss));return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">Soldiers ${s0} → <em>${s1}</em>${h1<Math.min(hm,u.troops)?` · Hero → <em>${h1}</em>`:''}</span></div></div>`};
@@ -3403,6 +3417,14 @@ async function startHulao(){
     title:'Battle of Hu Lao Gate',sub:'Five heroines stand against the unrivalled Lü Bu · easy mode'});
   S=null;showScreen('title');renderTitle();
 }
+function battleStats(win){
+  if(!G.roster)return;const box=$('#mStats'),img=$('#mImg'),D=G.dealt||{};
+  const row=r=>{const u=G.units.find(x=>x.id===r.id),t=u?u.troops:0,hm=r.hpMax||0,sol=Math.max(0,t-hm),hp=Math.min(hm,Math.max(0,t));
+    return `<tr class="${r.side==='shu'?'fr':'fo'}${u?'':' dead'}"><td>${PORT[r.id]?`<img src="portraits/${PORT[r.id]}.webp" alt="">`:''}<b>${r.name}</b></td><td>${u?`${hp}/${hm}`:'—'}</td><td>${u?`${sol}/${r.max-hm}`:'fallen'}</td><td>${(D[r.id]||0).toLocaleString()}</td></tr>`};
+  const mine=G.roster.filter(r=>r.side==='shu'),mvp=mine.slice().sort((a,b)=>(D[b.id]||0)-(D[a.id]||0))[0];
+  box.innerHTML=`<table class="rstat"><tr><th></th><th>Hero</th><th>Soldiers</th><th>Damage</th></tr>${G.roster.map(row).join('')}</table>${mvp&&D[mvp.id]?`<p class="mvp">★ MVP · <b>${mvp.name}</b> · ${D[mvp.id].toLocaleString()} damage</p>`:''}`;
+  const pick=G.cfg.hulao?(win?(mvp&&mvp.id):'lubu'):(win?(mvp&&mvp.id):null),p=pick&&PORT[pick];
+  if(p){img.src=`portraits/${p}.webp`;img.hidden=false}else img.hidden=true}
 
 $('#hulaoBtn').onclick=()=>startHulao();
 showScreen('title');renderTitle();updSndBtns();

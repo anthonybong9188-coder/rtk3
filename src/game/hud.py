@@ -1479,3 +1479,14 @@ rep("function TURNK(t,ts){","function TURNK(t,ts){return null;")
 rep("A2.off.tx=D.off.hx-A2.face*150","A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}")
 # Lü Bu's still-image sheet is drawn small (tall plumes count in its height): scale up
 rep("const cv=f.type==='cav'||f.officer,k=(f.officer?84:","const cv=f.type==='cav'||f.officer,k=((sh.src||'').includes('f_lubu')?1.3:1)*(f.officer?84:")
+
+# ===== results screen, skip-all, Hu Lao polish =====
+rep("dmg=ironSave(d,dmg);d.troops-=dmg;","dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;",2)
+rep("a.troops-=ctr}","a.troops-=ctr;(G.dealt=G.dealt||{})[d.id]=(G.dealt[d.id]||0)+ctr}")
+rep("const sc=deal-take*.7+","const sc=(G.cfg.hulao&&e.id==='lubu'?(1-p.troops/p.max)*900:0)+deal-take*.7+")
+rep('<button class="primary" id="mBtn">','<img id="mImg" alt="" hidden><div id="mStats"></div><button class="primary" id="mBtn">')
+rep("$('#mText').textContent=text;$('#modal').hidden=false;return true}","$('#mText').textContent=text;try{battleStats(win)}catch(e){console.error(e)}$('#modal').hidden=false;return true}")
+s=s.replace("<span>Tap to skip</span>","<span>Tap to skip</span><span class=\"skipall\" onpointerdown=\"event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()\">Skip all ⏭</span>")
+rep("setTimeout(end,vid?5600:","setTimeout(end,vid?7600:")
+rep("hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),","hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),")
+rep("G={units:cfg.units.map(","G={roster:cfg.units.map(u=>({id:u.id,name:u.name,side:u.side,hpMax:HPM(u),max:u.troops+HPM(u)})),dealt:{},units:cfg.units.map(")

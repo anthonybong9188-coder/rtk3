@@ -20,7 +20,7 @@ function drawToken(c,u,now){
   c.lineWidth=T*(sel?.075:.05);c.strokeStyle=done?'rgba(170,170,170,.55)':sel?`rgba(255,230,110,${.65+.35*pulse})`:lmHexA(ring,.95);c.beginPath();c.arc(0,0,T*.4,0,7);c.stroke();
   if(u.cmd){c.lineWidth=T*.022;c.strokeStyle='#ffd45a';c.beginPath();c.arc(0,0,T*.47,0,7);c.stroke()}
   c.restore();
-  const n=u.troops<=0?0:u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22]],run=moving?now*.03:null,items=[];
+  const n=u.troops<=0?0:u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22]],run=(moving||G.sel===u)?now*.03:null,items=[];
   for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
   items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
   items.sort((a,b)=>a.y-b.y);
@@ -78,7 +78,7 @@ function lmPost(){if(!G)return;
   const rb=$('#retreatBtn');rb.textContent='⚑';rb.title='Retreat';rb.classList.remove('autoon');
   const ab=$('#autoBtn');ab.classList.toggle('on',!!G.auto);ab.disabled=!!G.over||(!G.auto&&(G.phase!=='player'||G.busy));
   $('#threatBtn').classList.toggle('on',!!G.threat);
-  if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}`,'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
+  if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}${G.maxTurn-G.turn<3?` · ${G.maxTurn-G.turn+1} turn${G.maxTurn-G.turn?'s':''} left!`:''}`,G.maxTurn-G.turn<3?'warn':'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
 function lmPvHTML(s,e){const f=forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
   const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const nw=clamp((u.troops-loss)/u.max),ls=clamp(loss/u.max);
     const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h1=Math.min(hm,Math.max(0,u.troops-loss));return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">Soldiers ${s0} → <em>${s1}</em>${h1<Math.min(hm,u.troops)?` · Hero → <em>${h1}</em>`:''}</span></div></div>`};

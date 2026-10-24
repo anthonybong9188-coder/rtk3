@@ -10,3 +10,11 @@ async function startHulao(){
     title:'Battle of Hu Lao Gate',sub:'Five heroines stand against the unrivalled Lü Bu · easy mode'});
   S=null;showScreen('title');renderTitle();
 }
+function battleStats(win){
+  if(!G.roster)return;const box=$('#mStats'),img=$('#mImg'),D=G.dealt||{};
+  const row=r=>{const u=G.units.find(x=>x.id===r.id),t=u?u.troops:0,hm=r.hpMax||0,sol=Math.max(0,t-hm),hp=Math.min(hm,Math.max(0,t));
+    return `<tr class="${r.side==='shu'?'fr':'fo'}${u?'':' dead'}"><td>${PORT[r.id]?`<img src="portraits/${PORT[r.id]}.webp" alt="">`:''}<b>${r.name}</b></td><td>${u?`${hp}/${hm}`:'—'}</td><td>${u?`${sol}/${r.max-hm}`:'fallen'}</td><td>${(D[r.id]||0).toLocaleString()}</td></tr>`};
+  const mine=G.roster.filter(r=>r.side==='shu'),mvp=mine.slice().sort((a,b)=>(D[b.id]||0)-(D[a.id]||0))[0];
+  box.innerHTML=`<table class="rstat"><tr><th></th><th>Hero</th><th>Soldiers</th><th>Damage</th></tr>${G.roster.map(row).join('')}</table>${mvp&&D[mvp.id]?`<p class="mvp">★ MVP · <b>${mvp.name}</b> · ${D[mvp.id].toLocaleString()} damage</p>`:''}`;
+  const pick=G.cfg.hulao?(win?(mvp&&mvp.id):'lubu'):(win?(mvp&&mvp.id):null),p=pick&&PORT[pick];
+  if(p){img.src=`portraits/${p}.webp`;img.hidden=false}else img.hidden=true}
