@@ -1594,7 +1594,7 @@ rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',
 rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));")
 rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
 rep("const GSHEET={jiangchen:'g_jiangchen',","const GSHEET={ganning:'g_ganning',jiangchen:'g_jiangchen',")
-rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['renrui','huangyi','consortli','consortyan','consortzhao','sunshangxiang'")
+rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['renrui','huangyi','sunshangxiang'")
 
 # 8-frame battlefield skill effects at 8 fps (skill_fx.jpg is now 8 cols x 6 rows)
 rep("const fr=Math.min(3,Math.floor(p*4)),s=T*(f.s||1.8)","const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8)")
@@ -1679,3 +1679,7 @@ rep("mend:{who:'caiwenji',","mend:{who:'',")
 rep("huangwenjing:'f_huangwenjing',","caiwenji:'f_huangwenjing',")
 rep("WU_GENS=new Set(['diaochan','huangyueying','huangwenjing'])","WU_GENS=new Set(['diaochan','huangyueying','caiwenji'])")
 rep("const GSHEET={renrui:'f_renrui',","const GSHEET={zhenji:'f_consortzhao',daqiao:'f_consortli',xiaoqiao:'f_consortyan',renrui:'f_renrui',")
+
+rep("consortli:'f_consortli',","")
+rep("consortyan:'f_consortyan',","")
+rep("consortzhao:'f_consortzhao',","")
