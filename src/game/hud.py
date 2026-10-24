@@ -1548,3 +1548,13 @@ rep("['spear','shield','archer','cav','wu','general',","['spear','shield','arche
 rep("order={archer:0,wu:1,cav:1,spear:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,peasant:2,shield:3}",2)
 rep("f.type==='wu'?70:58)/150","f.type==='wu'?70:f.type==='peasant'?62:58)/150")
 rep("if(!enemies().length)return endGame(true,`Lü Bu","if(!enemies().length||!G.units.some(u=>u.id==='lubu'))return endGame(true,`Lü Bu")
+
+# ===== undead (屍) =====
+rep("const TYPES={peasant:","const TYPES={undead:{n:'Undead horde',mv:2,rng:[1,1]},peasant:")
+rep("function typeMult(a,d){","function typeMult(a,d){if(a==='undead'&&d!=='undead')return 1.1;if(d==='undead'&&a==='archer')return .6;if(d==='undead'&&a==='wu')return 1.3;")
+rep("peasant:'民'},TSHORT={","peasant:'民',undead:'屍'},TSHORT={")
+rep("Martial',peasant:'Peasants'}","Martial',peasant:'Peasants',undead:'Undead'}")
+rep("const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1}","const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1}")
+rep("'wu','peasant','general',","'wu','peasant','undead','general',")
+rep("order={archer:0,wu:1,cav:1,spear:2,peasant:2,shield:3}","order={archer:0,wu:1,cav:1,spear:2,peasant:2,undead:2,shield:3}",2)
+rep("f.type==='peasant'?62:58)/150","f.type==='peasant'?62:f.type==='undead'?60:58)/150")
