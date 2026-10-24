@@ -1432,8 +1432,8 @@ const SPRITES={spear:1,shield:1,archer:1,cav:1};const SPIMG={};
 function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}
 function sprSheet(type,fk){const k=type+'_'+fk;let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
 const TURNSH={cav:1,archer:1,general:1},TURN_MS=360;
-function TURNK(t,ts){for(let i=0;i<ts.length;i++)if(t>=ts[i]&&t<ts[i]+TURN_MS)return [i,(t-ts[i])/TURN_MS];return null}
-function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return (k<.5?-1:1)*(Math.abs(2*k-1)<.6?.999:1)}return 1}
+function TURNK(t,ts){return null;for(let i=0;i<ts.length;i++)if(t>=ts[i]&&t<ts[i]+TURN_MS)return [i,(t-ts[i])/TURN_MS];return null}
+function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}
 function drawSprite(c,f,sh){
   const now=performance.now(),sd=f.seed||0;let row=0,fr=0;
   if(f.fall>0){row=3;fr=Math.min(3,Math.floor(f.fall*4))}

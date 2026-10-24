@@ -1472,3 +1472,6 @@ rep("const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both)
 # Lü Bu (enemy heroes) use their skill on the enemy turn
 rep("const plan=planEnemy(e);G.view=e;updateUI();","if(HERO.musou&&e.id==='lubu'&&!(e.cd&&e.cd.musou)&&G.units.filter(p=>p.side!==e.side&&manh(p,e)<=2).length>=2){G.view=e;updateUI();await heroAct('musou',e,e);e.cd=e.cd||{};e.cd.musou=3;if(checkEnd())return;await sleep(300);continue}\n    const plan=planEnemy(e);G.view=e;updateUI();")
 rep("G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){","for(const u of enemies())for(const k in (u.cd||{}))if(u.cd[k]>0)u.cd[k]--;\n  G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){")
+# turning: instant flip — one frame facing one way, the next facing the other
+rep("function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return (k<.5?-1:1)*(Math.abs(2*k-1)<.6?.999:1)}return 1}","function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}")
+rep("function TURNK(t,ts){","function TURNK(t,ts){return null;")
