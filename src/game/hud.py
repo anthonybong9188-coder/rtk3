@@ -1526,3 +1526,5 @@ rep("(u.type==='shield'?'fshield':'fgeneral')","(u.type==='shield'?'fshield':u.t
 rep("'fgeneral','fshield',","'fgeneral','fshield','farcher',")
 rep("u.type==='archer'?'farcher':'fgeneral'","u.type==='archer'?'farcher':u.type==='cav'?'fcav':'fgeneral'")
 rep("'fshield','farcher',","'fshield','farcher','fcav',")
+rep("u.type==='cav'?'fcav':'fgeneral'","u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'")
+rep("'farcher','fcav',","'farcher','fcav','fspear',")
