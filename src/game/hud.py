@@ -1611,3 +1611,4 @@ rep("const GSHEET={consortzhao:'f_consortzhao',","const GSHEET={consortyan:'f_co
 rep("const GSHEET={consortyan:'f_consortyan',","const GSHEET={consortli:'f_consortli',consortyan:'f_consortyan',")
 
 rep("const GSHEET={consortli:'f_consortli',","const GSHEET={huangyi:'f_huangyi',consortli:'f_consortli',")
+rep("const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5}","const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7}")

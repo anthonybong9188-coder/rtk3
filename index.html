@@ -1543,7 +1543,7 @@ const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong
   ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
   liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
 function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
-const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5};
+const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
