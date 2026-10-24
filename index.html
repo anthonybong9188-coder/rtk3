@@ -655,6 +655,8 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #cutin.on:has(.ci-vid){background:rgba(4,6,14,.92)!important}#cutin:has(.ci-vid) .ci-lines{opacity:.35!important}
 
 .ubar.hb{height:10px;margin-bottom:2px}.ubar.hb i{background:linear-gradient(180deg,#bfeaff,#3ab4ff)}.fo .ubar.hb i{background:linear-gradient(180deg,#ffe0b0,#ff9a3a)}.ubar.hb span{font-size:9px;line-height:10px}
+/* skill video: fit whole frame; landscape videos fill the screen width */
+#cutin .ci-vid{width:100vw!important;height:100dvh!important;aspect-ratio:auto!important;object-fit:contain!important;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)!important;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)!important}
 
 </style>
 
@@ -1451,7 +1453,7 @@ function drawSprite(c,f,sh){
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
   if(f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
-  const cv=f.type==='cav'||f.officer,k=(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
+  const cv=f.type==='cav'||f.officer,k=((sh.src||'').includes('f_lubu')?1.3:1)*(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
@@ -1721,7 +1723,7 @@ function playBattle0_(att,def,r){
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
-    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&sh.naturalHeight>800&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*150}
+    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&sh.naturalHeight>800&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
     schedule(SL,SL.nB-SL.nA,SR.shoot?'arrow':'melee');schedule(SR,SR.nB-SR.nA,SL.shoot?'arrow':'melee');

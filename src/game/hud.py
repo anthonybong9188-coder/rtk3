@@ -1475,3 +1475,7 @@ rep("G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){","for(c
 # turning: instant flip — one frame facing one way, the next facing the other
 rep("function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+240){const k=(t-t0)/240;return (k<.5?-1:1)*(Math.abs(2*k-1)<.6?.999:1)}return 1}","function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}")
 rep("function TURNK(t,ts){","function TURNK(t,ts){return null;")
+# melee attacker closes right into the defender line (no gap); some push through
+rep("A2.off.tx=D.off.hx-A2.face*150","A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}")
+# Lü Bu's still-image sheet is drawn small (tall plumes count in its height): scale up
+rep("const cv=f.type==='cav'||f.officer,k=(f.officer?84:","const cv=f.type==='cav'||f.officer,k=((sh.src||'').includes('f_lubu')?1.3:1)*(f.officer?84:")
