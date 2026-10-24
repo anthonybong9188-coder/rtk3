@@ -1708,3 +1708,7 @@ rep("mfx('ring',t.x,t.y,1100,2.6);for(const e of hit)mfx('arc',e.x,e.y,900);","m
 rep("petal:16,bagua:17}","petal:16,bagua:17,sound:18,whirl:19}")
 rep("else if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);","else if(k==='melody'){const hit=enemies().filter(e=>manh(s,e)<=2);mfx('sound',s.x,s.y,1000,4.2);")
 rep("else if(k==='musou'){const hit=G.units.filter(e=>e.side!==s.side&&manh(s,e)<=2);mfx('ring',s.x,s.y,1100,3);for(const e of hit)mfx('arc',e.x,e.y,800);","else if(k==='musou'){const hit=G.units.filter(e=>e.side!==s.side&&manh(s,e)<=2);mfx('whirl',s.x,s.y,1000,4.2);")
+# Sheet 3: fire chakrams (Sun Shangxiang) + green dragon crescent (Guan Yinping)
+rep("sound:18,whirl:19}","sound:18,whirl:19,chakram:20,dragon:21}")
+rep("k==='chakram'){mfx('ring',t.x,t.y,800);SND.fx('crit');await sleep(400);let tot=quickHit(s,t,.7,{color:'#ffb060'});await sleep(350);if(G.units.includes(t)){mfx('ring',t.x,t.y,800);","k==='chakram'){mfx('chakram',t.x,t.y,1000,2.8);SND.fx('crit');await sleep(400);let tot=quickHit(s,t,.7,{color:'#ffb060'});await sleep(350);if(G.units.includes(t)){")
+rep("if(bh&&bh.side!==s.side&&(dx||dy))hit.push(bh);for(const e of hit)mfx('arc',e.x,e.y,800);","if(bh&&bh.side!==s.side&&(dx||dy))hit.push(bh);mfx('dragon',(s.x+t.x)/2+dx*.5,(s.y+t.y)/2+dy*.5,1000,3.2);")
