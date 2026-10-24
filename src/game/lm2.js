@@ -17,7 +17,7 @@ function lmDivider(c,a){if(a<=.01)return;c.save();c.globalAlpha=a;const x=W/2,bo
   for(const [y,s] of [[12,1],[bot-10,1.4]]){c.fillStyle='#f0d070';c.beginPath();c.moveTo(x,y-14*s);c.lineTo(x+11*s,y);c.lineTo(x,y+14*s);c.lineTo(x-11*s,y);c.closePath();c.fill();
     c.fillStyle='#16110a';c.beginPath();c.moveTo(x,y-8*s);c.lineTo(x+6*s,y);c.lineTo(x,y+8*s);c.lineTo(x-6*s,y);c.closePath();c.fill();c.fillStyle='#4fb4ff';circ(c,x,y,2.6*s);c.fill()}
   c.restore()}
-function lmDivAlpha(SL,SR,t){const CS=SL.ch||SR.ch,both=SL.melee&&SR.melee,one=SL.melee||SR.melee;if(!one)return 1;
+function lmDivAlpha(SL,SR,t){const CS=SL.ch||SR.ch,both=SL.melee&&SR.melee,one=SL.melee||SR.melee;if(!one)return 1;return 0;
   const a0=CS?850:both?1300:1400,a1=CS?3400:3050;if(t<a0)return 1;if(t<a0+220)return 1-(t-a0)/220;if(t<a1)return 0;return clamp((t-a1)/300)}
 function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.lineWidth=3;c.beginPath();c.arc(x,y,r,0,7);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(x,y,r*.82,0,7);c.stroke();
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
