@@ -1519,3 +1519,6 @@ rep("lmRegion(c,threatTiles(),'rgba(255,50,30,.20)','rgba(255,110,90,.9)');","lm
 # ===== LM-style special attack flow: yellow range, red markers, confirm, long-press info =====
 rep("if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area)","if(G.mode==='target'&&G.sel&&G.tmode!=='attack')lmRegion(c,skRange(),'rgba(255,205,30,.42)','rgba(255,240,150,1)',1);\n  if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area)")
 rep("function hitTarget(u){","function hitTarget(u){if(G.mode==='target'&&G.tmode!=='attack'&&G.skc!==u){G.skc=u;updateUI();return}G.skc=null;")
+# lady generals commanding shield troops use the twin-sword heroine sheet
+rep("const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);","const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':'fgeneral'):false);")
+rep("['spear','shield','archer','cav','general','fgeneral',","['spear','shield','archer','cav','general','fgeneral','fshield',")
