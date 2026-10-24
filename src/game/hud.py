@@ -1594,7 +1594,7 @@ rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',
 rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));")
 rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
 rep("const GSHEET={jiangchen:'g_jiangchen',","const GSHEET={ganning:'g_ganning',jiangchen:'g_jiangchen',")
-rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['consortli','consortyan','consortzhao','sunshangxiang'")
+rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['huangyi','consortli','consortyan','consortzhao','sunshangxiang'")
 
 # 8-frame battlefield skill effects at 8 fps (skill_fx.jpg is now 8 cols x 6 rows)
 rep("const fr=Math.min(3,Math.floor(p*4)),s=T*(f.s||1.8)","const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8)")
@@ -1609,3 +1609,5 @@ rep("if(it.burn)fx(c,1,Math.floor(t/90+it.bx)%4,","if(it.burn)fx(c,1,Math.floor(
 rep("if(t<burnEnd)fx(c,1,Math.floor(t/95+f.ph)%4,","if(t<burnEnd)fx(c,1,Math.floor(t/125+f.ph)%8,")
 rep("const GSHEET={consortzhao:'f_consortzhao',","const GSHEET={consortyan:'f_consortyan',consortzhao:'f_consortzhao',")
 rep("const GSHEET={consortyan:'f_consortyan',","const GSHEET={consortli:'f_consortli',consortyan:'f_consortyan',")
+
+rep("const GSHEET={consortli:'f_consortli',","const GSHEET={huangyi:'f_huangyi',consortli:'f_consortli',")

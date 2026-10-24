@@ -72,6 +72,7 @@ const GEN_DEF=[
   ['zhurong','Zhurong','融',null,'guiyang',86,42,30,74,'cav','zhurong',80,1],
   ['caiwenji','Cai Wenji','琰',null,'xiangyang',18,86,84,86,'shield','cai_wenji',85,1],
   ['huangwenjing','Huang Wenjing','箏',null,'wuling',48,88,72,92,'archer','huang_wenjing',85,1],
+  ['huangyi','Huang Yi','奕',null,'changsha',95,84,66,90,'shield','huang_yi',80,1],
   ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','zhen_ji',85],
   ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,80,70,72,'archer','zhang_chunhua',90],
   ['ladygan','Lady Gan','甘','shu','jiangxia',45,72,74,94,'shield','lady_gan',100],

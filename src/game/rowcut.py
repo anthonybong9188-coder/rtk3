@@ -25,7 +25,7 @@ cent=ndimage.center_of_mass(fg,lab,range(1,n+1));sz=ndimage.sum(fg,lab,range(1,n
 import json
 CFG=json.loads(sys.argv[4])  # [{"y0":..,"y1":..,"anchors":[...],"bias":0}]
 rgba=np.dstack([a.astype(np.uint8),alpha.astype(np.uint8)])
-NC=max(len(r['anchors']) for r in CFG)
+NC=max(8,max(len(r['anchors']) for r in CFG))
 o=Image.new('RGBA',(256*NC,176*len(CFG)))
 for r,R in enumerate(CFG):
   own={}
