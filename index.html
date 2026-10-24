@@ -3183,7 +3183,7 @@ function renderTerrain(T){return lmGrade(renderTerrain0(T),'saturate(1.45) contr
 function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),'saturate(1.3) contrast(1.08) brightness(1.08)')}
 
 // ---------- map: units as sprites on a friend/foe ring ----------
-const GSCALE={f_lubu:1.45,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.25,f_zhurong:1.3,f_renrui:1.25,tiger:1.9,wolf:1.6};
+const GSCALE={f_lubu:1.45,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.12,f_zhurong:1.3,f_renrui:1.25,tiger:1.9,wolf:1.6};
 function sprK(src){const m=/sprites\/([a-z0-9_]+?)_(shu|wei|wu|ind)\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}
 function drawToken(c,u,now){
   const fk=sprFac(u.side),osh=sprSheet(femKey(u)||'general',fk),ssh=sprSheet(u.type,fk);
