@@ -1580,3 +1580,6 @@ rep("order={archer:0,wu:1,cav:1,tiger:1,","order={archer:0,wu:1,cav:1,tiger:1,wo
 rep("f.type==='tiger'?108:58)/150","f.type==='tiger'?108:f.type==='wolf'?90:58)/150")
 rep("k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:1)","k=((sh.src||'').includes('f_lubu')?1.3:(sh.src||'').includes('/tiger_')?1.9:(sh.src||'').includes('/wolf_')?1.6:1)")
 rep("const GSHEET={tigerking:'tiger',","const GSHEET={tigerking:'tiger',wolfking:'wolf',")
+# archers shooting a unit with no soldiers left: aim at the general
+rep("for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)],O,","for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)]||O.off,O,")
+rep("const GSHEET={tigerking:'tiger',","const GSHEET={xiaoming:'g_xiaoming',tigerking:'tiger',")
