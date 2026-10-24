@@ -14,7 +14,7 @@ for i,s in enumerate(ndimage.find_objects(lab0)):
   k=i+1
   if k in border or s is None:continue
   m=lab0[s]==k
-  if m.sum()>=150 and a[s][m].min(1).mean()>=250.5:bg.add(k)
+  if m.sum()>=int(__import__('os').environ.get('HOLEMIN','150')) and a[s][m].min(1).mean()>=float(__import__('os').environ.get('HOLETH','250.5')):bg.add(k)
 bgm=np.isin(lab0,list(bg));fg=~bgm
 edge=fg&ndimage.binary_dilation(bgm)
 alpha=np.where(fg,255.,0.)

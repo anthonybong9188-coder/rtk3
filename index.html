@@ -1486,7 +1486,7 @@ function drawSprite(c,f,sh){
   if(Math.abs(f.turn??1)===.999){row=0;fr=0}
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
-  if(f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
+  if(false&&f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
   const cv=f.type==='cav'||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:f.type==='wu'?70:f.type==='peasant'?62:f.type==='undead'?60:f.type==='tiger'?108:f.type==='wolf'?90:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k);c.restore()}
@@ -1751,7 +1751,7 @@ function drawFightHud0(c,SL,SR,sl,sr){
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
 const FEM=new Set(['renrui','huangyi','consortli','consortyan','consortzhao','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={renrui:'f_renrui',zhurong:'f_zhurong',huangyi:'f_huangyi',consortli:'f_consortli',consortyan:'f_consortyan',consortzhao:'f_consortzhao',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',huangwenjing:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',guanyu:'g_guanyu',hero:'g_hero'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
-function sprLoad(fk){return ['spear','shield','archer','cav','wu','wu2','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
+function sprLoad(fk){return ['spear','shield','archer','cav','wu','wu2','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));
   return Promise.race([all,new Promise(ok=>setTimeout(ok,4000))])}
@@ -3184,7 +3184,7 @@ function renderTerrain(T){return lmGrade(renderTerrain0(T),'saturate(1.45) contr
 function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),'saturate(1.3) contrast(1.08) brightness(1.08)')}
 
 // ---------- map: units as sprites on a friend/foe ring ----------
-const GSCALE={f_lubu:1.5,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.25,f_zhurong:1.3,f_renrui:1.25,tiger:1.9,wolf:1.6};
+const GSCALE={f_lubu:1.45,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.25,f_zhurong:1.3,f_renrui:1.25,tiger:1.9,wolf:1.6};
 function sprK(src){const m=/sprites\/([a-z0-9_]+?)_(shu|wei|wu|ind)\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}
 function drawToken(c,u,now){
   const fk=sprFac(u.side),osh=sprSheet(femKey(u)||'general',fk),ssh=sprSheet(u.type,fk);
