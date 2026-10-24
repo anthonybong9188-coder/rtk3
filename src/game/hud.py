@@ -1524,3 +1524,5 @@ rep("const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?'fgeneral':false);","
 rep("['spear','shield','archer','cav','general','fgeneral',","['spear','shield','archer','cav','general','fgeneral','fshield',")
 rep("(u.type==='shield'?'fshield':'fgeneral')","(u.type==='shield'?'fshield':u.type==='archer'?'farcher':'fgeneral')")
 rep("'fgeneral','fshield',","'fgeneral','fshield','farcher',")
+rep("u.type==='archer'?'farcher':'fgeneral'","u.type==='archer'?'farcher':u.type==='cav'?'fcav':'fgeneral'")
+rep("'fshield','farcher',","'fshield','farcher','fcav',")
