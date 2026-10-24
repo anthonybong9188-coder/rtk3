@@ -1716,3 +1716,11 @@ rep("if(bh&&bh.side!==s.side&&(dx||dy))hit.push(bh);for(const e of hit)mfx('arc'
 rep("chakram:20,dragon:21}","chakram:20,dragon:21,shadow:22,eastwind:23}")
 rep("mfx('arc',t.x,t.y,800,1.8);const dmg=quickHit(s,t,1.2,{color:'#c9a6ff'});","mfx('shadow',t.x,t.y,1000,2.6);const dmg=quickHit(s,t,1.2,{color:'#c9a6ff'});")
 rep("else if(k==='wind'){s.eastWind=true;mfx('wind',(COLS-1)/2,(ROWS-1)/2,1800,COLS*.9);","else if(k==='wind'){s.eastWind=true;mfx('eastwind',s.x,s.y,1000,3.6);")
+
+# Mi Shao: Mi Ren's sister; 武 troops; Gentle Grace heals every allied unit 15% (cooldown 4)
+rep("const FEM=new Set(['miren',","const FEM=new Set(['mishao','miren',")
+rep("const GSHEET={miren:'f_miren',","const GSHEET={mishao:'f_mishao',miren:'f_miren',")
+rep("WU_GENS=new Set(['diaochan','huangyueying','caiwenji','miren'])","WU_GENS=new Set(['diaochan','huangyueying','caiwenji','miren','mishao'])")
+rep("HERO.palm={","HERO.grace={who:'mishao',zh:'韶光',n:'Gentle Grace',self:1,can:s=>G.units.some(u=>u.side===s.side&&u.troops<u.max),desc:'Restore 15% troops to every allied unit on the field. Ready again after 4 turns'};\nHERO.palm={")
+rep("'meteor','assassin','bless'].includes(k))delete HERO[k];","'meteor','assassin','bless','grace'].includes(k))delete HERO[k];")
+rep("else if(k==='bless'){s.cd.bless=4;","else if(k==='grace'){s.cd.grace=4;SND.fx('chime');let tot=0;for(const u of G.units.filter(u=>u.side===s.side)){const add=Math.min(u.max-u.troops,Math.round(u.max*.15));mfx('heal',u.x,u.y,1100,1.8);if(add>0){u.troops+=add;tot+=add;float(u,'+'+add,'#b8ffc4')}}log(`<b>Gentle Grace!</b> ${nm(s)}\\'s light heals the whole army: +${tot} troops.`);await sleep(900)}\n  else if(k==='bless'){s.cd.bless=4;")

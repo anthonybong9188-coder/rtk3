@@ -72,6 +72,7 @@ const GEN_DEF=[
   ['renrui','Ren Rui','蕊',null,'kuaiji',92,70,62,72,'shield','ren_rui',75,1],
   ['xuannu','Jiutian Xuannü','玄',null,'runan',97,94,91,92,'cav','xuannu',75,1],
   ['miren','Mi Ren','任',null,'jiangling',84,97,98,100,'shield','mi_ren',80,1],
+  ['mishao','Mi Shao','韶',null,'jiangling',82,94,93,98,'shield','mi_shao',80,1],
   ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','consort_zhao',85],
   ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,80,70,72,'archer','zhang_chunhua',90],
   ['ladygan','Lady Gan','甘','shu','jiangxia',45,72,74,94,'shield','lady_gan',100],
