@@ -1248,11 +1248,11 @@ MC.addEventListener('click',e=>{
     if(inRange(s.type,manh(s,u))){execTarget(u);return}
     const t=bestAttackTile(s,u);if(t){moveThenAttack(s,u,t);return}}
   if(G.mode==='moved'&&G.sel&&G.reach&&!(x===G.sel.x&&y===G.sel.y)&&!u&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
-  if(G.mode==='moved'&&u&&u.side==='shu'&&!u.acted&&u!==G.sel){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select';G.targets=[];updateUI();return}
+  if(G.mode==='moved'&&u&&u.side==='shu'&&!u.acted&&u!==G.sel){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved';G.targets=[];updateUI();return}
   if(G.mode==='moved'){if(!u&&G.sel&&G.origin){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=null;G.reach=null;G.mode='idle';G.targets=[];G.pv=null;updateUI()}return}
   if(G.mode==='select'&&G.sel&&G.reach.tiles.some(t=>t.x===x&&t.y===y)){moveSel(x,y);return}
   G.enemyTiles=null;
-  if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}
+  if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}
   else if(u){G.sel=null;G.view=u;G.mode='idle';G.reach=null;if(u.side==='wei')G.enemyTiles=reach(u).tiles}
   else{G.sel=null;G.mode='idle';G.reach=null}
   updateUI()});
@@ -1273,7 +1273,7 @@ async function execTarget(t){
   if(mode==='volley')await doVolley(s,t);
   if(HERO[mode]){const r=await heroAct(mode,s,t);if(r==='keep'){G.busy=false;G.mode='moved';G.reach=reachFrom(s,G.origin);updateUI();return}}
   G.busy=false;if(checkEnd())return;finish(s)}
-function autoSel(){if(!G||G.phase!=='player'||G.over)return;const u=G.units.find(x=>x.side==='shu'&&!x.acted);if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}
+function autoSel(){if(!G||G.phase!=='player'||G.over)return;const u=G.units.find(x=>x.side==='shu'&&!x.acted);if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}
 function finish(u){
   if(G.units.includes(u))u.acted=true;G.sel=null;G.reach=null;G.mode='idle';G.targets=[];autoSel();updateUI();
   if(G.units.filter(x=>x.side==='shu').every(x=>x.acted))setTimeout(endTurn,450)}

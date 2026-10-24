@@ -1492,3 +1492,7 @@ rep("hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),","hpMax:HPM(u),tro
 rep("G={units:cfg.units.map(","G={roster:cfg.units.map(u=>({id:u.id,name:u.name,side:u.side,hpMax:HPM(u),max:u.troops+HPM(u)})),dealt:{},units:cfg.units.map(")
 # tapping empty ground after moving undoes the move and drops focus (no Cancel button)
 rep("  if(G.mode==='moved')return;","  if(G.mode==='moved'){if(!u&&G.sel&&G.origin){const s=G.sel;s.x=s.px=G.origin.x;s.y=s.py=G.origin.y;G.sel=null;G.reach=null;G.mode='idle';G.targets=[];G.pv=null;updateUI()}return}")
+# selecting a unit opens its action menu at once (no second tap); move tiles stay live
+rep("G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select';G.targets=[];","G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved';G.targets=[];")
+rep("if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}","if(u&&u.side==='shu'&&!u.acted){G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}")
+rep("if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='select'}","if(!u)return;G.sel=u;G.view=u;G.origin={x:u.x,y:u.y};G.reach=reach(u);G.mode='moved'}")
