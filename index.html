@@ -1521,10 +1521,10 @@ function playFire(u,e,dmg,before){SND.fx('fire');
       items.sort((a,b)=>a.y-b.y);
       for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
       for(const it of items){if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
-        if(it.burn)fx(c,1,Math.floor(t/90+it.bx)%4,it.bx,it.by+2,.28*it.bs,.9)}
+        if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,it.bx,it.by+2,.28*it.bs,.9)}
       for(const f of fires){if(t<f.t0+200)continue;
         if(t<f.t0+400)fx(c,0,3,f.x,f.y,f.s,(t-f.t0-200)/200);
-        if(t<burnEnd)fx(c,1,Math.floor(t/95+f.ph)%4,f.x,f.y,f.s,.85*clamp((t-f.t0-200)/300));
+        if(t<burnEnd)fx(c,1,Math.floor(t/125+f.ph)%8,f.x,f.y,f.s,.85*clamp((t-f.t0-200)/300));
         else if(t<burnEnd+1000)fx(c,2,Math.min(3,Math.floor((t-burnEnd)/250)),f.x,f.y,f.s,1-Math.max(0,(t-burnEnd-700)/300))}
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur)continue;const p=(t-a.t0)/a.dur,x=lerp(a.sx,a.tx,p),y=lerp(a.sy,a.ty,p)-Math.sin(Math.PI*p)*120,
           p2=Math.max(0,p-.05),x2=lerp(a.sx,a.tx,p2),y2=lerp(a.sy,a.ty,p2)-Math.sin(Math.PI*p2)*120;
@@ -1736,7 +1736,7 @@ function drawFightHud0(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-const FEM=new Set(['consortli','consortyan','consortzhao','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={consortzhao:'f_consortzhao',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',huangwenjing:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
+const FEM=new Set(['consortli','consortyan','consortzhao','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={consortyan:'f_consortyan',consortzhao:'f_consortzhao',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',jiangchen:'g_jiangchen',xiaohei:'g_xiaohei',xiaoming:'g_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',huangwenjing:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',guanyu:'g_guanyu',hero:'g_hero',yueshuang:'g_yueshuang',fentian:'g_fentian',nuwa:'g_nuwa',xuannu:'g_xuannu'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
 function sprLoad(fk){return ['spear','shield','archer','cav','wu','wu2','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear',...Object.values(GSHEET),'general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',...Object.keys(TURNSH).map(t=>t+'_turn')].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+fk]})}
 function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];
   const all=Promise.all(ims.map(im=>im.complete?0:new Promise(ok=>{im.addEventListener('load',ok,{once:true});im.addEventListener('error',ok,{once:true})})));

@@ -1603,3 +1603,8 @@ rep("function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performanc
 # Lady Gan / Lady Mi own 8-frame sheets (idle, run, attack, fall)
 rep("const GSHEET={ganning:'g_ganning',","const GSHEET={ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',")
 rep("const GSHEET={ladygan:'f_ladygan',","const GSHEET={consortzhao:'f_consortzhao',ladygan:'f_ladygan',")
+
+# 8-frame burning loop at 8 fps (fire_fx.jpg: row0 ignite x4, row1 burn x8, row2 die-out x4)
+rep("if(it.burn)fx(c,1,Math.floor(t/90+it.bx)%4,","if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,")
+rep("if(t<burnEnd)fx(c,1,Math.floor(t/95+f.ph)%4,","if(t<burnEnd)fx(c,1,Math.floor(t/125+f.ph)%8,")
+rep("const GSHEET={consortzhao:'f_consortzhao',","const GSHEET={consortyan:'f_consortyan',consortzhao:'f_consortzhao',")
