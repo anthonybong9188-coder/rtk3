@@ -1683,3 +1683,11 @@ rep("const GSHEET={renrui:'f_renrui',","const GSHEET={zhenji:'f_consortzhao',daq
 rep("consortli:'f_consortli',","")
 rep("consortyan:'f_consortyan',","")
 rep("consortzhao:'f_consortzhao',","")
+
+# Jiutian Xuannü returns as a mortal free general; Thousand Blades goes back to her; Ren Rui gets Assassin's Blade
+rep("star:{who:'renrui',","star:{who:'xuannu',")
+rep("const GSHEET={zhenji:","const GSHEET={xuannu:'f_xuannu',zhenji:")
+rep("VIDS=new Set([","VIDS=new Set(['xuannu',")
+rep("HERO.palm={","HERO.assassin={who:'renrui',zh:'暗殺刃',n:'Assassin\\'s Blade',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Strike from the shadows at an enemy up to 3 squares away (×1.2, no counter)'};\nHERO.palm={")
+rep("'thunder','flood','meteor'].includes(k))delete HERO[k];","'thunder','flood','meteor','assassin'].includes(k))delete HERO[k];")
+rep("else if(k==='meteor'){","else if(k==='assassin'){mfx('smoke',s.x,s.y,700,1.4);SND.fx('hit');await sleep(250);mfx('arc',t.x,t.y,800,1.8);const dmg=quickHit(s,t,1.2,{color:'#c9a6ff'});log(`<b>Assassin\\'s Blade!</b> ${nm(s)} strikes ${nm(t)} from the shadows: −${dmg}.`);await sleep(700)}\n  else if(k==='meteor'){")
