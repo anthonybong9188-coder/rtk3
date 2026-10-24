@@ -41,6 +41,8 @@ for r,R in enumerate(CFG):
     ids=[k for k,v in own.items() if v==f and k not in big]
     m=np.isin(lab,ids)|(bigm&(zone[None,:]==f))
     m[:R['y0']]=False;m[R['y1']:]=False
+    if R.get('lclip') is not None:
+      lc=int(ax-R['lclip']);gr=(a[...,1]-a[...,0]>35)&(a[...,1]-a[...,2]>10);bb2=gr.copy();bb2[:,lc:]=False;m&=~bb2
     if not m.any():
       print('empty',r,f,file=sys.stderr);continue
     ys,xs=np.nonzero(m);y0,y1,x0,x1=ys.min(),ys.max()+1,xs.min(),xs.max()+1
