@@ -1747,3 +1747,5 @@ rep("HERO.firearrow={who:'xiaoqiao',zh:'火矢',n:'Fire Arrows',targets:s=>enemi
 # equal heights for every general (head-size zoom removed); Lü Bu kept a bit larger as the boss
 rep("const GSCALE={f_lubu:1.45,f_sunshangxiang:1.2,f_ladygan:1.12,f_ladymi:1.25,f_consortzhao:1.2,f_consortli:1.25,f_consortyan:1.15,f_huangyi:1.12,f_zhurong:1.12,f_renrui:1.25,tiger:1.9,wolf:1.6}","const GSCALE={f_lubu:1.2,tiger:1.9,wolf:1.6}")
 rep("VIDS=new Set(['xuannu',","VIDS=new Set(['huang_yi','xuannu',")
+# Ren Rui Grok cut-in video (25 Oct)
+rep("VIDS=new Set(['huang_yi',","VIDS=new Set(['ren_rui','huang_yi',")
