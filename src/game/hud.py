@@ -1594,7 +1594,7 @@ rep("const GSHEET={xiaohei:'g_xiaohei',","const GSHEET={jiangchen:'g_jiangchen',
 rep("else if(SPRITES[f.type]){const sh=sprSheet(f.type,sprFac(f.fac));","else if(SPRITES[f.type]){const sh=sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));")
 rep("'wu','peasant','undead',","'wu','wu2','peasant','undead',")
 rep("const GSHEET={jiangchen:'g_jiangchen',","const GSHEET={ganning:'g_ganning',jiangchen:'g_jiangchen',")
-rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['huangyi','consortli','consortyan','consortzhao','sunshangxiang'")
+rep("const FEM=new Set(['sunshangxiang'","const FEM=new Set(['renrui','huangyi','consortli','consortyan','consortzhao','sunshangxiang'")
 
 # 8-frame battlefield skill effects at 8 fps (skill_fx.jpg is now 8 cols x 6 rows)
 rep("const fr=Math.min(3,Math.floor(p*4)),s=T*(f.s||1.8)","const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8)")
@@ -1639,3 +1639,5 @@ rep("'melody','musou','chakram','thunder','flood'].includes(k))delete HERO[k];",
 rep("const FXS={};function fxSheet(k){","const METEOR=new Image();METEOR.src='sprites/fx_meteor.jpg';\nconst FXS={};function fxSheet(k){")
 rep("if(f.k==='sheet'){const im=fxSheet","if(f.k==='streak'){if(METEOR.complete&&METEOR.naturalWidth){const fr=Math.min(7,Math.floor((now-f.t0)/110)),L=(f.n+.8)*T,h=T*1.5;c.save();c.globalCompositeOperation='lighter';c.translate(cx,cy);c.rotate(Math.atan2(f.dy,f.dx));c.drawImage(METEOR,(fr%2)*768,(fr>>1)*256,768,256,-T*.5,-h/2,L,h);c.restore()}continue}\n     if(f.k==='sheet'){const im=fxSheet")
 rep("else if(k==='star'){","else if(k==='meteor'){const [dx,dy]=t.dir,line=t.area;log(`<b>Shooting Star Sword!</b> ${nm(s)} flashes across the field to the ${t.name.toLowerCase()}.`);\n    G.mfx=(G.mfx||[]);G.mfx.push({k:'streak',x:s.x,y:s.y,dx,dy,n:line.length,t0:performance.now(),dur:900});SND.fx('special');await sleep(380);\n    let last=null,tot=0;for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;await sleep(70)}}\n    if(last){const li=line.indexOf(last),cand=[line[li+1],...line.slice(0,li).reverse()].filter(Boolean);const free=cand.find(p=>terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y));if(free){s.x=s.px=free.x;s.y=s.py=free.y;mfx('speed',s.x,s.y,700)}}\n    log(`Her blade strikes everything in its path: −${tot}.`);await sleep(800)}\n  else if(k==='star'){")
+
+rep("const GSHEET={zhurong:'f_zhurong',","const GSHEET={renrui:'f_renrui',zhurong:'f_zhurong',")
