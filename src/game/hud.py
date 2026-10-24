@@ -1602,3 +1602,4 @@ rep("function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performanc
 
 # Lady Gan / Lady Mi own 8-frame sheets (idle, run, attack, fall)
 rep("const GSHEET={ganning:'g_ganning',","const GSHEET={ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'g_ganning',")
+rep("const GSHEET={ladygan:'f_ladygan',","const GSHEET={consortzhao:'f_consortzhao',ladygan:'f_ladygan',")
