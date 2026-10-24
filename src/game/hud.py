@@ -1672,3 +1672,10 @@ rep("...Object.keys(TURNSH).map(t=>t+'_turn')]","]")
 # Fire God's Wrath: aim at an enemy up to 3 squares away; the 3×3 around it burns
 rep("if(!(d===2||(d>=1&&d<=2&&eh&&eh.side!==s.side)))continue;","if(!(d>=1&&d<=3&&eh&&eh.side!==s.side))continue;")
 rep("desc:'A 3×3 firestorm centred on a square 2 away: heavy fire damage to every enemy in it'","desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and every enemy around it'")
+
+# Huang Wenjing merged into Cai Wenji (same musician): Cai Wenji gets her art, 武 troops and Heaven-Shaking Melody
+rep("HERO.melody={who:'huangwenjing',","HERO.melody={who:'caiwenji',")
+rep("mend:{who:'caiwenji',","mend:{who:'',")
+rep("huangwenjing:'f_huangwenjing',","caiwenji:'f_huangwenjing',")
+rep("WU_GENS=new Set(['diaochan','huangyueying','huangwenjing'])","WU_GENS=new Set(['diaochan','huangyueying','caiwenji'])")
+rep("const GSHEET={renrui:'f_renrui',","const GSHEET={zhenji:'f_consortzhao',daqiao:'f_consortli',xiaoqiao:'f_consortyan',renrui:'f_renrui',")

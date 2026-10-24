@@ -61,8 +61,8 @@ const GEN_DEF=[
   ['huanggai','Huang Gai','蓋','wu','kuaiji',83,68,60,70,'spear','huang_gai',100],
   ['lumeng','Lü Meng','蒙','wu','kuaiji',81,89,78,76,'cav','lu_meng',95],
   ['sunshangxiang','Sun Shangxiang','尚','wu','jianye',78,62,50,80,'archer','sun_shangxiang',95],
-  ['daqiao','Da Qiao','大','wu','jianye',30,70,72,92,'shield','da_qiao',95],
-  ['xiaoqiao','Xiao Qiao','小','wu','chaisang',38,74,66,90,'archer','xiao_qiao',95],
+  ['daqiao','Da Qiao','大','wu','jianye',30,70,72,92,'shield','consort_li',95],
+  ['xiaoqiao','Xiao Qiao','小','wu','chaisang',38,74,66,90,'archer','consort_yan',95],
   ['diaochan','Diaochan','蟬','shu','jiangxia',30,82,74,98,'shield','diaochan',90],
   ['huangyueying','Huang Yueying','月','shu','jiangxia',44,92,85,76,'archer','huang_yueying',100],
   ['consortzhao','Consort Zhao','趙','shu','jiangxia',46,88,80,86,'archer','consort_zhao',100],
@@ -70,11 +70,10 @@ const GEN_DEF=[
   ['consortyan','Consort Yan','顏','shu','jiangxia',45,90,84,80,'archer','consort_yan',100],
   ['guanyinping','Guan Yinping','銀','shu','jiangxia',84,50,40,72,'spear','guan_yinping',100],
   ['zhurong','Zhurong','融',null,'guiyang',86,42,30,74,'cav','zhurong',80,1],
-  ['caiwenji','Cai Wenji','琰',null,'xiangyang',18,86,84,86,'shield','cai_wenji',85,1],
-  ['huangwenjing','Huang Wenjing','箏',null,'wuling',48,88,72,92,'archer','huang_wenjing',85,1],
+  ['caiwenji','Cai Wenji','琰',null,'wuling',48,88,72,92,'archer','huang_wenjing',85,1],
   ['huangyi','Huang Yi','奕',null,'changsha',95,84,66,90,'shield','huang_yi',80,1],
   ['renrui','Ren Rui','蕊',null,'kuaiji',92,70,62,72,'shield','ren_rui',75,1],
-  ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','zhen_ji',85],
+  ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','consort_zhao',85],
   ['zhangchunhua','Zhang Chunhua','春','wei','xuchang',52,80,70,72,'archer','zhang_chunhua',90],
   ['ladygan','Lady Gan','甘','shu','jiangxia',45,72,74,94,'shield','lady_gan',100],
   ['ladymi','Lady Mi','糜','shu','jiangxia',45,68,62,88,'shield','lady_mi',100],
@@ -202,7 +201,7 @@ const SLOTS=['rtk3-slot1','rtk3-slot2','rtk3-slot3'],PRE='rtk3-prebattle';
 function readKey(k){try{const t=localStorage.getItem(k);return t?JSON.parse(t):null}catch(e){return null}}
 function slotLabel(sv){if(!sv)return 'Empty';const n=Object.values(sv.cities).filter(c=>c.owner==='shu').length;return `${sv.year}, ${sv.month}${({1:'st',2:'nd',3:'rd'})[sv.month]||'th'} month · ${n} cit${n>1?'ies':'y'}${sv.savedAt?' · saved '+new Date(sv.savedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+new Date(sv.savedAt).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):''}`}
 function writeSlot(k){try{localStorage.setItem(k,JSON.stringify({...S,savedAt:Date.now()}));return true}catch(e){toast('Could not save: storage is full or blocked.');return false}}
-function startFrom(sv){S=sv;if(!S)return;applyMode();if(S.gens){for(const id of ['xuannu','nuwa','fentian','yueshuang'])if(S.gens[id]&&(S.gens[id].hidden||!S.gens[id].fac))delete S.gens[id]}for(const id of ['ladygan','ladymi'])if(S.gens&&S.gens[id]&&!S.tr)S.gens[id].war=45;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
+function startFrom(sv){S=sv;if(!S)return;applyMode();if(S.gens){for(const id of ['xuannu','nuwa','fentian','yueshuang','huangwenjing'])if(S.gens[id]&&(S.gens[id].hidden||!S.gens[id].fac))delete S.gens[id]}for(const id of ['ladygan','ladymi'])if(S.gens&&S.gens[id]&&!S.tr)S.gens[id].war=45;if(S.gens&&S.gens.zhangchunhua&&S.gens.zhangchunhua.int===90)S.gens.zhangchunhua.int=80;delete S.savedAt;migrateStores();for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};save();showScreen('campaign');renderCampaign()}
 async function saveLoadDlg(mode){
   const rows=[['rtk3-save','Autosave'],...SLOTS.map((k,i)=>[k,'Slot '+(i+1)]),[PRE,'Before last battle']].filter(([k])=>mode==='load'||SLOTS.includes(k));
   const r=await dialog(`<h2>${mode==='save'?'Save game':'Load game'}</h2><p class="muted">${mode==='save'?'Pick a slot. Saving over a slot replaces it.':'The autosave updates as you play. “Before last battle” is the start of the month your last battle was fought, so you can replay it.'}</p>
