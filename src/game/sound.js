@@ -51,11 +51,11 @@ var SND=(()=>{
     if(!FX[name])return;try{FX[name](t)}catch(e){}}
   // music: plays music/<name>.mp3 if it exists, cross-fading; silent otherwise
   // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
-  const TRACKS=new Set(['battle1','battle2']);
+  const TRACKS=new Set(['battle1','battle2','battle3','battle4']);
   let cur=null,want=null;const missing=new Set();
-  function music(name){want=name;if(!ctx||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle'+(1+(Math.random()*2|0));if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
+  function music(name){want=name;if(!ctx||set.mute&&!cur)return;if(name==='battle')name=(cur&&/^battle\d$/.test(cur.name))?cur.name:'battle1';if(cur&&cur.name===name)return;if(name==='duel'&&!TRACKS.has('duel')&&cur)return;
     const old=cur;cur=null;if(old)fade(old.el,0,700,()=>old.el.pause());
-    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat|^battle\d$/.test(name);if(/^battle\d$/.test(name))el.onended=()=>{if(cur&&cur.el===el)music(name==='battle1'?'battle2':'battle1')};el.volume=0;
+    if(!name||missing.has(name)||!TRACKS.has(name))return;const el=new Audio(`music/${name}.mp3`);el.loop=!/victory|defeat|^battle\d$/.test(name);if(/^battle\d$/.test(name))el.onended=()=>{if(cur&&cur.el===el)music('battle'+(Number(name.slice(6))%4+1))};el.volume=0;
     el.onerror=()=>{missing.add(name);if(cur&&cur.el===el)cur=null};cur={name,el};el.play().then(()=>fade(el,set.mute?0:set.mus,900)).catch(()=>{if(cur&&cur.el===el)cur=null})}
   function fade(el,to,ms,done){const from=el.volume,t0=performance.now();const st=()=>{const k=Math.min(1,(performance.now()-t0)/ms);el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k<1)requestAnimationFrame(st);else done&&done()};st()}
   document.addEventListener('visibilitychange',()=>{if(!cur)return;if(document.hidden)cur.el.pause();else cur.el.play().catch(()=>{})});
