@@ -1783,3 +1783,6 @@ rep("else if(k==='flood'){","else if(k==='hellfire'){const hit=enemies().filter(
 rep("guanyu:'g_guanyu',","")
 # Grok troop sprites (25 Oct): new tiger/wolf fill the cell, so scale them down to the old on-map size
 rep("const GSCALE={f_lubu:1.2,tiger:1.9,wolf:1.6}","const GSCALE={f_lubu:1.2,tiger:.75,wolf:.85}")
+# Cut-in videos keep Grok's soundtrack: play it at the sound-effects volume (respects mute); no extra 'special' chime when a video plays (25 Oct)
+rep("SND.fx('special');return new Promise(res=>{const p=PORT[u.id];","return new Promise(res=>{const p=PORT[u.id];if(!(p&&VIDS.has(p)))SND.fx('special');")
+rep("CUTIN.hidden=false;CUTIN.className='';","CUTIN.hidden=false;CUTIN.className='';{const _v=CUTIN.querySelector('.ci-vid');if(_v){try{SND.init&&SND.init()}catch(e){}_v.muted=!!SND.set.mute;_v.volume=Math.max(0,Math.min(1,SND.set.sfx));const _p=_v.play();if(_p&&_p.catch)_p.catch(()=>{_v.muted=true;_v.play().catch(()=>{})})}}")
