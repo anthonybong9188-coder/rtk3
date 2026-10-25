@@ -1693,9 +1693,9 @@ function drawFigure(c,f){if(f.nohero)return;
   if(f.officer){c.fillStyle='#e8d48a';circ(c,0,-41.5,1.6);c.fill();c.strokeStyle=O;c.lineWidth=1;c.fillStyle='#20140c';c.beginPath();c.moveTo(.5,-29);c.quadraticCurveTo(4,-25,7,-28);c.quadraticCurveTo(4,-27.5,.5,-29);c.fill()}
   c.restore()}
 function mountains(c,col,base,amp,r){c.fillStyle=col;c.beginPath();c.moveTo(0,base+30);let x=0;while(x<=W+40){c.lineTo(x,base-r()*amp);x+=40+r()*50}c.lineTo(W,base+30);c.closePath();c.fill()}
-const BGART={plain:'art/bg_plain.jpg',road:'art/bg_road.jpg',forest:'art/bg_forest.jpg',hill:'art/bg_hill.jpg',river:'art/bg_river.jpg',fort:'art/bg_fort.jpg',bridge:'art/bg_bridge.jpg'},BGUSE={'=':'bridge','.':'plain',p:'road',f:'forest',h:'hill',w:'river',c:'fort',duel:'plain'},BGIMG={};
+const BGART={plain:'art/bg_plain.jpg',road:'art/bg_road.jpg',forest:'art/bg_forest.jpg',hill:'art/bg_hill.jpg',river:'art/bg_river.jpg',fort:'art/bg_fort.jpg',bridge:'art/bg_bridge.jpg',pass:'art/bg_pass.jpg',duel:'art/bg_duel.jpg'},BGUSE={'=':'bridge','.':'plain',p:'road',f:'forest',h:'hill',w:'river',c:'fort',duel:'duel'},BGIMG={};
 for(const [k,src] of Object.entries(BGART)){const im=new Image();im.src=src;BGIMG[k]=im}
-function bgFor(ter,duel){const im=BGIMG[BGUSE[duel?'duel':ter]];return im&&im.complete&&im.naturalWidth?im:null}
+function bgFor(ter,duel){const im=BGIMG[duel?'duel':(window.BTHEME==='pass'&&ter!=='c'&&ter!=='='&&ter!=='w')?'pass':BGUSE[ter]];return im&&im.complete&&im.naturalWidth?im:null}
 function makeBG0(ter,defSide,duel){
   const d=DPR(),cv=document.createElement('canvas');cv.width=W*d;cv.height=H*d;const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);const r=rng(duel?5:ter.charCodeAt(0));
   const g=c.createLinearGradient(0,0,0,GROUND);g.addColorStop(0,duel?'#1a1420':'#1d1a26');g.addColorStop(.62,duel?'#4e2a2a':'#5b3d33');g.addColorStop(1,duel?'#b5583a':'#c07a44');c.fillStyle=g;c.fillRect(0,0,W,GROUND+2);

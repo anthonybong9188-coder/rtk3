@@ -1985,3 +1985,7 @@ function lmPvMark(c,now){""")
 rep("t=skip?END:(now-start)*speed","t=skip?END:(now-start)*speed*FIGHT_SLOW",2)
 rep("*(skip?0:speed)","*(skip?0:speed*FIGHT_SLOW)",2)
 rep("const W=800,H=450,GROUND=212","const FIGHT_SLOW=.5;const W=800,H=450,GROUND=212")
+# New anime fight backgrounds (25 Oct): + Hu Lao pass scene and a duel arena
+rep("bridge:'art/bg_bridge.jpg'},","bridge:'art/bg_bridge.jpg',pass:'art/bg_pass.jpg',duel:'art/bg_duel.jpg'},")
+rep("c:'fort',duel:'plain'},","c:'fort',duel:'duel'},")
+rep("function bgFor(ter,duel){const im=BGIMG[BGUSE[duel?'duel':ter]];","function bgFor(ter,duel){const im=BGIMG[duel?'duel':(window.BTHEME==='pass'&&ter!=='c'&&ter!=='='&&ter!=='w')?'pass':BGUSE[ter]];")
