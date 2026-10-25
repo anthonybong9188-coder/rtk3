@@ -683,6 +683,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 #skTip .ttm{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin-bottom:6px}#skTip .ttm span{padding:1px 8px;border-radius:9px;background:#6a4e22;color:#fff3d6}#skTip .ttm em{font-style:normal;padding:1px 8px;border-radius:9px;background:#3a2a14;color:#ffd27a}
 #skTip p{margin:0;font-size:13px;line-height:1.4}
 .rbtn{-webkit-touch-callout:none;user-select:none}
+#einfo{left:auto;right:max(8px,env(safe-area-inset-right,0px));top:calc(64px + env(safe-area-inset-top,0px))}
 
 </style>
 
@@ -1146,6 +1147,7 @@ function drawMap(now){
   if(SKFX.complete&&SKFX.naturalHeight>=4096)for(const g of G.units.filter(u=>u.guard&&now-(u.guardT0||0)>1000)){const fr=Math.floor(now/125)%8;c.save();c.globalCompositeOperation='lighter';
     for(const [dx,dy,sc,al] of [[0,0,2.2,1],[1,0,1.1,.5],[-1,0,1.1,.5],[0,1,1.1,.5],[0,-1,1.1,.5]]){if(!inb(g.x+dx,g.y+dy))continue;const s=T*sc,cx=(g.x+dx)*T+T/2,cy=(g.y+dy)*T+T/2;c.globalAlpha=al;c.drawImage(SKFX,fr*256,15*256,256,256,cx-s/2,cy-s/2,s,s)}c.restore()}
   if(G.pv&&G.pv.u)lmPvMark(c,now);
+  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);
   for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
   G.mfx=(G.mfx||[]).filter(f=>now-f.t0<f.dur);
   for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];
@@ -1217,7 +1219,7 @@ function updateUI0(){
     ah+=rb('data-a="wait" title="End this unit\'s turn"','待','Wait',true);
   }
   let tp='';
-  if(G.mode==='target')tp=`<div class="tlist">${G.targets.map((tg,i)=>`<button data-t="${i}"><span>${tg.u.label||tg.u.name+' <small>'+TYPES[tg.u.type].n+'</small>'}</span><small>${tg.note}</small></button>`).join('')}<button data-a="back">Back</button></div>`;
+  if(G.mode==='target'&&G.targets.length&&G.targets.every(t=>t.u.fake&&t.u.dir))tp=`<div class="skhint"><span>Tap an arrow next to ${G.sel?G.sel.name:'the unit'} to choose the direction.</span><button data-a="back">Cancel</button></div>`;else if(G.mode==='target')tp=`<div class="tlist">${G.targets.map((tg,i)=>`<button data-t="${i}"><span>${tg.u.label||tg.u.name+' <small>'+TYPES[tg.u.type].n+'</small>'}</span><small>${tg.note}</small></button>`).join('')}<button data-a="back">Back</button></div>`;
   box.innerHTML=h;$('#acts').innerHTML=ah;$('#tpanel').innerHTML=tp;$('#tpanel').hidden=!tp;
 }
 const jointParts=e=>G.units.filter(u=>u.side==='shu'&&manh(u,e)===1);
@@ -1456,7 +1458,7 @@ $('#endBtn').onclick=()=>{G.enemyTiles=null;endTurn()};
 $('#speedBtn').onclick=()=>{speed=speed===1?2:speed===2?0:1;updateUI()};
 
 // ---------- battle scene ----------
-const W=800,H=450,GROUND=212;
+const FIGHT_SLOW=.5;const W=800,H=450,GROUND=212;
 const SC=$('#sc');let sctx;
 function setupStage(){const d=DPR();SC.width=W*d;SC.height=H*d;sctx=SC.getContext('2d');sctx.setTransform(d,0,0,d,0,0)}
 function drawHorse(c,ph,running,F){
@@ -1519,7 +1521,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];
     const END=4300,start=performance.now();let skip=false,last=start;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
     function frame(now){
-      const t=skip?END:(now-start)*speed,dt=Math.min(50,now-last)*(skip?0:speed);last=now;const c=sctx;c.drawImage(bg,0,0,W,H);const items=[];
+      const t=skip?END:(now-start)*speed*FIGHT_SLOW,dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;const c=sctx;c.drawImage(bg,0,0,W,H);const items=[];
       for(const S of [SL,SR]){
         for(const s of S.sol){const alive=t<s.deathT;let x=s.hx,face=S.face,run=null;
           if(S===ST){if(s.burn&&alive&&t>s.deathT-750){const k=(t-(s.deathT-750))/750;x+=Math.sin(t*.012+s.seed*5)*26*k;face=Math.sin(t*.006+s.seed)>0?1:-1;run=t*.04+s.seed}
@@ -1806,7 +1808,7 @@ function playBattle0_(att,def,r){
     const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';
     const shownT=(S,t)=>{const k=kindOf(S)==='arrow'?clamp((t-1280)/600):clamp((t-1650)/1000);return lerp(S.before,S.after,k)};
     function frame(now){
-      let t=skip?END:(now-start)*speed;const dt=Math.min(50,now-last)*(skip?0:speed);last=now;
+      let t=skip?END:(now-start)*speed*FIGHT_SLOW;const dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;
       const both2=SL.melee&&SR.melee,heavy=Math.max((SL.before-SL.after)/Math.max(1,SL.before),(SR.before-SR.after)/Math.max(1,SR.before));
       const zk=1+(both2||SL.ch||SR.ch?.07:.03)*Math.sin(Math.PI*clamp((t-1300)/1700)),sh=t>1550&&t<1950?Math.min(6,2+heavy*14)*Math.sin(t*.09)*(1-(t-1550)/400):0;
       sctx.save();sctx.translate(W/2+sh,GROUND+40+sh*.4);sctx.scale(zk,zk);sctx.translate(-W/2,-(GROUND+40));
@@ -3289,7 +3291,7 @@ function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),'satu
 
 // ---------- map: units as sprites on a friend/foe ring ----------
 const GSCALE={f_lubu:1.2,tiger:.75,wolf:.85};
-const SCW=sh=>sh.naturalHeight%176===0?256:192,SCH=sh=>sh.naturalHeight%176===0?176:132,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){const m=/sprites\/([a-z0-9_]+?)_(shu|wei|wu|ind)\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}
+const SCW=sh=>sh.naturalWidth===4608?192:256,SCH=sh=>sh.naturalWidth===4608?132:176,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){const m=/sprites\/([a-z0-9_]+?)_(shu|wei|wu|ind)\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}
 function drawToken(c,u,now){
   const fk=sprFac(u.side),osh=sprSheet(femKey(u)||'general',fk),ssh=sprSheet(u.type,fk);
   if(!osh||!ssh){drawToken0(c,u,now);return}
@@ -3349,18 +3351,29 @@ function threatTiles(){const k=G.turn+'|'+G.units.map(u=>u.id+':'+u.x+','+u.y).j
   for(const e of enemies()){if(e.stun)continue;const R=reach(e),[r0,r1]=TYPES[e.type].rng;
     for(const t of R.tiles)for(let dx=-r1;dx<=r1;dx++)for(let dy=-r1;dy<=r1;dy++){const d=Math.abs(dx)+Math.abs(dy);if(d>r1||(d>0&&d<r0))continue;const x=t.x+dx,y=t.y+dy;if(inb(x,y))out.set(x+','+y,{x,y})}}
   lmThT=[...out.values()];return lmThT}
+function lmDirArrows(c,now){const p=(Math.sin(now/200)+1)/2;
+  const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,120,40,.28)','#ffb347',true);
+  for(const t of G.targets){const u=t.u;if(!u.fake||!u.dir)continue;const [dx,dy]=u.dir,hit=!/no enemies/.test(t.note||''),on=sel===u,cx=u.x*T+T/2,cy=u.y*T+T/2,L=T*(.30+(on?.06:.03*p));
+    c.save();c.translate(cx+dx*T*.06*p,cy+dy*T*.06*p);c.rotate(Math.atan2(dy,dx));
+    c.beginPath();c.moveTo(L,0);c.lineTo(-L*.15,-L*.75);c.lineTo(-L*.15,-L*.32);c.lineTo(-L*.9,-L*.32);c.lineTo(-L*.9,L*.32);c.lineTo(-L*.15,L*.32);c.lineTo(-L*.15,L*.75);c.closePath();
+    c.fillStyle=on?'#ff8a2a':hit?'#ffd23c':'rgba(220,220,220,.85)';c.fill();c.lineWidth=Math.max(2,T*.05);c.strokeStyle=on?'#fff3c0':'#5a3a00';c.stroke();c.restore()}}
 function lmPvMark(c,now){const u=G.pv.u,p=(Math.sin(now/160)+1)/2,x=u.px*T+T/2,y=u.py*T+T/2,r=T*(.44+p*.05);c.save();c.strokeStyle=`rgba(255,80,60,${.75+.25*p})`;c.lineWidth=T*.05;c.shadowColor='#ff3a2a';c.shadowBlur=12;
   for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;c.beginPath();c.arc(x,y,r,a-.42,a+.42);c.stroke()}c.restore()}
 
 // ---------- HUD ----------
 function updateUI(){updateUI0();try{lmPost()}catch(e){console.error(e)}}
 function lmPortHTML(u){return PORT[u.id]?`<img src="portraits/${PORT[u.id]}.webp" alt="">`:`<div class="useal" style="background:${FAC[u.side].main}">${u.ch}</div>`}
+function lmInfoHTML(u){const fr=u.side==='shu',chips=[];
+    if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
+    return `<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${u.dragon?'Silver Dragon Cavalry':TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?`<div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div>`:'<div class="ubar hb"><span>No general · beast pack</span></div>'}<div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+function lmEnemyBox(own){let eb=document.getElementById('einfo');if(!eb){eb=document.createElement('div');eb.id='einfo';eb.className='hud tl fo';$('#info').parentNode.appendChild(eb)}
+  let e=null;if(G.skc&&!G.skc.fake&&G.skc.side&&G.skc.side!=='shu')e=G.skc;else if(G.pv&&G.pv.u)e=G.pv.u;else if(G.mode==='target'){const t=G.targets.find(t=>!t.u.fake&&t.u.side&&t.u.side!=='shu');if(t)e=t.u}
+  if(!e||e===own||!G.units.includes(e)){eb.hidden=true;eb.innerHTML='';return}eb.innerHTML=lmInfoHTML(e);eb.hidden=false}
 function lmPost(){if(!G)return;
   $('#hint').hidden=G.phase!=='prep';
   const u=G.view,box=$('#info');box.classList.toggle('fo',!!u&&u.side!=='shu');
-  if(u){const fr=u.side==='shu',chips=[];
-    if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
-    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${u.dragon?'Silver Dragon Cavalry':TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?`<div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div>`:'<div class="ubar hb"><span>No general · beast pack</span></div>'}<div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+  if(u)box.innerHTML=lmInfoHTML(u);
+  lmEnemyBox(u);
   const acts=$('#acts');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
   const pv=$('#pv');if(G.pv){pv.innerHTML=lmPvHTML(G.pv.s,G.pv.u);pv.hidden=false}else{pv.hidden=true;pv.innerHTML=''}
@@ -3370,10 +3383,10 @@ function lmPost(){if(!G)return;
   const ab=$('#autoBtn');ab.classList.toggle('on',!!G.auto);ab.disabled=!!G.over||(!G.auto&&(G.phase!=='player'||G.busy));
   $('#threatBtn').classList.toggle('on',!!G.threat);
   if(G.phase!==G._lph){G._lph=G.phase;if(!G.over&&G.phase==='player')lmBanner('Player Phase',`Turn ${G.turn} / ${G.maxTurn}${G.maxTurn-G.turn<3?` · ${G.maxTurn-G.turn+1} turn${G.maxTurn-G.turn?'s':''} left!`:''}`,G.maxTurn-G.turn<3?'warn':'');else if(!G.over&&G.phase==='enemy')lmBanner('Enemy Phase',FAC.wei.name,'fo')}}
-function lmPvHTML(s,e){const f=forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
+function lmPvHTML(s,e,F,BT){const f=F||forecast(s,e),m=f.m,up='<span class="pup">▲</span>',dn='<span class="pdn">▼</span>';
   const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const nw=clamp((u.troops-loss)/u.max),ls=clamp(loss/u.max);
     const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h1=Math.min(hm,Math.max(0,u.troops-loss));return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}<div class="pi"><b>${u.name}</b><small>${TYPES[u.type].n} ${arrow}</small><div class="pvbar"><i class="now" style="width:${nw*100}%"></i><i class="loss" style="${fr?'left':'right'}:${nw*100}%;width:${ls*100}%"></i></div><span class="pvn">${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,s0)} → <em>${DSOL(u,s1)}</em>${h1<Math.min(hm,u.troops)?` · Hero → <em>${h1}</em>`:''}</span></div></div>`};
-  return side(s,f.take,true,m>1?up:m<1?dn:'')+`<div class="pvvs">VS</div>`+side(e,f.deal,false,m<1?up:m>1?dn:'')+`<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>`}
+  return side(s,f.take,true,m>1?up:m<1?dn:'')+`<div class="pvvs">VS</div>`+side(e,f.deal,false,m<1?up:m>1?dn:'')+`${BT||'<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>'}`}
 function lmBanner(t,sub,cls){const b=$('#phaseBan');b.className='';b.querySelector('b').textContent=t;b.querySelector('small').textContent=sub||'';void b.offsetWidth;b.className='show '+(cls||'')}
 $('#pv').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!G||!G.pv||G.busy)return;const {s,u}=G.pv;G.pv=null;if(b.dataset.pv!=='go'){updateUI();return}
   G.tmode='attack';if(inRange(s.type,manh(s,u))){execTarget(u);return}const t=bestAttackTile(s,u);if(t)moveThenAttack(s,u,t);else updateUI()});
@@ -3543,10 +3556,18 @@ function lmFightFx(c,SL,SR,t,now){
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.32*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}}
 // map: LM-style rounded squares with a gap between them
-function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;c.save();const m=T*.045,r=T*.16,s=T-2*m;
-  for(const t of tiles){const x=t.x*T+m,y=t.y*T+m;rr(c,x,y,s,s,r);if(bright){const g=c.createRadialGradient(x+s/2,y+s/2,s*.15,x+s/2,y+s/2,s*.72);g.addColorStop(0,fill.replace(/[\d.]+\)$/,'.3)'));g.addColorStop(1,fill);c.fillStyle=g}else c.fillStyle=fill;c.fill();c.lineWidth=Math.max(2,T*.04);c.strokeStyle=edge;if(bright){c.shadowColor=edge;c.shadowBlur=6}c.stroke();c.shadowBlur=0;
-    rr(c,x+T*.07,y+T*.07,s-T*.14,s-T*.14,r*.7);c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=1;c.stroke()}
-  c.restore()}
+// range tiles: each tile look is rendered ONCE into a small cached canvas, then stamped with drawImage
+// (the old per-tile radial gradient + shadowBlur every frame dropped phones to ~25 FPS while a unit was selected)
+const LMTC={};
+function lmTile(fill,edge,bright,k){const key=fill+'|'+edge+'|'+(bright?1:0)+'|'+T+'|'+k;let cv=LMTC[key];if(cv)return cv;
+  const P=10,sz=Math.ceil((T+2*P)*k);cv=document.createElement('canvas');cv.width=cv.height=sz;const c=cv.getContext('2d');c.scale(k,k);c.translate(P,P);
+  const m=T*.045,r=T*.16,s=T-2*m,x=m,y=m;rr(c,x,y,s,s,r);
+  if(bright){const g=c.createRadialGradient(x+s/2,y+s/2,s*.15,x+s/2,y+s/2,s*.72);g.addColorStop(0,fill.replace(/[\d.]+\)$/,'.3)'));g.addColorStop(1,fill);c.fillStyle=g}else c.fillStyle=fill;
+  c.fill();c.lineWidth=Math.max(2,T*.04);c.strokeStyle=edge;if(bright){c.shadowColor=edge;c.shadowBlur=6}c.stroke();c.shadowBlur=0;
+  rr(c,x+T*.07,y+T*.07,s-T*.14,s-T*.14,r*.7);c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=1;c.stroke();
+  cv.P=P;if(Object.keys(LMTC).length>60)for(const q in LMTC)delete LMTC[q];LMTC[key]=cv;return cv}
+function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;const tr=c.getTransform?c.getTransform():{a:2},k=Math.min(4,Math.max(1,Math.round(Math.abs(tr.a)*2)/2));
+  const im=lmTile(fill,edge,bright,k),P=im.P,w=T+2*P;for(const t of tiles)c.drawImage(im,t.x*T-P,t.y*T-P,w,w)}
 
 if(typeof PORT!=='undefined'&&!PORT.lubu)PORT.lubu='lu_bu';
 // skill range: every tile the caster can reach with this skill (distance of farthest legal target, min 1)
@@ -3559,7 +3580,10 @@ function skPost(){const tp=$('#tpanel'),pv=$('#pv');
   const self=G.targets.some(t=>t.u.fake);
   if(!self)tp.innerHTML=`<div class="skhint"><span>Select a unit in range.</span><button data-a="back">Cancel</button></div>`;
   const u=G.skc;if(u&&G.targets.some(t=>t.u===u)){const tg=G.targets.find(t=>t.u===u);
-    pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${u.fake?`<div class="skt">Cast here · ${tg.note}</div>`:`<div class="skt">${lmPortHTML(u)}<div><b>${u.name}</b><small>${tg.note||''}</small></div></div>`}</div><div class="pvbtns"><button data-sk="go" class="go">Use</button><button data-sk="no">Cancel</button></div>`;pv.hidden=false;tp.hidden=true}
+    const mD=!u.fake&&u.side&&G.sel&&u.side!==G.sel.side&&/deal ~(\d+)/.exec(tg.note||''),mT=/take ~(\d+)/.exec(tg.note||'');
+    if(mD){const rest=(tg.note||'').replace(/deal ~\d+/,'').replace(/take ~\d+/,'').replace(/[▲▼]/g,'').split('·').map(x=>x.trim()).filter(Boolean).join(' · ');
+      pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${rest?`<div class="skt"><small>${rest}</small></div>`:''}</div>`+lmPvHTML(G.sel,u,{deal:+mD[1],take:mT?+mT[1]:0,m:forecast(G.sel,u).m},`<div class="pvbtns"><button data-sk="go" class="go">${zh} ${nm}</button><button data-sk="no">Cancel</button></div>`)}
+    else pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${u.fake?`<div class="skt">Cast here · ${tg.note}</div>`:`<div class="skt">${lmPortHTML(u)}<div><b>${u.name}</b><small>${tg.note||''}</small></div></div>`}</div><div class="pvbtns"><button data-sk="go" class="go">Use</button><button data-sk="no">Cancel</button></div>`;pv.hidden=false;tp.hidden=true}
   else G.skc=null}
 $('#pv').addEventListener('click',e=>{const b=e.target.closest('[data-sk]');if(!b||!G||!G.skc||G.busy)return;e.stopPropagation();const u=G.skc;if(b.dataset.sk==='go')hitTarget(u);else{G.skc=null;updateUI()}},true);
 {const _u=updateUI;updateUI=function(){_u();try{skPost()}catch(e){console.error(e)}}}

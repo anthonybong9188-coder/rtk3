@@ -1878,7 +1878,7 @@ const cv=$('#galCv'),cx=cv.getContext('2d'),sh=new Image();sh.src='sprites/'+g.s
 document.querySelectorAll('#galRows button').forEach(b=>b.onclick=()=>{row=+b.dataset.r;f=0});
 galTimer=setInterval(()=>{if(!document.body.contains(cv)){clearInterval(galTimer);galTimer=null;return}if(!sh.complete||!sh.naturalWidth)return;const rows=Math.round(sh.naturalHeight/176)||5,r=row<0?Math.floor(f/12)%rows:row,c=f%12;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*256,r*176,256,176,0,0,512,352);cx.fillStyle='#000a';cx.font='16px sans-serif';cx.fillText(GAL_ROWS[r]||('Row '+r),8,20);f++},90)}""")
 # 24-frame hero sheets (192x132 cells) + load only the sheets of generals in the current fight (25 Oct)
-rep("function sprK(src){","const SCW=sh=>sh.naturalHeight%176===0?256:192,SCH=sh=>sh.naturalHeight%176===0?176:132,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){")
+rep("function sprK(src){","const SCW=sh=>sh.naturalWidth===4608?192:256,SCH=sh=>sh.naturalWidth===4608?132:176,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){")
 rep("{const nf=Math.round(sh.naturalWidth/256);if(nf>4)","{const nf=Math.round(sh.naturalWidth/SCW(sh));if(nf>4)")
 rep("else if(row===2)fr=Math.floor(now/(f.slow?90:55)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/110+sd*7),nf)","else if(row===2)fr=Math.floor(now/((f.slow?90:55)*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)")
 rep("if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k)","if(row===3&&SROWS(sh)>4&&!f.wave)row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k)")
@@ -1964,3 +1964,24 @@ async function startSparring(){const A=sparGen(SPAR.a),B=sparGen(SPAR.b);
   S=null;showScreen('title');renderTitle();openSparring()}
 $('#spBtn').onclick=()=>openSparring();""")
 rep("if(G.turn>G.maxTurn){endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?","if(G.turn>G.maxTurn){if(G.cfg.spar){endGame(false,'Time is up after fifteen turns. The bout ends without a winner.');return}endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?")
+# Skill confirm uses the full VS forecast card (soldiers + hero HP change) whenever the skill hits an enemy with a damage forecast (25 Oct)
+rep("function lmPvHTML(s,e){const f=forecast(s,e),","function lmPvHTML(s,e,F,BT){const f=F||forecast(s,e),")
+rep("""<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>`}""","""${BT||'<div class="pvbtns"><button data-pv="go" class="go">攻 Attack</button><button data-pv="no">Cancel</button></div>'}`}""")
+rep("""pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${u.fake?""","""const mD=!u.fake&&u.side&&G.sel&&u.side!==G.sel.side&&/deal ~(\\d+)/.exec(tg.note||''),mT=/take ~(\\d+)/.exec(tg.note||'');
+    if(mD){const rest=(tg.note||'').replace(/deal ~\\d+/,'').replace(/take ~\\d+/,'').replace(/[▲▼]/g,'').split('·').map(x=>x.trim()).filter(Boolean).join(' · ');
+      pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${rest?`<div class="skt"><small>${rest}</small></div>`:''}</div>`+lmPvHTML(G.sel,u,{deal:+mD[1],take:mT?+mT[1]:0,m:forecast(G.sel,u).m},`<div class="pvbtns"><button data-sk="go" class="go">${zh} ${nm}</button><button data-sk="no">Cancel</button></div>`)}
+    else pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div>${u.fake?""")
+# Direction skills: arrows on the squares next to the unit instead of a pop-up list
+rep("if(G.mode==='target')tp=`<div class=\"tlist\">","if(G.mode==='target'&&G.targets.length&&G.targets.every(t=>t.u.fake&&t.u.dir))tp=`<div class=\"skhint\"><span>Tap an arrow next to ${G.sel?G.sel.name:'the unit'} to choose the direction.</span><button data-a=\"back\">Cancel</button></div>`;else if(G.mode==='target')tp=`<div class=\"tlist\">")
+rep("  if(G.pv&&G.pv.u)lmPvMark(c,now);","  if(G.pv&&G.pv.u)lmPvMark(c,now);\n  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);")
+rep("function lmPvMark(c,now){","""function lmDirArrows(c,now){const p=(Math.sin(now/200)+1)/2;
+  const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,120,40,.28)','#ffb347',true);
+  for(const t of G.targets){const u=t.u;if(!u.fake||!u.dir)continue;const [dx,dy]=u.dir,hit=!/no enemies/.test(t.note||''),on=sel===u,cx=u.x*T+T/2,cy=u.y*T+T/2,L=T*(.30+(on?.06:.03*p));
+    c.save();c.translate(cx+dx*T*.06*p,cy+dy*T*.06*p);c.rotate(Math.atan2(dy,dx));
+    c.beginPath();c.moveTo(L,0);c.lineTo(-L*.15,-L*.75);c.lineTo(-L*.15,-L*.32);c.lineTo(-L*.9,-L*.32);c.lineTo(-L*.9,L*.32);c.lineTo(-L*.15,L*.32);c.lineTo(-L*.15,L*.75);c.closePath();
+    c.fillStyle=on?'#ff8a2a':hit?'#ffd23c':'rgba(220,220,220,.85)';c.fill();c.lineWidth=Math.max(2,T*.05);c.strokeStyle=on?'#fff3c0':'#5a3a00';c.stroke();c.restore()}}
+function lmPvMark(c,now){""")
+# Fight scene plays at half speed for now so the animations can be seen (25 Oct)
+rep("t=skip?END:(now-start)*speed","t=skip?END:(now-start)*speed*FIGHT_SLOW",2)
+rep("*(skip?0:speed)","*(skip?0:speed*FIGHT_SLOW)",2)
+rep("const W=800,H=450,GROUND=212","const FIGHT_SLOW=.5;const W=800,H=450,GROUND=212")

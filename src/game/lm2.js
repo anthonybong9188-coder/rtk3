@@ -90,10 +90,18 @@ function lmFightFx(c,SL,SR,t,now){
   const fc=(SL.shoot||SR.shoot)&&!(SL.melee&&SR.melee)?1290:CS?1060:1520;
   if(t>fc&&t<fc+120){c.fillStyle=`rgba(255,255,255,${.32*(1-(t-fc)/120)})`;c.fillRect(0,0,W,H)}}
 // map: LM-style rounded squares with a gap between them
-function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;c.save();const m=T*.045,r=T*.16,s=T-2*m;
-  for(const t of tiles){const x=t.x*T+m,y=t.y*T+m;rr(c,x,y,s,s,r);if(bright){const g=c.createRadialGradient(x+s/2,y+s/2,s*.15,x+s/2,y+s/2,s*.72);g.addColorStop(0,fill.replace(/[\d.]+\)$/,'.3)'));g.addColorStop(1,fill);c.fillStyle=g}else c.fillStyle=fill;c.fill();c.lineWidth=Math.max(2,T*.04);c.strokeStyle=edge;if(bright){c.shadowColor=edge;c.shadowBlur=6}c.stroke();c.shadowBlur=0;
-    rr(c,x+T*.07,y+T*.07,s-T*.14,s-T*.14,r*.7);c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=1;c.stroke()}
-  c.restore()}
+// range tiles: each tile look is rendered ONCE into a small cached canvas, then stamped with drawImage
+// (the old per-tile radial gradient + shadowBlur every frame dropped phones to ~25 FPS while a unit was selected)
+const LMTC={};
+function lmTile(fill,edge,bright,k){const key=fill+'|'+edge+'|'+(bright?1:0)+'|'+T+'|'+k;let cv=LMTC[key];if(cv)return cv;
+  const P=10,sz=Math.ceil((T+2*P)*k);cv=document.createElement('canvas');cv.width=cv.height=sz;const c=cv.getContext('2d');c.scale(k,k);c.translate(P,P);
+  const m=T*.045,r=T*.16,s=T-2*m,x=m,y=m;rr(c,x,y,s,s,r);
+  if(bright){const g=c.createRadialGradient(x+s/2,y+s/2,s*.15,x+s/2,y+s/2,s*.72);g.addColorStop(0,fill.replace(/[\d.]+\)$/,'.3)'));g.addColorStop(1,fill);c.fillStyle=g}else c.fillStyle=fill;
+  c.fill();c.lineWidth=Math.max(2,T*.04);c.strokeStyle=edge;if(bright){c.shadowColor=edge;c.shadowBlur=6}c.stroke();c.shadowBlur=0;
+  rr(c,x+T*.07,y+T*.07,s-T*.14,s-T*.14,r*.7);c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=1;c.stroke();
+  cv.P=P;if(Object.keys(LMTC).length>60)for(const q in LMTC)delete LMTC[q];LMTC[key]=cv;return cv}
+function lmRegion(c,tiles,fill,edge,bright){if(!tiles||!tiles.length)return;const tr=c.getTransform?c.getTransform():{a:2},k=Math.min(4,Math.max(1,Math.round(Math.abs(tr.a)*2)/2));
+  const im=lmTile(fill,edge,bright,k),P=im.P,w=T+2*P;for(const t of tiles)c.drawImage(im,t.x*T-P,t.y*T-P,w,w)}
 
 if(typeof PORT!=='undefined'&&!PORT.lubu)PORT.lubu='lu_bu';
 // skill range: every tile the caster can reach with this skill (distance of farthest legal target, min 1)

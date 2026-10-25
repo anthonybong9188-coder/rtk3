@@ -71,12 +71,17 @@ function lmPvMark(c,now){const u=G.pv.u,p=(Math.sin(now/160)+1)/2,x=u.px*T+T/2,y
 // ---------- HUD ----------
 function updateUI(){updateUI0();try{lmPost()}catch(e){console.error(e)}}
 function lmPortHTML(u){return PORT[u.id]?`<img src="portraits/${PORT[u.id]}.webp" alt="">`:`<div class="useal" style="background:${FAC[u.side].main}">${u.ch}</div>`}
+function lmInfoHTML(u){const fr=u.side==='shu',chips=[];
+    if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
+    return `<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?`<div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div>`:'<div class="ubar hb"><span>No general · beast pack</span></div>'}<div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+function lmEnemyBox(own){let eb=document.getElementById('einfo');if(!eb){eb=document.createElement('div');eb.id='einfo';eb.className='hud tl fo';$('#info').parentNode.appendChild(eb)}
+  let e=null;if(G.skc&&!G.skc.fake&&G.skc.side&&G.skc.side!=='shu')e=G.skc;else if(G.pv&&G.pv.u)e=G.pv.u;else if(G.mode==='target'){const t=G.targets.find(t=>!t.u.fake&&t.u.side&&t.u.side!=='shu');if(t)e=t.u}
+  if(!e||e===own||!G.units.includes(e)){eb.hidden=true;eb.innerHTML='';return}eb.innerHTML=lmInfoHTML(e);eb.hidden=false}
 function lmPost(){if(!G)return;
   $('#hint').hidden=G.phase!=='prep';
   const u=G.view,box=$('#info');box.classList.toggle('fo',!!u&&u.side!=='shu');
-  if(u){const fr=u.side==='shu',chips=[];
-    if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
-    box.innerHTML=`<div class="ustrip"><div class="uav">${lmPortHTML(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un">${u.name}${u.cmd?'<span class="ucm">♛ Commander</span>':''}</div><div class="ust">${TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?`<div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>Hero ${HP(u)} / ${u.hpMax||0}</span></div>`:'<div class="ubar hb"><span>No general · beast pack</span></div>'}<div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldiers'} ${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+  if(u)box.innerHTML=lmInfoHTML(u);
+  lmEnemyBox(u);
   const acts=$('#acts');
   if(G.pv&&!(G.sel===G.pv.s&&(G.mode==='select'||G.mode==='moved')&&G.units.includes(G.pv.u)&&G.phase==='player'&&!G.busy))G.pv=null;
   const pv=$('#pv');if(G.pv){pv.innerHTML=lmPvHTML(G.pv.s,G.pv.u);pv.hidden=false}else{pv.hidden=true;pv.innerHTML=''}
