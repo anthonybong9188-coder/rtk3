@@ -2008,3 +2008,8 @@ rep("jiangchen:'g_jiangchen',","jiangchen:'f_jiangchen',")
 rep("lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu']};","lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu'],xiaoming:['xiaoming','Xiao Ming','明',null,'',42,35,20,30,'peasant','xiao_ming'],xiaohei:['xiaohei','Xiao Hei','黑',null,'',48,28,15,25,'peasant','xiao_hei'],jiangchen:['jiangchen','Jiang Chen','屍',null,'',66,88,40,30,'undead','jiang_chen']};")
 # Bigger city icons on the campaign map so the faction flags read better (25 Oct)
 rep("const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};","const CITY_W={small:[52,56],large:[68,69],capital:[83,83]};")
+# Pang Tong, Huang Zhong, Wei Yan get Grok art (25 Oct): specials back on
+rep("const GSHEET={zhouyu:'f_zhouyu',","const GSHEET={pangtong:'f_pangtong',huangzhong:'f_huangzhong',weiyan:'f_weiyan',zhouyu:'f_zhouyu',")
+rep("VIDS=new Set(['hero',","VIDS=new Set(['hero','pang_tong','huang_zhong','wei_yan',")
+rep("const SPS=new Set(['hero',","const SPS=new Set(['hero','pang_tong',")
+rep("'rally','burncamps'].includes(k))delete HERO[k];","'rally','burncamps','sharp','ambush'].includes(k))delete HERO[k];")
