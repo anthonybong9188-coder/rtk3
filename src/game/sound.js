@@ -7,7 +7,7 @@ var SND=(()=>{
     ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();sfxG=ctx.createGain();musG=ctx.createGain();sfxG.connect(master);musG.connect(master);master.connect(ctx.destination);
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;apply();return ctx}
   function apply(){if(!ctx)return;master.gain.value=set.mute?0:1;sfxG.gain.value=set.sfx;musG.gain.value=set.mus;if(cur)cur.el.volume=set.mute?0:set.mus}
-  const unlock=()=>{init();if(ctx&&ctx.state==='suspended')ctx.resume().then(()=>{if(want&&!cur)music(want)}).catch(()=>{});if(want&&!cur)music(want)};
+  const unlock=()=>{init();loadSmp();if(ctx&&ctx.state==='suspended')ctx.resume().then(()=>{if(want&&!cur)music(want)}).catch(()=>{});if(want&&!cur)music(want)};
   ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}));
   // building blocks
   const T=()=>ctx.currentTime;
@@ -40,7 +40,13 @@ var SND=(()=>{
     victory:t=>{const n=[523,587,659,784,880,1047];[[0,0],[.18,2],[.36,3],[.6,5]].forEach(([d,i])=>{tone('sawtooth',n[i],t+d,.02,.12,.45);tone('triangle',n[i]/2,t+d,.02,.1,.45)});FX.gong(t+.6);FX.shout(t+.3)},
     defeat:t=>{[440,392,330,294].forEach((f,i)=>{const o=tone('sawtooth',f,t+i*.38,.06,.08,.6,f*.99)});noise(t,2,.04,'lowpass',500,1)},
   };
-  function fx(name,delay){if(set.mute||!init()||ctx.state!=='running'||!FX[name])return;try{FX[name](T()+(delay||0))}catch(e){}}
+  const SFXN=['arrows','cancel','capture','chime','clash','confirm','crit','defeat','drum','dud','fire','gallop','gong','hit','march','melee','shout','special','tap','victory','sk_assassin','sk_bagua','sk_bless','sk_burn','sk_chakram','sk_crescent','sk_firearrow','sk_flood','sk_frost','sk_grace','sk_hellfire','sk_linked','sk_lone','sk_melody','sk_meteor','sk_musou','sk_palm','sk_petal','sk_pierce','sk_rain','sk_roar','sk_star','sk_sweep','sk_thunder','sk_wind'];
+  const SMP={};let smpLoaded=false,quietUntil=0;const QUIET=new Set(['special','crit','arrows','fire','chime']);
+  function loadSmp(){if(smpLoaded||!ctx)return;smpLoaded=true;for(const n of SFXN)fetch('sfx/'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>{SMP[n]=buf}).catch(()=>{})}
+  function fx(name,delay){if(set.mute||!init()||ctx.state!=='running')return;loadSmp();const t=T()+(delay||0);
+    if(name.startsWith('sk_')){if(!SMP[name])return;quietUntil=t+1.6}else if(QUIET.has(name)&&t<quietUntil)return;
+    if(SMP[name]){try{const src=ctx.createBufferSource();src.buffer=SMP[name];src.connect(sfxG);src.start(t)}catch(e){}return}
+    if(!FX[name])return;try{FX[name](t)}catch(e){}}
   // music: plays music/<name>.mp3 if it exists, cross-fading; silent otherwise
   // add a track name here once music/<name>.mp3 exists (title, map, battle, duel, victory, defeat)
   const TRACKS=new Set(['battle1','battle2']);
