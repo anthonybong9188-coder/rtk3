@@ -1804,3 +1804,6 @@ rep("fac:S.u.side,type:S.u.type,","fac:S.u.side,type:S.u.type,dg:S.u.dragon,",4)
 rep("fac:u.side,type:u.type,run:run!=null?run+i*1.3:null","fac:u.side,type:u.type,dg:u.dragon,run:run!=null?run+i*1.3:null")
 rep("sprSheet(f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac))","sprSheet(f.dg?'dragon':f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac))")
 rep("function sprLoad(fk){return ['spear',","function sprLoad(fk){return ['dragon','spear',")
+# No special skill for Liu Bei, Guan Ping, Zhou Cang (Anthony, 25 Oct): their cut-in videos never play, so drop them from the video set
+rep("VIDS=new Set(['mo_nu','liu_bei',","VIDS=new Set(['mo_nu',")
+rep("'zhang_fei','zhuge_liang','p_guanping','p_zhoucang','consort_li',","'zhang_fei','zhuge_liang','consort_li',")
