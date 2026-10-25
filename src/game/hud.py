@@ -1760,3 +1760,7 @@ rep("const GSHEET={mishao:'f_mishao',","const GSHEET={zhaoyun:'f_zhaoyun',mishao
 rep("VIDS=new Set(['mi_shao',","VIDS=new Set(['zhao_yun','consort_zhao','mi_shao',")
 # Da Qiao, Xiao Qiao, Lady Gan, Lady Mi Grok cut-ins (25 Oct)
 rep("VIDS=new Set(['zhao_yun',","VIDS=new Set(['consort_li','consort_yan','lady_gan','lady_mi','zhao_yun',")
+# Fire God's Wrath smaller: target + the 4 squares beside it (plus shape), not 3x3; ×2.0 instead of ×2.6 (25 Oct)
+rep("const area=area3(x,y),hit=","const area=[{x,y},{x:x+1,y},{x:x-1,y},{x,y:y+1},{x,y:y-1}].filter(p=>p.x>=0&&p.y>=0&&p.x<COLS&&p.y<ROWS),hit=")
+rep("desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and every enemy around it'","desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and any enemy directly beside it (up, down, left, right)'")
+rep("fireHit(s,e,s.id==='zhurong'?2.6:1.6)","fireHit(s,e,s.id==='zhurong'?2.0:1.6)")
