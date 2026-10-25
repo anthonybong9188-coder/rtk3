@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允光八六兵典冬凌出刀刃分到劉劍勝化十千南卦史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫奇奕女奸妃威孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新旋昌明易星春昭昱晃普暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治波泰洪流淵淹滅滿潘澤火烈無焰然煉牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當盛盾睛矛矢破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞良花芳英荀華葛董蒙蒯蓋蔡蔣蕊虎虛蛇蜀融蟬衛褚襄襲計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允光八六兵典冬凌出刀刃分到劉劍勝化十千南卦史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫奇奕女奸妃威孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴布帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新旋昌明易星春昭昱晃普暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治波泰洪流淵淹滅滿潘澤火烈無焰然煉牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當盛盾睛矛矢破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞良花芳英荀華葛董蒙蒯蓋蔡蔣蕊虎虛蛇蜀融蟬衛褚襄襲計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -696,7 +696,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="tmode" role="tablist"><button data-tm="lb" class="on" role="tab">劉 Liu Bei</button><button data-tm="hero" role="tab">俠 New Hero</button></div>
     <div class="tscen"><span class="lbl">Scenario · 208 AD</span><b id="tscenT">The Battle of Red Cliffs</b>
       <p id="tscenP">Cao Cao has taken Jing province and sails his fleet down the Yangtze. Liu Bei holds Jiangxia, allied with Sun Quan of Wu. Hold 10 of the 14 cities by the end of 215.</p></div>
-    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="hulaoBtn">⚔ Hu Lao Gate · vs Lü Bu</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button></div>
+    <div class="tbtns" id="tbtns"><button id="newBtn" class="primary">New game as Liu Bei</button><button id="heroBtn">New game as a New Hero</button><button id="hulaoBtn">⚔ Hu Lao Gate · vs Lü Bu</button><button id="contBtn" hidden>Continue · <span id="contInfo"></span></button><button id="loadBtn">Load game</button><button id="galBtn">General Profiles</button></div>
   </div>
 </div>
 <div id="campaign" class="screen" hidden>
@@ -2479,6 +2479,36 @@ $('#endMonth').onclick=()=>endMonth();
 $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;const dr=await dialog(`<h2>Choose difficulty</h2><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" class="${k==='normal'?'on':''}"><span class="sl"><b>${v.zh} ${v.n}</b><small>${v.d}</small></span><em>${k==='normal'?'Recommended':''}</em></button>`).join('')}</div>`,[['cancel','Cancel']]);if(!DIFF[dr])return;newCampaign(dr);UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
+$('#galBtn').onclick=()=>openGallery();
+const GAL_EXTRA={hero:['hero','The Hero','英',null,'',0,0,0,0,'cav','hero'],lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu']};
+const GAL_ROWS=['Idle','Run','Melee','Ranged','Hit'];
+function galList(){return Object.entries(GSHEET).filter(([k,v])=>v.startsWith('f_')).map(([k,v])=>{const d=GEN_DEF.find(x=>x[0]===k)||GAL_EXTRA[k];if(!d)return null;return {k,sheet:v,d,sk:Object.values(HERO).filter(h=>h.who===k)}}).filter(Boolean)}
+function galPort(img){return 'portraits/'+(SPS.has(img)?'sp_':'')+img+'.webp'}
+let galTimer=null;
+function openGallery(){let ov=document.getElementById('galOv');if(!ov){ov=document.createElement('div');ov.id='galOv';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#120d0a;color:#f0e6d2;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit';document.body.appendChild(ov)}
+const L=galList();
+ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #5a4630;z-index:2"><b style="font-size:18px;flex:1">General Profiles · ${L.length} Grok generals</b><button id="galClose">Close</button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px">${L.map((g,i)=>`<div class="galCard" data-i="${i}" style="cursor:pointer;background:#231a13;border:1px solid #4a3a28;border-radius:8px;overflow:hidden"><img loading="lazy" src="${galPort(g.d[10])}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block"><div style="padding:5px 6px;font-size:13px"><b>${g.d[1]}</b><div style="opacity:.7;font-size:11px">${VIDS.has(g.d[10])?'▶ cut-in':'no cut-in'}${g.sk.length?' · '+g.sk.map(s=>s.n).join(', '):''}</div></div></div>`).join('')}</div>`;
+ov.hidden=false;ov.style.display='block';
+$('#galClose').onclick=()=>{ov.style.display='none'};
+ov.querySelectorAll('.galCard').forEach(c=>c.onclick=()=>galDetail(L,+c.dataset.i))}
+function galDetail(L,i){const ov=document.getElementById('galOv'),g=L[i],d=g.d,img=d[10],hasV=VIDS.has(img),hasC=typeof LM_CUTS!=='undefined'&&LM_CUTS.has(img);
+if(galTimer){clearInterval(galTimer);galTimer=null}
+ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #5a4630;z-index:2"><button id="galBack">◀ All</button><button id="galPrev">‹</button><b style="font-size:18px;flex:1;text-align:center">${d[1]} ${d[2]||''} <span style="opacity:.6;font-size:13px">${i+1}/${L.length} · ${g.k} · ${img}</span></b><button id="galNext">›</button><button id="galClose">Close</button></div>
+<div style="padding:12px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Portrait (${SPS.has(img)?'sp_':'base '}${img})</div><img src="${galPort(img)}" style="height:420px;max-width:92vw;object-fit:contain;border:1px solid #4a3a28;border-radius:6px"></div>
+${hasC?`<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Cut-out</div><img src="portraits/cut_${img}.webp" style="height:420px;max-width:92vw;object-fit:contain;border:1px solid #4a3a28;border-radius:6px;background:repeating-conic-gradient(#3a3a3a 0 25%,#555 0 50%) 0 0/20px 20px"></div>`:''}
+<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Chibi sprite (${g.sheet})</div><canvas id="galCv" width="512" height="352" style="width:min(512px,92vw);background:#fff;border:1px solid #4a3a28;border-radius:6px"></canvas><div id="galRows" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${GAL_ROWS.map((r,j)=>`<button data-r="${j}">${r}</button>`).join('')}<button data-r="-1">All</button></div></div>
+</div>
+${hasV?`<div style="padding:0 12px 12px"><div style="opacity:.7;font-size:12px;margin-bottom:4px">Skill cut-in (vid_${img}.mp4)</div><video src="portraits/vid_${img}.mp4" controls playsinline preload="metadata" style="width:min(960px,96vw);border:1px solid #4a3a28;border-radius:6px;background:#000"></video></div>`:'<div style="padding:0 12px;opacity:.6">No skill cut-in video.</div>'}
+<div style="padding:12px;font-size:14px;line-height:1.5">${d[5]?`War ${d[5]} · Int ${d[6]} · Pol ${d[7]} · Cha ${d[8]} · ${d[9]}<br>`:''}${g.sk.length?g.sk.map(s=>`<b>${s.n}</b> ${s.zh||''} — ${s.desc||''}`).join('<br>'):'No special skill.'}</div>`;
+$('#galBack').onclick=()=>{if(galTimer)clearInterval(galTimer);openGallery()};
+$('#galClose').onclick=()=>{if(galTimer)clearInterval(galTimer);ov.style.display='none'};
+$('#galPrev').onclick=()=>galDetail(L,(i+L.length-1)%L.length);
+$('#galNext').onclick=()=>galDetail(L,(i+1)%L.length);
+const cv=$('#galCv'),cx=cv.getContext('2d'),sh=new Image();sh.src='sprites/'+g.sheet+'_shu.png';let row=-1,f=0;
+document.querySelectorAll('#galRows button').forEach(b=>b.onclick=()=>{row=+b.dataset.r;f=0});
+galTimer=setInterval(()=>{if(!document.body.contains(cv)){clearInterval(galTimer);galTimer=null;return}if(!sh.complete||!sh.naturalWidth)return;const rows=Math.round(sh.naturalHeight/176)||5,r=row<0?Math.floor(f/12)%rows:row,c=f%12;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*256,r*176,256,176,0,0,512,352);cx.fillStyle='#000a';cx.font='16px sans-serif';cx.fillText(GAL_ROWS[r]||('Row '+r),8,20);f++},90)}
 const _oldCont=()=>{S=loadSave();if(!S)return;for(const d of CITY_DEF)if(S.cities[d[0]]){S.cities[d[0]].x=d[3];S.cities[d[0]].y=d[4]}for(const d of GEN_DEF)if(S.gens[d[0]]&&d[10])S.gens[d[0]].img=d[10];for(const d of GEN_DEF)if(!S.gens[d[0]]){const [id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden]=d;const c=S.cities[city];if(c&&c.owner===fac)S.gens[id]={id,name,ch,fac,city,war,int,pol,cha,type,img,loy,hidden:!!hidden,acted:false,army:null}}UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign()};
 $('#menuBtn').onclick=async()=>{const fs=!!document.fullscreenElement;const r=await dialog(`<h2>Menu</h2><p class="muted">The game autosaves as you play. You also have 3 save slots, plus a save from before your last battle.</p>`,[['diff',`${DF().zh} Difficulty: ${DF().n}`],['sound','🔊 Sound'],['save','💾 Save game'],['load','📂 Load game'],['full',fs?'⛶ Exit fullscreen':'⛶ Fullscreen'],['title','Back to title'],['close','Keep playing','primary']]);if(r==='diff'){const dr=await dialog(`<h2>Difficulty</h2><p class="muted">You can change this at any time. Gold already in your treasury stays as it is.</p><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" ${S.diff===k?'disabled':''}><span class="sl"><b>${v.zh} ${v.n}${(S.diff||'normal')===k?' · current':''}</b><small>${v.d}</small></span></button>`).join('')}</div>`,[['cancel','Cancel']]);if(DIFF[dr]){S.diff=dr;addLog(`Difficulty set to ${DIFF[dr].n}.`,'shu');save();renderCampaign()}}
     if(r==='sound')await soundDlg();if(r==='save')await saveLoadDlg('save');if(r==='load')await saveLoadDlg('load');if(r==='full')toggleFull();if(r==='title'){showScreen('title');renderTitle()}};

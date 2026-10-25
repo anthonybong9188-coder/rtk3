@@ -1844,3 +1844,36 @@ rep("const adjE=s=>","const lineClear=(s,e)=>{const dx=Math.sign(e.x-s.x),dy=Mat
 rep("const GSHEET={monu:'f_monu',","const GSHEET={monu:'f_monu',caocao:'f_caocao',xuchu:'f_xuchu',xiahoudun:'f_xiahoudun',xiahouyuan:'f_xiahouyuan',zhangliao:'f_zhangliao',xuhuang:'f_xuhuang',caozhang:'f_caozhang',xunyu:'f_xunyu',simayi:'f_simayi',jiaxu:'f_jiaxu',chengyu:'f_chengyu',xunyou:'f_xunyou',xushu:'f_xushu',")
 rep("VIDS=new Set(['hero',","VIDS=new Set(['hero','cao_cao','xu_chu','xiahou_dun','xiahou_yuan','zhang_liao','p_xuhuang','p_caozhang','xun_yu','p_simayi','p_jiaxu','p_chengyu','p_xunyou','p_xushu',")
 rep("const SPS=new Set(['hero',","const SPS=new Set(['hero','cao_cao','xiahou_dun','xiahou_yuan','zhang_liao','p_xuhuang','p_caozhang','xun_yu','p_simayi','p_jiaxu','p_chengyu','p_xunyou','p_xushu',")
+# General Profiles gallery on the title menu (25 Oct) - vet all Grok-made generals
+rep('id="loadBtn">Load game</button></div>','id="loadBtn">Load game</button><button id="galBtn">General Profiles</button></div>')
+rep("$('#loadBtn').onclick=()=>saveLoadDlg('load');", r"""$('#loadBtn').onclick=()=>saveLoadDlg('load');
+$('#galBtn').onclick=()=>openGallery();
+const GAL_EXTRA={hero:['hero','The Hero','英',null,'',0,0,0,0,'cav','hero'],lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu']};
+const GAL_ROWS=['Idle','Run','Melee','Ranged','Hit'];
+function galList(){return Object.entries(GSHEET).filter(([k,v])=>v.startsWith('f_')).map(([k,v])=>{const d=GEN_DEF.find(x=>x[0]===k)||GAL_EXTRA[k];if(!d)return null;return {k,sheet:v,d,sk:Object.values(HERO).filter(h=>h.who===k)}}).filter(Boolean)}
+function galPort(img){return 'portraits/'+(SPS.has(img)?'sp_':'')+img+'.webp'}
+let galTimer=null;
+function openGallery(){let ov=document.getElementById('galOv');if(!ov){ov=document.createElement('div');ov.id='galOv';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#120d0a;color:#f0e6d2;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit';document.body.appendChild(ov)}
+const L=galList();
+ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #5a4630;z-index:2"><b style="font-size:18px;flex:1">General Profiles · ${L.length} Grok generals</b><button id="galClose">Close</button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px">${L.map((g,i)=>`<div class="galCard" data-i="${i}" style="cursor:pointer;background:#231a13;border:1px solid #4a3a28;border-radius:8px;overflow:hidden"><img loading="lazy" src="${galPort(g.d[10])}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block"><div style="padding:5px 6px;font-size:13px"><b>${g.d[1]}</b><div style="opacity:.7;font-size:11px">${VIDS.has(g.d[10])?'▶ cut-in':'no cut-in'}${g.sk.length?' · '+g.sk.map(s=>s.n).join(', '):''}</div></div></div>`).join('')}</div>`;
+ov.hidden=false;ov.style.display='block';
+$('#galClose').onclick=()=>{ov.style.display='none'};
+ov.querySelectorAll('.galCard').forEach(c=>c.onclick=()=>galDetail(L,+c.dataset.i))}
+function galDetail(L,i){const ov=document.getElementById('galOv'),g=L[i],d=g.d,img=d[10],hasV=VIDS.has(img),hasC=typeof LM_CUTS!=='undefined'&&LM_CUTS.has(img);
+if(galTimer){clearInterval(galTimer);galTimer=null}
+ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #5a4630;z-index:2"><button id="galBack">◀ All</button><button id="galPrev">‹</button><b style="font-size:18px;flex:1;text-align:center">${d[1]} ${d[2]||''} <span style="opacity:.6;font-size:13px">${i+1}/${L.length} · ${g.k} · ${img}</span></b><button id="galNext">›</button><button id="galClose">Close</button></div>
+<div style="padding:12px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Portrait (${SPS.has(img)?'sp_':'base '}${img})</div><img src="${galPort(img)}" style="height:420px;max-width:92vw;object-fit:contain;border:1px solid #4a3a28;border-radius:6px"></div>
+${hasC?`<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Cut-out</div><img src="portraits/cut_${img}.webp" style="height:420px;max-width:92vw;object-fit:contain;border:1px solid #4a3a28;border-radius:6px;background:repeating-conic-gradient(#3a3a3a 0 25%,#555 0 50%) 0 0/20px 20px"></div>`:''}
+<div><div style="opacity:.7;font-size:12px;margin-bottom:4px">Chibi sprite (${g.sheet})</div><canvas id="galCv" width="512" height="352" style="width:min(512px,92vw);background:#fff;border:1px solid #4a3a28;border-radius:6px"></canvas><div id="galRows" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${GAL_ROWS.map((r,j)=>`<button data-r="${j}">${r}</button>`).join('')}<button data-r="-1">All</button></div></div>
+</div>
+${hasV?`<div style="padding:0 12px 12px"><div style="opacity:.7;font-size:12px;margin-bottom:4px">Skill cut-in (vid_${img}.mp4)</div><video src="portraits/vid_${img}.mp4" controls playsinline preload="metadata" style="width:min(960px,96vw);border:1px solid #4a3a28;border-radius:6px;background:#000"></video></div>`:'<div style="padding:0 12px;opacity:.6">No skill cut-in video.</div>'}
+<div style="padding:12px;font-size:14px;line-height:1.5">${d[5]?`War ${d[5]} · Int ${d[6]} · Pol ${d[7]} · Cha ${d[8]} · ${d[9]}<br>`:''}${g.sk.length?g.sk.map(s=>`<b>${s.n}</b> ${s.zh||''} — ${s.desc||''}`).join('<br>'):'No special skill.'}</div>`;
+$('#galBack').onclick=()=>{if(galTimer)clearInterval(galTimer);openGallery()};
+$('#galClose').onclick=()=>{if(galTimer)clearInterval(galTimer);ov.style.display='none'};
+$('#galPrev').onclick=()=>galDetail(L,(i+L.length-1)%L.length);
+$('#galNext').onclick=()=>galDetail(L,(i+1)%L.length);
+const cv=$('#galCv'),cx=cv.getContext('2d'),sh=new Image();sh.src='sprites/'+g.sheet+'_shu.png';let row=-1,f=0;
+document.querySelectorAll('#galRows button').forEach(b=>b.onclick=()=>{row=+b.dataset.r;f=0});
+galTimer=setInterval(()=>{if(!document.body.contains(cv)){clearInterval(galTimer);galTimer=null;return}if(!sh.complete||!sh.naturalWidth)return;const rows=Math.round(sh.naturalHeight/176)||5,r=row<0?Math.floor(f/12)%rows:row,c=f%12;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*256,r*176,256,176,0,0,512,352);cx.fillStyle='#000a';cx.font='16px sans-serif';cx.fillText(GAL_ROWS[r]||('Row '+r),8,20);f++},90)}""")
