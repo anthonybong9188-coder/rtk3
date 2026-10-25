@@ -1877,3 +1877,48 @@ $('#galNext').onclick=()=>galDetail(L,(i+1)%L.length);
 const cv=$('#galCv'),cx=cv.getContext('2d'),sh=new Image();sh.src='sprites/'+g.sheet+'_shu.png';let row=-1,f=0;
 document.querySelectorAll('#galRows button').forEach(b=>b.onclick=()=>{row=+b.dataset.r;f=0});
 galTimer=setInterval(()=>{if(!document.body.contains(cv)){clearInterval(galTimer);galTimer=null;return}if(!sh.complete||!sh.naturalWidth)return;const rows=Math.round(sh.naturalHeight/176)||5,r=row<0?Math.floor(f/12)%rows:row,c=f%12;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*256,r*176,256,176,0,0,512,352);cx.fillStyle='#000a';cx.font='16px sans-serif';cx.fillText(GAL_ROWS[r]||('Row '+r),8,20);f++},90)}""")
+# 24-frame hero sheets (192x132 cells) + load only the sheets of generals in the current fight (25 Oct)
+rep("function sprK(src){","const SCW=sh=>sh.naturalHeight%176===0?256:192,SCH=sh=>sh.naturalHeight%176===0?176:132,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){")
+rep("{const nf=Math.round(sh.naturalWidth/256);if(nf>4)","{const nf=Math.round(sh.naturalWidth/SCW(sh));if(nf>4)")
+rep("else if(row===2)fr=Math.floor(now/(f.slow?90:55)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/110+sd*7),nf)","else if(row===2)fr=Math.floor(now/((f.slow?90:55)*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)")
+rep("if(row===3&&sh.naturalHeight>800&&!f.wave)row=4;c.drawImage(sh,fr*256,row*176,256,176,-128*k,-168*k,256*k,176*k)","if(row===3&&SROWS(sh)>4&&!f.wave)row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k)")
+rep("sh&&sh.naturalHeight>800&&Math.random()<.4","sh&&SROWS(sh)>4&&Math.random()<.4")
+rep("if(!sh||sh.naturalHeight<800||!D)return false;","if(!sh||!sh.naturalWidth||SROWS(sh)<5||!D)return false;")
+rep("const nf=Math.max(4,Math.round(sh.naturalWidth/256))","const nf=Math.max(4,Math.round(sh.naturalWidth/SCW(sh)))")
+rep("let row=0,fr=pp(Math.floor(now/110+(me?0:5)),nf)","let row=0,fr=pp(Math.floor(now/(110*12/nf)+(me?0:5)),nf)")
+rep("c.drawImage(sh,fr*256,row*176,256,176,-128*kk,-168*kk,256*kk,176*kk)","c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*kk,-168*kk,256*kk,176*kk)")
+rep("const rows=Math.round(sh.naturalHeight/176)||5,r=row<0?Math.floor(f/12)%rows:row,c=f%12;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*256,r*176,256,176,0,0,512,352)","const nf=Math.round(sh.naturalWidth/SCW(sh)),rows=SROWS(sh)||5,r=row<0?Math.floor(f/nf)%rows:row,c=f%nf;cx.clearRect(0,0,512,352);cx.drawImage(sh,c*SCW(sh),r*SCH(sh),SCW(sh),SCH(sh),0,0,512,352)")
+rep("},90)}","},Math.round(1080/Math.max(12,Math.round((sh.naturalWidth||3072)/SCW(sh)||12))))}")
+# Battle-only loading: when a battle starts, load exactly the sprite sheets for the generals and troop types
+# selected for that battle (both sides); everything from the previous battle is released.
+rep("'fspear',...Object.values(GSHEET),'general_cap'","'fspear','general_cap'")
+rep("function sprLoad(fk){return [","function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);if(u.type==='wu')t.add('wu2');if(u.dragon)t.add('dragon');t.add(femKey(u)||'general');t.add('duel_'+weaponOf(u))}return [...t]}\nfunction sprLoad(fk,us){if(us&&us.length)return sprNeed(us).map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+(/^[fg]_/.test(t)?'shu':fk)]});return [")
+rep("function sprWait(){const ims=[...sprLoad('shu'),...sprLoad(sprFac('x')),...Object.values(BGIMG)];","function sprWait(us){const U=us&&us.length?us:(G&&G.units)||[];const ims=[...sprLoad('shu',U),...sprLoad(sprFac('x'),U),...Object.values(BGIMG)];")
+rep("setTimeout(()=>{sprWait();spPreAll(cfg.units)},0);","setTimeout(()=>{sprRelease(cfg.units);sprWait(cfg.units);spPreAll(cfg.units)},0);")
+rep("function sprWait(us){","function sprRelease(us){const keep=new Set();for(const fk of ['shu',sprFac('x')])for(const t of sprNeed(us))keep.add(t+'_'+(/^[fg]_/.test(t)?'shu':fk));for(const k of Object.keys(SPIMG))if(!keep.has(k)){SPIMG[k].src='';delete SPIMG[k]}}\nfunction sprWait(us){")
+rep("sprLoad('shu');\nasync function playBattle","async function playBattle")
+# Release all battle sprites as soon as the result (win/defeat/retreat) is confirmed (25 Oct)
+rep("const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');","const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');try{sprRelease([])}catch(e){}")
+# Wu Grok art (25 Oct): Zhou Yu, Gan Ning, Taishi Ci, Zhou Tai, Lu Su, Lu Xun (specials) + Sun Quan (art only)
+rep("const GSHEET={monu:'f_monu',","const GSHEET={zhouyu:'f_zhouyu',taishici:'f_taishici',zhoutai:'f_zhoutai',lusu:'f_lusu',luxun:'f_luxun',sunquan:'f_sunquan',monu:'f_monu',")
+rep("ganning:'g_ganning',","ganning:'f_ganning',")
+rep("VIDS=new Set(['hero',","VIDS=new Set(['hero','zhou_yu','gan_ning','taishi_ci','zhou_tai','lu_su','p_luxun',")
+rep("const SPS=new Set(['hero',","const SPS=new Set(['hero','zhou_yu','taishi_ci','zhou_tai','lu_su','p_luxun','sun_quan',")
+rep("'breaker'].includes(k))delete HERO[k];","'breaker','blaze','raid','twin','iron','rally','burncamps'].includes(k))delete HERO[k];")
+rep("HERO.onefury={","HERO.burncamps={who:'luxun',zh:'火燒連營',n:'Burning Camps',once:1,targets:s=>enemies().filter(e=>(e.x===s.x||e.y===s.y)&&manh(s,e)>=1&&manh(s,e)<=3),desc:'Once per battle: a line of fire races 3 squares toward an enemy in a straight line; every enemy on those 3 squares takes heavy fire damage'};HERO.onefury={")
+rep("else if(k==='onefury'){","else if(k==='burncamps'){const dx=Math.sign(t.x-s.x),dy=Math.sign(t.y-s.y),line=[];for(let i=1;i<=3;i++){const x=s.x+dx*i,y=s.y+dy*i;if(inb(x,y))line.push({x,y})}SND.fx('fire');for(const p of line){gfx('fentian',p.x,p.y,2.4,1600);G.fires.push({x:p.x,y:p.y,t0:performance.now()+300,dur:1600});await sleep(160)}await sleep(500);const hit=enemies().filter(e=>line.some(p=>p.x===e.x&&p.y===e.y));for(const e of hit){fireHit(s,e,1.6);await sleep(110)}log(`<b>Burning Camps!</b> ${nm(s)} sets the line ablaze${hit.length?' — '+hit.map(nm).join(', ')+' burn':''}.`);await sleep(700)}\n   else if(k==='onefury'){")
+# Performance meter (25 Oct): 📊 button in battle toolbar toggles an FPS / memory overlay; remembered per device
+rep('<button id="retreatBtn" class="pill ic" aria-label="Retreat">⚑</button></div>','<button id="perfBtn" class="pill ic" aria-label="Performance meter" title="Performance meter">📊</button><button id="retreatBtn" class="pill ic" aria-label="Retreat">⚑</button></div>')
+rep("$('#galBtn').onclick=()=>openGallery();", r"""$('#galBtn').onclick=()=>openGallery();
+const PERF={on:false,el:null,fr:0,t0:0,worst:0,last:0,fps:0,minFps:999,raf:0};
+function perfImgMB(){let b=0,n=0,h=0;for(const [k,im] of Object.entries(SPIMG))if(im&&im.naturalWidth){b+=im.naturalWidth*im.naturalHeight*4;n++;if(/^[fg]_/.test(k))h++}for(const im of Object.values(BGIMG||{}))if(im&&im.naturalWidth)b+=im.naturalWidth*im.naturalHeight*4;return {mb:b/1048576,n,h}}
+function perfTick(t){if(!PERF.on)return;PERF.fr++;if(PERF.last){const d=t-PERF.last;if(d>PERF.worst)PERF.worst=d}PERF.last=t;
+  if(t-PERF.t0>=1000){PERF.fps=Math.round(PERF.fr*1000/(t-PERF.t0));if(PERF.t0)PERF.minFps=Math.min(PERF.minFps,PERF.fps);const im=perfImgMB(),pm=performance.memory,u=(typeof G!=='undefined'&&G&&G.units)?G.units:[];
+    PERF.el.innerHTML=`<b style="color:${PERF.fps>=50?'#8fe08f':PERF.fps>=30?'#ffd27a':'#ff8a7a'}">${PERF.fps} FPS</b> · low ${PERF.minFps===999?'–':PERF.minFps} · worst frame ${Math.round(PERF.worst)} ms<br>Sprites: ${im.n} sheets (${im.h} heroes) · ${Math.round(im.mb)} MB<br>${pm?`JS heap: ${Math.round(pm.usedJSHeapSize/1048576)} / ${Math.round(pm.jsHeapSizeLimit/1048576)} MB<br>`:''}Units: ${u.length} (${u.filter(x=>x.side==='shu').length} yours · ${u.filter(x=>x.side!=='shu').length} enemy)<br><span style="opacity:.6">tap to reset low/worst</span>`;
+    PERF.fr=0;PERF.t0=t;PERF.worst=0}
+  PERF.raf=requestAnimationFrame(perfTick)}
+function perfSet(on){PERF.on=on;try{localStorage.setItem('rtk3_perf',on?'1':'0')}catch(e){}
+  if(on){if(!PERF.el){PERF.el=document.createElement('div');PERF.el.style.cssText='position:fixed;left:6px;top:calc(env(safe-area-inset-top,0px) + 104px);z-index:9000;background:rgba(10,8,6,.78);color:#f0e6d2;font:12px/1.35 monospace;padding:6px 8px;border-radius:6px;border:1px solid #5a4630;pointer-events:auto;max-width:70vw';PERF.el.onclick=()=>{PERF.minFps=999;PERF.worst=0};document.body.appendChild(PERF.el)}PERF.el.style.display='block';PERF.el.textContent='measuring…';PERF.fr=0;PERF.t0=0;PERF.last=0;PERF.minFps=999;cancelAnimationFrame(PERF.raf);PERF.raf=requestAnimationFrame(t=>{PERF.t0=t;perfTick(t)})}
+  else if(PERF.el){PERF.el.style.display='none';cancelAnimationFrame(PERF.raf)}}
+$('#perfBtn').onclick=()=>perfSet(!PERF.on);
+try{if(localStorage.getItem('rtk3_perf')==='1')setTimeout(()=>perfSet(true),500)}catch(e){}""")

@@ -31,6 +31,15 @@ sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(n + 1))
 HOLEMIN = int(os.environ.get('HOLEMIN', '60'))
 holes = [i for i in range(1, n + 1) if i not in border and sizes[i] > HOLEMIN]
 bg |= np.isin(lab, holes)
+if os.environ.get('DARKHOLE'):
+    # white gaps inside dark hair/clothing: enclosed bright regions whose surrounding ring is dark
+    DM=int(os.environ.get('DARKHOLE_MIN','100'));lum=mx
+    for i,sl in enumerate(ndimage.find_objects(lab)):
+        j=i+1
+        if j in border or j in holes or sizes[j]<DM: continue
+        y0,y1=max(0,sl[0].start-3),min(H,sl[0].stop+3);x0,x1=max(0,sl[1].start-3),min(W,sl[1].stop+3)
+        reg=lab[y0:y1,x0:x1]==j;ring=ndimage.binary_dilation(reg,iterations=2)&~reg
+        if ring.any() and lum[y0:y1,x0:x1][ring].mean()<110: bg[y0:y1,x0:x1]|=reg
 fg = ~bg
 if HAS_A:
     fg = ALPHA > 24
