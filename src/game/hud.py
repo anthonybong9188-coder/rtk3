@@ -1927,3 +1927,40 @@ rep("function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)?'shu':fk);
 rep("return SPIMG[t+'_'+(/^[fg]_/.test(t)?'shu':fk)]});return [","return SPIMG[t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'?'shu':fk)]});return [")
 rep("keep.add(t+'_'+(/^[fg]_/.test(t)?'shu':fk));","keep.add(t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'?'shu':fk));")
 rep("sprSheet(t,fk);return SPIMG[t+'_'+fk]})","sprSheet(t,fk);return SPIMG[t+'_'+(t==='tiger'||t==='wolf'||t==='undead'?'shu':fk)]})")
+# Hu Lao Gate: five heroes (25 Oct)
+rep("All sixteen heroines have fallen.","All five heroes have fallen.")
+# Sparring (25 Oct): pick any two Grok generals + troop type, 1000 soldiers each, then fight
+rep('<button id="galBtn">General Profiles</button>','<button id="spBtn">⚔ Sparring</button><button id="galBtn">General Profiles</button>')
+rep("$('#galBtn').onclick=()=>openGallery();", r"""$('#galBtn').onclick=()=>openGallery();
+const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];
+const SPAR={a:null,b:null,ta:null,tb:null};
+function sparGen(k){const d=GEN_DEF.find(x=>x[0]===k);if(k==='hero')return {id:'hero',name:'The Hero',ch:'俠',fac:'shu',war:95,int:85,type:'cav',img:'hero'};if(d)return {id:k,name:d[1],ch:d[2],fac:d[3],war:d[5],int:d[6],type:d[9],img:d[10]};const e=GAL_EXTRA[k];return e?{id:k,name:e[1],ch:e[2],fac:null,war:e[5],int:e[6],type:e[9],img:e[10]}:null}
+function openSparring(){const L=galList().map(g=>sparGen(g.k)).filter(Boolean);if(!SPAR.a){SPAR.a=L[0].id;SPAR.b=(L[1]||L[0]).id}
+  let ov=document.getElementById('galOv');if(!ov){ov=document.createElement('div');ov.id='galOv';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#120d0a;color:#f0e6d2;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit';document.body.appendChild(ov)}
+  const side=(s)=>{const g=sparGen(SPAR[s]),t=SPAR['t'+s]||g.type;return `<div style="flex:1;min-width:260px;background:#1d1510;border:1px solid #4a3a28;border-radius:8px;padding:10px">
+    <div style="font-size:13px;opacity:.7;margin-bottom:6px">${s==='a'?'Your side (left)':'Opponent (right)'}</div>
+    <div style="display:flex;gap:10px;align-items:flex-start"><img src="${galPort(g.img)}" style="width:110px;aspect-ratio:2/3;object-fit:cover;border-radius:6px;border:1px solid #4a3a28">
+    <div style="flex:1"><b style="font-size:17px">${g.name}</b><div style="font-size:12px;opacity:.75;margin:2px 0 8px">War ${g.war} · Int ${g.int} · HP ${HPM({war:g.war,type:t})} · 1000 soldiers</div>
+    <select data-g="${s}" style="width:100%;margin-bottom:8px;padding:6px;background:#2a2018;color:#f0e6d2;border:1px solid #5a4630;border-radius:6px">${L.map(x=>`<option value="${x.id}"${x.id===g.id?' selected':''}>${x.name}</option>`).join('')}</select>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${SPAR_T.map(([k,n])=>`<button data-t="${s}" data-v="${k}" style="${k===t?'outline:2px solid #ffd27a;':''}">${n}</button>`).join('')}</div></div></div></div>`};
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #5a4630;z-index:2"><b style="font-size:18px;flex:1">⚔ Sparring</b><button id="galClose">Close</button></div>
+  <div style="padding:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch">${side('a')}<div style="align-self:center;font-size:28px;color:#ffd27a;padding:0 4px">VS</div>${side('b')}</div>
+  <div style="padding:0 12px 16px;display:flex;justify-content:center"><button id="sparGo" class="primary" style="font-size:18px;padding:10px 40px">Start</button></div>
+  <p style="padding:0 14px;opacity:.6;font-size:12px;text-align:center">Both generals start with their default HP and 1000 soldiers, two squares apart. You control the left side; specials and duels work as in a normal battle.</p>`;
+  ov.style.display='block';$('#galClose').onclick=()=>{ov.style.display='none'};
+  ov.querySelectorAll('select[data-g]').forEach(el=>el.onchange=()=>{const s=el.dataset.g;SPAR[s]=el.value;SPAR['t'+s]=null;openSparring()});
+  ov.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{SPAR['t'+b.dataset.t]=b.dataset.v;openSparring()});
+  $('#sparGo').onclick=()=>{ov.style.display='none';startSparring()}}
+async function startSparring(){const A=sparGen(SPAR.a),B=sparGen(SPAR.b);
+  const sv=save;save=()=>{};try{newCampaign('easy')}finally{save=sv}
+  S.hulao=true;PORT[A.id]=A.img;PORT[B.id]=B.img;
+  const mid=Math.floor(ROWS/2),cx=Math.floor(COLS/2);
+  const mk=(g,side,x,t)=>({id:g.id,name:g.name,ch:g.ch,side,type:t,war:g.war,int:g.int,troops:1000,x,y:mid,cmd:true,train:90});
+  const ua=mk(A,'shu',cx-1,SPAR.ta||A.type),ub=mk(B,'wei',cx+1,SPAR.tb||B.type);
+  if(A.id===B.id){ub.id=B.id+'_2';PORT[ub.id]=B.img}
+  window.BTHEME=null;
+  await startBattle({units:[ua,ub],foe:B.fac==='wu'?'wu':B.fac==='wei'?'wei':'han',walls:0,map:genBattleMap('N',false,Math.floor(Math.random()*1e6)),playerAttacks:true,spar:true,
+    title:`Sparring · ${A.name} vs ${B.name}`,sub:'Practice bout · 1000 soldiers each'});
+  S=null;showScreen('title');renderTitle();openSparring()}
+$('#spBtn').onclick=()=>openSparring();""")
+rep("if(G.turn>G.maxTurn){endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?","if(G.turn>G.maxTurn){if(G.cfg.spar){endGame(false,'Time is up after fifteen turns. The bout ends without a winner.');return}endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?")
