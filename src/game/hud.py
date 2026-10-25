@@ -1764,3 +1764,5 @@ rep("VIDS=new Set(['zhao_yun',","VIDS=new Set(['consort_li','consort_yan','lady_
 rep("const area=area3(x,y),hit=","const area=[{x,y},{x:x+1,y},{x:x-1,y},{x,y:y+1},{x,y:y-1}].filter(p=>p.x>=0&&p.y>=0&&p.x<COLS&&p.y<ROWS),hit=")
 rep("desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and every enemy around it'","desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to it and any enemy directly beside it (up, down, left, right)'")
 rep("fireHit(s,e,s.id==='zhurong'?2.6:1.6)","fireHit(s,e,s.id==='zhurong'?2.0:1.6)")
+# Shooting Star Sword: Grok hit burst on every enemy struck (25 Oct); streak sheet fx_meteor.jpg also replaced by Grok clip
+rep("SND.fx('hit');tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;","SND.fx('hit');gfx('starhit',p.x,p.y,2.2,900);tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;")

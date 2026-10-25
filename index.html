@@ -1602,7 +1602,7 @@ async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.use
   else if(k==='assassin'){mfx('smoke',s.x,s.y,700,1.4);SND.fx('hit');await sleep(250);mfx('shadow',t.x,t.y,1000,2.6);const dmg=quickHit(s,t,1.2,{color:'#c9a6ff'});log(`<b>Assassin\'s Blade!</b> ${nm(s)} strikes ${nm(t)} from the shadows: −${dmg}.`);await sleep(700)}
   else if(k==='meteor'){const [dx,dy]=t.dir,line=t.area;log(`<b>Shooting Star Sword!</b> ${nm(s)} flashes across the field to the ${t.name.toLowerCase()}.`);
     G.mfx=(G.mfx||[]);G.mfx.push({k:'streak',x:s.x,y:s.y,dx,dy,n:line.length,t0:performance.now(),dur:900});SND.fx('special');await sleep(380);
-    let last=null,tot=0;for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;await sleep(70)}}
+    let last=null,tot=0;for(const p of line){const e=unitAt(p.x,p.y);if(e&&e.side!==s.side){SND.fx('hit');gfx('starhit',p.x,p.y,2.2,900);tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;await sleep(70)}}
     if(last){const li=line.indexOf(last),cand=[line[li+1],...line.slice(0,li).reverse()].filter(Boolean);const free=cand.find(p=>terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y));if(free){s.x=s.px=free.x;s.y=s.py=free.y;mfx('speed',s.x,s.y,700)}}
     log(`Her blade strikes everything in its path: −${tot}.`);await sleep(800)}
   else if(k==='star'){const [dx,dy]=t.dir,line=t.area;log(`<b>Thousand Blades!</b> ${nm(s)} hurls a storm of blades to the ${t.name.toLowerCase()}.`);
