@@ -1922,3 +1922,8 @@ function perfSet(on){PERF.on=on;try{localStorage.setItem('rtk3_perf',on?'1':'0')
   else if(PERF.el){PERF.el.style.display='none';cancelAnimationFrame(PERF.raf)}}
 $('#perfBtn').onclick=()=>perfSet(!PERF.on);
 try{if(localStorage.getItem('rtk3_perf')==='1')setTimeout(()=>perfSet(true),500)}catch(e){}""")
+# Tiger, wolf and undead have no team colour: every side uses the one _shu sheet (frees artifact slots)
+rep("function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)?'shu':fk);","function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)||type==='tiger'||type==='wolf'||type==='undead'?'shu':fk);")
+rep("return SPIMG[t+'_'+(/^[fg]_/.test(t)?'shu':fk)]});return [","return SPIMG[t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'?'shu':fk)]});return [")
+rep("keep.add(t+'_'+(/^[fg]_/.test(t)?'shu':fk));","keep.add(t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'?'shu':fk));")
+rep("sprSheet(t,fk);return SPIMG[t+'_'+fk]})","sprSheet(t,fk);return SPIMG[t+'_'+(t==='tiger'||t==='wolf'||t==='undead'?'shu':fk)]})")
