@@ -3393,7 +3393,7 @@ function lmCircle(c,x,y,r,col){c.save();c.strokeStyle=col;c.globalAlpha=.85;c.li
   c.lineWidth=2;for(let i=0;i<28;i++){const a=i/28*Math.PI*2,r1=r*(i%2?1.02:1.0),r2=r*(i%2?1.12:1.2);c.beginPath();c.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);c.lineTo(x+Math.cos(a+.05)*r2,y+Math.sin(a+.05)*r2);c.stroke()}
   c.lineWidth=1;c.beginPath();for(let i=0;i<6;i++){const a=i/6*Math.PI*2-Math.PI/2,b=(i+2)/6*Math.PI*2-Math.PI/2;c.moveTo(x+Math.cos(a)*r*.82,y+Math.sin(a)*r*.82);c.lineTo(x+Math.cos(b)*r*.82,y+Math.sin(b)*r*.82)}c.stroke();c.restore()}
 // transparent cut-out portraits (background removed) for the fight scene
-const LM_CUTS=new Set(['hero','mo_nu','liu_bei','guan_yu','zhang_fei','zhuge_liang','p_guanping','p_zhoucang','zhao_yun','mi_ren','mi_shao','xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei','jiang_chen','lady_gan','lady_mi','consort_zhao','consort_li','consort_yan','huang_yi','zhurong','ren_rui']),LM_CI={};
+const LM_CUTS=new Set(['mo_nu','liu_bei','guan_yu','zhang_fei','zhuge_liang','p_guanping','p_zhoucang','zhao_yun','mi_ren','mi_shao','xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang','xiao_ming','xiao_hei','jiang_chen','lady_gan','lady_mi','consort_zhao','consort_li','consort_yan','huang_yi','zhurong','ren_rui']),LM_CI={};
 function cutImg(id){const f=PORT[id];if(!f||!LM_CUTS.has(f))return null;let im=LM_CI[f];if(!im){im=new Image();im.src=`portraits/cut_${f}.webp`;LM_CI[f]=im}return im.complete&&im.naturalWidth?im:null}
 function lmHalfPort(c,u,side){const im=portImg(u.id),h=157,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+14;
   lmCircle(c,side==='L'?64:W-64,H-38,70,'#d9b75a');
