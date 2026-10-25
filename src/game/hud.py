@@ -1766,3 +1766,20 @@ rep("desc:'Call down fire on an enemy up to 3 squares away: heavy fire damage to
 rep("fireHit(s,e,s.id==='zhurong'?2.6:1.6)","fireHit(s,e,s.id==='zhurong'?2.0:1.6)")
 # Shooting Star Sword: Grok hit burst on every enemy struck (25 Oct); streak sheet fx_meteor.jpg also replaced by Grok clip
 rep("SND.fx('hit');tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;","SND.fx('hit');gfx('starhit',p.x,p.y,2.2,900);tot+=quickHit(s,e,1.0,{color:'#cfe4ff'});last=p;")
+# Grok art: Liu Bei, Guan Yu, Zhang Fei, Zhuge Liang, Guan Ping, Zhou Cang (25 Oct)
+rep("const GSHEET={zhaoyun:'f_zhaoyun',","const GSHEET={liubei:'f_liubei',guanyu:'f_guanyu',zhangfei:'f_zhangfei',zhugeliang:'f_zhugeliang',guanping:'f_guanping',zhoucang:'f_zhoucang',zhaoyun:'f_zhaoyun',")
+rep("VIDS=new Set(['consort_li',","VIDS=new Set(['liu_bei','guan_yu','zhang_fei','zhuge_liang','p_guanping','p_zhoucang','consort_li',")
+rep("const SPS=new Set(['yueshuang',","const SPS=new Set(['liu_bei','p_guanping','p_zhoucang','yueshuang',")
+# hero sprite sheets are identical for every faction: load one file only
+rep("function sprSheet(type,fk){const k=type+'_'+fk;","function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)?'shu':fk);")
+# Mo Nü 魔女 — free general, Hellfire Descent: once per battle, 3×3 hellfire around an enemy up to 4 squares away (25 Oct)
+rep("const FEM=new Set(['mishao',","const FEM=new Set(['monu','mishao',")
+rep("const GSHEET={liubei:","const GSHEET={monu:'f_monu',liubei:")
+rep("VIDS=new Set(['liu_bei',","VIDS=new Set(['mo_nu','liu_bei',")
+rep("const SPS=new Set(['liu_bei',","const SPS=new Set(['mo_nu','liu_bei',")
+rep("HERO.meteor={who:'huangyi'","HERO.hellfire={who:'monu',zh:'煉獄業火',n:'Hellfire Descent',once:1,targets:s=>enemies().filter(e=>manh(s,e)<=4),desc:'Once per battle: hellfire rains on the 3×3 around an enemy up to 4 squares away; every enemy caught takes heavy fire damage'};HERO.meteor={who:'huangyi'")
+rep("'pierce','firearrow'].includes(k))delete HERO[k];","'pierce','firearrow','hellfire'].includes(k))delete HERO[k];")
+rep("else if(k==='flood'){","else if(k==='hellfire'){const hit=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1);gfx('fentian',t.x,t.y,4.6,2000);for(const p of area3(t.x,t.y))G.fires.push({x:p.x,y:p.y,t0:performance.now()+500,dur:1500});SND.fx('special');await sleep(800);let tot=0;for(const e of hit){tot+=fireHit(s,e,2.0)||0;await sleep(110)}log(`<b>Hellfire Descent!</b> ${nm(s)} calls down the fires of the underworld on ${hit.map(nm).join(', ')}.`);await sleep(800)}\n   else if(k==='flood'){")
+rep("guanyu:'g_guanyu',","")
+# Grok troop sprites (25 Oct): new tiger/wolf fill the cell, so scale them down to the old on-map size
+rep("const GSCALE={f_lubu:1.2,tiger:1.9,wolf:1.6}","const GSCALE={f_lubu:1.2,tiger:.75,wolf:.85}")
