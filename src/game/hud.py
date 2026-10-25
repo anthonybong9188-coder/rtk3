@@ -2013,3 +2013,7 @@ rep("const GSHEET={zhouyu:'f_zhouyu',","const GSHEET={pangtong:'f_pangtong',huan
 rep("VIDS=new Set(['hero',","VIDS=new Set(['hero','pang_tong','huang_zhong','wei_yan',")
 rep("const SPS=new Set(['hero',","const SPS=new Set(['hero','pang_tong',")
 rep("'rally','burncamps'].includes(k))delete HERO[k];","'rally','burncamps','sharp','ambush'].includes(k))delete HERO[k];")
+# Drop the unowned Song of Solace (mend) special (25 Oct)
+rep("'lone','wind','star','mend','burn'","'lone','wind','star','burn'")
+# Drop the unowned Song of Solace (mend) special (26 Oct)
+rep("'lone','wind','star','mend','burn'","'lone','wind','star','burn'")
