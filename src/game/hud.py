@@ -1807,3 +1807,11 @@ rep("function sprLoad(fk){return ['spear',","function sprLoad(fk){return ['drago
 # No special skill for Liu Bei, Guan Ping, Zhou Cang (Anthony, 25 Oct): their cut-in videos never play, so drop them from the video set
 rep("VIDS=new Set(['mo_nu','liu_bei',","VIDS=new Set(['mo_nu',")
 rep("'zhang_fei','zhuge_liang','p_guanping','p_zhoucang','consort_li',","'zhang_fei','zhuge_liang','consort_li',")
+# The Hero (Dragon Palms) Grok art (25 Oct)
+rep("hero:'g_hero'","hero:'f_hero'")
+rep("VIDS=new Set(['mo_nu',","VIDS=new Set(['hero','mo_nu',")
+rep("const SPS=new Set(['mo_nu',","const SPS=new Set(['hero','mo_nu',")
+# Wei/Wu male generals: no 3×3 specials — at most the target plus adjacent squares; lines at most 3 (Anthony, 25 Oct). Zhou Yu's Red Cliffs becomes a plus shape.
+rep("desc:'Once per battle: a great fire over a 3×3 area'","desc:'Once per battle: a great fire on an enemy up to 3 squares away and every enemy directly beside it (up, down, left, right)'")
+rep("k==='blaze'){const area=enemies().filter(e=>Math.max(Math.abs(e.x-t.x),Math.abs(e.y-t.y))<=1&&e!==t);","k==='blaze'){const area=enemies().filter(e=>manh(e,t)===1);")
+rep("for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(inb(t.x+dx,t.y+dy))G.fires.push({x:t.x+dx,y:t.y+dy,t0:performance.now(),dur:1600});","for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]])if(inb(t.x+dx,t.y+dy))G.fires.push({x:t.x+dx,y:t.y+dy,t0:performance.now(),dur:1600});")
