@@ -2001,3 +2001,10 @@ rep("function startFrom(sv){S=sv;if(!S)return;applyMode();if(S.gens){","function
 # New Grok world map (25 Oct): nudge Hefei north of the lake, Luling east onto land
 rep("['hefei','Hefei','合肥',69.7,52.3,","['hefei','Hefei','合肥',69.7,49.6,")
 rep("HERO_CITY=['luling','Luling','廬陵',68,88.5,","HERO_CITY=['luling','Luling','廬陵',73.5,88,")
+# Hu Lao extras redrawn by Grok (25 Oct): own 24-frame sheets
+rep("xiaohei:'g_xiaohei',","xiaohei:'f_xiaohei',")
+rep("xiaoming:'g_xiaoming',","xiaoming:'f_xiaoming',")
+rep("jiangchen:'g_jiangchen',","jiangchen:'f_jiangchen',")
+rep("lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu']};","lubu:['lubu','Lü Bu','布',null,'',100,26,13,40,'cav','lu_bu'],xiaoming:['xiaoming','Xiao Ming','明',null,'',42,35,20,30,'peasant','xiao_ming'],xiaohei:['xiaohei','Xiao Hei','黑',null,'',48,28,15,25,'peasant','xiao_hei'],jiangchen:['jiangchen','Jiang Chen','屍',null,'',66,88,40,30,'undead','jiang_chen']};")
+# Bigger city icons on the campaign map so the faction flags read better (25 Oct)
+rep("const CITY_W={small:[40,43],large:[52,53],capital:[64,64]};","const CITY_W={small:[52,56],large:[68,69],capital:[83,83]};")
