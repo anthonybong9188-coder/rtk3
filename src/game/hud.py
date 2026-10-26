@@ -2077,7 +2077,7 @@ rep("updateUI()\">Skip all ⏭</span>","updateUI()\">Skip ⏭</span>",3)
 rep("const c=sctx;c.drawImage(bg,0,0,W,H);const items=[];","const c=sctx;BGZ(c,bg,0);const items=[];")
 rep("if(cam){const bx=-cam*.5;c.drawImage(bg,bx,0,W,H);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);c.drawImage(bg,0,0,W,H);c.restore()}else c.drawImage(bg,0,0,W,H);",
     "if(cam){const bx=-cam*.5;BGZ(c,bg,bx);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);BGZ(c,bg,0);c.restore()}else BGZ(c,bg,0);")
-rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>c.drawImage(im,W*.1,H*.2,W*.8,H*.8,x,0,W,H);")
+rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>{const w=im.width,h=im.height;c.drawImage(im,w*.1,h*.2,w*.8,h*.8,x,0,W,H)};")
 rep("for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;",
     "for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-22+row*26,s=1.5+row*.12;")
 rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,","off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,")

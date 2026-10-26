@@ -1461,7 +1461,7 @@ $('#endBtn').onclick=()=>{G.enemyTiles=null;endTurn()};
 $('#speedBtn').onclick=()=>{speed=speed===1?2:speed===2?0:1;updateUI()};
 
 // ---------- battle scene ----------
-const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>c.drawImage(im,W*.1,H*.2,W*.8,H*.8,x,0,W,H);const FIGSZ=.5;const W=800,H=450,GROUND=212;
+const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>{const w=im.width,h=im.height;c.drawImage(im,w*.1,h*.2,w*.8,h*.8,x,0,W,H)};const FIGSZ=.5;const W=800,H=450,GROUND=212;
 const SC=$('#sc');let sctx;
 function setupStage(){const d=DPR();SC.width=W*d;SC.height=H*d;sctx=SC.getContext('2d');sctx.setTransform(d,0,0,d,0,0)}
 function drawHorse(c,ph,running,F){
