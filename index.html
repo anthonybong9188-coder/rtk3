@@ -1461,7 +1461,7 @@ $('#endBtn').onclick=()=>{G.enemyTiles=null;endTurn()};
 $('#speedBtn').onclick=()=>{speed=speed===1?2:speed===2?0:1;updateUI()};
 
 // ---------- battle scene ----------
-const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>{const w=im.width,h=im.height;c.drawImage(im,w*.1,h*.2,w*.8,h*.8,x,0,W,H)};const FIGSZ=.5;const W=800,H=450,GROUND=212;
+const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>{const w=im.width,h=im.height;c.drawImage(im,w*.1,h*.2,w*.8,h*.8,x,0,W,H)};const FIGSZ=.65;const W=800,H=450,GROUND=212;
 const SC=$('#sc');let sctx;
 function setupStage(){const d=DPR();SC.width=W*d;SC.height=H*d;sctx=SC.getContext('2d');sctx.setTransform(d,0,0,d,0,0)}
 function drawHorse(c,ph,running,F){
@@ -1721,10 +1721,10 @@ function buildSide(u,side,before,after){
   const hm=u.hpMax||0,REF=Math.max(1,window.__figRef||Math.max(0,before-hm)),fig=v=>{const s=Math.max(0,v-hm);return s<=0?0:Math.max(1,Math.min(12,Math.round(12*s/REF)))},nB=fig(before),nA=Math.min(nB,fig(after)),face=side==='L'?1:-1,sol=[];
   const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
-  for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-22+row*26,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
+  for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-40+row*42,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
     sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6,dl:col*90+Math.random()*220})}
   const ox=side==='L'?104:W-104;
-  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,s:2.35,seed:1,deathT:Infinity}}}
+  return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+122,hy:GROUND+122,s:2.35,seed:1,deathT:Infinity}}}
 function setTargets(A,B,both){
   const f=A.face,bf=B.sol.filter(s=>s.col===0).map(s=>s.hx),front=bf.length?(B.side==='R'?Math.min(...bf):Math.max(...bf)):(B.side==='R'?W-300:300);
   // only the front rank closes to the clash line; the ranks behind step up and hold

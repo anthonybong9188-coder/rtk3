@@ -2081,3 +2081,7 @@ rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>{const w=im.
 rep("for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;",
     "for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-22+row*26,s=1.5+row*.12;")
 rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,","off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,")
+# ---- fight layout: generals further forward (~3/4 down), soldier ranks spread over the whole ground band, figures 0.65 ----
+rep("y=GROUND-22+row*26,s=1.5+row*.12;","y=GROUND-40+row*42,s=1.5+row*.12;")
+rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,","off:{x:ox,hx:ox,tx:ox,y:GROUND+122,hy:GROUND+122,")
+rep("const FIGSZ=.5;","const FIGSZ=.65;")
