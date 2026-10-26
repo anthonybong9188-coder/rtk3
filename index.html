@@ -1495,7 +1495,7 @@ function drawSprite(c,f,sh){
   {const nf=Math.round(sh.naturalWidth/SCW(sh));if(nf>4){const pp=(p,n)=>{p%=(2*n-2);return p<n?p:2*n-2-p};
     if(f.fall>0)fr=Math.min(nf-1,Math.floor(f.fall*nf));else if(f.defeat>0)fr=Math.min(nf-1,Math.floor(clamp(f.defeat)*nf*.6));
     else if(row===2&&f.officer&&!f.fight&&f.swing>0)fr=Math.min(nf-1,Math.floor(f.swing*nf));
-    else if(row===2)fr=Math.floor(now/((f.slow?90:55)*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)}}
+    else if(row===2)fr=Math.floor(now/((f.officer?(f.slow?140:100):(f.slow?110:75))*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)}}
   if(Math.abs(f.turn??1)===.999){row=0;fr=0}
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;

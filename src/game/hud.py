@@ -2088,3 +2088,5 @@ rep("const FIGSZ=.5;","const FIGSZ=.65;")
 # ---- one size for every foot soldier (sheets are all normalised to the same height); cavalry bigger; Hero's palm fighters are foot soldiers ----
 rep("const cv=f.type==='cav'||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:f.type==='wu'?70:f.type==='peasant'?62:f.type==='undead'?60:f.type==='tiger'?108:f.type==='wolf'?90:58)/150",
     "const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150")
+# ---- slower attack animations: generals ~1.2 s per swing (2 swings per clash), soldiers ~0.9 s ----
+rep("else if(row===2)fr=Math.floor(now/((f.slow?90:55)*12/nf)+sd*5)%nf;","else if(row===2)fr=Math.floor(now/((f.officer?(f.slow?140:100):(f.slow?110:75))*12/nf)+sd*5)%nf;")
