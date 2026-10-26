@@ -2085,3 +2085,6 @@ rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,","off:{x:ox,hx:ox,tx:ox,y:G
 rep("y=GROUND-22+row*26,s=1.5+row*.12;","y=GROUND-40+row*42,s=1.5+row*.12;")
 rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,","off:{x:ox,hx:ox,tx:ox,y:GROUND+122,hy:GROUND+122,")
 rep("const FIGSZ=.5;","const FIGSZ=.65;")
+# ---- one size for every foot soldier (sheets are all normalised to the same height); cavalry bigger; Hero's palm fighters are foot soldiers ----
+rep("const cv=f.type==='cav'||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:f.type==='wu'?70:f.type==='peasant'?62:f.type==='undead'?60:f.type==='tiger'?108:f.type==='wolf'?90:58)/150",
+    "const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150")

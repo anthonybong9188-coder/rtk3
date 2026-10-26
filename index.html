@@ -1500,7 +1500,7 @@ function drawSprite(c,f,sh){
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
   if(false&&f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
-  const cv=f.type==='cav'||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='spear'?71:f.type==='archer'?62:f.type==='wu'?70:f.type==='peasant'?62:f.type==='undead'?60:f.type==='tiger'?108:f.type==='wolf'?90:58)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
+  const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   if(row===3&&SROWS(sh)>4&&!f.wave)row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
