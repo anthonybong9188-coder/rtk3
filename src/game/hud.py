@@ -2144,3 +2144,5 @@ rep("const hx=338-col*gap-(row%2)*18+(row===0?6:0);","const hx=250-col*gap-(row%
 # fire caster: keep the swing timer between frames so the attack animates instead of freezing on frame 0
 rep("items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}})","items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch,src:o,gt:t}})")
 rep("drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})","drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})")
+# fight corner portraits sit 20% lower
+rep("y=y0+h0*.24-h*.24;","y=y0+h0*.24-h*.24+h0*.2;")
