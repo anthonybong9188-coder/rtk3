@@ -2052,3 +2052,8 @@ rep("'cav','wu','wu2','peasant'","'cav','wu','peasant'")
 # ---- Charge can hit any adjacent enemy; rides through only when the square behind is free ----
 rep("if(k==='charge')return en.filter(e=>manh(s,e)===1&&openSq(behind(s,e)));","if(k==='charge')return en.filter(e=>manh(s,e)===1);")
 rep("return `deal ~${f.deal} · take ~${f.take} · ride through`}","return `deal ~${f.deal} · take ~${f.take} · ${openSq(behind(s,e))?'ride through':'blocked behind, stays put'}`}")
+# ---- the Hero's own soldiers: male palm fighters (mwu sheet), visual only ----
+rep("fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run","fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run",2)
+rep("fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null","fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),hw:u.id==='hero',run:run!=null")
+rep("else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.lady","else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.hw?'mwu':f.lady")
+rep("if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);","if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero')t.add('mwu');")
