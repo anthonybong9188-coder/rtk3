@@ -2070,3 +2070,14 @@ rep("if(both&&!r.charge){const D=def===L?SL:SR,","if(false&&both&&!r.charge){con
 rep("if(both&&r<.28)","if(both&&r<.5)")
 rep("if(S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}","if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}")
 rep("A.off.tx=both?line-f*58:line-f*40","A.off.tx=both?line-f*36:line-f*40")
+# ---- fight scene: skip as a small pill top-right; less sky (zoomed background); generals in front at 2/3 height, soldiers behind them ----
+rep(".cap>span:last-child.skipall{background:rgba(255,255,255,.14);color:#fff}",
+    ".cap>span:last-child.skipall{background:rgba(255,255,255,.14);color:#fff}\n#cap:has(.skipall){left:auto!important;right:max(10px,env(safe-area-inset-right,0px))!important;transform:none!important;background:transparent!important;border:0!important;padding:0!important;max-width:none!important;box-shadow:none!important;width:auto!important}\n#cap:has(.skipall)>span:not(.skipall){display:none}\n#cap .skipall{padding:4px 12px;font-size:12px;background:rgba(10,8,6,.62)!important;border:1px solid rgba(255,255,255,.35);border-radius:999px}")
+rep("updateUI()\">Skip all ⏭</span>","updateUI()\">Skip ⏭</span>",3)
+rep("const c=sctx;c.drawImage(bg,0,0,W,H);const items=[];","const c=sctx;BGZ(c,bg,0);const items=[];")
+rep("if(cam){const bx=-cam*.5;c.drawImage(bg,bx,0,W,H);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);c.drawImage(bg,0,0,W,H);c.restore()}else c.drawImage(bg,0,0,W,H);",
+    "if(cam){const bx=-cam*.5;BGZ(c,bg,bx);c.save();c.translate(cam>0?bx+2*W:bx,0);c.scale(-1,1);BGZ(c,bg,0);c.restore()}else BGZ(c,bg,0);")
+rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const BGZ=(c,im,x)=>c.drawImage(im,W*.1,H*.2,W*.8,H*.8,x,0,W,H);")
+rep("for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;",
+    "for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-22+row*26,s=1.5+row*.12;")
+rep("off:{x:ox,hx:ox,tx:ox,y:GROUND+74,hy:GROUND+74,","off:{x:ox,hx:ox,tx:ox,y:GROUND+88,hy:GROUND+88,")
