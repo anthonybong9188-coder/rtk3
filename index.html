@@ -1484,7 +1484,7 @@ const TURNSH={cav:1,archer:1,general:1},TURN_MS=360;
 function TURNK(t,ts){return null;for(let i=0;i<ts.length;i++)if(t>=ts[i]&&t<ts[i]+TURN_MS)return [i,(t-ts[i])/TURN_MS];return null}
 function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}
 function drawSprite(c,f,sh){
-  const now=performance.now(),sd=f.seed||0;let row=0,fr=0;
+  const now=performance.now(),sd=f.seed||0;let row=0,fr=0;const SRC=f.src||f;if(!(f.fight||f.shoot))SRC._ft=null;
   if(f.fall>0){row=3;fr=Math.min(3,Math.floor(f.fall*4))}
   else if(f.defeat>0){row=3;fr=f.defeat<.5?0:1}
   else if(f.officer&&!f.fight&&f.swing>0){row=2;fr=f.swing>.6?2:1}
@@ -1495,7 +1495,7 @@ function drawSprite(c,f,sh){
   {const nf=Math.round(sh.naturalWidth/SCW(sh));if(nf>4){const pp=(p,n)=>{p%=(2*n-2);return p<n?p:2*n-2-p};
     if(f.fall>0)fr=Math.min(nf-1,Math.floor(f.fall*nf));else if(f.defeat>0)fr=Math.min(nf-1,Math.floor(clamp(f.defeat)*nf*.6));
     else if(row===2&&f.officer&&!f.fight&&f.swing>0)fr=Math.min(nf-1,Math.floor(f.swing*nf));
-    else if(row===2)fr=Math.floor(now/((f.officer?(f.slow?140:100):(f.slow?110:75))*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)}}
+    else if(row===2&&f.officer){const T=f.gt!=null?f.gt:now/2;if(SRC._ft==null)SRC._ft=T;fr=Math.floor(((T-SRC._ft)%1200)/1200*nf)%nf}else if(row===2)fr=Math.floor(now/((f.slow?110:75)*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)}}
   if(Math.abs(f.turn??1)===.999){row=0;fr=0}
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
@@ -1733,7 +1733,7 @@ function setTargets(A,B,both){
     if(both&&r<.5)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
     else s.tx=line-f*((both?16:40)+s.col*30+Math.random()*48);    // pressing in behind / beside the front
   }
-  A.off.tx=both?line-f*36:line-f*40}
+  A.off.tx=both?line-f*58:line-f*40}
 function schedule(S,n,kind){const pool=[...S.sol].sort((a,b)=>(kind==='arrow'?0:a.col-b.col)+(Math.random()-.5)*1.2);for(let k=0;k<n&&k<pool.length;k++)pool[k].deathT=kind==='arrow'?1280+Math.random()*450:1650+Math.random()*950}
 function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.off.hx].map(pr),mine=[...S.sol.map(s=>s.hx),S.off.hx].map(pr);
   const Ef=Math.min(...ox),Er=Math.max(...ox),fr=Math.max(...mine),bk=Math.min(...mine),Df=Er+125-bk,xf=f*(fr+Df);
@@ -1832,7 +1832,7 @@ function playBattle0_(att,def,r){
         if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,nohero:!S.u.hpMax,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;

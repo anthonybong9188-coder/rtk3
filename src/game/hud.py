@@ -2090,3 +2090,8 @@ rep("const cv=f.type==='cav'||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.typ
     "const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150")
 # ---- slower attack animations: generals ~1.2 s per swing (2 swings per clash), soldiers ~0.9 s ----
 rep("else if(row===2)fr=Math.floor(now/((f.slow?90:55)*12/nf)+sd*5)%nf;","else if(row===2)fr=Math.floor(now/((f.officer?(f.slow?140:100):(f.slow?110:75))*12/nf)+sd*5)%nf;")
+# generals: one swing per 2.4 s, anchored to when the clash starts; stand further apart in mutual melee
+rep("const now=performance.now(),sd=f.seed||0;let row=0,fr=0;","const now=performance.now(),sd=f.seed||0;let row=0,fr=0;const SRC=f.src||f;if(!(f.fight||f.shoot))SRC._ft=null;")
+rep("officer:true,nohero:!S.u.hpMax,","officer:true,src:o,gt:t,nohero:!S.u.hpMax,")
+rep("else if(row===2)fr=Math.floor(now/((f.officer?(f.slow?140:100):(f.slow?110:75))*12/nf)+sd*5)%nf;","else if(row===2&&f.officer){const T=f.gt!=null?f.gt:now/2;if(SRC._ft==null)SRC._ft=T;fr=Math.floor(((T-SRC._ft)%1200)/1200*nf)%nf}else if(row===2)fr=Math.floor(now/((f.slow?110:75)*12/nf)+sd*5)%nf;")
+rep("A.off.tx=both?line-f*36:line-f*40","A.off.tx=both?line-f*58:line-f*40")
