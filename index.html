@@ -1530,7 +1530,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,8,'#ff9a3c',2.2)}
           items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
         const o=S.off;
-        if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}})}
+        if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch,src:o,gt:t}})}
         else{const fate=(S.after<=0)?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
           if(fate==='capture'&&t>2500){const k3=t>3000,hx=o.hx-S.face*Math.max(0,t-3000)*.32;
             if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
@@ -1538,7 +1538,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
           else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,ch:S.u.ch,fem:femKey(S.u),run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
       items.sort((a,b)=>a.y-b.y);
       for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
-      for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
+      for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
         if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,it.bx,it.by+2,.28*it.bs,.9)}
       for(const f of fires){if(t<f.t0+200)continue;
         if(t<f.t0+400)fx(c,0,3,f.x,f.y,f.s,(t-f.t0-200)/200);
@@ -1719,7 +1719,7 @@ function buildSide(u,side,before,after){
   const hm=u.hpMax||0,REF=Math.max(1,window.__figRef||Math.max(0,before-hm)),fig=v=>{const s=Math.max(0,v-hm);return s<=0?0:Math.max(1,Math.min(12,Math.round(12*s/REF)))},nB=fig(before),nA=Math.min(nB,fig(after)),face=side==='L'?1:-1,sol=[];
   const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
-  for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-40+row*42,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
+  for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-40+row*42,s=1.5+row*.12;const hx=250-col*gap-(row%2)*18+(row===0?6:0);
     sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6,dl:col*90+Math.random()*220})}
   const ox=side==='L'?104:W-104;
   return{u,side,face,sol,nB,nA,before,after,off:{x:ox,hx:ox,tx:ox,y:GROUND+122,hy:GROUND+122,s:2.35,seed:1,deathT:Infinity}}}

@@ -2139,3 +2139,8 @@ rep("function lmBanner(t,sub,cls){","function lmBanner(t,sub,cls){window.BAN_UNT
 rep("async function playBattle(att,def,r){await sprWait();await lmZoomIn(att,def);","async function playBattle(att,def,r){await sprWait();{const w=(window.BAN_UNTIL||0)-performance.now();if(w>0&&speed)await sleep(w)}await lmZoomIn(att,def);")
 rep("D=Math.round(520/Math.max(1,speed))","D=Math.round(780/Math.max(1,speed))")
 rep("const D=Math.round(300/Math.max(1,speed||1));","const D=Math.round(450/Math.max(1,speed||1));")
+# soldiers start nearer the screen edges (wider gap), so they sprint further and faster to meet
+rep("const hx=338-col*gap-(row%2)*18+(row===0?6:0);","const hx=250-col*gap-(row%2)*18+(row===0?6:0);")
+# fire caster: keep the swing timer between frames so the attack animates instead of freezing on frame 0
+rep("items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}})","items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch,src:o,gt:t}})")
+rep("drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})","drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})")
