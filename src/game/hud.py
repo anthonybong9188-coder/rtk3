@@ -2037,3 +2037,7 @@ rep("if(u.dragon)t.add('dragon');t.add(femKey(u)||'general');","if(u.dragon)t.ad
 rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const FIGSZ=.5;")
 rep("for(const it of items){if(it.f.sig&&it.f.fem){","for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){")
 rep("items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);\n      for(const a of arrows)","items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}\n      for(const a of arrows)")
+# ---- the Hero leads martial-artist (wu) soldiers whatever his troop type (visual only) ----
+rep("type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run","type:S.u.id==='hero'?'wu':S.u.type,dg:S.u.dragon,lady:isFem(S.u),run",2)
+rep("type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null","type:u.id==='hero'?'wu':u.type,dg:u.dragon,lady:isFem(u),run:run!=null")
+rep("if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);","if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero'){t.add('wu');t.add('wu2')}")
