@@ -1727,10 +1727,10 @@ function setTargets(A,B,both){
   // only the front rank closes to the clash line; the ranks behind step up and hold
   const line=both?W/2:front-f*0;
   for(const s of A.sol){const r=Math.random();
-    if(both&&r<.28)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
+    if(both&&r<.5)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
     else s.tx=line-f*((both?16:40)+s.col*30+Math.random()*48);    // pressing in behind / beside the front
   }
-  A.off.tx=both?line-f*58:line-f*40}
+  A.off.tx=both?line-f*36:line-f*40}
 function schedule(S,n,kind){const pool=[...S.sol].sort((a,b)=>(kind==='arrow'?0:a.col-b.col)+(Math.random()-.5)*1.2);for(let k=0;k<n&&k<pool.length;k++)pool[k].deathT=kind==='arrow'?1280+Math.random()*450:1650+Math.random()*950}
 function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.off.hx].map(pr),mine=[...S.sol.map(s=>s.hx),S.off.hx].map(pr);
   const Ef=Math.min(...ox),Er=Math.max(...ox),fr=Math.max(...mine),bk=Math.min(...mine),Df=Er+125-bk,xf=f*(fr+Df);
@@ -1792,7 +1792,7 @@ function playBattle0_(att,def,r){
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
-    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
+    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(false&&both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
     schedule(SL,SL.nB-SL.nA,SR.shoot?'arrow':'melee');schedule(SR,SR.nB-SR.nA,SL.shoot?'arrow':'melee');

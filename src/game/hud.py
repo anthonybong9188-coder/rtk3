@@ -2065,3 +2065,8 @@ rep("const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),","window.__figRef=Mat
 # ---- map tokens: soldier count follows real army size (not % left) ----
 rep("const n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,",
     "const sN=Math.max(0,u.troops-(u.hpMax||0)),n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):sN<=0?0:sN<=1500?1:sN<=4000?2:sN<=8000?3:4,")
+# ---- melee vs melee: both sides rush to meet in the middle, half break through, generals clash at centre ----
+rep("if(both&&!r.charge){const D=def===L?SL:SR,","if(false&&both&&!r.charge){const D=def===L?SL:SR,")
+rep("if(both&&r<.28)","if(both&&r<.5)")
+rep("if(S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}","if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}")
+rep("A.off.tx=both?line-f*58:line-f*40","A.off.tx=both?line-f*36:line-f*40")
