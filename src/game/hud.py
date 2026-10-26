@@ -2146,3 +2146,5 @@ rep("items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.sid
 rep("drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})","drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})")
 # fight corner portraits sit 20% lower
 rep("y=y0+h0*.24-h*.24;","y=y0+h0*.24-h*.24+h0*.2;")
+# fight background: always the defender's terrain, no split
+rep("const bR=makeBG0(tr,defSide,false);if(BGUSE[tl]===BGUSE[tr])return lmGrade(bR,LM_G1);","const bR=makeBG0(terAt(def.x,def.y),defSide,false);return lmGrade(bR,LM_G1);")
