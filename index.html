@@ -1508,7 +1508,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
   return new Promise(async resolve=>{
     if(speed===0){resolve();return}await sprWait();
     const L=u.side==='shu'?u:e,R=L===u?e:u;
-    const SL=buildSide(L,'L',L===e?before:L.troops,L===e?e.troops:L.troops),SR=buildSide(R,'R',R===e?before:R.troops,R===e?e.troops:R.troops);
+    window.__figRef=Math.max((L===e?before:L.troops)-(L.hpMax||0),(R===e?before:R.troops)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===e?before:L.troops,L===e?e.troops:L.troops),SR=buildSide(R,'R',R===e?before:R.troops,R===e?e.troops:R.troops);
     const SC_=u===L?SL:SR,ST=u===L?SR:SL,ter=terAt(e.x,e.y),big=ter==='f'?1.3:ter==='w'||ter==='='?.7:1,burnEnd=ter==='f'?3300:ter==='w'||ter==='='?2500:2900;
     const dieN=ST.nB-ST.nA,pool=[...ST.sol].sort(()=>Math.random()-.5);for(let k=0;k<dieN&&k<pool.length;k++){pool[k].deathT=1600+Math.random()*1100;pool[k].burn=true}
     const tgts=[...ST.sol,ST.off],arrows=[];
@@ -1715,7 +1715,7 @@ function makeBG0(ter,defSide,duel){
   const v=c.createRadialGradient(W/2,H*.55,H*.3,W/2,H*.55,W*.65);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.28)');c.fillStyle=v;c.fillRect(0,0,W,H);
   return cv}
 function buildSide(u,side,before,after){
-  const hm=u.hpMax||0,nB=Math.min(12,Math.ceil(Math.max(0,before-hm)/100)),nA=Math.min(nB,Math.ceil(Math.max(0,after-hm)/100)),face=side==='L'?1:-1,sol=[];
+  const hm=u.hpMax||0,REF=Math.max(1,window.__figRef||Math.max(0,before-hm)),fig=v=>{const s=Math.max(0,v-hm);return s<=0?0:Math.max(1,Math.min(12,Math.round(12*s/REF)))},nB=fig(before),nA=Math.min(nB,fig(after)),face=side==='L'?1:-1,sol=[];
   const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
   for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND+10+row*40,s=1.5+row*.12;const hx=338-col*gap-(row%2)*18+(row===0?6:0);
@@ -1790,7 +1790,7 @@ function playBattle0_(att,def,r){
   return new Promise(resolve=>{
     if(speed===0){resolve();return}
     const L=att.side==='shu'?att:def,R=L===att?def:att;
-    const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
+    window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
     const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
@@ -3312,7 +3312,7 @@ function drawToken(c,u,now){
   c.lineWidth=T*(sel?.075:.05);c.strokeStyle=done?'rgba(170,170,170,.55)':sel?`rgba(255,230,110,${.65+.35*pulse})`:lmHexA(ring,.95);c.beginPath();c.arc(0,0,T*.4,0,7);c.stroke();
   if(u.cmd){c.lineWidth=T*.022;c.strokeStyle='#ffd45a';c.beginPath();c.arc(0,0,T*.47,0,7);c.stroke()}
   c.restore();
-  const n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22],[.12,.04]],run=moving?now*.03:G.sel===u?now*.012:null,items=[];
+  const sN=Math.max(0,u.troops-(u.hpMax||0)),n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):sN<=0?0:sN<=1500?1:sN<=4000?2:sN<=8000?3:4,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22],[.12,.04]],run=moving?now*.03:G.sel===u?now*.012:null,items=[];
   for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),hw:u.id==='hero',run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
   if(u.hpMax!==0)items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
   items.sort((a,b)=>a.y-b.y);

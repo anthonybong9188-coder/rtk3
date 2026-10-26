@@ -2057,3 +2057,11 @@ rep("fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run","fac:S.u.side
 rep("fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null","fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),hw:u.id==='hero',run:run!=null")
 rep("else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.lady","else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.hw?'mwu':f.lady")
 rep("if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);","if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero')t.add('mwu');")
+# ---- Option A: fight-scene figures proportional to both armies (bigger side = 12 figures), losses proportional ----
+rep("const hm=u.hpMax||0,nB=Math.min(12,Math.ceil(Math.max(0,before-hm)/100)),nA=Math.min(nB,Math.ceil(Math.max(0,after-hm)/100)),",
+    "const hm=u.hpMax||0,REF=Math.max(1,window.__figRef||Math.max(0,before-hm)),fig=v=>{const s=Math.max(0,v-hm);return s<=0?0:Math.max(1,Math.min(12,Math.round(12*s/REF)))},nB=fig(before),nA=Math.min(nB,fig(after)),")
+rep("const SL=buildSide(L,'L',L===e?before:L.troops,","window.__figRef=Math.max((L===e?before:L.troops)-(L.hpMax||0),(R===e?before:R.troops)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===e?before:L.troops,")
+rep("const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),","window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),")
+# ---- map tokens: soldier count follows real army size (not % left) ----
+rep("const n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,",
+    "const sN=Math.max(0,u.troops-(u.hpMax||0)),n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):sN<=0?0:sN<=1500?1:sN<=4000?2:sN<=8000?3:4,")
