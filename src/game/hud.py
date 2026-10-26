@@ -2041,3 +2041,11 @@ rep("items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);\n     
 rep("type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run","type:S.u.id==='hero'?'wu':S.u.type,dg:S.u.dragon,lady:isFem(S.u),run",2)
 rep("type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null","type:u.id==='hero'?'wu':u.type,dg:u.dragon,lady:isFem(u),run:run!=null")
 rep("if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);","if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero'){t.add('wu');t.add('wu2')}")
+# ---- martial artists: only Huang Yi, Ren Rui, Jiutian Xuannu, Mo Nu; wu2 (dagger girl) hidden; Hero back to his own troop look ----
+rep("WU_GENS=new Set(['diaochan','huangyueying','caiwenji','miren','mishao'])","WU_GENS=new Set(['huangyi','renrui','xuannu','monu'])")
+rep("f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type","f.type")
+rep("if(u.type==='wu')t.add('wu2');","")
+rep("if(u.id==='hero'){t.add('wu');t.add('wu2')}","")
+rep("type:S.u.id==='hero'?'wu':S.u.type,","type:S.u.type,",2)
+rep("type:u.id==='hero'?'wu':u.type,","type:u.type,")
+rep("'cav','wu','wu2','peasant'","'cav','wu','peasant'")
