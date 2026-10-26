@@ -1144,8 +1144,8 @@ function drawMap(now){
   c.setLineDash([5,4]);c.strokeStyle='rgba(212,173,85,.85)';c.lineWidth=1.6;
   for(const g of G.units.filter(u=>u.guard)){c.strokeRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4);c.fillStyle='rgba(212,173,85,.08)';c.fillRect((g.x-2)*T+2,(g.y-2)*T+2,5*T-4,5*T-4)}
   c.setLineDash([]);
-  if(SKFX.complete&&SKFX.naturalHeight>=4096)for(const g of G.units.filter(u=>u.guard&&now-(u.guardT0||0)>1000)){const fr=Math.floor(now/125)%8;c.save();c.globalCompositeOperation='lighter';
-    for(const [dx,dy,sc,al] of [[0,0,2.2,1],[1,0,1.1,.5],[-1,0,1.1,.5],[0,1,1.1,.5],[0,-1,1.1,.5]]){if(!inb(g.x+dx,g.y+dy))continue;const s=T*sc,cx=(g.x+dx)*T+T/2,cy=(g.y+dy)*T+T/2;c.globalAlpha=al;c.drawImage(SKFX,fr*256,15*256,256,256,cx-s/2,cy-s/2,s,s)}c.restore()}
+  if(SKFX2.complete&&SKFX2.naturalWidth)for(const g of G.units.filter(u=>u.guard&&now-(u.guardT0||0)>1000)){const fr=Math.floor(now/125)%8;c.save();c.globalCompositeOperation='lighter';
+    for(const [dx,dy,sc,al] of [[0,0,2.2,1],[1,0,1.1,.5],[-1,0,1.1,.5],[0,1,1.1,.5],[0,-1,1.1,.5]]){if(!inb(g.x+dx,g.y+dy))continue;const s=T*sc,cx=(g.x+dx)*T+T/2,cy=(g.y+dy)*T+T/2;c.globalAlpha=al;skfxDraw(c,fr,15,cx-s/2,cy-s/2,s,s)}c.restore()}
   if(G.pv&&G.pv.u)lmPvMark(c,now);
   if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);
   for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
@@ -1153,7 +1153,7 @@ function drawMap(now){
   for(const f of G.mfx){const p=(now-f.t0)/f.dur,cx=f.x*T+T/2,cy=f.y*T+T/2,row=FXROW[f.k];
     if(f.k==='streak'){if(METEOR.complete&&METEOR.naturalWidth){const fr=Math.min(7,Math.floor((now-f.t0)/110)),L=(f.n+.8)*T,h=T*1.5;c.save();c.globalCompositeOperation='lighter';c.translate(cx,cy);c.rotate(Math.atan2(f.dy,f.dx));c.drawImage(METEOR,(fr%2)*768,(fr>>1)*256,768,256,-T*.5,-h/2,L,h);c.restore()}continue}
      if(f.k==='sheet'){const im=fxSheet(f.sheet);if(im.complete&&im.naturalWidth){const fr=Math.min(15,Math.floor(p*16)),s=T*(f.s||2.4);c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame(f.sheet,im,fr),cx-s/2,cy-s*.62,s,s);c.restore()}continue}
-    if(row!=null&&SKFX.complete&&SKFX.naturalWidth){const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8);c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.75?(1-p)*4:1;c.drawImage(SKFX,fr*256,row*256,256,256,cx-s/2,cy-s/2,s,s);c.restore();continue}
+    if(row!=null&&skfxIm(row).complete&&skfxIm(row).naturalWidth){const fr=Math.min(7,Math.floor((now-f.t0)/125)),s=T*(f.s||1.8);c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.75?(1-p)*4:1;skfxDraw(c,fr,row,cx-s/2,cy-s/2,s,s);c.restore();continue}
     c.save();
     if(f.k==='ring'){for(let i=0;i<2;i++){const q=clamp(p*1.3-i*.25);c.strokeStyle=`rgba(255,226,160,${(1-q)*.9})`;c.lineWidth=T*.08*(1-q)+1;c.beginPath();c.arc(cx,cy,T*(.3+q*1.5),0,7);c.stroke()}}
     else if(f.k==='arc'){c.strokeStyle=`rgba(110,255,170,${1-p})`;c.lineWidth=T*.14*(1-p*.5);c.shadowColor='#4dff9a';c.shadowBlur=18;c.beginPath();c.arc(cx,cy,T*1.05,-2.6,-2.6+p*5.4);c.stroke()}
@@ -1458,7 +1458,7 @@ $('#endBtn').onclick=()=>{G.enemyTiles=null;endTurn()};
 $('#speedBtn').onclick=()=>{speed=speed===1?2:speed===2?0:1;updateUI()};
 
 // ---------- battle scene ----------
-const FIGHT_SLOW=.5;const W=800,H=450,GROUND=212;
+const FIGHT_SLOW=.5;const FIGSZ=.5;const W=800,H=450,GROUND=212;
 const SC=$('#sc');let sctx;
 function setupStage(){const d=DPR();SC.width=W*d;SC.height=H*d;sctx=SC.getContext('2d');sctx.setTransform(d,0,0,d,0,0)}
 function drawHorse(c,ph,running,F){
@@ -1474,7 +1474,7 @@ function drawHorse(c,ph,running,F){
   leg(-6,g*5,'#6d4a2a');leg(13,-g*5,'#6d4a2a');
   c.fillStyle=F.main;c.strokeStyle=O;c.lineWidth=1.2;c.beginPath();c.moveTo(-9,-24);c.lineTo(7,-24);c.lineTo(8,-13);c.lineTo(-10,-13);c.closePath();c.fill();c.stroke();
   c.strokeStyle='#d4ad55';c.lineWidth=1;ln(c,-9.5,-14.5,7.5,-14.5)}
-const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1};const SPIMG={};
+const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1};const LADYT={spear:1,shield:1,archer:1,cav:1};const SPIMG={};
 function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}
 function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)||type==='tiger'||type==='wolf'||type==='undead'||type==='dragon'?'shu':fk);let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
 const TURNSH={cav:1,archer:1,general:1},TURN_MS=360;
@@ -1527,7 +1527,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
           if(S===ST){if(s.burn&&alive&&t>s.deathT-750){const k=(t-(s.deathT-750))/750;x+=Math.sin(t*.012+s.seed*5)*26*k;face=Math.sin(t*.006+s.seed)>0?1:-1;run=t*.04+s.seed}
             else if(alive&&t>1500)x-=S.face*16*ease(clamp((t-1500)/500))}
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,8,'#ff9a3c',2.2)}
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
         const o=S.off;
         if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch}})}
         else{const fate=(S.after<=0)?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
@@ -1537,7 +1537,7 @@ function playFire(u,e,dmg,before){SND.fx('fire');
           else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,ch:S.u.ch,fem:femKey(S.u),run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
       items.sort((a,b)=>a.y-b.y);
       for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
-      for(const it of items){if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
+      for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
         if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,it.bx,it.by+2,.28*it.bs,.9)}
       for(const f of fires){if(t<f.t0+200)continue;
         if(t<f.t0+400)fx(c,0,3,f.x,f.y,f.s,(t-f.t0-200)/200);
@@ -1560,7 +1560,7 @@ const WEAPON={guanyu:'guandao',huangzhong:'guandao',weiyan:'guandao',xingdaorong
   ganning:'spear',lumeng:'spear',zhoutai:'spear',xiahouyuan:'spear',yujin:'spear',lidian:'spear',yuejin:'spear',
   liubei:'sabre',caocao:'sabre',sunquan:'sabre',zhouyu:'sabre'};
 function weaponOf(u){return WEAPON[u.id]||(u.war<70?'sabre':'spear')}
-const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,thunder:12,flood:13,guard:14,guardloop:15,petal:16,bagua:17,sound:18,whirl:19,chakram:20,dragon:21,shadow:22,eastwind:23};
+const SKFX=new Image();SKFX.src='sprites/skill_fx_a.jpg';const SKFX2=new Image();SKFX2.src='sprites/skill_fx_b.jpg';const skfxIm=row=>row<12?SKFX:SKFX2;const skfxDraw=(c,fr,row,dx,dy,w,h)=>{const im=skfxIm(row);if(im.complete&&im.naturalWidth)c.drawImage(im,fr*256,(row%12)*256,256,256,dx,dy,w,h)};const FXROW={arc:0,ring:1,wind:2,smoke:3,heal:4,shield:5,speed:6,iron:7,dust:8,rally:9,scroll:10,hit:11,thunder:12,flood:13,guard:14,guardloop:15,petal:16,bagua:17,sound:18,whirl:19,chakram:20,dragon:21,shadow:22,eastwind:23};
 function mfx(k,x,y,dur,s){G.mfx=(G.mfx||[]);G.mfx.push({k,x,y,t0:performance.now(),dur:Math.max(dur||900,1000),s})}
 function ironSave(d,dmg){if(d.ironSave&&dmg>=d.troops&&d.troops>1){d.ironSave=false;setTimeout(()=>{float(d,'不屈','#f3d27a');mfx('iron',d.x,d.y,900)},50);return d.troops-1}return dmg}
 const CLIPS=new Set(['fentian','yueshuang','hero']);const VIDS=new Set(['hero','pang_tong','huang_zhong','wei_yan','zhou_yu','gan_ning','taishi_ci','zhou_tai','lu_su','p_luxun','cao_cao','xu_chu','xiahou_dun','xiahou_yuan','zhang_liao','p_xuhuang','p_caozhang','xun_yu','p_simayi','p_jiaxu','p_chengyu','p_xunyou','p_xushu','mo_nu','guan_yu','zhang_fei','zhuge_liang','consort_li','consort_yan','lady_gan','lady_mi','zhao_yun','consort_zhao','mi_shao','mi_ren','zhurong','ren_rui','huang_yi','xuannu','diaochan','guan_yinping','huang_yueying','huang_wenjing','lu_bu','sun_shangxiang']);const GODIDS=new Set(['xuannu','nuwa','fentian','yueshuang']);const SPS=new Set(['hero','pang_tong','zhou_yu','taishi_ci','zhou_tai','lu_su','p_luxun','sun_quan','cao_cao','xiahou_dun','xiahou_yuan','zhang_liao','p_xuhuang','p_caozhang','xun_yu','p_simayi','p_jiaxu','p_chengyu','p_xunyou','p_xushu','mo_nu','liu_bei','p_guanping','p_zhoucang','yueshuang','nuwa','fentian','xuannu','gan_ning','guan_yu','huang_zhong','wei_yan','xu_chu','zhang_fei','zhao_yun','zhuge_liang']);const SPC={};function spPre(p){if(!p||SPC[p])return SPC[p];const im=new Image();im.decoding='async';const pr=new Promise(r=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>r(im))};im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb=1;im.src='portraits/'+p+'.webp'}else r(null)}});im.src=SPS.has(p)?'portraits/sp_'+p+'.webp':'portraits/'+p+'.webp';if(!SPS.has(p))im.dataset.fb=1;SPC[p]={im,pr};return SPC[p]}
@@ -1659,7 +1659,7 @@ function drawCap(c,f){const sh=sprSheet('general_cap',sprFac(f.fac));if(!sh)retu
 function drawFigure(c,f){if(f.nohero)return;
   if(f.cap){if(!f.fem&&drawCap(c,f))return;f={...f,officer:true,defeat:1,type:'cav'}}
   if(f.officer){const sh=sprSheet(f.fem||'general',sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
-  else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
+  else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.lady&&LADYT[f.type]?'f'+f.type:f.type==='wu'&&Math.floor((f.seed||0)*7)%2?'wu2':f.type,sprFac(f.fac));if(sh){drawSprite(c,f,sh);return}}
   const F=FAC[f.fac]||FAC.shu,O='#1a1410',skin='#e6bb8e';c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(0,1,f.type==='cav'?22:9,3,0,0,Math.PI*2);c.fill()}
   if(f.fall)c.rotate(-f.fall*1.4);
@@ -1778,7 +1778,7 @@ function drawFightHud0(c,SL,SR,sl,sr){
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
 const FEM=new Set(['monu','mishao','miren','renrui','huangyi','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={pangtong:'f_pangtong',huangzhong:'f_huangzhong',weiyan:'f_weiyan',zhouyu:'f_zhouyu',taishici:'f_taishici',zhoutai:'f_zhoutai',lusu:'f_lusu',luxun:'f_luxun',sunquan:'f_sunquan',monu:'f_monu',caocao:'f_caocao',xuchu:'f_xuchu',xiahoudun:'f_xiahoudun',xiahouyuan:'f_xiahouyuan',zhangliao:'f_zhangliao',xuhuang:'f_xuhuang',caozhang:'f_caozhang',xunyu:'f_xunyu',simayi:'f_simayi',jiaxu:'f_jiaxu',chengyu:'f_chengyu',xunyou:'f_xunyou',xushu:'f_xushu',liubei:'f_liubei',guanyu:'f_guanyu',zhangfei:'f_zhangfei',zhugeliang:'f_zhugeliang',guanping:'f_guanping',zhoucang:'f_zhoucang',zhaoyun:'f_zhaoyun',mishao:'f_mishao',miren:'f_miren',xuannu:'f_xuannu',zhenji:'f_consortzhao',daqiao:'f_consortli',xiaoqiao:'f_consortyan',renrui:'f_renrui',zhurong:'f_zhurong',huangyi:'f_huangyi',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'f_ganning',jiangchen:'f_jiangchen',xiaohei:'f_xiaohei',xiaoming:'f_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',caiwenji:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',hero:'f_hero'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(!FEM.has(u.id)&&u.id&&(u.int||0)>(u.war||0)&&u.hpMax!==0&&!['tiger','wolf','undead','peasant'].includes(u.type)?'gstrat':false)||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
-function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);if(u.type==='wu')t.add('wu2');if(u.dragon)t.add('dragon');t.add(femKey(u)||'general');t.add('duel_'+weaponOf(u))}return [...t]}
+function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);if(u.type==='wu')t.add('wu2');if(u.dragon)t.add('dragon');if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);t.add(femKey(u)||'general');t.add('duel_'+weaponOf(u))}return [...t]}
 function sprLoad(fk,us){if(us&&us.length)return sprNeed(us).map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk)]});return ['dragon','spear','shield','archer','cav','wu','wu2','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear','general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+(t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk)]})}
 function sprRelease(us){const keep=new Set();for(const fk of ['shu',sprFac('x')])for(const t of sprNeed(us))keep.add(t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk));for(const k of Object.keys(SPIMG))if(!keep.has(k)){SPIMG[k].src='';delete SPIMG[k]}}
 function sprWait(us){const U=us&&us.length?us:(G&&G.units)||[];const ims=[...sprLoad('shu',U),...sprLoad(sprFac('x'),U),...Object.values(BGIMG)];
@@ -1821,7 +1821,7 @@ function playBattle0_(att,def,r){
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}
           if((S.ch?chf:S.melee&&alive&&t>1500+(s.dl||0)&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
           let srd=false;if(capS&&S!==capS&&alive&&t>3000){const k=ease(clamp((t-3000)/650)),sg=s.i%2?1:-1,tx2=capX+sg*(38+((s.i>>1)%3)*22);x=lerp(x,tx2,k);face=x<capX?1:-1;if(k<1)run=t*.03+s.seed;else run=null;sw=0;srd=true}
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT||1050)+s.col*110&&t<=(S.holdE||2500):S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT||1050)+s.col*110&&t<=(S.holdE||2500):S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
         const fate=(S.after<=0)?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sX(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
         let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1500)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1500&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
         if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
@@ -1830,7 +1830,7 @@ function playBattle0_(att,def,r){
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
         else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y+(orun==null?Math.sin(t*.004)*1.2:0),s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,nohero:!S.u.hpMax,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1500&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
-      items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);
+      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
         const x=lerp(sx,tx,p),y=lerp(sy,ty,p)-Math.sin(Math.PI*p)*90,dx=tx-sx,dy=(ty-sy)-Math.cos(Math.PI*p)*90*Math.PI,ang=Math.atan2(dy,dx);
@@ -3313,10 +3313,10 @@ function drawToken(c,u,now){
   if(u.cmd){c.lineWidth=T*.022;c.strokeStyle='#ffd45a';c.beginPath();c.arc(0,0,T*.47,0,7);c.stroke()}
   c.restore();
   const n=u.troops<=0?0:u.hpMax===0?(u.troops/u.max>.5?4:u.troops/u.max>.2?3:2):u.troops/u.max>.66?3:u.troops/u.max>.33?2:1,offs=[[-.30,-.13],[-.36,.09],[-.08,-.22],[.12,.04]],run=moving?now*.03:G.sel===u?now*.012:null,items=[];
-  for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,dg:u.dragon,run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
+  for(let i=0;i<n;i++){const [ox,oy]=offs[i],y=Y+T*(.27+oy);items.push({y,f:{x:X+face*T*(ox+.03),y,s:T*.92/83,face,fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null?run+i*1.3:null,seed:(u.x*7+u.y*3+i*2)%6}})}
   if(u.hpMax!==0)items.push({y:Y+T*.31,f:{x:X+face*T*.08,y:Y+T*.31,s:T*1.5/98,face,fac:u.side,type:u.type,officer:true,ch:u.ch,fem:femKey(u),run,seed:1.7+u.x*.3}});
   items.sort((a,b)=>a.y-b.y);
-  c.save();if(done){if('filter' in c)c.filter='grayscale(1) brightness(.75)';else c.globalAlpha=.6}
+  c.save();if(done){c.globalAlpha=.55}
   for(const it of items)drawSprite(c,it.f,it.f.officer?osh:ssh);
   c.restore();
   // troop bar with a round face beside it

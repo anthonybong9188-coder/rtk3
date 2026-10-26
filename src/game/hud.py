@@ -2017,3 +2017,23 @@ rep("'rally','burncamps'].includes(k))delete HERO[k];","'rally','burncamps','sha
 rep("'lone','wind','star','mend','burn'","'lone','wind','star','burn'")
 # Generic officers on foot (26 Oct): warrior 'general', strategist 'gstrat' (Int > War), female 'fgeneral'
 rep("const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?","const femKey=u=>!u?false:GSHEET[u.id]||(!FEM.has(u.id)&&u.id&&(u.int||0)>(u.war||0)&&u.hpMax!==0&&!['tiger','wolf','undead','peasant'].includes(u.type)?'gstrat':false)||(FEM.has(u.id)?")
+# Performance fixes (26 Oct):
+# 1) skill_fx.jpg was 2048x6144 – taller than many phone GPUs allow, so effects in its lower rows (e.g. Ren Rui's shadow)
+#    fell back to a very slow path and could stop drawing. Split into two 2048x3072 sheets.
+rep("const SKFX=new Image();SKFX.src='sprites/skill_fx.jpg';","const SKFX=new Image();SKFX.src='sprites/skill_fx_a.jpg';const SKFX2=new Image();SKFX2.src='sprites/skill_fx_b.jpg';const skfxIm=row=>row<12?SKFX:SKFX2;const skfxDraw=(c,fr,row,dx,dy,w,h)=>{const im=skfxIm(row);if(im.complete&&im.naturalWidth)c.drawImage(im,fr*256,(row%12)*256,256,256,dx,dy,w,h)};")
+rep("SKFX.complete&&SKFX.naturalHeight>=4096","SKFX2.complete&&SKFX2.naturalWidth")
+rep("c.drawImage(SKFX,fr*256,15*256,256,256,cx-s/2,cy-s/2,s,s)","skfxDraw(c,fr,15,cx-s/2,cy-s/2,s,s)")
+rep("if(row!=null&&SKFX.complete&&SKFX.naturalWidth)","if(row!=null&&skfxIm(row).complete&&skfxIm(row).naturalWidth)")
+rep("c.drawImage(SKFX,fr*256,row*256,256,256,cx-s/2,cy-s/2,s,s)","skfxDraw(c,fr,row,cx-s/2,cy-s/2,s,s)")
+# 2) units that have acted were drawn through a grayscale canvas filter every frame – very slow on Android; use transparency instead
+rep("if(done){if('filter' in c)c.filter='grayscale(1) brightness(.75)';else c.globalAlpha=.6}","if(done){c.globalAlpha=.55}")
+# ---- lady generals lead female soldiers (fspear/fshield/farcher/fcav sheets) ----
+rep("fac:S.u.side,type:S.u.type,dg:S.u.dragon,run","fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),run",2)
+rep("fac:u.side,type:u.type,dg:u.dragon,run:run!=null","fac:u.side,type:u.type,dg:u.dragon,lady:isFem(u),run:run!=null")
+rep("else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':","else if(SPRITES[f.type]){const sh=sprSheet(f.dg?'dragon':f.lady&&LADYT[f.type]?'f'+f.type:")
+rep("SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1};","SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1};const LADYT={spear:1,shield:1,archer:1,cav:1};")
+rep("if(u.dragon)t.add('dragon');t.add(femKey(u)||'general');","if(u.dragon)t.add('dragon');if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);t.add(femKey(u)||'general');")
+# ---- trial: fight-scene figures at half size (map tokens / march unchanged) ----
+rep("const FIGHT_SLOW=.5;","const FIGHT_SLOW=.5;const FIGSZ=.5;")
+rep("for(const it of items){if(it.f.sig&&it.f.fem){","for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){")
+rep("items.sort((a,b)=>a.y-b.y);for(const it of items)drawFigure(c,it.f);\n      for(const a of arrows)","items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}\n      for(const a of arrows)")
