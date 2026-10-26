@@ -2495,7 +2495,7 @@ $('#galBtn').onclick=()=>openGallery();
 const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];
 const SPAR={a:null,b:null,ta:null,tb:null};
 function sparGen(k){const d=GEN_DEF.find(x=>x[0]===k);if(k==='hero')return {id:'hero',name:'The Hero',ch:'俠',fac:'shu',war:95,int:85,type:'cav',img:'hero'};if(d)return {id:k,name:d[1],ch:d[2],fac:d[3],war:d[5],int:d[6],type:d[9],img:d[10]};const e=GAL_EXTRA[k];return e?{id:k,name:e[1],ch:e[2],fac:null,war:e[5],int:e[6],type:e[9],img:e[10]}:null}
-function openSparring(){const L=galList().map(g=>sparGen(g.k)).filter(Boolean);if(!SPAR.a){SPAR.a=L[0].id;SPAR.b=(L[1]||L[0]).id}
+function openSparring(){const SPR=g=>g.id==='hero'?0:isFem(g)?(g.war>=90?1:2):g.war>=90?3:4;const L=galList().map(g=>sparGen(g.k)).filter(Boolean).sort((a,b)=>SPR(a)-SPR(b)||b.war-a.war);if(!SPAR.a){SPAR.a=L[0].id;SPAR.b=(L[1]||L[0]).id}
   let ov=document.getElementById('galOv');if(!ov){ov=document.createElement('div');ov.id='galOv';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#120d0a;color:#f0e6d2;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit';document.body.appendChild(ov)}
   const side=(s)=>{const g=sparGen(SPAR[s]),t=SPAR['t'+s]||g.type;return `<div style="flex:1;min-width:260px;background:#1d1510;border:1px solid #4a3a28;border-radius:8px;padding:10px">
     <div style="font-size:13px;opacity:.7;margin-bottom:6px">${s==='a'?'Your side (left)':'Opponent (right)'}</div>
