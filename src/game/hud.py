@@ -2049,3 +2049,6 @@ rep("if(u.id==='hero'){t.add('wu');t.add('wu2')}","")
 rep("type:S.u.id==='hero'?'wu':S.u.type,","type:S.u.type,",2)
 rep("type:u.id==='hero'?'wu':u.type,","type:u.type,")
 rep("'cav','wu','wu2','peasant'","'cav','wu','peasant'")
+# ---- Charge can hit any adjacent enemy; rides through only when the square behind is free ----
+rep("if(k==='charge')return en.filter(e=>manh(s,e)===1&&openSq(behind(s,e)));","if(k==='charge')return en.filter(e=>manh(s,e)===1);")
+rep("return `deal ~${f.deal} · take ~${f.take} · ride through`}","return `deal ~${f.deal} · take ~${f.take} · ${openSq(behind(s,e))?'ride through':'blocked behind, stays put'}`}")

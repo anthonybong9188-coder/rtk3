@@ -913,14 +913,14 @@ const behind=(a,d)=>({x:d.x+(d.x-a.x),y:d.y+(d.y-a.y)});
 const openSq=p=>inb(p.x,p.y)&&terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y);
 function skillTargets(k,s){
   const en=enemies();
-  if(k==='charge')return en.filter(e=>manh(s,e)===1&&openSq(behind(s,e)));
+  if(k==='charge')return en.filter(e=>manh(s,e)===1);
   if(k==='push')return en.filter(e=>manh(s,e)===1);
   if(k==='fire')return en.filter(e=>manh(s,e)<=3);
   if(k==='volley')return en.filter(e=>manh(s,e)===2);
   if(HERO[k]&&HERO[k].targets)return HERO[k].targets(s);
   return []}
 function skillNote(k,s,e){
-  if(k==='charge'){const f=forecast(s,e,{mult:1.5,ctrMult:.3});return `deal ~${f.deal} · take ~${f.take} · ride through`}
+  if(k==='charge'){const f=forecast(s,e,{mult:1.5,ctrMult:.3});return `deal ~${f.deal} · take ~${f.take} · ${openSq(behind(s,e))?'ride through':'blocked behind, stays put'}`}
   if(k==='push'){const free=openSq(behind(s,e)),f=forecast(s,e,{mult:free?.6:1,noCounter:true});return `deal ~${f.deal} · ${free?'pushed back 1':'blocked, full damage'}`}
   if(k==='volley'){const f=forecast(s,e,{noCounter:true}),n=splashOf(e);return `deal ~${f.deal} · no counter${n?` · splash ${n.name}`:''}`}
   if(k==='fire')return `~${Math.min(e.troops,fireDmg(s,e,false)*(s.eastWind?2:1))} burned${terAt(e.x,e.y)==='f'?' · forest ×1.8':''}${s.eastWind?' · East Wind ×2':''}`;
