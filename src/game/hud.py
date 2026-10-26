@@ -2108,3 +2108,20 @@ rep("function drawSprite(c,f,sh){","const RUNSTEPS={'f_guanyu':4,'f_weiyan':3,'f
 rep("else if(row===1)fr=Math.floor(f.run*nf/10.4)%nf;","else if(row===1)fr=Math.floor(f.run*nf/10.4*RM(sh))%nf;")
 # sparring list order: Hero, high-War ladies, other ladies, high-War men, then everyone else (each by War, high first)
 rep("function openSparring(){const L=galList().map(g=>sparGen(g.k)).filter(Boolean);","function openSparring(){const SPR=g=>g.id==='hero'?0:isFem(g)?(g.war>=90?1:2):g.war>=90?3:4;const L=galList().map(g=>sparGen(g.k)).filter(Boolean).sort((a,b)=>SPR(a)-SPR(b)||b.war-a.war);")
+# fight scene: a general 20+ War weaker than his opponent hangs back; the stronger one cuts into the enemy ranks
+rep("S.shoot=S.acts&&S.u.type==='archer'}","S.shoot=S.acts&&S.u.type==='archer'}for(const S of [SL,SR]){const O=S===SL?SR:SL;S.opp=O;S.back=!r.charge&&(S.u.war||0)<=(O.u.war||0)-20;S.pb=S.u.type==='archer'&&O.melee}for(const S of [SL,SR])S.step=S.pb&&!S.back&&!S.opp.back&&!r.charge;")
+rep("A.off.tx=both?line-f*58:line-f*40}","A.off.tx=A.back?A.off.hx:B.back?line+f*30:both?line-f*58:line-f*40}")
+rep("else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1200)orun","else if(S.melee&&!flee&&!S.hold&&!S.back){if(t>600&&t<1200)orun")
+rep("S.melee&&!flee&&t>=1200&&t<=2700,slow:ochf","(S.melee&&!S.back&&!flee&&t>=1200&&t<=2700||S.step&&!flee&&t>=1800&&t<=2700),slow:ochf")
+rep("turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1","turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold&&!S.back?TURN(t,[2700,3500]):1")
+# archer general within 20 War steps out after his volley and meets the attacking general; a weak one stays back and keeps shooting
+rep("function sXo(s,S,t){if(S.ch||!S.melee)return sX(s,S,t);","function sXo(s,S,t){if(S.step){const m=S.opp.off.tx+S.opp.face*116;if(t<1400)return s.hx;if(t<1800)return lerp(s.hx,m,ease((t-1400)/400));if(t<2700)return m;if(t<3500)return lerp(m,s.hx,ease((t-2700)/800));return s.hx}if(S.ch||!S.melee)return sX(s,S,t);")
+rep("if(fate==='breakout'&&t>2400&&t<2800){osw","if(S.step&&!flee){if(t>1400&&t<1800)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}}\n        if(fate==='breakout'&&t>2400&&t<2800){osw")
+rep("shoot:S.shoot&&t>600&&t<1400,fight:S.ch","shoot:S.shoot&&t>600&&t<(S.back?2700:1400),fight:S.ch")
+# archer soldiers shoot point-blank at the melee troops that reach them
+rep("S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf","(S.melee||S.pb&&t>=1600)&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf")
+# no more duels
+rep("ah+=rb('data-a=\"duel\" title=\"Challenge an adjacent officer\"','挑','Duel',duelTargets(s).length>0);","")
+rep("You control the left side; specials and duels work as in a normal battle.","You control the left side; specials work as in a normal battle.")
+rep("<div>\n        <h4>Duels</h4>\n        <p>Officers with War 70+ can challenge an adjacent officer once. Five rounds of Strike, Guard or Feint. Read the enemy's tell; it is right about two times in three. The loser's unit loses 30% of its troops and misses its next turn.</p>\n      </div>","")
+rep("War:'War: strength in battle and duels.'","War:'War: strength in battle.'")

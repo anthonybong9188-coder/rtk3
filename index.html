@@ -762,10 +762,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
         <h4>Generals</h4>
         <p>Each general charges into battle with his troops. Generals with War above 80 add 1% damage per point, so Guan Yu (97) hits 17% harder.</p>
       </div>
-      <div>
-        <h4>Duels</h4>
-        <p>Officers with War 70+ can challenge an adjacent officer once. Five rounds of Strike, Guard or Feint. Read the enemy's tell; it is right about two times in three. The loser's unit loses 30% of its troops and misses its next turn.</p>
-      </div>
+      
       <div>
         <h4>Victory</h4>
         <p>Break the enemy commander's force (gold border) or every enemy unit. The attacker has 15 turns; after that the defender wins. You lose if your own commander's force breaks. Tap an enemy to attack it; your unit moves into range on its own.</p>
@@ -1218,7 +1215,7 @@ function updateUI0(){
     ah+=rb('data-a="attack"',s.type==='archer'?'射':'攻',s.type==='archer'?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
     for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
     {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
-    ah+=rb('data-a="duel" title="Challenge an adjacent officer"','挑','Duel',duelTargets(s).length>0);
+    
     ah+=rb('data-a="wait" title="End this unit\'s turn"','待','Wait',true);
   }
   let tp='';
@@ -1734,14 +1731,14 @@ function setTargets(A,B,both){
     if(both&&r<.5)s.tx=line+f*(18+Math.random()*70);            // broke through into the enemy ranks
     else s.tx=line-f*((both?16:40)+s.col*30+Math.random()*48);    // pressing in behind / beside the front
   }
-  A.off.tx=both?line-f*58:line-f*40}
+  A.off.tx=A.back?A.off.hx:B.back?line+f*30:both?line-f*58:line-f*40}
 function schedule(S,n,kind){const pool=[...S.sol].sort((a,b)=>(kind==='arrow'?0:a.col-b.col)+(Math.random()-.5)*1.2);for(let k=0;k<n&&k<pool.length;k++)pool[k].deathT=kind==='arrow'?1280+Math.random()*450:1650+Math.random()*950}
 function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.off.hx].map(pr),mine=[...S.sol.map(s=>s.hx),S.off.hx].map(pr);
   const Ef=Math.min(...ox),Er=Math.max(...ox),fr=Math.max(...mine),bk=Math.min(...mine),Df=Er+125-bk,xf=f*(fr+Df);
   S.ch={f,Ef,Er,Dc:Ef-24-fr,Dp:Er+24-fr,Df,cam:f===1?Math.max(0,xf-(W-185)):-Math.max(0,185-xf)}}
 function chCam(S,t){return !S||t<1050?0:lerp(0,S.ch.cam,ease(clamp((t-1050)/2350)))}
 function chD(S,t){const c=S.ch;if(t<600)return 0;if(t<1050)return lerp(0,c.Dc,(t-600)/450);if(t<2300)return lerp(c.Dc,c.Dp,(t-1050)/1250);if(t<3400)return lerp(c.Dp,c.Df,ease((t-2300)/1100));return c.Df}
-function sXo(s,S,t){if(S.ch||!S.melee)return sX(s,S,t);if(t<600)return s.hx;if(t<1200){const k=(t-600)/600;return lerp(s.hx,s.tx,1-(1-k)*(1-k)*.6-(1-k)*.4)}if(t<2700)return s.tx;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
+function sXo(s,S,t){if(S.step){const m=S.opp.off.tx+S.opp.face*116;if(t<1400)return s.hx;if(t<1800)return lerp(s.hx,m,ease((t-1400)/400));if(t<2700)return m;if(t<3500)return lerp(m,s.hx,ease((t-2700)/800));return s.hx}if(S.ch||!S.melee)return sX(s,S,t);if(t<600)return s.hx;if(t<1200){const k=(t-600)/600;return lerp(s.hx,s.tx,1-(1-k)*(1-k)*.6-(1-k)*.4)}if(t<2700)return s.tx;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 function sX(s,S,t){if(S.ch)return s.hx+S.ch.f*chD(S,t);if(!S.melee)return s.hx;const d=s.dl||0;if(t<600+d)return s.hx;if(t<1500+d)return lerp(s.hx,s.tx,ease((t-600-d)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 let parts=[];
 function burst(x,y,n,col,spd){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=spd*(.4+Math.random());parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,life:1,col})}}
@@ -1796,7 +1793,7 @@ function playBattle0_(att,def,r){
     if(speed===0){resolve();return}
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
-    for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}
+    for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}for(const S of [SL,SR]){const O=S===SL?SR:SL;S.opp=O;S.back=!r.charge&&(S.u.war||0)<=(O.u.war||0)-20;S.pb=S.u.type==='archer'&&O.melee}for(const S of [SL,SR])S.step=S.pb&&!S.back&&!S.opp.back&&!r.charge;
     const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}}if(false&&both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
@@ -1826,15 +1823,16 @@ function playBattle0_(att,def,r){
           if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}
           if((S.ch?chf:S.melee&&alive&&t>1500+(s.dl||0)&&t<2700)&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6);
           let srd=false;if(capS&&S!==capS&&alive&&t>3000){const k=ease(clamp((t-3000)/650)),sg=s.i%2?1:-1,tx2=capX+sg*(38+((s.i>>1)%3)*22);x=lerp(x,tx2,k);face=x<capX?1:-1;if(k<1)run=t*.03+s.seed;else run=null;sw=0;srd=true}
-          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT||1050)+s.col*110&&t<=(S.holdE||2500):S.melee&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
+          items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run,swing:sw,fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT||1050)+s.col*110&&t<=(S.holdE||2500):(S.melee||S.pb&&t>=1600)&&alive&&t>=1500+(s.dl||0)&&t<=2700,slow:chf,seed:s.seed,turn:srd?1:S.melee&&alive&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:srd?null:S.ch?(alive&&t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&alive&&!S.ch&&!S.hold&&TURNSH[S.u.type]?TURNK(t,[2700,3500]):null,tf:S.face,shoot:S.shoot&&alive&&t>600&&t<1400,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.35,1-(t-s.deathT-400)/800)}})}
         const fate=(S.after<=0)?S.u.fate||'escape':null,o=S.off,flee=fate&&fate!=='capture'&&t>(fate==='breakout'?2800:2900)?ease(clamp((t-(fate==='breakout'?2800:2900))/(fate==='breakout'?650:900))):0,ox=sXo(o,S,fate==='capture'?Math.min(t,2700):flee?Math.min(t,2900):t)+(S.pushed?-S.face*70*ease(clamp((t-1900)/700)):0);let orun=null,oface=S.face,osw=0;
-        let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold){if(t>600&&t<1200)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1200&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
+        let ochf=false;if(S.ch&&!flee){const p=S.ch.f*ox;ochf=t>600&&t<3400&&p>=S.ch.Ef-24&&p<=S.ch.Er+24;if(ochf)osw=(Math.sin(t*.012)+1)/2;else if(t>600&&t<3300)orun=t*(t>2300?.05:.034)+1;if(t>=3450+TURN_MS)oface=-S.face}else if(S.melee&&!flee&&!S.hold&&!S.back){if(t>600&&t<1200)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}else if(t>=1200&&t<=2700){osw=(Math.sin(t*.022)+1)/2;if(Math.random()<.12*Math.min(dt,30)/16)burst(ox+S.face*22*o.s,o.y-26*o.s,6,'#ffe7a8',3.2)}}
+        if(S.step&&!flee){if(t>1400&&t<1800)orun=t*.03+1;else if(t>2700&&t<3500){orun=t*.03+1;oface=-S.face}}
         if(fate==='breakout'&&t>2400&&t<2800){osw=(Math.sin(t*.03)+1)/2;orun=null;if(Math.random()<.35*Math.min(dt,30)/16)burst(ox+(Math.random()-.5)*60,o.y-30,7,'#ffe7a8',3.4)}
         if(flee){orun=t*(fate==='breakout'?.045:.03);oface=-S.face}
         if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y,s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<1400,fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):S.melee&&!flee&&t>=1200&&t<=2700,slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y,s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<(S.back?2700:1400),fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):(S.melee&&!S.back&&!flee&&t>=1200&&t<=2700||S.step&&!flee&&t>=1800&&t<=2700),slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold&&!S.back?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
       items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
@@ -2313,7 +2311,7 @@ async function requestDlg(c){openMarch(c.id,null,'transfer')}
 const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its population.',Training:'How well drilled the troops are. Fully trained troops hit about 30% harder.',
   Farming:'Sets the rice harvest in the 7th month (40 rice per point).',Commerce:'Sets the gold the city earns each month, scaled by order.',Walls:'Fortifications. Higher walls make defenders much stronger in sieges.',
   Order:'Public order. Low order cuts income; below 30 troops start to desert.',Population:'People living here. Limits recruiting and grows when order is 60 or more.',Harvest:'Months until the next harvest (7th month).',
-  War:'War: strength in battle and duels.',Int:'Intelligence: fire attacks, searching, persuading and envoys.',Pol:'Politics: farming, commerce and walls.',Cha:'Charisma: recruiting and how loyal your officers stay.',Loy:'Loyalty: below 75 rivals can lure him away; below 60 he may leave on his own. Reward raises it.',
+  War:'War: strength in battle.',Int:'Intelligence: fire attacks, searching, persuading and envoys.',Pol:'Politics: farming, commerce and walls.',Cha:'Charisma: recruiting and how loyal your officers stay.',Loy:'Loyalty: below 75 rivals can lure him away; below 60 he may leave on his own. Reward raises it.',
   Gold:'Total gold in all your cities. Each city pays for its own orders and officers (5 gold each a month); move gold with Transfer.',Rice:'Total rice in all your cities. Troops eat from their own city: 0.1 a month per soldier, 0.2 on the march.','City gold':'Gold kept in this city. Its orders, rewards and officer salaries are paid from here.','City rice':'Rice kept in this city. Its troops eat from here and its harvest lands here.',Cities:'Cities you hold. Hold 10 of the 14 by the end of 215 to win.',
   Status:'Ready: can act this month. Done: has acted. Assigned: on a long-term task.'};
 (()=>{let t=null,tipEl=null;const show=(el,x,y)=>{hide();const k=el.dataset.tip;if(!TIPS[k])return;tipEl=document.createElement('div');tipEl.className='tipbox';tipEl.innerHTML=`<b>${k}</b> ${TIPS[k]}`;document.body.appendChild(tipEl);
@@ -2506,7 +2504,7 @@ function openSparring(){const SPR=g=>g.id==='hero'?0:isFem(g)?(g.war>=90?1:2):g.
   ov.innerHTML=`<div style="position:sticky;top:0;background:#1d1510;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #5a4630;z-index:2"><b style="font-size:18px;flex:1">⚔ Sparring</b><button id="galClose">Close</button></div>
   <div style="padding:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch">${side('a')}<div style="align-self:center;font-size:28px;color:#ffd27a;padding:0 4px">VS</div>${side('b')}</div>
   <div style="padding:0 12px 16px;display:flex;justify-content:center"><button id="sparGo" class="primary" style="font-size:18px;padding:10px 40px">Start</button></div>
-  <p style="padding:0 14px;opacity:.6;font-size:12px;text-align:center">Both generals start with their default HP and 1000 soldiers, two squares apart. You control the left side; specials and duels work as in a normal battle.</p>`;
+  <p style="padding:0 14px;opacity:.6;font-size:12px;text-align:center">Both generals start with their default HP and 1000 soldiers, two squares apart. You control the left side; specials work as in a normal battle.</p>`;
   ov.style.display='block';$('#galClose').onclick=()=>{ov.style.display='none'};
   ov.querySelectorAll('select[data-g]').forEach(el=>el.onchange=()=>{const s=el.dataset.g;SPAR[s]=el.value;SPAR['t'+s]=null;openSparring()});
   ov.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{SPAR['t'+b.dataset.t]=b.dataset.v;openSparring()});
