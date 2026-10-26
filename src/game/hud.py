@@ -2125,3 +2125,6 @@ rep("ah+=rb('data-a=\"duel\" title=\"Challenge an adjacent officer\"','挑','Due
 rep("You control the left side; specials and duels work as in a normal battle.","You control the left side; specials work as in a normal battle.")
 rep("<div>\n        <h4>Duels</h4>\n        <p>Officers with War 70+ can challenge an adjacent officer once. Five rounds of Strike, Guard or Feint. Read the enemy's tell; it is right about two times in three. The loser's unit loses 30% of its troops and misses its next turn.</p>\n      </div>","")
 rep("War:'War: strength in battle and duels.'","War:'War: strength in battle.'")
+# fight-scene corner portraits slowly zoom in from half body to head-and-chest during the fight
+rep("function lmHalfPort(c,u,side){const im=portImg(u.id),h=157,w=h*360/540,x=side==='L'?-4:W-w+4,y=H-h+14;","function lmHalfPort(c,u,side,t){const im=portImg(u.id),z=1+.5*ease(clamp((t||0)/3200)),h0=157,w0=h0*360/540,x0=side==='L'?-4:W-w0+4,y0=H-h0+14,h=h0*z,w=w0*z,x=x0+w0*.5-w*.5,y=y0+h0*.24-h*.24;")
+rep("lmHalfPort(c,SL.u,'L');lmHalfPort(c,SR.u,'R');","lmHalfPort(c,SL.u,'L',t);lmHalfPort(c,SR.u,'R',t);")
