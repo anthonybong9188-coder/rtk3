@@ -2015,3 +2015,5 @@ rep("const SPS=new Set(['hero',","const SPS=new Set(['hero','pang_tong',")
 rep("'rally','burncamps'].includes(k))delete HERO[k];","'rally','burncamps','sharp','ambush'].includes(k))delete HERO[k];")
 # Drop the unowned Song of Solace (mend) special (25 Oct)
 rep("'lone','wind','star','mend','burn'","'lone','wind','star','burn'")
+# Generic officers on foot (26 Oct): warrior 'general', strategist 'gstrat' (Int > War), female 'fgeneral'
+rep("const femKey=u=>!u?false:GSHEET[u.id]||(FEM.has(u.id)?","const femKey=u=>!u?false:GSHEET[u.id]||(!FEM.has(u.id)&&u.id&&(u.int||0)>(u.war||0)&&u.hpMax!==0&&!['tiger','wolf','undead','peasant'].includes(u.type)?'gstrat':false)||(FEM.has(u.id)?")
