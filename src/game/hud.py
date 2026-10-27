@@ -2150,3 +2150,5 @@ rep("y=y0+h0*.24-h*.24;","y=y0+h0*.24-h*.24+h0*.2;")
 rep("const bR=makeBG0(tr,defSide,false);if(BGUSE[tl]===BGUSE[tr])return lmGrade(bR,LM_G1);","const bR=makeBG0(terAt(def.x,def.y),defSide,false);return lmGrade(bR,LM_G1);")
 # Guan Yinping's run loop holds only 1 step (others 2-3) -> she looked like a slow jog; play her loop 2x
 rep("const RUNSTEPS={'f_guanyu':4,","const RUNSTEPS={'f_guanyinping':1,'f_guanyu':4,")
+# Standard pace = 2 steps per loop for everyone: tell the game the real steps in each run loop (measured 27 Oct)
+rep("const RUNSTEPS={'f_guanyinping':1,","const RUNSTEPS={'f_zhurong':1,'f_consortzhao':3,'f_hero':3,'f_huangwenjing':3,'f_huangyueying':3,'f_jiangchen':3,'f_lubu':3,'f_miren':3,'f_sunshangxiang':3,'f_xunyou':3,'f_zhouyu':3,'gstrat':3,'f_sunquan':3,'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,")
