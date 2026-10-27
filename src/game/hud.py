@@ -2148,3 +2148,5 @@ rep("drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0,slo
 rep("y=y0+h0*.24-h*.24;","y=y0+h0*.24-h*.24+h0*.2;")
 # fight background: always the defender's terrain, no split
 rep("const bR=makeBG0(tr,defSide,false);if(BGUSE[tl]===BGUSE[tr])return lmGrade(bR,LM_G1);","const bR=makeBG0(terAt(def.x,def.y),defSide,false);return lmGrade(bR,LM_G1);")
+# Guan Yinping's run loop holds only 1 step (others 2-3) -> she looked like a slow jog; play her loop 2x
+rep("const RUNSTEPS={'f_guanyu':4,","const RUNSTEPS={'f_guanyinping':1,'f_guanyu':4,")
