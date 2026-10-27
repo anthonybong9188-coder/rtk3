@@ -2152,3 +2152,5 @@ rep("const bR=makeBG0(tr,defSide,false);if(BGUSE[tl]===BGUSE[tr])return lmGrade(
 rep("const RUNSTEPS={'f_guanyu':4,","const RUNSTEPS={'f_guanyinping':1,'f_guanyu':4,")
 # Standard pace = 2 steps per loop for everyone: tell the game the real steps in each run loop (measured 27 Oct)
 rep("const RUNSTEPS={'f_guanyinping':1,","const RUNSTEPS={'f_zhurong':1,'f_consortzhao':3,'f_hero':3,'f_huangwenjing':3,'f_huangyueying':3,'f_jiangchen':3,'f_lubu':3,'f_miren':3,'f_sunshangxiang':3,'f_xunyou':3,'f_zhouyu':3,'gstrat':3,'f_sunquan':3,'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,")
+# Ren Rui new sheet (27 Oct): run loop holds 1 step
+rep("const RUNSTEPS={'f_zhurong':1,","const RUNSTEPS={'f_renrui':1,'f_zhurong':1,")
