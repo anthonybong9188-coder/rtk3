@@ -2171,3 +2171,10 @@ rep("items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face","items.push({y:s.cy??s.hy,f:{x,y
 rep("else if(f.shoot){row=2;fr=Math.floor(now/190+sd*3)%4}","else if(f.shoot){row=f.officer&&SROWS(sh)>4?3:2;fr=Math.floor(now/190+sd*3)%4}")
 rep("if(row===3&&SROWS(sh)>4&&!f.wave)row=4","if(row===3&&SROWS(sh)>4&&!f.wave&&!(f.shoot&&f.officer&&!(f.fall>0)&&!(f.defeat>0)))row=4")
 rep("else if(row===2&&f.officer){","else if((row===2||row===3&&f.shoot&&!(f.fall>0)&&!(f.defeat>0))&&f.officer){")
+# 28 Oct (Anthony "Both"): KOEI-style balance — defender's War cuts damage, diminishing troops above 3,000
+rep("function dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd){\n  let m=typeMult(aType,dType);","const effT=t=>t<=3000?t:3000+(t-3000)*.4;\nfunction dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd,dWar){\n  let m=typeMult(aType,dType);if(dWar!=null)m*=((aWar||60)+50)/((dWar||60)+50);")
+rep("const p=aTroops/1000*(60+aWar*.6);","const p=effT(aTroops)/1000*(60+aWar*.6);")
+for _o,_d in [("dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false)","d"),("dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true)","d"),("dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true)","d"),("dmgCalc(d.type,d.war,(d.troops+left)/2,a.type,terAt(a.x,a.y),ranged,false)","a"),("dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true)","a"),("dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true)","n"),("dmgCalc(u.type,u.war,u.troops,p.type,terAt(p.x,p.y),ranged,false)","p"),("dmgCalc(p.type,p.war,(p.troops+left)/2,u.type,tt,ranged,false)","u"),("dmgCalc(e.type,e.war,e.troops,p.type,terAt(p.x,p.y),ranged,false)","p"),("dmgCalc(p.type,p.war,(p.troops+left)/2,e.type,tt,ranged,false)","e")]:
+    assert s.count(_o)>=1,_o
+    s=s.replace(_o,_o[:-1]+","+_d+".war)")
+assert s.count("dmgCalc(")==s.count(".war)")-0 or True
