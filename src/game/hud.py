@@ -2154,3 +2154,4 @@ rep("const RUNSTEPS={'f_guanyu':4,","const RUNSTEPS={'f_guanyinping':1,'f_guanyu
 rep("const RUNSTEPS={'f_guanyinping':1,","const RUNSTEPS={'f_zhurong':1,'f_consortzhao':3,'f_hero':3,'f_huangwenjing':3,'f_huangyueying':3,'f_jiangchen':3,'f_lubu':3,'f_miren':3,'f_sunshangxiang':3,'f_xunyou':3,'f_zhouyu':3,'gstrat':3,'f_sunquan':3,'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,")
 # Ren Rui new sheet (27 Oct): run loop holds 1 step
 rep("const RUNSTEPS={'f_zhurong':1,","const RUNSTEPS={'f_renrui':1,'f_zhurong':1,")
+rep("'f_guanyinping':1,'f_guanyu':4,","'f_guanyinping':1,")
