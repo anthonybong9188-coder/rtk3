@@ -2167,3 +2167,7 @@ rep("function sX(s,S,t){if(S.ch)","function sX(s,S,t){if(s.dtx!=null){if(t<600)r
 rep("if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}","if(s.duel){const kq=t<600?0:t<1200?ease((t-600)/600):t<2700?1:t<3500?1-ease((t-2700)/800):0;s.cy=s.hy+s.dy*kq}if(s.duel&&alive){run=(t>600&&t<1200)||(t>2700&&t<3500)?t*.03+s.seed:null;face=t>2700&&t<3500?-S.face:S.face;sw=0;if(t>1200&&t<2700&&Math.random()<.05*Math.min(dt,30)/16)burst(x+S.face*16*s.s,s.hy-22*s.s,4,'#ffe7a8',2.6)}if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,10,'#c4473a',2.2)}")
 rep("fight:srd?false:S.ch?chf:S.hold?alive&&t>=(S.holdT","fight:srd?false:s.duel?alive&&t>=1200&&t<=2700:S.ch?chf:S.hold?alive&&t>=(S.holdT")
 rep("items.push({y:s.hy,f:{x,y:s.hy,s:s.s,face","items.push({y:s.cy??s.hy,f:{x,y:s.cy??s.hy,s:s.s,face",2)
+# 28 Oct (Anthony): archer generals shooting play their RANGED clip (row 3 on 5-row sheets), not the melee swing
+rep("else if(f.shoot){row=2;fr=Math.floor(now/190+sd*3)%4}","else if(f.shoot){row=f.officer&&SROWS(sh)>4?3:2;fr=Math.floor(now/190+sd*3)%4}")
+rep("if(row===3&&SROWS(sh)>4&&!f.wave)row=4","if(row===3&&SROWS(sh)>4&&!f.wave&&!(f.shoot&&f.officer&&!(f.fall>0)&&!(f.defeat>0)))row=4")
+rep("else if(row===2&&f.officer){","else if((row===2||row===3&&f.shoot&&!(f.fall>0)&&!(f.defeat>0))&&f.officer){")
