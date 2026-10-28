@@ -2155,3 +2155,7 @@ rep("const RUNSTEPS={'f_guanyinping':1,","const RUNSTEPS={'f_zhurong':1,'f_conso
 # Ren Rui new sheet (27 Oct): run loop holds 1 step
 rep("const RUNSTEPS={'f_zhurong':1,","const RUNSTEPS={'f_renrui':1,'f_zhurong':1,")
 rep("'f_guanyinping':1,'f_guanyu':4,","'f_guanyinping':1,")
+# weak generals (War 20+ below the enemy) stay back but play their ranged attack from there (Anthony 28 Oct)
+rep("if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}","if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}if(S.back&&S.melee&&!r.charge){S.rb=1;S.rbw=!!(sh&&SROWS(sh)>4)}")
+rep("wave:S.wave,ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun","wave:S.wave||(S.rbw&&!flee&&t>=1200&&t<=2700?1:0),ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun")
+rep("(S.melee&&!S.back&&!flee&&t>=1200&&t<=2700||S.step","(S.melee&&(!S.back||S.rb)&&!flee&&t>=1200&&t<=2700||S.step")
