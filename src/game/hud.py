@@ -2179,3 +2179,9 @@ for _o,_d in [("dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false
     s=s.replace(_o,_o[:-1]+","+_d+".war)")
 assert s.count("dmgCalc(")==s.count(".war)")-0 or True
 rep("'f_zhangliao':3,","")
+# 29 Oct: new Grok sheets for Sun Quan / Zhou Yu (standard run pace); Huang Gai gets his own sheet + cut-in; Sun Quan cut-in
+rep("'f_sunquan':3,","")
+rep("'f_zhouyu':3,","")
+rep("const GSHEET={","const GSHEET={huanggai:'f_huanggai',")
+rep("VIDS=new Set([","VIDS=new Set(['sun_quan','huang_gai',")
+rep("const SPS=new Set([","const SPS=new Set(['huang_gai',")
