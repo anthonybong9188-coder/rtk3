@@ -2178,3 +2178,4 @@ for _o,_d in [("dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false
     assert s.count(_o)>=1,_o
     s=s.replace(_o,_o[:-1]+","+_d+".war)")
 assert s.count("dmgCalc(")==s.count(".war)")-0 or True
+rep("'f_zhangliao':3,","")
