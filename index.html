@@ -1481,7 +1481,7 @@ function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)||type==='tiger'
 const TURNSH={cav:1,archer:1,general:1},TURN_MS=360;
 function TURNK(t,ts){return null;for(let i=0;i<ts.length;i++)if(t>=ts[i]&&t<ts[i]+TURN_MS)return [i,(t-ts[i])/TURN_MS];return null}
 function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}
-const RUNSTEPS={'f_renrui':1,'f_zhurong':1,'f_consortzhao':3,'f_hero':3,'f_huangwenjing':3,'f_huangyueying':3,'f_jiangchen':3,'f_lubu':3,'f_miren':3,'f_sunshangxiang':3,'f_xunyou':3,'gstrat':3,'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,'f_weiyan':3,'undead':4};function RM(sh){if(sh._rm==null){const n=(sh.src||'').split('/').pop().split('.')[0];sh._rm=4/(RUNSTEPS[n.slice(0,n.lastIndexOf('_'))]||2)}return sh._rm}
+const RUNSTEPS={'f_renrui':1,'f_zhurong':1,'f_consortzhao':3,'f_hero':3,'f_huangwenjing':3,'f_huangyueying':3,'f_jiangchen':3,'f_lubu':3,'f_miren':3,'f_sunshangxiang':3,'f_xunyou':3,'gstrat':3,'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,'undead':4};function RM(sh){if(sh._rm==null){const n=(sh.src||'').split('/').pop().split('.')[0];sh._rm=4/(RUNSTEPS[n.slice(0,n.lastIndexOf('_'))]||2)}return sh._rm}
 function drawSprite(c,f,sh){
   const now=performance.now(),sd=f.seed||0;let row=0,fr=0;const SRC=f.src||f;if(!(f.fight||f.shoot))SRC._ft=null;
   if(f.fall>0){row=3;fr=Math.min(3,Math.floor(f.fall*4))}
