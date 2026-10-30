@@ -906,7 +906,7 @@ const HPM=u=>(u.type==='tiger'||u.type==='wolf')?0:u.id==='garrison'?300:Math.ro
 const gapF=(a,d)=>d.hpMax&&d.troops<=d.hpMax?Math.max(.6,1+.15*((a.war||60)-(d.war||60))/10):1;
 const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1)*(u.rallyT>0?1.2:1)*(typeof G!=='undefined'&&G&&u.boostT===G.turn?1.3:1)*(typeof G!=='undefined'&&G&&G.cfg&&G.cfg.hulao?(u.side==='shu'?.5:.1):1);
 function besideHill(e){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inb(e.x+dx,e.y+dy)&&terAt(e.x+dx,e.y+dy)==='h')}
-function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5))}
+function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5+(u.side==='shu'&&typeof advBattleBonus==='function'?advBattleBonus():0)))}
 function fireBurn(e,ew){return Math.min(e.troops,Math.max(500,Math.round(e.troops*.2))*(ew?2:1))}
 function fireDmg(u,e,rnd){const t=terAt(e.x,e.y);const m=t==='f'?1.8:t==='c'?.6:t==='='?1.2:1;return Math.round((110+u.int*1.4)*m*(rnd?.9+Math.random()*.2:1))}
 function forecast(a,d,o={}){
@@ -2505,7 +2505,7 @@ function doCmd(k,g,c,f){
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
   if(k==='search'){const tip=f==='shu'&&S.advTip&&S.advTip.city===c.id&&S.advTip.m===dateNum()?S.advTip:null;const tg=tip&&tip.k==='gen'?S.gens[tip.id]:null;
-    const ch=tip?1:Math.min(.9,(s*.6+10)/100);const hid=tg&&tg.hidden&&tg.city===c.id?tg:Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
+    const ch=tip?(tip.p??100)/100:Math.min(.9,(s*.6+10)/100);const hid=tg&&tg.hidden&&tg.city===c.id?tg:Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
     ensureTr();const trH=f==='shu'?(tip&&tip.k==='item'&&S.tr[tip.id]===null?tip.id:Object.keys(S.trHide||{}).find(t=>S.trHide[t]===c.id&&S.tr[t]===null)):null;
     const god=g.id===LORD()&&f==='shu'&&nextGod();
     if(god){god.hidden=false;god.fac='shu';god.city=c.id;god.acted=true;UI.found=god.id;S.godQ=S.godQ.filter(x=>x!==god.id);if(isHeroMode()){god.name='Consort '+GODN[god.id];god.loy=100;UI.found=null;UI.consort=god.id}m=`A light falls from heaven over ${c.name}. ${god.name} descends and kneels before ${LN()}!`}
@@ -3335,6 +3335,10 @@ setTimeout(()=>{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(
 
 // ---- 軍師 strategist (Anthony 30 Oct): the ruler appoints ONE officer with Int above 95; every month he gives advice ----
 const ADV_INT=95;
+// higher Int = better strategist (Anthony 30 Oct): points of advice, foresight, tip certainty, battle bonus
+const advPts=g=>g.int>=100?3:g.int>=98?2:1, advSees=g=>g.int>=98, advTipP=g=>Math.min(100,80+Math.max(0,g.int-96)*5), advBonus=g=>Math.max(0,Math.min(5,g.int-95));
+function advBattleBonus(){try{if(typeof S==='undefined'||!S||!S.adv||!G||!G.units)return 0;const a=G.units.find(u=>u.id===S.adv&&u.side==='shu');const g=S.gens[S.adv];return a&&g&&advOK(g)?advBonus(g):0}catch(e){return 0}}
+const advPerks=g=>`${advPts(g)} point${advPts(g)>1?'s':''} of advice a month · ${advSees(g)?'foresees gathering threats and coming riots':'warns of armies already marching and riots already raging'} · tips ${advTipP(g)}% sure · +${advBonus(g)}% to Fire, Rock Slide and Ambush in battles he joins`;
 const advOK=g=>!!g&&g.fac==='shu'&&!g.hidden&&g.city!=null&&g.int>ADV_INT&&!isRuler(g);
 function advisor(){if(!S)return null;const g=S.adv?S.gens[S.adv]:null;if(S.adv&&!advOK(g)){S.adv=null;S.advice=null}return S.adv?g:null}
 const advCands=()=>Object.values(S.gens).filter(advOK).sort((a,b)=>b.int-a.int);
@@ -3344,41 +3348,41 @@ function advSlot(){const g=advisor();
     :`<div class="advb none off"><span class="czh big">軍師</span><span><b>No strategist</b><small>No officer has Int above ${ADV_INT} yet</small></span></div>`}
 async function appointAdvDlg(){const cs=advCands(),cur=advisor();if(!cs.length)return;
   const r=await dialog(`<h2>軍師 Appoint a strategist</h2><p class="muted">${LN()} may name one strategist. He must have Int above ${ADV_INT}. Each month he advises on threats, unrest, hidden talent and treasure, and weak neighbours.</p>
-    <div class="tlist">${cs.map(g=>`<button data-r="g:${g.id}" ${cur===g?'disabled':''}>${gseal(g,30)}<span>${g.name} <small>Int ${g.int} · ${C(g.city).name}${cur===g?' · current':''}</small></span></button>`).join('')}</div>`,[...(cur?[['dismiss','Dismiss '+cur.name]]:[]),['cancel','Cancel']]);
+    <div class="tlist">${cs.map(g=>`<button data-r="g:${g.id}" ${cur===g?'disabled':''}>${gseal(g,30)}<span>${g.name} <small>Int ${g.int} · ${C(g.city).name}${cur===g?' · current':''}<br>${advPerks(g)}</small></span></button>`).join('')}</div>`,[...(cur?[['dismiss','Dismiss '+cur.name]]:[]),['cancel','Cancel']]);
   if(r==='dismiss'){addLog(`${cur.name} steps down as ${LN()}'s strategist.`,'shu');S.adv=null;S.advice=null;save();return}
   if(!r||!r.startsWith('g:'))return;const g=S.gens[r.slice(2)];S.adv=g.id;S.advice=null;g.loy=Math.min(100,(g.loy||0)+5);
   addLog(`${LN()} names <b>${g.name}</b> as 軍師, his chief strategist.`,'shu');SND.fx&&SND.fx('chime');save()}
 function adviceNow(){const m=dateNum();if(!S.advice||S.advice.m!==m||S.advice.by!==S.adv){S.advice={m,by:S.adv,items:makeAdvice(),read:false};save()}return S.advice}
 async function adviceDlg(){const g=advisor();if(!g)return;const a=adviceNow();a.read=true;save();
-  const r=await dialog(`<div class="advhd">${gseal(g,64)}<div><h2 style="margin:0">軍師 ${g.name}</h2><p class="muted" style="margin:2px 0 0">Advice for ${S.year}, month ${S.month}</p></div></div>
+  const r=await dialog(`<div class="advhd">${gseal(g,64)}<div><h2 style="margin:0">軍師 ${g.name}</h2><p class="muted" style="margin:2px 0 0">Advice for ${S.year}, month ${S.month} · Int ${g.int}</p><p class="muted" style="margin:2px 0 0;font-size:11.5px">${advPerks(g)}</p></div></div>
     <ul class="advl">${a.items.map(it=>`<li class="k-${it.k}"><b class="at">${it.t}</b><span>${it.h}</span></li>`).join('')}</ul>`,[['change','Change strategist'],['ok','Thank you','primary']]);
   if(r==='change')await appointAdvDlg()}
-function makeAdvice(){const out=[],mine=citiesOf('shu'),mineIds=new Set(mine.map(c=>c.id)),hostile=f=>f&&f!=='shu'&&!allied('shu',f),
+function makeAdvice(){const ag=advisor(),sees=ag?advSees(ag):true,out=[],mine=citiesOf('shu'),mineIds=new Set(mine.map(c=>c.id)),hostile=f=>f&&f!=='shu'&&!allied('shu',f),
     best=(id,n)=>gensIn(id).sort((a,b)=>b.war-a.war).slice(0,n),cn=c=>`<b>${c.name}</b>`;
   // 1. armies already marching on us
   for(const a of S.armies.filter(a=>mineIds.has(a.to)&&hostile(a.fac)).sort((x,y)=>x.left-y.left).slice(0,2)){const c=C(a.to),gs=a.gens.map(id=>GN(id).name);
     out.push({p:100-a.left,k:'war',t:'Enemy on the march',h:`${fs(a.fac)} is sending ${fmt(a.troops)} troops${gs.length?` under ${gs.slice(0,2).join(' and ')}`:''} against ${cn(c)}. They arrive ${a.left<=1?'<b>next month</b>':`in ${a.left} months`}. ${cn(c)} holds ${fmt(c.troops)} troops behind walls of ${c.walls}. ${c.troops<a.troops?'Reinforce it now, or raise its walls.':'Hold the walls and they will break on them.'}`})}
   // 2. unrest: riots below order 30 (rice or pay running out pushes order down)
   for(const c of mine){const riceShort=S.month!==7&&c.rice-c.troops*RICE_CITY<0,goldShort=c.gold+c.com*.5*c.order/100*DF().inc-gensIn(c.id).length*SALARY<0,o2=c.order-(riceShort?5:0)-(goldShort?2:0);
-    if(o2<30)out.push({p:80,k:'riot',t:c.order<30?'Riots':'Unrest',h:c.order<30?`Riots are already breaking out in ${cn(c)} (order ${c.order}); every month 5% of its troops desert. Send an officer to <b>Patrol</b> there at once.`:`Order in ${cn(c)} is ${c.order}${riceShort?' and its granary will be empty next month':goldShort?' and it cannot pay its officials next month':''}. Unless it improves, <b>riots will break out next month</b> and troops will desert. Send an officer to <b>Patrol</b>${riceShort?' and move rice there':''}.`})}
+    if(o2<30&&(sees||c.order<30))out.push({p:80,k:'riot',t:c.order<30?'Riots':'Unrest',h:c.order<30?`Riots are already breaking out in ${cn(c)} (order ${c.order}); every month 5% of its troops desert. Send an officer to <b>Patrol</b> there at once.`:`Order in ${cn(c)} is ${c.order}${riceShort?' and its granary will be empty next month':goldShort?' and it cannot pay its officials next month':''}. Unless it improves, <b>riots will break out next month</b> and troops will desert. Send an officer to <b>Patrol</b>${riceShort?' and move rice there':''}.`})}
   // 3. a strong enemy beside one of our cities
   let threat=null;for(const o of mine)for(const nid of neighbours(o.id)){const e=C(nid);if(!hostile(e.owner)||S.armies.some(a=>a.to===o.id&&a.fac===e.owner))continue;
     const r=armyPower(best(e.id,3),e.troops*.7,e.train)/Math.max(1,armyPower(best(o.id,5),o.troops,o.train)*wallF(o,e.owner));if(r>.85&&(!threat||r>threat.r))threat={r,o,e}}
-  if(threat)out.push({p:60+Math.min(20,threat.r*10),k:'war',t:'A threat is gathering',h:`${fs(threat.e.owner)} has ${fmt(threat.e.troops)} troops at ${cn(threat.e)}, enough to strike ${cn(threat.o)} (${fmt(threat.o.troops)} troops). Expect an attack soon: strengthen ${cn(threat.o)}'s garrison and walls.`});
+  if(threat&&sees)out.push({p:60+Math.min(20,threat.r*10),k:'war',t:'A threat is gathering',h:`${fs(threat.e.owner)} has ${fmt(threat.e.troops)} troops at ${cn(threat.e)}, enough to strike ${cn(threat.o)} (${fmt(threat.o.troops)} troops). Expect an attack soon: strengthen ${cn(threat.o)}'s garrison and walls.`});
   // 4. hidden talent or treasure in one of our cities: a search there this month is certain
   const hid=Object.values(S.gens).filter(x=>x.hidden&&mineIds.has(x.city)&&!GODS.includes(x.id));ensureTr();
   const tr=Object.keys(S.trHide||{}).filter(t=>S.tr[t]===null&&mineIds.has(S.trHide[t]));
   if(hid.length||tr.length){const useGen=hid.length&&(!tr.length||Math.random()<.6);
-    if(useGen){const x=hid[Math.floor(Math.random()*hid.length)],c=C(x.city);S.advTip={k:'gen',id:x.id,city:c.id,m:dateNum()};
-      out.push({p:50,k:'find',t:'Hidden talent',h:`I hear that <b>${x.name}</b> (War ${x.war}, Int ${x.int}) lives quietly in ${cn(c)}. Send an officer to <b>Search</b> there this month and you will surely find them.`})}
-    else{const t=tr[Math.floor(Math.random()*tr.length)],c=C(S.trHide[t]);S.advTip={k:'item',id:t,city:c.id,m:dateNum()};
-      out.push({p:50,k:'find',t:'A lost treasure',h:`They say the <b>${TR_DEF[t][0]}</b> (${TR_DEF[t][1]}, ${trBonusTxt(t)}) lies hidden in ${cn(c)}. <b>Search</b> there this month and it will be ours.`})}}
+    if(useGen){const x=hid[Math.floor(Math.random()*hid.length)],c=C(x.city);S.advTip={k:'gen',id:x.id,city:c.id,m:dateNum(),p:ag?advTipP(ag):100};
+      out.push({p:50,k:'find',t:'Hidden talent',h:`I hear that <b>${x.name}</b> (War ${x.war}, Int ${x.int}) lives quietly in ${cn(c)}. Send an officer to <b>Search</b> there this month${S.advTip.p>=100?' and you will surely find them':` and you will very likely find them (${S.advTip.p}%)`}.`})}
+    else{const t=tr[Math.floor(Math.random()*tr.length)],c=C(S.trHide[t]);S.advTip={k:'item',id:t,city:c.id,m:dateNum(),p:ag?advTipP(ag):100};
+      out.push({p:50,k:'find',t:'A lost treasure',h:`They say the <b>${TR_DEF[t][0]}</b> (${TR_DEF[t][1]}, ${trBonusTxt(t)}) lies hidden in ${cn(c)}. <b>Search</b> there this month and it ${S.advTip.p>=100?'will':`should (${S.advTip.p}%)`} be ours.`})}}
   // 5. a weak neighbour worth attacking
   let weak=null;for(const o of mine){const go=gensIn(o.id).filter(g=>!isRuler(g)).sort((a,b)=>b.war-a.war).slice(0,5);if(!go.length)continue;
     for(const nid of neighbours(o.id)){const e=C(nid);if(!hostile(e.owner))continue;const r=armyPower(go,o.troops*.7,o.train)/Math.max(1,armyPower(best(e.id,5),e.troops,e.train)*wallF(e,'shu'));
       if(r>1.4&&(!weak||r>weak.r))weak={r,o,e}}}
   if(weak)out.push({p:40,k:'opp',t:'A chance to strike',h:`${cn(weak.e)} of ${fs(weak.e.owner)} is weakly held: ${fmt(weak.e.troops)} troops${gensIn(weak.e.id).length?'':' and no officers'}, walls ${weak.e.walls}. March from ${cn(weak.o)} with your best officers and it should fall.`});
-  out.sort((a,b)=>b.p-a.p);const pick=out.slice(0,3);
+  out.sort((a,b)=>b.p-a.p);const pick=out.slice(0,ag?advPts(ag):3);
   if(!pick.length)pick.push({k:'calm',t:'All is quiet',h:'No danger threatens us this month. Build farms and commerce, train the troops, and keep searching for talent.'});
   return pick}
 document.head.insertAdjacentHTML('beforeend',`<sty`+`le>

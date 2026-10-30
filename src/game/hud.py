@@ -2302,3 +2302,6 @@ rep("but ${e.name} sees through it (${pc}% chance) and marches on. ${h.name} is 
 rep("destroys 20% of his troops (at least 500) and stops him where he is. Ambushing reveals you'","destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'")
 rep("with the same chance and damage as Fire. If it works he stops where he is. Either way you are revealed.","His march stops there either way. If the ambush works (same chance and damage as Fire) he is also dazed and loses his turn. Either way you are revealed.")
 rep("on its turn is ambushed, His march stops there either way.","on its turn is ambushed, and his march stops there either way.")
+# strategist's battle bonus to Fire / Rock Slide / Ambush (Anthony 30 Oct)
+rep("function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5))}",
+    "function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5+(u.side==='shu'&&typeof advBattleBonus==='function'?advBattleBonus():0)))}")
