@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允先光八六兵典冬凌出刀刃分到劉劍勝化十千南卦史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫奇奕女奸妃威孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴布帥平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新旋昌明易星春昭昱晃普暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治波泰洪流淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾睛矛矢破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華葛董蒙蒯蓋蔡蔣蕊虎虛蛇蜀融蟬衛衣褚襄襲計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允先光八六兵典冬凌出刀刃分到劉劍勝化十千南卦史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫奇奕女奸妃威子孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴布帥師平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新旋昌明易星春昭昱晃普暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治法波泰洪流淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾睛矛矢破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華葛董蒙蒯蓋蔡蔣蕊虎虛蛇蜀融蟬術衛衣褚襄襲要計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -2406,7 +2406,7 @@ function renderCity(){
   let a=`<div class="cscene" style="${sceneStyle(c)}">
     ${mine&&my.length>1?`<button class="cnav prev" data-act="prevCity" aria-label="Previous city">‹</button><button class="cnav next" data-act="nextCity" aria-label="Next city">›</button>`:''}
     <div class="cscap"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?`Your city${my.length>1?` · ${idx+1} of ${my.length}`:''}`:`${F.short} · ruled by ${F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div></div>`;
-  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>`;
+  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>${mine?advSlot():''}`;
   $('#cA').innerHTML=a;
   // ---- column B: officers
   const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
@@ -2477,11 +2477,14 @@ function doCmd(k,g,c,f){
   if(k==='train'){const n=Math.min(100-c.train,Math.round(s/12)+ri(0,3));c.train+=n;m=`${g.name} drills the troops: training +${n}.`}
   if(k==='patrol'){const n=Math.min(100-c.order,Math.round(s/15)+ri(0,3));c.order+=n;m=`${g.name} patrols the streets: order +${n}.`}
   if(k==='reward'){g.rewarded=true;g.loy=Math.min(100,g.loy+8);m=`${g.name} is rewarded. Loyalty ${g.loy}.`}
-  if(k==='search'){const ch=Math.min(.9,(s*.6+10)/100);const hid=Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
+  if(k==='search'){const tip=f==='shu'&&S.advTip&&S.advTip.city===c.id&&S.advTip.m===dateNum()?S.advTip:null;const tg=tip&&tip.k==='gen'?S.gens[tip.id]:null;
+    const ch=tip?1:Math.min(.9,(s*.6+10)/100);const hid=tg&&tg.hidden&&tg.city===c.id?tg:Object.values(S.gens).find(x=>x.hidden&&x.city===c.id&&!GODS.includes(x.id));
+    ensureTr();const trH=f==='shu'?(tip&&tip.k==='item'&&S.tr[tip.id]===null?tip.id:Object.keys(S.trHide||{}).find(t=>S.trHide[t]===c.id&&S.tr[t]===null)):null;
     const god=g.id===LORD()&&f==='shu'&&nextGod();
     if(god){god.hidden=false;god.fac='shu';god.city=c.id;god.acted=true;UI.found=god.id;S.godQ=S.godQ.filter(x=>x!==god.id);if(isHeroMode()){god.name='Consort '+GODN[god.id];god.loy=100;UI.found=null;UI.consort=god.id}m=`A light falls from heaven over ${c.name}. ${god.name} descends and kneels before ${LN()}!`}
     else if(Math.random()>ch)m=`${g.name} searches ${c.name} but finds nothing.`;
-    else if(hid&&Math.random()<.6){hid.hidden=false;hid.fac=f;hid.acted=true;if(f==='shu'){hid.city=c.id;UI.found=hid.id}m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
+    else if(trH&&(tip?tip.k==='item':Math.random()<.35)){trMove(trH,'v:shu');delete S.trHide[trH];if(tip)S.advTip=null;m=`${g.name} uncovers the ${TR_DEF[trH][0]} (${TR_DEF[trH][1]}) in ${c.name}${tip?', just as the strategist foretold':''}! It goes to ${LN()}'s treasury: open 寶 to bestow it.`}
+    else if(hid&&(tip&&tip.k==='gen'||Math.random()<.6)){if(tip)S.advTip=null;hid.hidden=false;hid.fac=f;hid.acted=true;if(f==='shu'){hid.city=c.id;UI.found=hid.id}m=`${g.name} finds ${hid.name}, who agrees to serve ${FACS[f].name}!`}
     else if(Math.random()<.5){const n=ri(100,300);F.gold+=n;m=`${g.name} finds ${n} gold.`}
     else{const n=ri(5,15)*100;F.rice+=n;m=`${g.name} finds ${fmt(n)} rice.`}}
   return m}
@@ -2506,6 +2509,8 @@ document.addEventListener('click',async e=>{
   if(a==='dur'){UI.dur=+b.dataset.n;renderCity();return}
   if(a==='transfer'){openMarch(c.id,null,'transfer');return}
   if(a==='treasure'){treasureDlg(c);return}
+  if(a==='advice'){UI.busy=true;try{await adviceDlg()}finally{UI.busy=false;renderCampaign()}return}
+  if(a==='appointAdv'){UI.busy=true;try{await appointAdvDlg()}finally{UI.busy=false;renderCampaign()}return}
   if(a==='delegate'){UI.busy=true;try{await delegateDlg(c)}finally{UI.busy=false;renderCampaign()}return}
   if(a==='request'){UI.busy=true;try{await requestDlg(c)}finally{UI.busy=false;renderCampaign()}return}
   if(a==='back'){UI.mode='city';renderCity()}
@@ -3207,13 +3212,18 @@ const TR_DEF={
   shemao:['Serpent Spear','丈八蛇矛',{war:7},'zhangfei'],
   qinggang:['Qinggang Sword','青釭劍',{war:5},'zhaoyun'],
   wudi:['Invincible Sword','無敵劍',{war:5},'liubei'],
-  miejue:['Destruction Sabre','滅絕刀',{war:5},'liubei']};
+  miejue:['Destruction Sabre','滅絕刀',{war:5},'liubei'],
+  taiping:['Book of Taiping','太平要術',{int:5},null],
+  sunzi:["Sun Tzu's Art of War",'孫子兵法',{int:3,war:2},null],
+  qixing:['Seven-Star Sword','七星劍',{war:4},null]};
 const TR_STATS=['war','int','pol','cha'];
 function trBonusTxt(t){return Object.entries(TR_DEF[t][2]).map(([k,v])=>`${k[0].toUpperCase()+k.slice(1)} +${v}`).join(', ')}
 function trApply(g,t,sign){if(!g)return;for(const [k,v] of Object.entries(TR_DEF[t][2]))g[k]=(g[k]||0)+sign*v}
 // holder: officer id, or 'v:<faction>' for a faction's treasury
 function ensureTr(){if(!S)return;if(!S.tr){S.tr={}}
-  for(const t in TR_DEF)if(!(t in S.tr)){const h=TR_DEF[t][3],g=S.gens[h];if(g){S.tr[t]=h;trApply(g,t,1)}else S.tr[t]=null}}
+  for(const t in TR_DEF)if(!(t in S.tr)){const h=TR_DEF[t][3],g=S.gens[h];if(g){S.tr[t]=h;trApply(g,t,1)}else S.tr[t]=null}
+  // unowned treasures lie hidden in a city until someone searches there
+  if(!S.trHide)S.trHide={};const ids=Object.keys(S.cities);for(const t in TR_DEF)if(S.tr[t]===null&&!S.trHide[t])S.trHide[t]=ids[Math.floor(Math.random()*ids.length)]}
 const trHeld=id=>Object.keys(S.tr||{}).filter(t=>S.tr[t]===id);
 function trFac(t){const h=S.tr[t];if(!h)return null;if(h.startsWith('v:'))return h.slice(2);const g=S.gens[h];return g?g.fac:null}
 const trOf=f=>Object.keys(S.tr||{}).filter(t=>trFac(t)===f);
@@ -3295,6 +3305,65 @@ function setTitleMode(m){if(!TMODE[m])m='lb';try{localStorage.setItem('rtk3_tmod
   $('#newBtn').hidden=m!=='lb';$('#heroBtn').hidden=m!=='hero';$('#heroBtn').classList.toggle('primary',m==='hero')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-tm]');if(b)setTitleMode(b.dataset.tm)});
 setTimeout(()=>{let m='lb';try{m=localStorage.getItem('rtk3_tmode')||'lb'}catch(e){}setTitleMode(m);new Image().src=TMODE.hero.img},0);
+
+// ---- 軍師 strategist (Anthony 30 Oct): the ruler appoints ONE officer with Int above 95; every month he gives advice ----
+const ADV_INT=95;
+const advOK=g=>!!g&&g.fac==='shu'&&!g.hidden&&g.city!=null&&g.int>ADV_INT&&!isRuler(g);
+function advisor(){if(!S)return null;const g=S.adv?S.gens[S.adv]:null;if(S.adv&&!advOK(g)){S.adv=null;S.advice=null}return S.adv?g:null}
+const advCands=()=>Object.values(S.gens).filter(advOK).sort((a,b)=>b.int-a.int);
+function advSlot(){const g=advisor();
+  if(g){const a=adviceNow(),n=!a.read;return `<button class="advb${n?' new':''}" data-act="advice" aria-label="Hear the strategist's advice">${gseal(g,40)}<span><b><span class="czh">軍師</span> ${g.name}</b><small>${n?'Has advice for this month · tap to hear':'Tap to hear this month’s advice again'}</small></span>${n?'<i class="advdot"></i>':''}</button>`}
+  const cs=advCands();return cs.length?`<button class="advb none" data-act="appointAdv"><span class="czh big">軍師</span><span><b>No strategist</b><small>Appoint an officer with Int above ${ADV_INT} as 軍師</small></span></button>`
+    :`<div class="advb none off"><span class="czh big">軍師</span><span><b>No strategist</b><small>No officer has Int above ${ADV_INT} yet</small></span></div>`}
+async function appointAdvDlg(){const cs=advCands(),cur=advisor();if(!cs.length)return;
+  const r=await dialog(`<h2>軍師 Appoint a strategist</h2><p class="muted">${LN()} may name one strategist. He must have Int above ${ADV_INT}. Each month he advises on threats, unrest, hidden talent and treasure, and weak neighbours.</p>
+    <div class="tlist">${cs.map(g=>`<button data-r="g:${g.id}" ${cur===g?'disabled':''}>${gseal(g,30)}<span>${g.name} <small>Int ${g.int} · ${C(g.city).name}${cur===g?' · current':''}</small></span></button>`).join('')}</div>`,[...(cur?[['dismiss','Dismiss '+cur.name]]:[]),['cancel','Cancel']]);
+  if(r==='dismiss'){addLog(`${cur.name} steps down as ${LN()}'s strategist.`,'shu');S.adv=null;S.advice=null;save();return}
+  if(!r||!r.startsWith('g:'))return;const g=S.gens[r.slice(2)];S.adv=g.id;S.advice=null;g.loy=Math.min(100,(g.loy||0)+5);
+  addLog(`${LN()} names <b>${g.name}</b> as 軍師, his chief strategist.`,'shu');SND.fx&&SND.fx('chime');save()}
+function adviceNow(){const m=dateNum();if(!S.advice||S.advice.m!==m||S.advice.by!==S.adv){S.advice={m,by:S.adv,items:makeAdvice(),read:false};save()}return S.advice}
+async function adviceDlg(){const g=advisor();if(!g)return;const a=adviceNow();a.read=true;save();
+  const r=await dialog(`<div class="advhd">${gseal(g,64)}<div><h2 style="margin:0">軍師 ${g.name}</h2><p class="muted" style="margin:2px 0 0">Advice for ${S.year}, month ${S.month}</p></div></div>
+    <ul class="advl">${a.items.map(it=>`<li class="k-${it.k}"><b class="at">${it.t}</b><span>${it.h}</span></li>`).join('')}</ul>`,[['change','Change strategist'],['ok','Thank you','primary']]);
+  if(r==='change')await appointAdvDlg()}
+function makeAdvice(){const out=[],mine=citiesOf('shu'),mineIds=new Set(mine.map(c=>c.id)),hostile=f=>f&&f!=='shu'&&!allied('shu',f),
+    best=(id,n)=>gensIn(id).sort((a,b)=>b.war-a.war).slice(0,n),cn=c=>`<b>${c.name}</b>`;
+  // 1. armies already marching on us
+  for(const a of S.armies.filter(a=>mineIds.has(a.to)&&hostile(a.fac)).sort((x,y)=>x.left-y.left).slice(0,2)){const c=C(a.to),gs=a.gens.map(id=>GN(id).name);
+    out.push({p:100-a.left,k:'war',t:'Enemy on the march',h:`${fs(a.fac)} is sending ${fmt(a.troops)} troops${gs.length?` under ${gs.slice(0,2).join(' and ')}`:''} against ${cn(c)}. They arrive ${a.left<=1?'<b>next month</b>':`in ${a.left} months`}. ${cn(c)} holds ${fmt(c.troops)} troops behind walls of ${c.walls}. ${c.troops<a.troops?'Reinforce it now, or raise its walls.':'Hold the walls and they will break on them.'}`})}
+  // 2. unrest: riots below order 30 (rice or pay running out pushes order down)
+  for(const c of mine){const riceShort=S.month!==7&&c.rice-c.troops*RICE_CITY<0,goldShort=c.gold+c.com*.5*c.order/100*DF().inc-gensIn(c.id).length*SALARY<0,o2=c.order-(riceShort?5:0)-(goldShort?2:0);
+    if(o2<30)out.push({p:80,k:'riot',t:c.order<30?'Riots':'Unrest',h:c.order<30?`Riots are already breaking out in ${cn(c)} (order ${c.order}); every month 5% of its troops desert. Send an officer to <b>Patrol</b> there at once.`:`Order in ${cn(c)} is ${c.order}${riceShort?' and its granary will be empty next month':goldShort?' and it cannot pay its officials next month':''}. Unless it improves, <b>riots will break out next month</b> and troops will desert. Send an officer to <b>Patrol</b>${riceShort?' and move rice there':''}.`})}
+  // 3. a strong enemy beside one of our cities
+  let threat=null;for(const o of mine)for(const nid of neighbours(o.id)){const e=C(nid);if(!hostile(e.owner)||S.armies.some(a=>a.to===o.id&&a.fac===e.owner))continue;
+    const r=armyPower(best(e.id,3),e.troops*.7,e.train)/Math.max(1,armyPower(best(o.id,5),o.troops,o.train)*wallF(o,e.owner));if(r>.85&&(!threat||r>threat.r))threat={r,o,e}}
+  if(threat)out.push({p:60+Math.min(20,threat.r*10),k:'war',t:'A threat is gathering',h:`${fs(threat.e.owner)} has ${fmt(threat.e.troops)} troops at ${cn(threat.e)}, enough to strike ${cn(threat.o)} (${fmt(threat.o.troops)} troops). Expect an attack soon: strengthen ${cn(threat.o)}'s garrison and walls.`});
+  // 4. hidden talent or treasure in one of our cities: a search there this month is certain
+  const hid=Object.values(S.gens).filter(x=>x.hidden&&mineIds.has(x.city)&&!GODS.includes(x.id));ensureTr();
+  const tr=Object.keys(S.trHide||{}).filter(t=>S.tr[t]===null&&mineIds.has(S.trHide[t]));
+  if(hid.length||tr.length){const useGen=hid.length&&(!tr.length||Math.random()<.6);
+    if(useGen){const x=hid[Math.floor(Math.random()*hid.length)],c=C(x.city);S.advTip={k:'gen',id:x.id,city:c.id,m:dateNum()};
+      out.push({p:50,k:'find',t:'Hidden talent',h:`I hear that <b>${x.name}</b> (War ${x.war}, Int ${x.int}) lives quietly in ${cn(c)}. Send an officer to <b>Search</b> there this month and you will surely find them.`})}
+    else{const t=tr[Math.floor(Math.random()*tr.length)],c=C(S.trHide[t]);S.advTip={k:'item',id:t,city:c.id,m:dateNum()};
+      out.push({p:50,k:'find',t:'A lost treasure',h:`They say the <b>${TR_DEF[t][0]}</b> (${TR_DEF[t][1]}, ${trBonusTxt(t)}) lies hidden in ${cn(c)}. <b>Search</b> there this month and it will be ours.`})}}
+  // 5. a weak neighbour worth attacking
+  let weak=null;for(const o of mine){const go=gensIn(o.id).filter(g=>!isRuler(g)).sort((a,b)=>b.war-a.war).slice(0,5);if(!go.length)continue;
+    for(const nid of neighbours(o.id)){const e=C(nid);if(!hostile(e.owner))continue;const r=armyPower(go,o.troops*.7,o.train)/Math.max(1,armyPower(best(e.id,5),e.troops,e.train)*wallF(e,'shu'));
+      if(r>1.4&&(!weak||r>weak.r))weak={r,o,e}}}
+  if(weak)out.push({p:40,k:'opp',t:'A chance to strike',h:`${cn(weak.e)} of ${fs(weak.e.owner)} is weakly held: ${fmt(weak.e.troops)} troops${gensIn(weak.e.id).length?'':' and no officers'}, walls ${weak.e.walls}. March from ${cn(weak.o)} with your best officers and it should fall.`});
+  out.sort((a,b)=>b.p-a.p);const pick=out.slice(0,3);
+  if(!pick.length)pick.push({k:'calm',t:'All is quiet',h:'No danger threatens us this month. Build farms and commerce, train the troops, and keep searching for talent.'});
+  return pick}
+document.head.insertAdjacentHTML('beforeend',`<sty`+`le>
+.advb{display:flex;align-items:center;gap:10px;width:calc(100% - 20px);margin:2px 10px 10px;padding:6px 10px;border-radius:10px;border:1px solid rgba(243,210,122,.45);background:linear-gradient(90deg,rgba(243,210,122,.16),rgba(243,210,122,.04));color:inherit;text-align:left;cursor:pointer;position:relative;font:inherit}
+.advb small{display:block;opacity:.75;font-size:11.5px}.advb b .czh{color:#f3d27a;margin-right:4px}.advb .czh.big{font-size:20px;color:#f3d27a;min-width:40px;text-align:center}
+.advb.none{border-style:dashed;background:transparent}.advb.off{cursor:default;opacity:.6}
+.advb.new{animation:advglow 1.6s ease-in-out infinite}.advdot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff6a4a;box-shadow:0 0 8px #ff6a4a}
+@keyframes advglow{0%,100%{box-shadow:0 0 0 rgba(243,210,122,0)}50%{box-shadow:0 0 14px rgba(243,210,122,.55)}}
+.advhd{display:flex;gap:12px;align-items:center;margin-bottom:8px}.advl{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.advl li{padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05);border-left:3px solid #f3d27a}.advl li .at{display:block;margin-bottom:2px}
+.advl li.k-war{border-left-color:#ff7a64}.advl li.k-riot{border-left-color:#ffb15a}.advl li.k-find{border-left-color:#8fe6a0}.advl li.k-opp{border-left-color:#8fc8ff}
+</sty`+`le>`);
 
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
