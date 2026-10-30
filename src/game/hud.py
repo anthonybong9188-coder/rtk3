@@ -2305,3 +2305,7 @@ rep("on its turn is ambushed, His march stops there either way.","on its turn is
 # strategist's battle bonus to Fire / Rock Slide / Ambush (Anthony 30 Oct)
 rep("function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5))}",
     "function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5+(u.side==='shu'&&typeof advBattleBonus==='function'?advBattleBonus():0)))}")
+rep("xuhuang:'f_xuhuang',caozhang:'f_caozhang',","xuhuang:'f_xuhuang',caozhang:'f_caozhang',caoren:'f_caoren',lumeng:'f_lumeng',yuejin:'f_yuejin',")
+rep("'f_xiaoming':3,'f_caozhang':3,'f_guanyinping':1,","'f_xiaoming':3,'f_guanyinping':1,")
+rep("const SPS=new Set(['huang_gai',","const SPS=new Set(['cao_ren','lu_meng','yue_jin','huang_gai',")
+rep("VIDS=new Set(['sun_quan',","VIDS=new Set(['cao_ren','lu_meng','yue_jin','sun_quan',")
