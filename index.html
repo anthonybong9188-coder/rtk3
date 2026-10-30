@@ -2643,8 +2643,8 @@ function openMarch(from,to,mode){
   const targets=()=>neighbours(m.from).map(C).filter(t=>xfer?t.owner==='shu':(!allied('shu',t.owner)||t.owner==='shu'));
   if(m.to&&!targets().some(t=>t.id===m.to))m.to=null;
   const avail=()=>gensIn(m.from).filter(g=>!g.acted&&!(purse&&C(from).gov===g.id));
-  // default: best 4 by war (ruler stays unless alone)
-  avail().filter(g=>!isRuler(g)).sort((a,b)=>b.war-a.war).slice(0,4).forEach(g=>m.sel.add(g.id));
+  // default: best 5 by war (ruler included if among the strongest)
+  avail().sort((a,b)=>b.war-a.war).slice(0,5).forEach(g=>m.sel.add(g.id));
   if(!m.sel.size&&avail().length)m.sel.add(avail()[0].id);
   const STEP=1000,tot=()=>[...m.sel].reduce((s,id)=>s+(m.al[id]||0),0),left=()=>C(m.from).troops-tot();
   {const ids=[...m.sel].sort((a,b)=>GN(b).war-GN(a).war),goal=Math.max(ids.length*STEP,Math.floor(C(m.from).troops*.7/STEP)*STEP);let i=0;
