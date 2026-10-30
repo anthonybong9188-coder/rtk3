@@ -2233,3 +2233,38 @@ rep("    const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);\n    const m
     "    window.__WALLMODE=CW?CW.wall:null;const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);window.__WALLMODE=null;const wfront=CW&&CW.wall==='closed'?wallFront(def===R?'R':'L'):null;\n    const m=typeMult(att.type,def.type);")
 rep("      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}\n      for(const a of arrows)",
     "      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}if(wfront&&!cam)BGZ(c,wfront,0);\n      for(const a of arrows)")
+
+# ---- Fire rework (Anthony 30 Oct): forest only; chance = (attacker Int - defender Int) x 5%; burns 20% of the unit, min 500 ----
+rep("fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Burn an enemy within 3 squares, ×1.8 in forest'}",
+    "fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Set fire to an enemy in a FOREST within 3 squares. Chance = (your Int − his Int) × 5%. Burns 20% of his troops (at least 500)'}")
+rep("  if(k==='fire')return en.filter(e=>manh(s,e)<=3);",
+    "  if(k==='fire')return en.filter(e=>manh(s,e)<=3&&terAt(e.x,e.y)==='f'&&fireChance(s,e)>0);")
+rep("function fireDmg(u,e,rnd){",
+    "function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5))}\nfunction fireBurn(e,ew){return Math.min(e.troops,Math.max(500,Math.round(e.troops*.2))*(ew?2:1))}\nfunction fireDmg(u,e,rnd){")
+rep("  if(k==='fire')return `~${Math.min(e.troops,fireDmg(s,e,false)*(s.eastWind?2:1))} burned${terAt(e.x,e.y)==='f'?' · forest ×1.8':''}${s.eastWind?' · East Wind ×2':''}`;",
+    "  if(k==='fire')return `${fireChance(s,e)}% chance · burns ${fireBurn(e,s.eastWind)}${s.eastWind?' · East Wind ×2':''}`;")
+rep("  u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*(ew?2:1)*(e.iron?.5:1))),before=e.troops;dmg=ironSave(e,dmg);",
+    "  u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;const pc=fireChance(u,e);if(Math.random()*100>=pc){mfx('smoke',e.x,e.y,1100,1.6);SND.fx('dud');float(e,'失敗 Fizzles','#e8dcc0');log(`${nm(u)} tries to set the forest around ${nm(e)} alight, but ${e.name} sees through it (${pc}% chance). The fire fails.`);await sleep(700);sweep();return}\n  let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)),before=e.troops;dmg=ironSave(e,dmg);")
+rep("<b>Fire</b> (Int 75+): burns an enemy within 3 squares.",
+    "<b>Fire</b> (Int 75+): only on an enemy standing in a forest, within 3 squares. Chance = (your Int − his Int) × 5%, so Int 90 against Int 75 is 75%. If it catches, it burns 20% of his troops (at least 500).")
+rep("<tr><td>Forest · Fire ×1.8</td>","<tr><td>Forest · Fire works here</td>")
+
+# ---- Rock Slide 落石 (Anthony 30 Oct): an enemy beside a hill; same chance and damage rules as Fire ----
+rep("fire:{n:'Fire',zh:'火',who:u=>u.int>=75,","rock:{n:'Rock Slide',zh:'落石',who:u=>u.int>=75,desc:'Bring rocks down on an enemy standing BESIDE A HILL within 3 squares. Chance = (your Int − his Int) × 5%. Crushes 20% of his troops (at least 500)'},\n fire:{n:'Fire',zh:'火',who:u=>u.int>=75,")
+rep("  if(k==='fire')return en.filter(e=>manh(s,e)<=3&&terAt(e.x,e.y)==='f'&&fireChance(s,e)>0);",
+    "  if(k==='fire')return en.filter(e=>manh(s,e)<=3&&terAt(e.x,e.y)==='f'&&fireChance(s,e)>0);\n  if(k==='rock')return en.filter(e=>manh(s,e)<=3&&besideHill(e)&&fireChance(s,e)>0);")
+rep("function fireChance(u,e){","function besideHill(e){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inb(e.x+dx,e.y+dy)&&terAt(e.x+dx,e.y+dy)==='h')}\nfunction fireChance(u,e){")
+rep("  if(k==='fire')return `${fireChance(s,e)}% chance · burns ${fireBurn(e,s.eastWind)}",
+    "  if(k==='rock')return `${fireChance(s,e)}% chance · crushes ${fireBurn(e,false)}`;\n  if(k==='fire')return `${fireChance(s,e)}% chance · burns ${fireBurn(e,s.eastWind)}")
+rep("  if(mode==='fire'){await doFire(s,t);","  if(mode==='rock')await doRock(s,t);\n  if(mode==='fire'){await doFire(s,t);")
+rep("async function doFire(u,e){","""async function doRock(u,e){u.cd.rock=CD;const pc=fireChance(u,e);mfx('rocks',e.x,e.y,1300,1);SND.fx('crit');await sleep(650);
+  if(Math.random()*100>=pc){float(e,'失敗 Misses','#e8dcc0');log(`${nm(u)} sends rocks crashing down the hillside, but ${e.name} sees it coming and pulls back (${pc}% chance). The rock slide misses.`);await sleep(600);sweep();return}
+  let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);float(e,'-'+dmg,'#e0c9a0');
+  log(`${nm(u)} starts a <b>rock slide</b> onto ${nm(e)} beside the hill: −${dmg}.`);await sleep(600);sweep()}
+async function doFire(u,e){""")
+rep("    else if(f.k==='smoke'){","""    else if(f.k==='rocks'){for(let i=0;i<8;i++){const d=i*.07,q=clamp((p-d)/.4),sx=cx-T*.9+((i*37)%9)/9*T*.5,x=sx+(cx+((i*53)%7-3)/7*T*.7-sx)*q,y=cy-T*1.8+(T*1.8+((i*29)%5-2)/5*T*.3)*q,r=T*(.1+((i*17)%5)/5*.09);
+      if(q<=0)continue;c.globalAlpha=q<1?1:Math.max(0,1-(p-d-.4)*2.2);c.fillStyle=i%2?'#8a7a66':'#6f6150';c.strokeStyle='#3d3428';c.lineWidth=1.5;c.beginPath();c.ellipse(x,y,r*1.15,r,i,0,7);c.fill();c.stroke()}
+      c.globalAlpha=1;if(p>.35){const q2=clamp((p-.35)/.65);for(let i=0;i<6;i++){const a=i/6*6.28,rr=T*(.2+q2*.6);c.fillStyle=`rgba(190,165,130,${.45*(1-q2)})`;c.beginPath();c.arc(cx+Math.cos(a)*rr,cy+T*.25+Math.sin(a)*rr*.3,T*(.18+q2*.2),0,7);c.fill()}}}
+    else if(f.k==='smoke'){""")
+rep("If it catches, it burns 20% of his troops (at least 500).",
+    "If it catches, it burns 20% of his troops (at least 500). <b>Rock Slide</b> 落石 (Int 75+): same chance and damage, on an enemy standing beside a hill, within 3 squares. An enemy in a forest beside a hill can be hit by either.")
