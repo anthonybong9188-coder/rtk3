@@ -2270,10 +2270,10 @@ rep("If it catches, it burns 20% of his troops (at least 500).",
     "If it catches, it burns 20% of his troops (at least 500). <b>Rock Slide</b> 落石 (Int 75+): same chance and damage, on an enemy standing beside a hill, within 3 squares. An enemy in a forest beside a hill can be hit by either.")
 
 # ---- Ambush 埋伏 (Anthony 30 Oct): hide in a forest; springs on the first enemy that moves next to it during the enemy turn ----
-rep("rock:{n:'Rock Slide',zh:'落石',","ambush:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and stops him where he is. Ambushing reveals you'},\n rock:{n:'Rock Slide',zh:'落石',")
-rep("ok=!cd&&(k==='guard'||","ok=!cd&&(k==='guard'||k==='ambush'&&terAt(s.x,s.y)==='f'&&!s.hid||")
-rep("    if(k==='guard'){doGuard(s);return}","    if(k==='guard'){doGuard(s);return}\n    if(k==='ambush'){doHide(s);return}")
-rep("function doGuard(s){","""function doHide(s){s.hid=true;s.cd.ambush=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
+rep("rock:{n:'Rock Slide',zh:'落石',","hide:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and stops him where he is. Ambushing reveals you'},\n rock:{n:'Rock Slide',zh:'落石',")
+rep("ok=!cd&&(k==='guard'||","ok=!cd&&(k==='guard'||k==='hide'&&terAt(s.x,s.y)==='f'&&!s.hid||")
+rep("    if(k==='guard'){doGuard(s);return}","    if(k==='guard'){doGuard(s);return}\n    if(k==='hide'){doHide(s);return}")
+rep("function doGuard(s){","""function doHide(s){s.hid=true;s.cd.hide=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
 function ambushOn(e,path){if(e.side==='shu')return null;for(let i=0;i<path.length;i++){const p=path[i],h=G.units.find(u=>u.side!==e.side&&u.hid&&Math.abs(u.x-p.x)+Math.abs(u.y-p.y)===1);if(h)return{i,h}}return null}
 async function springAmbush(h,e){h.hid=false;G.view=h;updateUI();const pc=fireChance(h,e);mfx('ring',h.x,h.y,900);float(h,'埋伏 Ambush!','#9be36a');SND.fx('shout');await sleep(500);
   if(Math.random()*100>=pc){float(e,'看破 Spotted','#e8dcc0');log(`${nm(h)} springs an ambush on ${nm(e)}, but ${e.name} sees through it (${pc}% chance) and marches on. ${h.name} is exposed.`);await sleep(600);return 'miss'}

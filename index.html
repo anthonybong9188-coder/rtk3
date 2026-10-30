@@ -820,7 +820,7 @@ const SKILLS={
  guard:{n:'Brace',zh:'守',who:u=>u.type==='spear',desc:'Until the enemy turn ends, intercept any cavalry or spear attack on a unit within 2 squares (diagonals included)'},
  push:{n:'Push',zh:'推',who:u=>u.type==='shield',desc:'Shove an adjacent enemy back 1 square, no counter. Full damage if it is blocked'},
  volley:{n:'Volley',zh:'射',who:u=>u.type==='archer',desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
- ambush:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'},
+ hide:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'},
  rock:{n:'Rock Slide',zh:'落石',who:u=>u.int>=75,desc:'Bring rocks down on an enemy standing BESIDE A HILL within 3 squares. Chance = (your Int − his Int) × 5%. Crushes 20% of his troops (at least 500)'},
  fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Set fire to an enemy in a FOREST within 3 squares. Chance = (your Int − his Int) × 5%. Burns 20% of his troops (at least 500)'}};
 const lineClear=(s,e)=>{const dx=Math.sign(e.x-s.x),dy=Math.sign(e.y-s.y);for(let x=s.x+dx,y=s.y+dy;x!==e.x||y!==e.y;x+=dx,y+=dy){if(unitAt(x,y)||terAt(x,y)==='w')return false}return true};const adjE=s=>enemies().filter(e=>manh(s,e)===1),adjA=s=>G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);
@@ -1224,7 +1224,7 @@ function updateUI0(){
   let ah='';const rb=(attr,zh,label,ok,cls,cd)=>`<button class="rbtn ${cls||''}" ${attr} ${ok?'':'disabled'}><span class="rzh">${zh}</span><span class="rl">${label}</span>${cd?`<i class="cdb">${cd}</i>`:''}</button>`;
   if(G.mode==='moved'&&G.sel&&G.phase==='player'){const s=G.sel;
     ah+=rb('data-a="attack"',s.type==='archer'?'射':'攻',s.type==='archer'?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
-    for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||k==='ambush'&&terAt(s.x,s.y)==='f'&&!s.hid||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
+    for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||k==='hide'&&terAt(s.x,s.y)==='f'&&!s.hid||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
     {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
     
     ah+=rb('data-a="wait" title="End this unit\'s turn"','待','Wait',true);
@@ -1247,7 +1247,7 @@ function onAct(e){
   const s=G.sel;
   if(b.dataset.sk){const k=b.dataset.sk;G.prevMode=G.mode==='select'?'moved':G.mode;G.mode='moved';
     if(k==='guard'){doGuard(s);return}
-    if(k==='ambush'){doHide(s);return}
+    if(k==='hide'){doHide(s);return}
     if(HERO[k]&&HERO[k].self){G.tmode=k;G.targets=[{u:{fake:1,self:1,x:s.x,y:s.y,area:selfArea(k,s),label:`✦ Cast ${HERO[k].n} here`,name:s.name,type:s.type},note:HERO[k].desc}];G.mode='target';updateUI();return}
     G.tmode=k;G.targets=skillTargets(k,s).map(e=>({u:e,note:skillNote(k,s,e)}));G.mode='target';updateUI();return}
   const a=b.dataset.a;
@@ -1347,7 +1347,7 @@ async function doVolley(a,d){
   await doAttack(a,d,{noCounter:true,label:'Volley',verb:'looses a volley on'});
   if(n&&G.units.includes(n)&&G.units.includes(a)){const dm=Math.min(n.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true,n.war)*.6));
     n.troops-=dm;float(n,'-'+dm,'#ff9a86');log(`Arrows fall on ${nm(n)} as well: −${dm}.`);await sleep(350);sweep()}}
-function doHide(s){s.hid=true;s.cd.ambush=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
+function doHide(s){s.hid=true;s.cd.hide=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
 function ambushOn(e,path){if(e.side==='shu')return null;for(let i=0;i<path.length;i++){const p=path[i],h=G.units.find(u=>u.side!==e.side&&u.hid&&Math.abs(u.x-p.x)+Math.abs(u.y-p.y)===1);if(h)return{i,h}}return null}
 async function springAmbush(h,e){h.hid=false;G.view=h;updateUI();const pc=fireChance(h,e);mfx('ring',h.x,h.y,900);float(h,'埋伏 Ambush!','#9be36a');SND.fx('shout');await sleep(500);
   if(Math.random()*100>=pc){float(e,'看破 Spotted','#e8dcc0');log(`${nm(h)} springs an ambush on ${nm(e)}, but ${e.name} sees through it (${pc}% chance). His march is still halted, and ${h.name} is exposed.`);await sleep(600);return 'miss'}
