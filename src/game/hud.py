@@ -2301,3 +2301,4 @@ rep("""        if(res==='hit'){const inR=G.units.filter(u=>u.side!==e.side&&!u.h
 rep("but ${e.name} sees through it (${pc}% chance) and marches on. ${h.name} is exposed.","but ${e.name} sees through it (${pc}% chance). His march is still halted, and ${h.name} is exposed.")
 rep("destroys 20% of his troops (at least 500) and stops him where he is. Ambushing reveals you'","destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'")
 rep("with the same chance and damage as Fire. If it works he stops where he is. Either way you are revealed.","His march stops there either way. If the ambush works (same chance and damage as Fire) he is also dazed and loses his turn. Either way you are revealed.")
+rep("on its turn is ambushed, His march stops there either way.","on its turn is ambushed, and his march stops there either way.")
