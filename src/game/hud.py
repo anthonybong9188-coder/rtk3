@@ -2268,3 +2268,28 @@ rep("    else if(f.k==='smoke'){","""    else if(f.k==='rocks'){for(let i=0;i<8;
     else if(f.k==='smoke'){""")
 rep("If it catches, it burns 20% of his troops (at least 500).",
     "If it catches, it burns 20% of his troops (at least 500). <b>Rock Slide</b> 落石 (Int 75+): same chance and damage, on an enemy standing beside a hill, within 3 squares. An enemy in a forest beside a hill can be hit by either.")
+
+# ---- Ambush 埋伏 (Anthony 30 Oct): hide in a forest; springs on the first enemy that moves next to it during the enemy turn ----
+rep("rock:{n:'Rock Slide',zh:'落石',","ambush:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and stops him where he is. Ambushing reveals you'},\n rock:{n:'Rock Slide',zh:'落石',")
+rep("ok=!cd&&(k==='guard'||","ok=!cd&&(k==='guard'||k==='ambush'&&terAt(s.x,s.y)==='f'&&!s.hid||")
+rep("    if(k==='guard'){doGuard(s);return}","    if(k==='guard'){doGuard(s);return}\n    if(k==='ambush'){doHide(s);return}")
+rep("function doGuard(s){","""function doHide(s){s.hid=true;s.cd.ambush=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
+function ambushOn(e,path){if(e.side==='shu')return null;for(let i=0;i<path.length;i++){const p=path[i],h=G.units.find(u=>u.side!==e.side&&u.hid&&Math.abs(u.x-p.x)+Math.abs(u.y-p.y)===1);if(h)return{i,h}}return null}
+async function springAmbush(h,e){h.hid=false;G.view=h;updateUI();const pc=fireChance(h,e);mfx('ring',h.x,h.y,900);float(h,'埋伏 Ambush!','#9be36a');SND.fx('shout');await sleep(500);
+  if(Math.random()*100>=pc){float(e,'看破 Spotted','#e8dcc0');log(`${nm(h)} springs an ambush on ${nm(e)}, but ${e.name} sees through it (${pc}% chance) and marches on. ${h.name} is exposed.`);await sleep(600);return 'miss'}
+  mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);float(e,'-'+dmg,'#9be36a');
+  log(`<b>Ambush!</b> ${nm(h)} bursts out of the forest onto ${nm(e)}: −${dmg}. ${e.name}'s march is halted. ${h.name} is exposed.`);await sleep(700);sweep();return 'hit'}
+function doGuard(s){""")
+rep("    if(plan.path.length){await animateMove(e,plan.path);await sleep(120)}",
+    """    if(plan.path.length){const amb=ambushOn(e,plan.path);
+      if(amb){await animateMove(e,plan.path.slice(0,amb.i+1));await sleep(120);const res=await springAmbush(amb.h,e);if(checkEnd())return;if(!G.units.includes(e)){await sleep(160);continue}
+        if(res==='hit'){const inR=G.units.filter(u=>u.side!==e.side&&!u.hid&&inRange(e.type,manh(u,e)));plan.target=inR.includes(amb.h)?amb.h:inR.sort((a,b)=>a.troops-b.troops)[0]||null}
+        else{const rest=plan.path.slice(amb.i+1);if(rest.length)await animateMove(e,rest)}}
+      else await animateMove(e,plan.path);await sleep(120)}""")
+rep("function planEnemy(e){\n  const players=G.units.filter(u=>u.side==='shu');","function planEnemy(e){\n  const players=G.units.filter(u=>u.side==='shu'&&!u.hid);")
+rep("async function animateMove(u,path){","async function animateMove(u,path){if(u.hid&&u.side==='shu'&&path&&path.length){u.hid=false;log(`${nm(u)} leaves his hiding place.`)}")
+rep("async function doAttack(a,d,o={}){","async function doAttack(a,d,o={}){if(a.hid)a.hid=false;")
+rep("if(u.guard)chips.push('<span class=\"chip cmd\">Bracing</span>');","if(u.guard)chips.push('<span class=\"chip cmd\">Bracing</span>');if(u.hid)chips.push('<span class=\"chip cmd\">伏 In ambush</span>');")
+rep("function drawToken(c,u,now){\n  const fk=sprFac","""function drawToken(c,u,now){if(u.hid&&!u._hd){u._hd=1;c.save();c.globalAlpha=.45;drawToken(c,u,now);c.restore();u._hd=0;const X=u.px*T+T/2,Y=u.py*T+T*.2;c.save();c.font=`900 ${Math.round(T*.3)}px "Noto Serif TC",serif`;c.textAlign='center';c.lineWidth=4;c.strokeStyle='#14110d';c.strokeText('伏',X,Y);c.fillStyle='#9be36a';c.fillText('伏',X,Y);c.restore();return}
+  const fk=sprFac""")
+rep("<b>Rock Slide</b> 落石 (Int 75+):","<b>Ambush</b> 埋伏 (any unit, in a forest): hide and wait. The first enemy that moves next to you on its turn is ambushed, with the same chance and damage as Fire. If it works he stops where he is. Either way you are revealed. Best in a forest beside a road the enemy will use. <b>Rock Slide</b> 落石 (Int 75+):")
