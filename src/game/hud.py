@@ -2205,3 +2205,31 @@ rep("HERO.crescent={","HERO.ironwall={who:'caoren',zh:'鐵壁',n:'Iron Wall',sel
 rep("'sharp','ambush','lord','ships'].includes(k))delete HERO[k];","'sharp','ambush','lord','ships','ironwall','whiterobe','firstwall'].includes(k))delete HERO[k];")
 rep("else if(k==='strat'){","else if(k==='ironwall'){for(const u of [s,...adjA(s)]){u.iron=Math.max(u.iron||0,1);mfx('iron',u.x,u.y,1100);float(u,'Iron Wall','#9fc8ff')}log(`<b>Iron Wall!</b> ${nm(s)} raises the shields: he and the allies beside him take half damage until his next turn.`);await sleep(600)}\n  else if(k==='whiterobe'){await doAttack(s,t,{mult:1.3,noCounter:true,label:'White-Robed Crossing',verb:'strikes out of nowhere at'})}\n  else if(k==='firstwall'){const side=enemies().filter(e=>e!==t&&manh(e,t)===1)[0];await doAttack(s,t,{mult:1.3,noCounter:true,label:'First Up the Wall',verb:'leads the volley at'});if(side&&G.units.includes(side)){quickHit(s,side,.8,{color:'#9fd0ff'});await sleep(300)}}\n  else if(k==='strat'){")
 rep("'gstrat':3,","")
+
+# ---- City wall in castle fight scenes (Anthony approved Grok's wall, 30 Oct) ----
+rep("const BI=bgFor(ter,duel);if(BI){if(ter==='c'&&defSide==='L'){c.save();c.translate(W,0);c.scale(-1,1);c.drawImage(BI,-20,-2,840,473);c.restore()}else c.drawImage(BI,-20,-2,840,473);",
+    "const BI=bgFor(ter,duel);if(BI){if(ter==='c'&&defSide==='L'){c.save();c.translate(W,0);c.scale(-1,1);c.drawImage(BI,-20,-2,840,473);c.restore()}else c.drawImage(BI,-20,-2,840,473);if(ter==='c'&&window.__WALLMODE)wallDraw(c,defSide,window.__WALLMODE);")
+rep("function makeBG0(ter,defSide,duel){", """const WALLIMG={};for(const k of ['closed','open']){const im=new Image();im.src='art/castle_wall_'+k+'.webp';WALLIMG[k]=im}
+function wallOK(k){const im=WALLIMG[k];return im&&im.complete&&im.naturalWidth?im:null}
+// wall art is 1600x900 in the same frame as bg_fort.jpg; draw it with the bg's transform (mirrored when the defender is on the left)
+function wallDraw(c,defSide,mode,sy0,sy1){const im=wallOK(mode);if(!im)return;const k=840/1600,a=sy0??0,b=sy1??900;c.save();if(defSide==='L'){c.translate(W,0);c.scale(-1,1)}c.drawImage(im,0,a,1600,b-a,-20,-2+a*k,840,(b-a)*k);c.restore()}
+// battlement strip drawn again over the legs of the men standing on the wall
+function wallFront(defSide){const d=DPR(),cv=document.createElement('canvas');cv.width=W*d;cv.height=H*d;const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);wallDraw(c,defSide,'closed',416,447);return lmGrade(cv,'saturate(1.3) contrast(1.08) brightness(1.08)')}
+// screen coords (after BGZ crop) of points in the 1600x900 wall art
+const WX=(px,side)=>{const x=.65625*px-125;return side==='R'?x:W-x},WY=py=>.65625*py-115;
+function castleFix(D,open){D.wall=open?'open':'closed';const sd=D.side,n=D.sol.length;
+  if(open){for(const s of D.sol){s.hy=WY(700)-48+s.row*16;s.s*=.92}D.off.hx=D.off.x=D.off.tx=WX(1131,sd);D.off.hy=D.off.y=WY(700)+2;return}
+  const acted=D.acts;D.melee=false;D.step=false;D.pb=false;D.back=false;D.wave=0;D.rb=0;D.shoot=!!acted;
+  const walk=WY(446)+1;D.sol.forEach((s,i)=>{const px=1000+(i+.5)*(560/Math.max(1,n));s.hx=s.tx=WX(px,sd);s.hy=walk-((i%2)*2);s.s=1.25;s.dtx=null;s.duel=0;s.dy=0;s.cy=null});
+  D.off.hx=D.off.x=D.off.tx=WX(1250,sd);D.off.hy=D.off.y=walk+3;D.off.s=2.0}
+function castleClamp(D){const A=D.opp,lim=WX(1000,D.side)+(D.side==='R'?-38:38),cl=x=>D.side==='R'?Math.min(x,lim-Math.random()*10):Math.max(x,lim+Math.random()*10);
+  for(const s of A.sol){s.tx=cl(s.tx);if(s.dtx!=null)s.dtx=cl(s.dtx)}A.off.tx=cl(A.off.tx-(D.side==='R'?40:-40));for(const s of D.sol){s.dtx=null;s.duel=0;s.dy=0;s.cy=null}}
+function makeBG0(ter,defSide,duel){""")
+rep("const both=SL.melee&&SR.melee;setTargets(SL,SR,both);",
+    "const CW=terAt(def.x,def.y)==='c'?(def===L?SL:SR):null;if(CW)castleFix(CW,(SL.melee&&SR.melee)||!!r.charge);const both=SL.melee&&SR.melee;setTargets(SL,SR,both);")
+rep("    const arrows=[];\n    for(const [S,O] of [[SL,SR],[SR,SL]])if(S.shoot)for(let k=0;k<3;k++)",
+    "    if(CW&&CW.wall==='closed')castleClamp(CW);\n    const arrows=[];\n    for(const [S,O] of [[SL,SR],[SR,SL]])if(S.shoot)for(let k=0;k<3;k++)")
+rep("    const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);\n    const m=typeMult(att.type,def.type);",
+    "    window.__WALLMODE=CW?CW.wall:null;const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);window.__WALLMODE=null;const wfront=CW&&CW.wall==='closed'?wallFront(def===R?'R':'L'):null;\n    const m=typeMult(att.type,def.type);")
+rep("      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}\n      for(const a of arrows)",
+    "      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}if(wfront&&!cam)BGZ(c,wfront,0);\n      for(const a of arrows)")

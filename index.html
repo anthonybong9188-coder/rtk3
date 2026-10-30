@@ -1707,10 +1707,25 @@ function mountains(c,col,base,amp,r){c.fillStyle=col;c.beginPath();c.moveTo(0,ba
 const BGART={plain:'art/bg_plain.jpg',road:'art/bg_road.jpg',forest:'art/bg_forest.jpg',hill:'art/bg_hill.jpg',river:'art/bg_river.jpg',fort:'art/bg_fort.jpg',bridge:'art/bg_bridge.jpg',pass:'art/bg_pass.jpg',duel:'art/bg_duel.jpg'},BGUSE={'=':'bridge','.':'plain',p:'road',f:'forest',h:'hill',w:'river',c:'fort',duel:'duel'},BGIMG={};
 for(const [k,src] of Object.entries(BGART)){const im=new Image();im.src=src;BGIMG[k]=im}
 function bgFor(ter,duel){const im=BGIMG[duel?'duel':(window.BTHEME==='pass'&&ter!=='c'&&ter!=='='&&ter!=='w')?'pass':BGUSE[ter]];return im&&im.complete&&im.naturalWidth?im:null}
+const WALLIMG={};for(const k of ['closed','open']){const im=new Image();im.src='art/castle_wall_'+k+'.webp';WALLIMG[k]=im}
+function wallOK(k){const im=WALLIMG[k];return im&&im.complete&&im.naturalWidth?im:null}
+// wall art is 1600x900 in the same frame as bg_fort.jpg; draw it with the bg's transform (mirrored when the defender is on the left)
+function wallDraw(c,defSide,mode,sy0,sy1){const im=wallOK(mode);if(!im)return;const k=840/1600,a=sy0??0,b=sy1??900;c.save();if(defSide==='L'){c.translate(W,0);c.scale(-1,1)}c.drawImage(im,0,a,1600,b-a,-20,-2+a*k,840,(b-a)*k);c.restore()}
+// battlement strip drawn again over the legs of the men standing on the wall
+function wallFront(defSide){const d=DPR(),cv=document.createElement('canvas');cv.width=W*d;cv.height=H*d;const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);wallDraw(c,defSide,'closed',416,447);return lmGrade(cv,'saturate(1.3) contrast(1.08) brightness(1.08)')}
+// screen coords (after BGZ crop) of points in the 1600x900 wall art
+const WX=(px,side)=>{const x=.65625*px-125;return side==='R'?x:W-x},WY=py=>.65625*py-115;
+function castleFix(D,open){D.wall=open?'open':'closed';const sd=D.side,n=D.sol.length;
+  if(open){for(const s of D.sol){s.hy=WY(700)-48+s.row*16;s.s*=.92}D.off.hx=D.off.x=D.off.tx=WX(1131,sd);D.off.hy=D.off.y=WY(700)+2;return}
+  const acted=D.acts;D.melee=false;D.step=false;D.pb=false;D.back=false;D.wave=0;D.rb=0;D.shoot=!!acted;
+  const walk=WY(446)+1;D.sol.forEach((s,i)=>{const px=1000+(i+.5)*(560/Math.max(1,n));s.hx=s.tx=WX(px,sd);s.hy=walk-((i%2)*2);s.s=1.25;s.dtx=null;s.duel=0;s.dy=0;s.cy=null});
+  D.off.hx=D.off.x=D.off.tx=WX(1250,sd);D.off.hy=D.off.y=walk+3;D.off.s=2.0}
+function castleClamp(D){const A=D.opp,lim=WX(1000,D.side)+(D.side==='R'?-38:38),cl=x=>D.side==='R'?Math.min(x,lim-Math.random()*10):Math.max(x,lim+Math.random()*10);
+  for(const s of A.sol){s.tx=cl(s.tx);if(s.dtx!=null)s.dtx=cl(s.dtx)}A.off.tx=cl(A.off.tx-(D.side==='R'?40:-40));for(const s of D.sol){s.dtx=null;s.duel=0;s.dy=0;s.cy=null}}
 function makeBG0(ter,defSide,duel){
   const d=DPR(),cv=document.createElement('canvas');cv.width=W*d;cv.height=H*d;const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);const r=rng(duel?5:ter.charCodeAt(0));
   const g=c.createLinearGradient(0,0,0,GROUND);g.addColorStop(0,duel?'#1a1420':'#1d1a26');g.addColorStop(.62,duel?'#4e2a2a':'#5b3d33');g.addColorStop(1,duel?'#b5583a':'#c07a44');c.fillStyle=g;c.fillRect(0,0,W,GROUND+2);
-  const BI=bgFor(ter,duel);if(BI){if(ter==='c'&&defSide==='L'){c.save();c.translate(W,0);c.scale(-1,1);c.drawImage(BI,-20,-2,840,473);c.restore()}else c.drawImage(BI,-20,-2,840,473);const sh=c.createLinearGradient(0,GROUND,0,H);sh.addColorStop(0,'rgba(20,14,8,.08)');sh.addColorStop(1,'rgba(20,14,8,.3)');c.fillStyle=sh;c.fillRect(0,GROUND,W,H-GROUND)}else{
+  const BI=bgFor(ter,duel);if(BI){if(ter==='c'&&defSide==='L'){c.save();c.translate(W,0);c.scale(-1,1);c.drawImage(BI,-20,-2,840,473);c.restore()}else c.drawImage(BI,-20,-2,840,473);if(ter==='c'&&window.__WALLMODE)wallDraw(c,defSide,window.__WALLMODE);const sh=c.createLinearGradient(0,GROUND,0,H);sh.addColorStop(0,'rgba(20,14,8,.08)');sh.addColorStop(1,'rgba(20,14,8,.3)');c.fillStyle=sh;c.fillRect(0,GROUND,W,H-GROUND)}else{
   c.fillStyle='rgba(245,200,130,.35)';circ(c,W*.63,GROUND-46,32);c.fill();
   mountains(c,'#3a2d33',GROUND-55,55,r);mountains(c,'#2a2328',GROUND-22,40,r);
   const gc={p:['#8a7b52','#4f4429'],'.':['#6a6f3b','#3f4422'],c:['#6a6f3b','#3f4422'],f:['#4d5a2e','#26301a'],h:['#7d6c42','#4b3f24'],'=':['#7a5a36','#4a3520'],w:['#6a6f3b','#3f4422']}[ter];
@@ -1811,14 +1826,15 @@ function playBattle0_(att,def,r){
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
     for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}for(const S of [SL,SR]){const O=S===SL?SR:SL;S.opp=O;S.back=!r.charge&&(S.u.war||0)<=(O.u.war||0)-20;S.pb=S.u.type==='archer'&&O.melee}for(const S of [SL,SR])S.step=S.pb&&!S.back&&!S.opp.back&&!r.charge;for(const S of [SL,SR]){const O=S.opp;if(!S.sol.length&&S.u.hpMax!==0&&O.melee){S.acts=true;S.melee=true;S.shoot=false;S.back=false;S.pb=false;S.step=false}}
-    const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}if(S.back&&S.melee&&!r.charge){S.rb=1;S.rbw=!!(sh&&SROWS(sh)>4)}}if(false&&both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
+    const CW=terAt(def.x,def.y)==='c'?(def===L?SL:SR):null;if(CW)castleFix(CW,(SL.melee&&SR.melee)||!!r.charge);const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}if(S.back&&S.melee&&!r.charge){S.rb=1;S.rbw=!!(sh&&SROWS(sh)>4)}}if(false&&both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
     schedule(SL,SL.nB-SL.nA,SR.shoot?'arrow':'melee');schedule(SR,SR.nB-SR.nA,SL.shoot?'arrow':'melee');for(const [A,B] of [[SL,SR],[SR,SL]]){const chg=A.melee&&!A.back&&!A.wave&&!A.ch&&!A.hold&&!r.charge&&A.u.hpMax!==0,met=!B.back&&!B.wave&&(B.hold||B.melee&&SL.melee&&SR.melee)&&B.u.hpMax!==0;if(!chg||met||!B.sol.length)continue;const dd=s=>Math.abs(s.hx-A.off.tx)+(3-s.row)*40,c2=B.sol.filter(s=>s.deathT>=2300).sort((a,b)=>dd(a)-dd(b)),d=c2[0]||[...B.sol].sort((a,b)=>dd(a)-dd(b))[0];d.dtx=A.off.tx+A.face*62;d.dy=A.off.hy-4-d.hy;if(d.deathT<2600)d.deathT=2550+Math.random()*120;d.duel=1}
+    if(CW&&CW.wall==='closed')castleClamp(CW);
     const arrows=[];
     for(const [S,O] of [[SL,SR],[SR,SL]])if(S.shoot)for(let k=0;k<3;k++)arrows.push({src:S.off,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)]||O.off,O,t0:620+k*200,dur:600,jx:(Math.random()-.5)*18});
     for(const [S,O] of [[SL,SR],[SR,SL]])if(S.shoot)S.sol.forEach((s,i)=>{for(let k=0;k<2;k++)arrows.push({src:s,S,tgt:O.sol[Math.floor(Math.random()*O.sol.length)]||O.off,O,t0:650+i*50+k*180+Math.random()*40,dur:600,jx:(Math.random()-.5)*18})});
-    const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);
+    window.__WALLMODE=CW?CW.wall:null;const bg=makeBG(terAt(def.x,def.y),def===R?'R':'L',false);window.__WALLMODE=null;const wfront=CW&&CW.wall==='closed'?wallFront(def===R?'R':'L'):null;
     const m=typeMult(att.type,def.type);
     $('#cap').innerHTML=`<span>${r.label?`<b style="color:var(--gold)">${r.label}!</b> `:''}<b>${att.name}</b> attacks <b>${def.name}</b>${m>1?' · <span class="adv">advantage</span>':m<1?' · <span class="dis">disadvantage</span>':''}${r.ranged?' · from range':''}</span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip ⏭</span>`;
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];DUST=[];
@@ -1850,7 +1866,7 @@ function playBattle0_(att,def,r){
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
         else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y,s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave||(S.rbw&&!flee&&t>=1200&&t<=2700?1:0),ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<(S.back?2700:1400),fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):(S.melee&&(!S.back||S.rb)&&!flee&&t>=1200&&t<=2700||S.step&&!flee&&t>=1800&&t<=2700),slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold&&!S.back?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
-      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}
+      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}if(wfront&&!cam)BGZ(c,wfront,0);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
         const x=lerp(sx,tx,p),y=lerp(sy,ty,p)-Math.sin(Math.PI*p)*90,dx=tx-sx,dy=(ty-sy)-Math.cos(Math.PI*p)*90*Math.PI,ang=Math.atan2(dy,dx);
