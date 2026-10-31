@@ -2315,3 +2315,6 @@ rep("WU_GENS=new Set(['huangyi','renrui','xuannu','monu'])","WU_GENS=new Set(['h
 rep("HERO.crescent={","HERO.twinsea={who:'xishi',zh:'双剑出海',n:'Twin Swords Out to Sea',targets:s=>adjE(s),desc:'Twin daggers sweep the 3×2 area in front of her: every enemy in it takes ×1.2 damage, no counter'};HERO.crescent={")
 rep("'ironwall','whiterobe','firstwall'].includes(k))delete HERO[k];","'ironwall','whiterobe','firstwall','twinsea'].includes(k))delete HERO[k];")
 rep("  else if(k==='crescent'){","  else if(k==='twinsea'){const dx=Math.sign(t.x-s.x),dy=Math.sign(t.y-s.y),cells=[];for(let r=1;r<=2;r++)for(let l=-1;l<=1;l++)cells.push({x:s.x+dx*r+dy*l,y:s.y+dy*r+dx*l});for(const p of cells)mfx('arc',p.x,p.y,900,1.3);SND.fx('crit');await sleep(450);\n    const hit=enemies().filter(e=>cells.some(p=>p.x===e.x&&p.y===e.y));let tot=0;for(const e of hit){if(G.units.includes(e)){tot+=quickHit(s,e,1.2,{color:'#8fe6ff'});await sleep(150)}}\n    log(`<b>Twin Swords Out to Sea!</b> ${nm(s)}'s twin daggers sweep through ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(700)}\n  else if(k==='crescent'){")
+rep("xuhuang:'f_xuhuang',caozhang:'f_caozhang',","xuhuang:'f_xuhuang',caozhang:'f_caozhang',xishi:'f_xishi',")
+rep("VIDS=new Set(['cao_ren',","VIDS=new Set(['xi_shi','cao_ren',")
+rep("const SPS=new Set(['cao_ren',","const SPS=new Set(['xi_shi','cao_ren',")
