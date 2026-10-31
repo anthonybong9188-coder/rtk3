@@ -2368,3 +2368,7 @@ s=s[:_k]+"const CUT_GENS=new Set(["+",".join("'"+x+"'" for x in _ids if x not in
 _k=s.index('const SPS=new Set([');_e=s.index('])',_k);_ids=[x.strip("'") for x in s[_k+len('const SPS=new Set(['):_e].split(',')]
 _V=set(x.strip("'") for x in s[s.index('const VIDS=new Set([')+len('const VIDS=new Set(['):s.index('])',s.index('const VIDS=new Set(['))].split(','))
 s=s[:_k]+'const SPS=new Set(['+','.join("'"+x+"'" for x in _ids if x not in _V and not x.startswith('p_') or x in ('p_guanping','p_zhoucang'))+s[_e:]
+# v415: Anthony's fight formula (31 Oct): troop power = troops/1000 x (20+War); War ratio = (aWar+20)/(dWar+20)
+rep("const p=effT(aTroops)/1000*(60+aWar*.6);","const p=effT(aTroops)/1000*(20+aWar);")
+rep("m*=((aWar||60)+50)/((dWar||60)+50);","m*=((aWar||60)+20)/((dWar||60)+20);")
+rep("s+per*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100)","s+per*(20+g.war)*(1+Math.max(0,g.war-80)/100)")
