@@ -1351,12 +1351,12 @@ function doHide(s){s.hid=true;s.cd.hide=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${
 function ambushOn(e,path){if(e.side==='shu')return null;for(let i=0;i<path.length;i++){const p=path[i],h=G.units.find(u=>u.side!==e.side&&u.hid&&Math.abs(u.x-p.x)+Math.abs(u.y-p.y)===1);if(h)return{i,h}}return null}
 async function springAmbush(h,e){h.hid=false;G.view=h;updateUI();const pc=fireChance(h,e);mfx('ring',h.x,h.y,900);float(h,'埋伏 Ambush!','#9be36a');SND.fx('shout');await sleep(500);
   if(Math.random()*100>=pc){float(e,'看破 Spotted','#e8dcc0');log(`${nm(h)} springs an ambush on ${nm(e)}, but ${e.name} sees through it (${pc}% chance). His march is still halted, and ${h.name} is exposed.`);await sleep(600);return 'miss'}
-  mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);float(e,'-'+dmg,'#9be36a');
+  mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');
   log(`<b>Ambush!</b> ${nm(h)} bursts out of the forest onto ${nm(e)}: −${dmg}. ${e.name}'s march is halted. ${h.name} is exposed.`);await sleep(700);sweep();return 'hit'}
 function doGuard(s){s.guard=true;s.guardT0=performance.now();mfx('guard',s.x,s.y,1000,2.2);s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.`);finish(s)}
 async function doRock(u,e){u.cd.rock=CD;const pc=fireChance(u,e);mfx('rocks',e.x,e.y,1300,1);SND.fx('crit');await sleep(650);
   if(Math.random()*100>=pc){float(e,'失敗 Misses','#e8dcc0');log(`${nm(u)} sends rocks crashing down the hillside, but ${e.name} sees it coming and pulls back (${pc}% chance). The rock slide misses.`);await sleep(600);sweep();return}
-  let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);float(e,'-'+dmg,'#e0c9a0');
+  let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(speed)await playRock(u,e,dmg,before);float(e,'-'+dmg,'#e0c9a0');
   log(`${nm(u)} starts a <b>rock slide</b> onto ${nm(e)} beside the hill: −${dmg}.`);await sleep(600);sweep()}
 async function doFire(u,e){
   u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;const pc=fireChance(u,e);if(Math.random()*100>=pc){mfx('smoke',e.x,e.y,1100,1.6);SND.fx('dud');float(e,'失敗 Fizzles','#e8dcc0');log(`${nm(u)} tries to set the forest around ${nm(e)} alight, but ${e.name} sees through it (${pc}% chance). The fire fails.`);await sleep(700);sweep();return}
@@ -1578,6 +1578,90 @@ function playFire(u,e,dmg,before){SND.fx('fire');
         if(Math.random()<.4)burst(x,y,1,'#ffb15a',.6)}
       stepParts(c,dt);
       if(t>1300&&t<burnEnd+600){c.save();c.globalCompositeOperation='lighter';c.fillStyle=`rgba(255,110,30,${.10*Math.min(1,(t-1300)/400)*Math.min(1,(burnEnd+600-t)/600)*big})`;c.fillRect(0,0,W,H);c.restore()}
+      const k=clamp((t-1600)/1100);drawFightHud(c,SL,SR,ST===SL?lerp(SL.before,SL.after,k):SL.before,ST===SR?lerp(SR.before,SR.after,k):SR.before);
+      const fate=ST.nA===0?ST.u.fate||'escape':null;if(fate){const t0=fate==='capture'?3100:fate==='breakout'?2600:2900;if(t>t0){const p=clamp((t-t0)/250),txt=fate==='capture'?`擒  ${ST.u.name} captured!`:fate==='breakout'?`${ST.u.name} breaks free!`:`${ST.u.name} escapes`;
+        c.save();c.globalAlpha=p;c.font=`900 ${fate==='capture'?34:28}px "Noto Serif TC","Alegreya Sans",serif`;c.textAlign='center';c.lineWidth=6;c.strokeStyle='#14110d';c.strokeText(txt,W/2,78);c.fillStyle=fate==='capture'?'#ff7a64':fate==='breakout'?'#f3d27a':'#e8dcc0';c.fillText(txt,W/2,78);c.restore()}}
+      if(t>=END){SC.removeEventListener('pointerdown',onSkip);setTimeout(()=>{$('#stage').hidden=true;resolve()},skip?120:300);return}
+      requestAnimationFrame(frame)}
+    requestAnimationFrame(frame)})}
+function rockDraw(c,x,y,r,rot,pts,a){if(a<=0)return;c.save();c.globalAlpha=a;c.translate(x,y);c.rotate(rot);c.beginPath();pts.forEach((k,i)=>{const an=i/pts.length*Math.PI*2,px=Math.cos(an)*r*k,py=Math.sin(an)*r*k*.86;i?c.lineTo(px,py):c.moveTo(px,py)});c.closePath();const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,'#b3a792');g.addColorStop(.55,'#73685a');g.addColorStop(1,'#3a3229');c.fillStyle=g;c.fill();c.strokeStyle='rgba(28,22,16,.75)';c.lineWidth=1.6;c.stroke();c.fillStyle='rgba(255,255,255,.16)';c.beginPath();c.ellipse(-r*.3,-r*.34,r*.34,r*.16,-.5,0,7);c.fill();c.restore()}
+function playRock(u,e,dmg,before){SND.fx('crit');
+  return new Promise(async resolve=>{
+    if(speed===0){resolve();return}await sprWait();
+    const L=u.side==='shu'?u:e,R=L===u?e:u;
+    window.__figRef=Math.max((L===e?before:L.troops)-(L.hpMax||0),(R===e?before:R.troops)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===e?before:L.troops,L===e?e.troops:L.troops),SR=buildSide(R,'R',R===e?before:R.troops,R===e?e.troops:R.troops);
+    const SC_=u===L?SL:SR,ST=u===L?SR:SL,ter='h',big=1,burnEnd=2700;
+    const dieN=ST.nB-ST.nA,pool=[...ST.sol].sort(()=>Math.random()-.5);for(let k=0;k<dieN&&k<pool.length;k++){pool[k].deathT=1050+Math.random()*1000;pool[k].crush=true}
+    const tgts=[...ST.sol,ST.off],arrows=[],fires=[],rocks=[];for(let i=0;i<20;i++){const tg=tgts[Math.floor(Math.random()*tgts.length)],tx=tg.hx+(Math.random()-.5)*46,ty=(tg.hy||tg.y)+(Math.random()-.5)*6;rocks.push({tx,ty,sx:tx-ST.face*(110+Math.random()*140),sy:-70-Math.random()*140,t0:420+i*52+Math.random()*120,dur:520+Math.random()*170,r:(17+Math.random()*21),rot:Math.random()*6,spin:(Math.random()-.5)*9,pts:[...Array(8)].map(()=>.72+Math.random()*.38)})}
+    const bg=makeBG(ter,e===R?'R':'L',false);ST.u.fate=e.troops<=0?e.fate:null;
+    $('#cap').innerHTML=`<span><b style="color:#e0c9a0">Rock Slide!</b> <b>${u.name}</b> brings the hillside down on <b>${e.name}</b></span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip ⏭</span>`;
+    $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];
+    const END=4300,start=performance.now();let skip=false,last=start,shake=0;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
+    function frame(now){
+      const t=skip?END:(now-start)*speed*FIGHT_SLOW,dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;const c=sctx;shake*=.86;c.save();if(shake>.5)c.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);BGZ(c,bg,0);const items=[];
+      for(const S of [SL,SR]){
+        for(const s of S.sol){const alive=t<s.deathT;let x=s.hx,face=S.face,run=null;
+          if(S===ST){if(s.burn&&alive&&t>s.deathT-750){const k=(t-(s.deathT-750))/750;x+=Math.sin(t*.012+s.seed*5)*26*k;face=Math.sin(t*.006+s.seed)>0?1:-1;run=t*.04+s.seed}
+            else if(alive&&t>1500)x-=S.face*16*ease(clamp((t-1500)/500))}
+          if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,8,'#9b8463',2.2)}
+          items.push({y:s.cy??s.hy,f:{x,y:s.cy??s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
+        const o=S.off;
+        if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch,src:o,gt:t}})}
+        else{const fate=(S.after<=0)?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
+          if(fate==='capture'&&t>2500){const k3=t>3000,hx=o.hx-S.face*Math.max(0,t-3000)*.32;
+            if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+            else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2750?0:1,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+          else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,ch:S.u.ch,fem:femKey(S.u),run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
+      items.sort((a,b)=>a.y-b.y);
+      for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
+      for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
+        if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,it.bx,it.by+2,.28*it.bs,.9)}
+      for(const r of rocks){if(t<r.t0)continue;const p=Math.min(1,(t-r.t0)/r.dur);if(p<1){rockDraw(c,lerp(r.sx,r.tx,p),r.sy+(r.ty-r.sy)*p*p,r.r,r.rot+r.spin*p,r.pts,1)}else{const q=(t-r.t0-r.dur);if(!r.hit){r.hit=1;burst(r.tx,r.ty-6,12,'#a08a6a',2.8);burst(r.tx,r.ty-4,5,'#5a4c3c',1.6);shake=Math.max(shake,7)}if(q<900){const g=Math.min(1,q/900);c.save();const rad=14+60*g,gr=c.createRadialGradient(r.tx,r.ty-8,0,r.tx,r.ty-8,rad);gr.addColorStop(0,`rgba(176,152,118,${.55*(1-g)})`);gr.addColorStop(1,'rgba(176,152,118,0)');c.fillStyle=gr;c.beginPath();c.arc(r.tx,r.ty-8,rad,0,7);c.fill();c.restore()}rockDraw(c,r.tx,r.ty-r.r*.55,r.r,r.rot+r.spin,r.pts,1-clamp((q-1100)/500))}}
+      stepParts(c,dt);
+      if(t>600&&t<burnEnd+600){c.save();c.fillStyle=`rgba(150,128,96,${.16*Math.min(1,(t-600)/500)*Math.min(1,(burnEnd+600-t)/600)})`;c.fillRect(0,0,W,H);c.restore()}
+      const k=clamp((t-1600)/1100);drawFightHud(c,SL,SR,ST===SL?lerp(SL.before,SL.after,k):SL.before,ST===SR?lerp(SR.before,SR.after,k):SR.before);
+      const fate=ST.nA===0?ST.u.fate||'escape':null;if(fate){const t0=fate==='capture'?3100:fate==='breakout'?2600:2900;if(t>t0){const p=clamp((t-t0)/250),txt=fate==='capture'?`擒  ${ST.u.name} captured!`:fate==='breakout'?`${ST.u.name} breaks free!`:`${ST.u.name} escapes`;
+        c.save();c.globalAlpha=p;c.font=`900 ${fate==='capture'?34:28}px "Noto Serif TC","Alegreya Sans",serif`;c.textAlign='center';c.lineWidth=6;c.strokeStyle='#14110d';c.strokeText(txt,W/2,78);c.fillStyle=fate==='capture'?'#ff7a64':fate==='breakout'?'#f3d27a':'#e8dcc0';c.fillText(txt,W/2,78);c.restore()}}
+      c.restore();if(t>=END){SC.removeEventListener('pointerdown',onSkip);setTimeout(()=>{$('#stage').hidden=true;resolve()},skip?120:300);return}
+      requestAnimationFrame(frame)}
+    requestAnimationFrame(frame)})}
+function playAmbush(u,e,dmg,before){SND.fx('shout');SND.fx('gallop',.3);
+  return new Promise(async resolve=>{
+    if(speed===0){resolve();return}await sprWait();
+    const L=u.side==='shu'?u:e,R=L===u?e:u;
+    window.__figRef=Math.max((L===e?before:L.troops)-(L.hpMax||0),(R===e?before:R.troops)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===e?before:L.troops,L===e?e.troops:L.troops),SR=buildSide(R,'R',R===e?before:R.troops,R===e?e.troops:R.troops);
+    const SC_=u===L?SL:SR,ST=u===L?SR:SL,ter='f',big=1,burnEnd=2700;
+    const dieN=ST.nB-ST.nA,pool=[...ST.sol].sort(()=>Math.random()-.5);for(let k=0;k<dieN&&k<pool.length;k++){pool[k].deathT=1150+Math.random()*1000}
+    const tgts=[...ST.sol,ST.off],arrows=[],fires=[];for(let i=0;i<22;i++){const tg=tgts[Math.floor(Math.random()*tgts.length)],sx=SC_.side==='L'?-20-Math.random()*40:W+20+Math.random()*40;arrows.push({sx,sy:GROUND-20-Math.random()*60,tx:tg.hx+(Math.random()-.5)*30,ty:(tg.hy||tg.y)+(Math.random()-.5)*8,t0:350+i*24+Math.random()*90,dur:420})}let leaves=false;
+    const bg=makeBG(ter,e===R?'R':'L',false);ST.u.fate=e.troops<=0?e.fate:null;
+    $('#cap').innerHTML=`<span><b style="color:#9be36a">Ambush!</b> <b>${u.name}</b>'s hidden troops burst from the forest onto <b>${e.name}</b></span><span>Tap to skip</span><span class="skipall" onpointerdown="event.stopPropagation();speed=0;SC.dispatchEvent(new Event('pointerdown'));updateUI()">Skip ⏭</span>`;
+    $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];
+    const END=4300,start=performance.now();let skip=false,last=start;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
+    function frame(now){
+      const t=skip?END:(now-start)*speed*FIGHT_SLOW,dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;const c=sctx;BGZ(c,bg,0);const items=[];
+      for(const S of [SL,SR]){
+        for(const s of S.sol){const alive=t<s.deathT;let x=s.hx,face=S.face,run=null;
+          if(S===ST){if(s.burn&&alive&&t>s.deathT-750){const k=(t-(s.deathT-750))/750;x+=Math.sin(t*.012+s.seed*5)*26*k;face=Math.sin(t*.006+s.seed)>0?1:-1;run=t*.04+s.seed}
+            else if(alive&&t>1500)x-=S.face*16*ease(clamp((t-1500)/500))}
+          else{const k=ease(clamp((t-450)/650))*(1-ease(clamp((t-2700)/700)));x+=S.face*150*k;if(t>450&&t<1100||t>2700&&t<3400)run=t*.04+s.seed}
+          if(!alive&&!s.fx){s.fx=true;burst(x,s.hy-20*s.s,8,'#ff9a86',2.2)}
+          items.push({y:s.cy??s.hy,f:{x,y:s.cy??s.hy,s:s.s,face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,lady:isFem(S.u),hw:S.u.id==='hero',run,seed:s.seed,fall:alive?0:clamp((t-s.deathT)/280),alpha:alive?1:Math.max(.3,1-(t-s.deathT-400)/800)},burn:s.burn&&t>s.deathT-750&&t<s.deathT+500,bx:x,by:s.hy,bs:s.s})}
+        const o=S.off;
+        if(S===SC_){const fr=t<300?0:t<650?1:t<1000?2:3;items.push({y:o.y,f:{sig:true,fr,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,fem:femKey(S.u),ch:S.u.ch,src:o,gt:t}})}
+        else{const fate=(S.after<=0)?S.u.fate||'escape':null,flee=fate&&fate!=='capture'&&t>2900?ease(clamp((t-2900)/800)):0,shy=t>1500&&t<2300;
+          if(fate==='capture'&&t>2500){const k3=t>3000,hx=o.hx-S.face*Math.max(0,t-3000)*.32;
+            if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3300?3:4,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+            else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2750?0:1,x:o.hx,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
+          else items.push({y:o.y,f:{x:o.hx-S.face*flee*(fate==='breakout'?260:160)-S.face*(shy?10*Math.sin((t-1500)/800*Math.PI):0),y:o.y,s:o.s,face:flee?-S.face:S.face,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,ch:S.u.ch,fem:femKey(S.u),run:flee?t*.04:null,swing:fate==='breakout'&&t>2500&&t<2900?(Math.sin(t*.03)+1)/2:0,defeat:fate==='escape'&&t>2500&&t<=2900?clamp((t-2500)/350):0,seed:1.7,turn:1,alpha:1-flee}})}}
+      items.sort((a,b)=>a.y-b.y);
+      for(const f of fires)if(t>=f.t0&&t<f.t0+200)fx(c,0,Math.min(3,Math.floor((t-f.t0)/50)),f.x,f.y,f.s*.9);
+      for(const it of items){it.f.s*=FIGSZ;if(it.burn)it.bs*=FIGSZ;if(it.f.sig&&it.f.fem){drawFigure(c,{...it.f,sig:false,officer:true,type:'cav',fight:it.f.fr>0&&(it.f.gt==null||it.f.gt<1050),slow:true,seed:1.3})}else if(it.f.sig){if(!drawSig(c,it.f))drawFigure(c,{...it.f,officer:true,type:'cav'})}else drawFigure(c,it.f);
+        if(it.burn)fx(c,1,Math.floor(t/125+it.bx)%8,it.bx,it.by+2,.28*it.bs,.9)}
+      if(!leaves&&t>150){leaves=true;for(let i=0;i<34;i++)burst(Math.random()*W,GROUND-30-Math.random()*90,3,Math.random()<.5?'#5d9c3a':'#86b84c',2.4)}
+      for(const a of arrows){if(t<a.t0||t>a.t0+a.dur)continue;const p=(t-a.t0)/a.dur,x=lerp(a.sx,a.tx,p),y=lerp(a.sy,a.ty,p)-Math.sin(Math.PI*p)*40,p2=Math.max(0,p-.06),x2=lerp(a.sx,a.tx,p2),y2=lerp(a.sy,a.ty,p2)-Math.sin(Math.PI*p2)*40;c.save();c.strokeStyle='#efe6d4';c.lineWidth=1.6;ln(c,x2,y2,x,y);c.restore()}
+      if(t>150&&t<1500){const a=Math.min(1,(t-150)/200)*Math.min(1,(1500-t)/300);c.save();c.globalAlpha=a;c.font='900 54px "Noto Serif TC",serif';c.textAlign='center';c.lineWidth=8;c.strokeStyle='#14110d';c.strokeText('伏兵!',W/2,120);c.fillStyle='#9be36a';c.fillText('伏兵!',W/2,120);c.restore()}
+      stepParts(c,dt);
+      if(t<1400){c.save();c.fillStyle=`rgba(20,48,20,${.22*(1-clamp((t-700)/700))})`;c.fillRect(0,0,W,H);c.restore()}
       const k=clamp((t-1600)/1100);drawFightHud(c,SL,SR,ST===SL?lerp(SL.before,SL.after,k):SL.before,ST===SR?lerp(SR.before,SR.after,k):SR.before);
       const fate=ST.nA===0?ST.u.fate||'escape':null;if(fate){const t0=fate==='capture'?3100:fate==='breakout'?2600:2900;if(t>t0){const p=clamp((t-t0)/250),txt=fate==='capture'?`擒  ${ST.u.name} captured!`:fate==='breakout'?`${ST.u.name} breaks free!`:`${ST.u.name} escapes`;
         c.save();c.globalAlpha=p;c.font=`900 ${fate==='capture'?34:28}px "Noto Serif TC","Alegreya Sans",serif`;c.textAlign='center';c.lineWidth=6;c.strokeStyle='#14110d';c.strokeText(txt,W/2,78);c.fillStyle=fate==='capture'?'#ff7a64':fate==='breakout'?'#f3d27a':'#e8dcc0';c.fillText(txt,W/2,78);c.restore()}}

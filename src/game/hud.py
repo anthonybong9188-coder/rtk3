@@ -2318,3 +2318,43 @@ rep("  else if(k==='crescent'){","  else if(k==='twinsea'){const dx=Math.sign(t.
 rep("xuhuang:'f_xuhuang',caozhang:'f_caozhang',","xuhuang:'f_xuhuang',caozhang:'f_caozhang',xishi:'f_xishi',")
 rep("VIDS=new Set(['cao_ren',","VIDS=new Set(['xi_shi','cao_ren',")
 rep("const SPS=new Set(['cao_ren',","const SPS=new Set(['xi_shi','cao_ren',")
+
+# ---- v407: Rock Slide + Ambush fight-scene cinematics (cloned from playFire) ----
+_i=s.index('function playFire(u,e,dmg,before){');_j=s.index('const WEAPON=',_i);_pf=s[_i:_j]
+def _sw(src,a,b,n=1):
+    assert src.count(a)==n,(src.count(a),a[:70]);return src.replace(a,b)
+def _cut(src,a,b,new):
+    i=src.index(a);j=src.index(b,i)+len(b);return src[:i]+new+src[j:]
+# --- Rock Slide ---
+_rk=_sw(_pf,"function playFire(u,e,dmg,before){SND.fx('fire');","function playRock(u,e,dmg,before){SND.fx('crit');")
+_rk=_sw(_rk,"ter=terAt(e.x,e.y),big=ter==='f'?1.3:ter==='w'||ter==='='?.7:1,burnEnd=ter==='f'?3300:ter==='w'||ter==='='?2500:2900;","ter='h',big=1,burnEnd=2700;")
+_rk=_sw(_rk,"pool[k].deathT=1600+Math.random()*1100;pool[k].burn=true","pool[k].deathT=1050+Math.random()*1000;pool[k].crush=true")
+_rk=_cut(_rk,"const tgts=[...ST.sol,ST.off],arrows=[];","fires.sort((a,b)=>a.y-b.y);",
+ "const tgts=[...ST.sol,ST.off],arrows=[],fires=[],rocks=[];for(let i=0;i<20;i++){const tg=tgts[Math.floor(Math.random()*tgts.length)],tx=tg.hx+(Math.random()-.5)*46,ty=(tg.hy||tg.y)+(Math.random()-.5)*6;rocks.push({tx,ty,sx:tx-ST.face*(110+Math.random()*140),sy:-70-Math.random()*140,t0:420+i*52+Math.random()*120,dur:520+Math.random()*170,r:(17+Math.random()*21),rot:Math.random()*6,spin:(Math.random()-.5)*9,pts:[...Array(8)].map(()=>.72+Math.random()*.38)})}")
+_rk=_sw(_rk,"burst(x,s.hy-20*s.s,8,'#ff9a3c',2.2)","burst(x,s.hy-20*s.s,8,'#9b8463',2.2)")
+_rk=_cut(_rk,"for(const f of fires){if(t<f.t0+200)continue;","stepParts(c,dt);",
+ "for(const r of rocks){if(t<r.t0)continue;const p=Math.min(1,(t-r.t0)/r.dur);if(p<1){rockDraw(c,lerp(r.sx,r.tx,p),r.sy+(r.ty-r.sy)*p*p,r.r,r.rot+r.spin*p,r.pts,1)}else{const q=(t-r.t0-r.dur);if(!r.hit){r.hit=1;burst(r.tx,r.ty-6,12,'#a08a6a',2.8);burst(r.tx,r.ty-4,5,'#5a4c3c',1.6);shake=Math.max(shake,7)}if(q<900){const g=Math.min(1,q/900);c.save();const rad=14+60*g,gr=c.createRadialGradient(r.tx,r.ty-8,0,r.tx,r.ty-8,rad);gr.addColorStop(0,`rgba(176,152,118,${.55*(1-g)})`);gr.addColorStop(1,'rgba(176,152,118,0)');c.fillStyle=gr;c.beginPath();c.arc(r.tx,r.ty-8,rad,0,7);c.fill();c.restore()}rockDraw(c,r.tx,r.ty-r.r*.55,r.r,r.rot+r.spin,r.pts,1-clamp((q-1100)/500))}}\n      stepParts(c,dt);")
+_rk=_sw(_rk,"if(t>1300&&t<burnEnd+600){c.save();c.globalCompositeOperation='lighter';c.fillStyle=`rgba(255,110,30,${.10*Math.min(1,(t-1300)/400)*Math.min(1,(burnEnd+600-t)/600)*big})`;c.fillRect(0,0,W,H);c.restore()}",
+ "if(t>600&&t<burnEnd+600){c.save();c.fillStyle=`rgba(150,128,96,${.16*Math.min(1,(t-600)/500)*Math.min(1,(burnEnd+600-t)/600)})`;c.fillRect(0,0,W,H);c.restore()}")
+_rk=_sw(_rk,"const c=sctx;BGZ(c,bg,0);","const c=sctx;shake*=.86;c.save();if(shake>.5)c.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);BGZ(c,bg,0);")
+_rk=_sw(_rk,"if(t>=END){SC.removeEventListener","c.restore();if(t>=END){SC.removeEventListener")
+_rk=_sw(_rk,"let skip=false,last=start;","let skip=false,last=start,shake=0;")
+_rk=_cut(_rk,"$('#cap').innerHTML=`<span><b style=\"color:#ffb15a\">Fire!</b>","</span><span>Tap to skip</span>","$('#cap').innerHTML=`<span><b style=\"color:#e0c9a0\">Rock Slide!</b> <b>${u.name}</b> brings the hillside down on <b>${e.name}</b></span><span>Tap to skip</span>")
+# --- Ambush ---
+_am=_sw(_pf,"function playFire(u,e,dmg,before){SND.fx('fire');","function playAmbush(u,e,dmg,before){SND.fx('shout');SND.fx('gallop',.3);")
+_am=_sw(_am,"ter=terAt(e.x,e.y),big=ter==='f'?1.3:ter==='w'||ter==='='?.7:1,burnEnd=ter==='f'?3300:ter==='w'||ter==='='?2500:2900;","ter='f',big=1,burnEnd=2700;")
+_am=_sw(_am,"pool[k].deathT=1600+Math.random()*1100;pool[k].burn=true","pool[k].deathT=1150+Math.random()*1000")
+_am=_cut(_am,"const tgts=[...ST.sol,ST.off],arrows=[];","fires.sort((a,b)=>a.y-b.y);",
+ "const tgts=[...ST.sol,ST.off],arrows=[],fires=[];for(let i=0;i<22;i++){const tg=tgts[Math.floor(Math.random()*tgts.length)],sx=SC_.side==='L'?-20-Math.random()*40:W+20+Math.random()*40;arrows.push({sx,sy:GROUND-20-Math.random()*60,tx:tg.hx+(Math.random()-.5)*30,ty:(tg.hy||tg.y)+(Math.random()-.5)*8,t0:350+i*24+Math.random()*90,dur:420})}let leaves=false;")
+_am=_sw(_am,"else if(alive&&t>1500)x-=S.face*16*ease(clamp((t-1500)/500))}","else if(alive&&t>1500)x-=S.face*16*ease(clamp((t-1500)/500))}\n          else{const k=ease(clamp((t-450)/650))*(1-ease(clamp((t-2700)/700)));x+=S.face*150*k;if(t>450&&t<1100||t>2700&&t<3400)run=t*.04+s.seed}")
+_am=_sw(_am,"burst(x,s.hy-20*s.s,8,'#ff9a3c',2.2)","burst(x,s.hy-20*s.s,8,'#ff9a86',2.2)")
+_am=_cut(_am,"for(const f of fires){if(t<f.t0+200)continue;","stepParts(c,dt);",
+ "if(!leaves&&t>150){leaves=true;for(let i=0;i<34;i++)burst(Math.random()*W,GROUND-30-Math.random()*90,3,Math.random()<.5?'#5d9c3a':'#86b84c',2.4)}\n      for(const a of arrows){if(t<a.t0||t>a.t0+a.dur)continue;const p=(t-a.t0)/a.dur,x=lerp(a.sx,a.tx,p),y=lerp(a.sy,a.ty,p)-Math.sin(Math.PI*p)*40,p2=Math.max(0,p-.06),x2=lerp(a.sx,a.tx,p2),y2=lerp(a.sy,a.ty,p2)-Math.sin(Math.PI*p2)*40;c.save();c.strokeStyle='#efe6d4';c.lineWidth=1.6;ln(c,x2,y2,x,y);c.restore()}\n      if(t>150&&t<1500){const a=Math.min(1,(t-150)/200)*Math.min(1,(1500-t)/300);c.save();c.globalAlpha=a;c.font='900 54px \"Noto Serif TC\",serif';c.textAlign='center';c.lineWidth=8;c.strokeStyle='#14110d';c.strokeText('伏兵!',W/2,120);c.fillStyle='#9be36a';c.fillText('伏兵!',W/2,120);c.restore()}\n      stepParts(c,dt);")
+_am=_sw(_am,"if(t>1300&&t<burnEnd+600){c.save();c.globalCompositeOperation='lighter';c.fillStyle=`rgba(255,110,30,${.10*Math.min(1,(t-1300)/400)*Math.min(1,(burnEnd+600-t)/600)*big})`;c.fillRect(0,0,W,H);c.restore()}",
+ "if(t<1400){c.save();c.fillStyle=`rgba(20,48,20,${.22*(1-clamp((t-700)/700))})`;c.fillRect(0,0,W,H);c.restore()}")
+_am=_cut(_am,"$('#cap').innerHTML=`<span><b style=\"color:#ffb15a\">Fire!</b>","</span><span>Tap to skip</span>","$('#cap').innerHTML=`<span><b style=\"color:#9be36a\">Ambush!</b> <b>${u.name}</b>'s hidden troops burst from the forest onto <b>${e.name}</b></span><span>Tap to skip</span>")
+_rd="function rockDraw(c,x,y,r,rot,pts,a){if(a<=0)return;c.save();c.globalAlpha=a;c.translate(x,y);c.rotate(rot);c.beginPath();pts.forEach((k,i)=>{const an=i/pts.length*Math.PI*2,px=Math.cos(an)*r*k,py=Math.sin(an)*r*k*.86;i?c.lineTo(px,py):c.moveTo(px,py)});c.closePath();const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,'#b3a792');g.addColorStop(.55,'#73685a');g.addColorStop(1,'#3a3229');c.fillStyle=g;c.fill();c.strokeStyle='rgba(28,22,16,.75)';c.lineWidth=1.6;c.stroke();c.fillStyle='rgba(255,255,255,.16)';c.beginPath();c.ellipse(-r*.3,-r*.34,r*.34,r*.16,-.5,0,7);c.fill();c.restore()}\n"
+s=s[:_j]+_rd+_rk+_am+s[_j:]
+# wire into doRock / springAmbush
+rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);float(e,'-'+dmg,'#e0c9a0');","dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(speed)await playRock(u,e,dmg,before);float(e,'-'+dmg,'#e0c9a0');")
+rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);float(e,'-'+dmg,'#9be36a');","dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');")
