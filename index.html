@@ -3442,6 +3442,19 @@ async function marketDlg(c){for(;;){const r=riceRate(c),sr=riceSell(c),season=S.
   else{if(n>c.rice)continue;const got=Math.floor(n/sr);c.rice-=n;c.gold+=got;addLog(`${c.name} sells ${fmt(n)} rice to the merchants for ${fmt(got)} gold.`,'shu')}
   SND.fx&&SND.fx('chime');save()}}
 
+// ---- Easter egg: tap Xi Shi's portrait 20 times in a row -> secret clip (art/xs_secret.mp4) ----
+(()=>{let n=0,last=0;
+  addEventListener('pointerdown',e=>{const im=e.target.closest&&e.target.closest('img,video');const src=im&&(im.currentSrc||im.src||'')||'';
+    if(!/xi_shi/.test(src)){n=0;return}
+    const now=performance.now();n=now-last<1500?n+1:1;last=now;if(n>=20){n=0;xsSecret()}},true);
+  function xsSecret(){if(document.getElementById('xsEgg'))return;
+    const o=document.createElement('div');o.id='xsEgg';o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:pointer';
+    const v=document.createElement('video');v.src='art/xs_secret.mp4';v.playsInline=true;v.autoplay=true;v.style.cssText='max-width:100vw;max-height:100dvh;width:min(100vw,177.78dvh)';
+    try{v.muted=!!SND.set.mute;v.volume=Math.max(0,Math.min(1,SND.set.sfx))}catch(err){}
+    const close=()=>{v.pause();o.remove()};o.addEventListener('pointerdown',ev=>{ev.stopPropagation();close()});v.onended=close;v.onerror=close;
+    o.appendChild(v);document.body.appendChild(o);const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(close)})}
+})();
+
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
 for(const id of ['#newBtn','#contBtn'])$(id).addEventListener('click',goFull,true);
