@@ -1042,7 +1042,29 @@ function playCampaignBattle(a,c,gens,defG){
 }
 
 // ---- 2-second march-out scene after a war march is ordered ----
+// March-out: plays Grok's video clip (art/march_out.mp4) on the stage canvas; falls back to the drawn march if the video can't play
 async function marchOut(gens,troops,to){
+  if(!gens.length||typeof speed!=='undefined'&&speed===0)return;
+  const ok=await marchOutVid(gens,troops,to).catch(()=>false);if(!ok)return marchOutAnim(gens,troops,to)}
+function marchOutVid(gens,troops,to){return new Promise(res=>{
+  const v=document.createElement('video');v.src='art/march_out.mp4';v.playsInline=true;v.preload='auto';
+  let muted=false;try{muted=!!SND.set.mute;v.volume=Math.max(0,Math.min(1,SND.set.sfx))}catch(e){}v.muted=muted;
+  let started=false,done=false;const fail=()=>{if(!started&&!done){done=true;v.removeAttribute('src');res(false)}};
+  v.onerror=fail;const to1=setTimeout(fail,2500);
+  v.oncanplay=()=>{if(started||done)return;started=true;clearTimeout(to1);
+    const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(()=>{})});
+    const c=sctx;$('#cap').innerHTML=`<span><b>${gens.map(gnm).join(', ')}</b> march on <b>${to.name}</b> · ${fmt(troops)} troops</span><span>Tap to skip</span>`;
+    $('#duelUI').hidden=true;$('#stage').hidden=false;
+    let skip=false;const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);const st=performance.now(),DUR=4000;
+    const finish=()=>{if(done)return;done=true;SC.removeEventListener('pointerdown',onSkip);v.pause();v.removeAttribute('src');v.load();$('#stage').hidden=true;res(true)};
+    v.onended=finish;
+    function fr(now){if(done)return;const t=now-st;if(skip||t>DUR+1500)return finish();
+      if(v.readyState>=2)c.drawImage(v,0,0,W,H);
+      const a=Math.min(1,t/250,(DUR-t)/250);if(a>0){c.globalAlpha=a;c.fillStyle='rgba(12,9,6,.72)';c.fillRect(W/2-70,40,140,54);c.fillStyle='#f3dc9a';c.font='900 34px "Noto Serif TC", serif';c.textAlign='center';c.textBaseline='middle';c.fillText('出陣',W/2,68);c.globalAlpha=1;c.textAlign='left';c.textBaseline='alphabetic'}
+      requestAnimationFrame(fr)}
+    requestAnimationFrame(fr)};
+  v.load()})}
+async function marchOutAnim(gens,troops,to){
   if(!gens.length||typeof drawFigure!=='function'||typeof speed!=='undefined'&&speed===0)return;
   await Promise.race([sprWait(),new Promise(r=>setTimeout(r,700))]);
   const c=sctx,DUR=2000,nSol=Math.max(3,Math.min(18,Math.ceil(troops/600))),per=Math.max(2,Math.round(nSol/gens.length)),figs=[];
