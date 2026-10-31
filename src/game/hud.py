@@ -2358,8 +2358,13 @@ s=s[:_j]+_rd+_rk+_am+s[_j:]
 # wire into doRock / springAmbush
 rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);float(e,'-'+dmg,'#e0c9a0');","dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(speed)await playRock(u,e,dmg,before);float(e,'-'+dmg,'#e0c9a0');")
 rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);float(e,'-'+dmg,'#9be36a');","dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');")
-rep("const SPS=new Set(['xi_shi',","const SPS=new Set(['p_liufeng','p_chendao','p_liaohua','p_huojun','p_liuqi','p_yiji','p_mifang','p_chengpu','p_handang','p_jiangqin','p_zhuzhi','p_zhugejin','p_xusheng','p_dongxi','p_zhuran','p_zhanghe','p_caopi','p_caohong','p_caochun','p_wenpin','p_lingtong','p_kanze','p_panzhang','p_litong','p_caimao','p_zangba','p_zhuling','p_kuaiyue','p_wangcan','xi_shi',")
+rep("const SPS=new Set(['xi_shi',","const SPS=new Set(['xi_shi',")
 # Restore generals whose Grok portraits are approved (31 Oct)
 _RESTORED=['liufeng','chendao','liaohua','huojun','liuqi','yiji','mifang','chengpu','handang','jiangqin','zhuzhi','zhugejin','xusheng','dongxi','zhuran','zhanghe','caopi','caohong','caochun','wenpin','lingtong','kanze','panzhang','litong','caimao','zangba','zhuling','kuaiyue','wangcan']
 _k=s.index("const CUT_GENS=new Set([");_e=s.index("]);",_k);_ids=[x.strip("'") for x in s[_k+len("const CUT_GENS=new Set(["):_e].split(',')]
 s=s[:_k]+"const CUT_GENS=new Set(["+",".join("'"+x+"'" for x in _ids if x not in _RESTORED)+s[_e:]
+
+# v412: sp_ portraits only for generals WITHOUT a cut-in video (artifact 512-file cap)
+_k=s.index('const SPS=new Set([');_e=s.index('])',_k);_ids=[x.strip("'") for x in s[_k+len('const SPS=new Set(['):_e].split(',')]
+_V=set(x.strip("'") for x in s[s.index('const VIDS=new Set([')+len('const VIDS=new Set(['):s.index('])',s.index('const VIDS=new Set(['))].split(','))
+s=s[:_k]+'const SPS=new Set(['+','.join("'"+x+"'" for x in _ids if x not in _V and not x.startswith('p_') or x in ('p_guanping','p_zhoucang'))+s[_e:]
