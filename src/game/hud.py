@@ -2360,7 +2360,7 @@ rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);float
 rep("dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);float(e,'-'+dmg,'#9be36a');","dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');")
 rep("const SPS=new Set(['xi_shi',","const SPS=new Set(['xi_shi',")
 # Restore generals whose Grok portraits are approved (31 Oct)
-_RESTORED=['liufeng','chendao','liaohua','huojun','liuqi','yiji','mifang','chengpu','handang','jiangqin','zhuzhi','zhugejin','xusheng','dongxi','zhuran','zhanghe','caopi','caohong','caochun','wenpin','lingtong','kanze','panzhang','litong','caimao','zangba','zhuling','kuaiyue','wangcan','zhangyun']
+_RESTORED=['liufeng','chendao','liaohua','huojun','liuqi','yiji','mifang','chengpu','handang','jiangqin','zhuzhi','zhugejin','xusheng','dongxi','zhuran','zhanghe','caopi','caohong','caochun','wenpin','lingtong','kanze','panzhang','litong','caimao','zangba','zhuling','kuaiyue','wangcan','zhangyun','yangling','shamoke','liuxian','baolong','menghuo','liuba','xianglang']
 _k=s.index("const CUT_GENS=new Set([");_e=s.index("]);",_k);_ids=[x.strip("'") for x in s[_k+len("const CUT_GENS=new Set(["):_e].split(',')]
 s=s[:_k]+"const CUT_GENS=new Set(["+",".join("'"+x+"'" for x in _ids if x not in _RESTORED)+s[_e:]
 

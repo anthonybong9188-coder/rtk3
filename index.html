@@ -2311,7 +2311,7 @@ const GEN_DEF=[
   ['liuba','Liu Ba','巴',null,'lingling',24,84,90,68,'shield','p_liuba',80,1],
   ['xianglang','Xiang Lang','朗',null,'xiangyang',30,74,80,70,'shield','p_xianglang',80,1]
 ];
-const CUT_GENS=new Set(['yangling','shamoke','liuxian','baolong','menghuo','liuba','xianglang']);for(let i=GEN_DEF.length-1;i>=0;i--)if(CUT_GENS.has(GEN_DEF[i][0]))GEN_DEF.splice(i,1);
+const CUT_GENS=new Set([]);for(let i=GEN_DEF.length-1;i>=0;i--)if(CUT_GENS.has(GEN_DEF[i][0]))GEN_DEF.splice(i,1);
 const CMDS={
   farm:{n:'Farm',zh:'農',stat:'pol',cost:{gold:50},tip:'Raise farming, so the 7th-month harvest brings more rice'},
   com:{n:'Commerce',zh:'商',stat:'pol',cost:{gold:50},tip:'Raise commerce, so the city earns more gold each month'},
