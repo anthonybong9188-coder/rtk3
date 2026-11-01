@@ -3706,14 +3706,16 @@ const FAC_ALL={
 const GEN_NEW=[
  ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav','p_dongzhuo'],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav','p_yuanshao'],
  ['yuanshu','Yuan Shu','術',62,62,64,66,'shield','p_yuanshu'],['sunjian','Sun Jian','堅',93,80,74,92,'cav','p_sunjian'],['sunce','Sun Ce','策',94,76,72,96,'cav','p_sunce'],
- ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav',null],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav',null],
- ['gongsundu','Gongsun Du','度',78,62,60,66,'cav',null],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav',null],['liubiao','Liu Biao','表',40,78,86,84,'shield',null],
- ['liuyan','Liu Yan','焉',32,72,76,70,'shield',null],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield',null],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield',null],
- ['taoqian','Tao Qian','陶',30,62,74,80,'shield',null],['kongrong','Kong Rong','孔',30,82,84,88,'archer',null],['hanfu','Han Fu','馥',40,56,60,52,'shield',null],
- ['liuyao','Liu Yao','繇',50,58,64,70,'shield',null],['wanglang','Wang Lang','朗',42,76,82,72,'shield',null],['yanbaihu','Yan Baihu','虎',74,30,22,46,'spear',null],
- ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear',null],['lijue','Li Jue','傕',80,40,20,30,'cav',null],
+ ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav','p_panzhang'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_wenpin'],
+ ['gongsundu','Gongsun Du','度',78,62,60,66,'cav','p_chengpu'],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav','p_caochun'],['liubiao','Liu Biao','表',40,78,86,84,'shield','p_kuaiyue'],
+ ['liuyan','Liu Yan','焉',32,72,76,70,'shield','p_zhuzhi'],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield','p_jiangwan'],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield','p_kanze'],
+ ['taoqian','Tao Qian','陶',30,62,74,80,'shield','p_yiji'],['kongrong','Kong Rong','孔',30,82,84,88,'archer','p_liuba'],['hanfu','Han Fu','馥',40,56,60,52,'shield','p_xianglang'],
+ ['liuyao','Liu Yao','繇',50,58,64,70,'shield','p_zhugejin'],['wanglang','Wang Lang','朗',42,76,82,72,'shield','p_wangcan'],['yanbaihu','Yan Baihu','虎',74,30,22,46,'spear','p_baolong'],
+ ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear','p_liaohua'],['lijue','Li Jue','傕',80,40,20,30,'cav','p_dongxi'],
  ['machao','Ma Chao','超',97,44,30,82,'cav','p_machao'],['dianwei','Dian Wei','韋',97,35,20,58,'spear','p_dianwei'],['guojia','Guo Jia','嘉',15,98,82,86,'archer','p_guojia']];
 // fictional characters made for this game: only in New Hero games, and only the hero's own Search finds them
+// Anthony 2 Nov: minor rulers use shared common-general faces and are not playable
+const NOPLAY=['gongsunzan','liubiao','liuzhang','zhanglu','taoqian','kongrong','liuyao','hanfu','liuyan','wanglang','yanbaihu','gongsundu','gongsunkang','hansui','lijue','zhangxiu'];
 const FICTIONAL=['xuannu','monu','xishi','huangyi','renrui','miren','mishao'];
 // ---------- scenarios: start date, goal, factions with their cities and troops, alliance, intro
 const SCENS={
@@ -3854,7 +3856,7 @@ cityIcon=function(c,F){const t=CITY_TIER[c.id]||'small',st=underSiege(c)?'siege'
 // ---------------------------------------------------------------- title: 雄霸天下, one main screen, scenario + ruler picker
 setTitleMode=function(){const im=document.getElementById('tbg');if(im&&!im.src.endsWith('art/title_hero.jpg'))im.src='art/title_hero.jpg';
   $('#tlogo').textContent='雄霸天下';$('#tlogo').classList.add('hero');document.getElementById('title').classList.add('tm-hero');
-  $('#tscenT').textContent='Rise of the Warlords';$('#tscenP').textContent='Three eras of the Three Kingdoms on the whole map of China. Play any ruler of AD 189, 194 or 208, or a hero of your own making.';
+  $('#tscenT').textContent='Rise of the Warlords';$('#tscenP').textContent='Three eras of the Three Kingdoms on the whole map of China. Play a great lord of AD 189, 194 or 208, or a hero of your own making.';
   document.querySelectorAll('[data-tm]').forEach(b=>b.hidden=true);$('#heroBtn').hidden=true;$('#newBtn').hidden=false;$('#newBtn').textContent='New game'}
 renderTitle=function(){const sv=loadSave(),has=!!(sv&&!sv.over);setTitleMode();$('#loadBtn').hidden=![...SLOTS,PRE].some(k=>{const x=readKey(k);return x&&!x.over});
   $('#contBtn').hidden=!has;$('#contBtn').classList.toggle('primary',has);$('#newBtn').classList.toggle('primary',!has);$('#tbtns').prepend(has?$('#contBtn'):$('#newBtn'));
@@ -3871,7 +3873,7 @@ async function heroSetup(){let name='';for(;;){const r=await dialog(`<h2>俠 A n
 async function newGameFlow(){const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;
   for(;;){const sid=await dialog(`<h2>Choose a year</h2><div class="tlist slots scenl">${Object.entries(SCENS).map(([k,v])=>`<button data-r="${k}"><span class="sl"><b><span class="szh">${v.zh}</span> ${v.t}</b><small>${v.p}</small></span><em>${Object.keys(v.f).length} lords</em></button>`).join('')}</div>`,[['cancel','Cancel']]);
     if(!SCENS[sid])return;const sc=SCENS[sid];
-    const fl=Object.keys(sc.f).sort((a,b)=>sc.f[b].length-sc.f[a].length);
+    const fl=Object.keys(sc.f).filter(f=>!NOPLAY.includes((sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler)).sort((a,b)=>sc.f[b].length-sc.f[a].length);
     const row=f=>{const F=FAC_ALL[f],nm=(sc.names&&sc.names[f])||F.name,rid=(sc.rulers&&sc.rulers[f])||F.ruler,face=rulerFace(rid,40)||`<span class="gseal" style="width:40px;height:46px;background:${F.main};font-size:22px">${F.zh}</span>`;
       return `<button data-r="f:${f}" class="rulb"><span class="rface">${face}</span><span class="sl"><b style="color:${F.light}">${nm}</b><small>${sc.f[f].length} cit${sc.f[f].length>1?'ies':'y'}: ${sc.f[f].map(id=>(CITY44.find(c=>c[0]===id)||[0,id])[1]).join(', ')}</small></span></button>`};
     const r=await dialog(`<h2>${sc.zh} ${sc.y} · choose your ruler</h2><div class="tlist slots rull"><button data-r="hero" class="rulb"><span class="rface"><img class="gport" style="width:40px;height:46px" src="portraits/hero.webp" alt=""></span><span class="sl"><b style="color:#ecc874">俠 New Hero</b><small>Your own hero in Luling, with a family fortune. The only way to meet the legendary heroines of this game.</small></span></button>${fl.map(row).join('')}</div>`,[['back','Back'],['cancel','Cancel']]);
