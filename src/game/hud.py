@@ -2533,3 +2533,12 @@ s=_re2.sub(r'\.pkmap\{[^}]*\}',lambda m:_re2.sub(r'\*1\.5\)',r'*1.3408)',m.group
 rep('<span class="lbl">Scenario · 208 AD</span>','<span class="lbl">AD 189 · 194 · 208</span>')
 rep(".rull .rulb{display:flex;align-items:center;gap:10px;text-align:left}",".rull .rulb{display:flex;align-items:center;gap:10px;text-align:left;justify-content:flex-start}.rull .rulb .sl{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left}")
 rep('<title>RTK3</title>','<meta charset="utf-8">\n<title>雄霸天下 RTK3</title>')
+
+# ---- v427 WARRIOR VFX (Grok batch A): unique map effect per warrior special, sheet skill_fx_c.jpg rows 24-34
+rep("const skfxIm=row=>row<12?SKFX:SKFX2;","const SKFX3=new Image();SKFX3.src='sprites/skill_fx_c.jpg';const skfxIm=row=>row<12?SKFX:row<24?SKFX2:SKFX3;")
+rep("chakram:20,dragon:21,shadow:22,eastwind:23}","chakram:20,dragon:21,shadow:22,eastwind:23,w_musou:24,w_roar:25,w_sweep:26,w_lone:27,w_tiger:28,w_raid:29,w_sharp:30,w_twin:31,w_terror:32,w_ambush:33,w_yellowbeard:34}")
+rep("await cutIn(s,h);SND.fx('sk_'+k);let keep=false;","await cutIn(s,h);SND.fx('sk_'+k);let keep=false;if(WFX[k]){const p=(h.self||!t)?s:t;mfx('w_'+k,p.x,p.y,1500,WFX[k])}")
+rep("async function heroAct(k,s,t){","const WFX={musou:4.2,roar:3.6,sweep:3.4,lone:3,tiger:2.8,raid:3,sharp:3,twin:3,terror:3.2,ambush:3,yellowbeard:3.2};\nasync function heroAct(k,s,t){")
+rep("mfx('whirl',s.x,s.y,1000,4.2);SND.fx('crit');await sleep(550);\n    let tot=0;for(const e of hit)tot+=quickHit(s,e,1.2,","SND.fx('crit');await sleep(550);\n    let tot=0;for(const e of hit)tot+=quickHit(s,e,1.2,")
+rep("mfx('rally',s.x,s.y,1100,3.2)","0")
+rep("mfx('arc',s.x,s.y,900,3.4)","0")
