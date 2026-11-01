@@ -2566,3 +2566,12 @@ rep("else if(k==='terror'){","""else if(k==='splendid'){await doAttack(s,t,{mult
 # v433 (2 Nov): Grok sprite sets for Dian Wei + Sun Jian; Dian Wei cut-in (Sun Jian cut-in sent for redo)
 rep("const GSHEET={","const GSHEET={dianwei:'f_dianwei',sunjian:'f_sunjian',")
 rep("VIDS=new Set(['xi_shi',","VIDS=new Set(['p_dianwei','xi_shi',")
+# v434: sprites Ma Chao, Guo Jia, Sun Ce + cut-ins; vfx batch C (skill_fx_e.jpg rows 48-52) for the 5 new specials
+rep("const GSHEET={dianwei:'f_dianwei',","const GSHEET={machao:'f_machao',guojia:'f_guojia',sunce:'f_sunce',dianwei:'f_dianwei',")
+rep("VIDS=new Set(['p_dianwei',","VIDS=new Set(['p_machao','p_guojia','p_sunce','p_dianwei',")
+rep("const skfxIm=row=>row<12?SKFX:row<24?SKFX2:row<36?SKFX3:SKFX4;","const SKFX5=new Image();SKFX5.src='sprites/skill_fx_e.jpg';const skfxIm=row=>row<12?SKFX:row<24?SKFX2:row<36?SKFX3:row<48?SKFX4:SKFX5;")
+rep("w_firstwall:45,w_whiterobe:46}","w_firstwall:45,w_whiterobe:46,w_splendid:48,w_evilcome:49,w_foresight:50,w_redturban:51,w_conqueror:52}")
+rep("firstwall:3,whiterobe:3.6};","firstwall:3,whiterobe:3.6,splendid:3.2,evilcome:3.4,foresight:3,redturban:3,conqueror:3};")
+rep("else if(k==='evilcome'){const hit=adjE(s);mfx('whirl',s.x,s.y,1000,3.2);","else if(k==='evilcome'){const hit=adjE(s);")
+rep("else if(k==='foresight'){mfx('scroll',t.x,t.y,1000,2.6);","else if(k==='foresight'){")
+rep("const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);mfx('rally',s.x,s.y,1000,2.6);","const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);")
