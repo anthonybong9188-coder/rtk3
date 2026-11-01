@@ -270,3 +270,6 @@ Object.assign(BIO,{
  yanbaihu:{zh:'嚴白虎',st:'',y:'?–196',bg:'A bandit chief who called himself the Virtuous King of the East.',h:'He ruled Wu commandery with his rough followers until Sun Ce swept him away.',f:['Bandit king of Wu']},
  zhangxiu:{zh:'張繡',st:'',y:'?–207',bg:'Nephew of Zhang Ji, lord of Wancheng.',h:'In 197 his surprise attack nearly killed Cao Cao and cost the lives of Dian Wei and Cao Ang; he later surrendered to Cao Cao.',f:['Lord of Wancheng','Ambushed Cao Cao']},
  lijue:{zh:'李傕',st:'Zhiran',y:'?–198',bg:'One of Dong Zhuo\'s generals.',h:'After Dong Zhuo\'s death he and Guo Si seized Chang\'an and held the emperor hostage, until their own quarrels let him escape.',f:['Held the emperor at Chang\'an']}});
+
+// Anthony 1 Nov: one general, one special. Guan Yu keeps Dragon Sweep only.
+delete HERO.flood;
