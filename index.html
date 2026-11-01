@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允先光八六兵典冬凌出刀刃分到剑劉劍勝化十千南卦双史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫失奇奕女奸妃威子孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴市布帥師平度庶廖廬延建弓弩張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新施旋昌明易星春昭昱晃普暈暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治法波泰洪流海淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾看睛矛矢石破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華落葛董蒙蒯蓋蔡蔣蕊藤虎虛蛇蜀融蟬術衛衣褚襄襲西要計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉候偃備允先光八六兵典冬凌出刀刃分到剑劉劍勝化十千南卦双史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫失奇奕女奸妃威子孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴市布帥師平度庶廖廬延建弓弩張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新施旋昌明易星春昭昱晃普晴暈暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治法波泰洪流海淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾看睛矛矢石破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華落葛董蒙蒯蓋蔡蔣蕊藤虎虛蛇蜀融蟬術衛衣褚襄襲西要計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雪雲零雷震霍霧霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -493,6 +493,11 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
 .prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
 .prep-types{display:flex;gap:5px;flex-wrap:wrap}
+#wxChip{position:absolute;right:12px;top:62px;z-index:6;max-width:250px;background:rgba(20,17,13,.8);border:1px solid #b08a4a;border-radius:10px;padding:6px 10px;color:#f1e6cc;font:13px/1.3 system-ui,sans-serif;pointer-events:none}
+#wxChip .wxh{display:flex;align-items:center;gap:6px}#wxChip .wxi{font-size:20px}#wxChip b{font-size:14.5px}#wxChip .wxd{font-size:18px;color:#ffd27a}#wxChip .wxe{color:#cfc4aa;font-size:12px;margin-top:2px}#wxChip .wxn{color:#a99c80;font-size:11.5px;margin-top:3px}
+@media (max-width:600px),(max-height:450px){#wxChip{max-width:200px;top:54px;right:8px;padding:3px 8px;font-size:11px}#wxChip .wxi{font-size:15px}#wxChip b{font-size:12.5px}#wxChip .wxe{font-size:10.5px}#wxChip .wxn{font-size:10px;margin-top:1px}}
+.wxban{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);z-index:30;background:rgba(20,17,13,.85);border:1px solid #d4ad55;border-radius:14px;padding:12px 26px;color:#f6eed8;font:600 24px var(--f-display,serif);pointer-events:none;animation:wxb 2.2s ease forwards}.wxban b{font-size:30px;color:#ffd27a}
+@keyframes wxb{0%{opacity:0;transform:translate(-50%,-40%)}15%,75%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0}}
 .prep-types button{min-width:54px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.1;border-radius:9px}
 .prep-types button .zh{font-size:17px;font-weight:900}.prep-types button small{font-size:10px}
 .prep-types button.on{background:var(--gold,#d4ad55);color:#1a140c;border-color:var(--gold,#d4ad55)}
@@ -746,13 +751,10 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
           <tr><td>Cavalry</td><td>beat Shields, Archers ×1.4</td></tr>
           <tr><td>Shield infantry</td><td>beat Spearmen ×1.4</td></tr>
           <tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>
-          <tr><td>Crossbowmen 弩</td><td>range 1–2, move 2, pierce Shields &amp; Cavalry ×1.3</td></tr>
-          <tr><td>Rattan armour 藤</td><td>arrows ×0.5, beat Archers ×1.3, FIRE ×2</td></tr>
-          <tr><td>Horse archers 騎射</td><td>move 4, range 1–2 (×0.85), beat Archers &amp; Crossbows ×1.2; Spears &amp; Cavalry beat them ×1.3</td></tr>
         </table>
       </div>
       <div>
-        <h4>Terrain (damage taken ÷)</h4>
+        <h4>Weather 天候</h4><table><tr><td>🌧️ Rain</td><td>no Fire · arrows −20% · cavalry −1 move</td></tr><tr><td>🌫️ Fog</td><td>see 2 squares · range 1 · Ambush ×1.5</td></tr><tr><td>❄️ Snow</td><td>all −1 move · damage −10%</td></tr><tr><td>🍃 Wind</td><td>Fire ×1.5 · arrows with wind +15%, against −15%</td></tr></table><p class="muted" style="font-size:12px">Weather can change each turn. The card at top right shows next turn's weather.</p><h4>Terrain (damage taken ÷)</h4>
         <table>
           <tr><td>Plain</td><td>1.0</td></tr>
           <tr><td>Forest · Fire works here</td><td>1.2</td></tr>
@@ -822,10 +824,10 @@ const SKILLS={
  charge:{n:'Charge',zh:'突',who:u=>u.type==='cav',desc:'×1.5 damage, weak counter, then ride through to the square behind'},
  guard:{n:'Brace',zh:'守',who:u=>u.type==='spear',desc:'Until the enemy turn ends, intercept any cavalry or spear attack on a unit within 2 squares (diagonals included)'},
  push:{n:'Push',zh:'推',who:u=>u.type==='shield',desc:'Shove an adjacent enemy back 1 square, no counter. Full damage if it is blocked'},
- volley:{n:'Volley',zh:'射',who:u=>u.type==='archer'||u.type==='xbow',desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
+ volley:{n:'Volley',zh:'射',who:u=>(u.type==='archer'||u.type==='xbow')&&!wxIs('fog'),desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
  hide:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'},
  rock:{n:'Rock Slide',zh:'落石',who:u=>u.int>=75,desc:'Bring rocks down on an enemy standing BESIDE A HILL within 3 squares. Chance = (your Int − his Int) × 5%. Crushes 20% of his troops (at least 500)'},
- fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Set fire to an enemy in a FOREST within 3 squares. Chance = (your Int − his Int) × 5%. Burns 20% of his troops (at least 500)'}};
+ fire:{n:'Fire',zh:'火',who:u=>u.int>=75&&!wxIs('rain'),desc:'Set fire to an enemy in a FOREST within 3 squares. Chance = (your Int − his Int) × 5%. Burns 20% of his troops (at least 500)'}};
 const lineClear=(s,e)=>{const dx=Math.sign(e.x-s.x),dy=Math.sign(e.y-s.y);for(let x=s.x+dx,y=s.y+dy;x!==e.x||y!==e.y;x+=dx,y+=dy){if(unitAt(x,y)||terAt(x,y)==='w')return false}return true};const adjE=s=>enemies().filter(e=>manh(s,e)===1),adjA=s=>G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);
 const HERO={
  roar:{who:'zhangfei',zh:'咆哮',n:'Roar',self:1,can:s=>adjE(s).length>0,desc:'Every adjacent enemy is stunned and loses its next turn'},
@@ -894,6 +896,7 @@ function ln(c,a,b,x,y){c.beginPath();c.moveTo(a,b);c.lineTo(x,y);c.stroke()}
 function circ(c,x,y,r){c.beginPath();c.arc(x,y,r,0,Math.PI*2)}
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
 function moveCost(t,type){if(t==='w')return Infinity;if(t==='f'||t==='h')return CAVT.has(type)?3:2;return 1}
+const NEWT_ON=false; // 1 Nov: Anthony shelved crossbow/rattan/horse archer - set true to bring them back
 const RANGEDT=new Set(['archer','xbow','hcav']),CAVT=new Set(['cav','hcav']);
 // placeholder sheets until Grok's troop sprites arrive: drop a key here once its sprites/<type>_<fac>.png files are installed
 const SPAL={xbow:'archer',rattan:'shield',hcav:'cav'};
@@ -903,15 +906,67 @@ function typeMult(a,d){if(d==='rattan'&&RANGEDT.has(a))return .5;if(a==='rattan'
   if(a==='spear'&&d==='cav')return 1.4; if(a==='cav'&&(d==='shield'||d==='archer'))return 1.4; if(a==='shield'&&d==='spear')return 1.4;
   if(a==='cav'&&d==='spear')return .7; if(a==='shield'&&d==='cav')return .7; if(a==='spear'&&d==='shield')return .7;
   if(d==='archer'&&a!=='archer')return 1.2; return 1}
-function inRange(type,d){const [a,b]=TYPES[type].rng;return d>=a&&d<=b}
+function inRange(type,d){const [a,b]=TYPES[type].rng;return d>=a&&d<=(wxIs('fog')?Math.min(b,1):b)}
 const effT=t=>t<=3000?t:3000+(t-3000)*.4;
 function dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd,dWar){
-  let m=typeMult(aType,dType);if(dWar!=null)m*=((aWar||60)+20)/((dWar||60)+20); if(RANGEDT.has(aType)&&!ranged)m*=.8;if(aType==='hcav'&&ranged)m*=.85;
+  let m=typeMult(aType,dType);if(dWar!=null)m*=((aWar||60)+20)/((dWar||60)+20); if(RANGEDT.has(aType)&&!ranged)m*=.8;m*=wxDmg(__wxU,ranged);if(aType==='hcav'&&ranged)m*=.85;
   const p=effT(aTroops)/1000*(20+aWar);
   const gen=1+Math.max(0,aWar-80)/100;
   return Math.max(0,Math.round(p*2.2*m*gen/T_INFO[dTile].def*(rnd?.9+Math.random()*.2:1)))}
 const HPM=u=>(u.type==='tiger'||u.type==='wolf')?0:u.id==='garrison'?300:Math.round(1000*clamp(.8+.4*((u.war||60)-60)/40,.6,1.3)),SOL=u=>Math.max(0,u.troops-(u.hpMax||0)),HP=u=>Math.min(u.hpMax||0,Math.max(0,u.troops));
 const gapF=(a,d)=>d.hpMax&&d.troops<=d.hpMax?Math.max(.6,1+.15*((a.war||60)-(d.war||60))/10):1;
+const WXD={clear:{n:'Clear',zh:'晴',ic:'☀️',fx:'No effect'},rain:{n:'Rain',zh:'雨',ic:'🌧️',fx:'Fire ✕ · Arrows −20% · Mud: cavalry −1 move'},fog:{n:'Fog',zh:'霧',ic:'🌫️',fx:'See only 2 squares · Range 1 only · Ambush ×1.5'},snow:{n:'Snow',zh:'雪',ic:'❄️',fx:'All units −1 move · All damage −10%'},wind:{n:'Strong wind',zh:'風',ic:'🍃',fx:'Fire ×1.5 · Arrows with the wind +15%, against −15%'}};
+const WX_N=new Set(['xuchang','runan','wancheng','hefei','xiangyang']);
+const wxIs=k=>typeof G!=='undefined'&&G&&G.wx===k;
+function wxWeights(){const cf=(G&&G.cfg)||{},m=(typeof S!=='undefined'&&S&&S.month)||G.wxMonth,north=WX_N.has(cf.wxCity),th=window.BTHEME;
+  const sea=m===12||m<=2?'w':m<=5?'sp':m<=8?'su':'au';
+  const w={sp:{clear:45,rain:25,fog:20,wind:10,snow:0},su:{clear:45,rain:35,fog:5,wind:15,snow:0},au:{clear:50,rain:15,fog:15,wind:20,snow:0},w:north?{clear:40,rain:5,fog:10,wind:15,snow:30}:{clear:45,rain:20,fog:20,wind:15,snow:0}}[sea];
+  const r={...w};if(!north&&cf.wxCity)r.rain=Math.round(r.rain*1.4);if(th==='marsh'||th==='river')r.fog=Math.round(r.fog*1.5);return r}
+function wxRoll(not){const w=wxWeights();if(not)w[not]=0;let t=0;for(const k in w)t+=w[k];let x=Math.random()*t;for(const k in w){x-=w[k];if(x<0)return k}return 'clear'}
+function wxInit(){G.wxMonth=1+Math.floor(Math.random()*12);G.wx=G.cfg.spar?'clear':wxRoll();G.wxN=Math.random()<.65?G.wx:wxRoll(G.wx);if(window.__WXCLEAR){G.wx=G.wxN='clear'}
+  const sx=G.units.filter(u=>u.side==='shu').reduce((a,u)=>a+u.x,0)/Math.max(1,G.units.filter(u=>u.side==='shu').length);G.wxShuL=sx<COLS/2;G.wxDir=Math.random()<.5?1:-1;
+  if(G.wx!=='clear')log(`<b>${WXD[G.wx].zh} ${WXD[G.wx].n}.</b> ${WXD[G.wx].fx}.`);wxApply()}
+function wxTurn(){if(!G||G.cfg.spar||window.__WXCLEAR)return;const old=G.wx;G.wx=G.wxN||G.wx;G.wxN=Math.random()<.65?G.wx:wxRoll(G.wx);
+  if(G.wx!==old){log(`<b>The weather turns: ${WXD[G.wx].zh} ${WXD[G.wx].n}.</b> ${WXD[G.wx].fx}.`);wxBanner()}wxApply()}
+function wxDmg(u,ranged){if(!G||!G.wx||!u)return 1;let m=1;if(G.wx==='snow')m*=.9;if(ranged){if(G.wx==='rain')m*=.8;if(G.wx==='wind')m*=u.side===((G.wxDir>0)===G.wxShuL?'shu':'wei')?1.15:.85}return m}
+function wxMv(u){if(!G)return 0;return G.wx==='snow'?1:G.wx==='rain'&&CAVT.has(u.type)?1:0}
+function wxHidden(u){return wxIs('fog')&&!G.over&&u.side!=='shu'&&!G.units.some(s=>s.side==='shu'&&!s.gone&&manh(s,u)<=2)}
+let __wxU=null;
+// ---- visuals: one particle layer over the battle map, one over the fight scene ----
+function wxLayer(id,tgt,z,soft){let cv=document.getElementById(id);const t=document.getElementById(tgt);if(!t)return null;
+  if(!cv){cv=document.createElement('canvas');cv.id=id;cv.style.cssText='position:absolute;pointer-events:none;'+(z?'z-index:'+z:'');if(id==='wxMap')t.parentElement.appendChild(cv);else t.insertAdjacentElement('afterend',cv);cv._p=[];cv._f=[];cv._k=null;cv._soft=soft}
+  const W=t.offsetWidth,H=t.offsetHeight;if(cv._w!==W||cv._h!==H||cv._l!==t.offsetLeft||cv._t!==t.offsetTop){cv.style.left=t.offsetLeft+'px';cv.style.top=t.offsetTop+'px';cv.style.width=W+'px';cv.style.height=H+'px';cv.width=W;cv.height=H;cv._w=W;cv._h=H;cv._l=t.offsetLeft;cv._t=t.offsetTop;cv._k=null}
+  return cv}
+function wxSeed(cv,k){const W=cv.width,H=cv.height,A=W*H/1e6;cv._p=[];cv._f=[];cv._k=k;
+  const n=Math.round((k==='rain'?560:k==='snow'?280:k==='wind'?70:0)*Math.min(3,Math.max(.4,A)));
+  for(let i=0;i<n;i++)cv._p.push({x:Math.random()*W,y:Math.random()*H,v:.6+Math.random()*.8,s:Math.random(),r:Math.random()*6.28});
+  if(k==='fog')for(let i=0;i<Math.round(18*Math.max(.5,A));i++)cv._f.push({x:Math.random()*W,y:Math.random()*H,r:(120+Math.random()*180)*Math.min(1.3,Math.max(.6,Math.sqrt(A))),v:.15+Math.random()*.25,a:(.35+Math.random()*.3)*(cv._soft?.6:1)})}
+function wxDraw(cv,k,t){const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);if(!k||k==='clear')return;if(cv._k!==k)wxSeed(cv,k);const dir=(G&&G.wxDir)||1;
+  if(k==='rain'){ctx.fillStyle='rgba(25,38,62,'+(cv._soft?.18:.3)+')';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(205,220,240,.6)';ctx.lineWidth=1.3;ctx.beginPath();
+    for(const p of cv._p){p.y+=14*p.v;p.x-=3*p.v;if(p.y>H){p.y=-20;p.x=Math.random()*W*1.2}ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+6,p.y-26*p.v)}ctx.stroke();
+    ctx.strokeStyle='rgba(220,230,245,.35)';const nr=Math.round(W*H/40000);for(let i=0;i<nr;i++){const x=(Math.sin(i*91+Math.floor(t*3))*.5+.5)*W,y=(Math.cos(i*37+Math.floor(t*3))*.5+.5)*H,r=((t*3)%1)*8;ctx.beginPath();ctx.ellipse(x,y,r,r*.4,0,0,6.28);ctx.stroke()}
+    if(Math.floor(t*10)%97===0){ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(0,0,W,H)}}
+  else if(k==='snow'){ctx.fillStyle='rgba(235,242,252,'+(cv._soft?.16:.32)+')';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.9)';
+    for(const p of cv._p){p.y+=1.2*p.v;p.x+=Math.sin(t*1.5+p.r)*.6;if(p.y>H){p.y=-5;p.x=Math.random()*W}ctx.beginPath();ctx.arc(p.x,p.y,1.5+p.s*3,0,6.28);ctx.fill()}}
+  else if(k==='fog'){ctx.fillStyle='rgba(215,220,225,'+(cv._soft?.1:.2)+')';ctx.fillRect(0,0,W,H);
+    for(const f of cv._f){f.x+=f.v;if(f.x-f.r>W)f.x=-f.r;const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);g.addColorStop(0,`rgba(232,236,240,${f.a})`);g.addColorStop(1,'rgba(232,236,240,0)');ctx.fillStyle=g;ctx.fillRect(f.x-f.r,f.y-f.r,f.r*2,f.r*2)}
+    if(!cv._soft){const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.7);v.addColorStop(0,'rgba(230,234,238,0)');v.addColorStop(1,'rgba(230,234,238,.5)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H)}}
+  else if(k==='wind'){ctx.fillStyle='rgba(210,180,120,.08)';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,252,240,.55)';ctx.lineWidth=2;const ns=Math.round(H/24);
+    for(let i=0;i<ns;i++){const y=(i*53.7)%H;let x=((t*420+i*173)%(W+300))-150;if(dir<0)x=W-x;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+60*dir,y-6,x+120*dir,y+2);ctx.stroke()}
+    for(const p of cv._p){p.x+=6*p.v*dir;p.y+=Math.sin(t*3+p.r)*1.2;p.r+=.1;if(dir>0&&p.x>W+10){p.x=-10;p.y=Math.random()*H}if(dir<0&&p.x<-10){p.x=W+10;p.y=Math.random()*H}
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.s>.5?'rgba(196,150,60,.9)':'rgba(120,150,60,.9)';ctx.beginPath();ctx.ellipse(0,0,9,3.8,0,0,6.28);ctx.fill();ctx.restore()}}}
+const WXFILT={rain:'brightness(.8) saturate(.75)',snow:'saturate(.35) brightness(1.12) contrast(.9)',fog:'saturate(.7)',wind:'',clear:''};
+function wxApply(){const m=document.getElementById('map');if(m)m.style.filter=G&&G.wx&&!G.over?WXFILT[G.wx]:'';wxChip()}
+function wxChip(){let c=document.getElementById('wxChip');const bv=document.getElementById('battleView');if(!bv)return;
+  if(!c){c=document.createElement('div');c.id='wxChip';bv.appendChild(c)}
+  if(!G||!G.wx||G.over){c.hidden=true;return}c.hidden=false;const w=WXD[G.wx],n=WXD[G.wxN||G.wx];
+  c.innerHTML=`<div class="wxh"><span class="wxi">${w.ic}</span><b>${w.zh} ${w.n}</b>${G.wx==='wind'?`<span class="wxd">${G.wxDir>0?'→':'←'}</span>`:''}</div><div class="wxe">${w.fx}</div><div class="wxn">Next turn: ${n.ic} ${n.n}</div>`}
+function wxBanner(){const b=document.createElement('div');b.className='wxban';b.innerHTML=`${WXD[G.wx].ic} <b>${WXD[G.wx].zh}</b> ${WXD[G.wx].n}`;document.getElementById('battleView').appendChild(b);setTimeout(()=>b.remove(),2200)}
+(function wxLoop(){const now=performance.now()/1000;try{const bv=document.getElementById('battleView'),on=bv&&!bv.hidden&&typeof G!=='undefined'&&G&&G.wx&&!G.over;
+  const a=on?wxLayer('wxMap','map',2,false):document.getElementById('wxMap');if(a)wxDraw(a,on?G.wx:null,now);
+  const st=document.getElementById('stage'),so=on&&st&&!st.hidden;const b=so?wxLayer('wxSc','sc','',true):document.getElementById('wxSc');if(b)wxDraw(b,so?G.wx:null,now);
+  if(!on){const m=document.getElementById('map');if(m&&m.style.filter)m.style.filter='';const c=document.getElementById('wxChip');if(c)c.hidden=true}}catch(e){}
+  requestAnimationFrame(wxLoop)})();
 const tf=u=>(.7+.3*((u.train??70)/100))*(u.fear?.8:1)*(u.rallyT>0?1.2:1)*(typeof G!=='undefined'&&G&&u.boostT===G.turn?1.3:1)*(typeof G!=='undefined'&&G&&G.cfg&&G.cfg.hulao?(u.side==='shu'?.5:.1):1);
 function besideHill(e){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>inb(e.x+dx,e.y+dy)&&terAt(e.x+dx,e.y+dy)==='h')}
 function fireChance(u,e){return Math.max(0,Math.min(100,((u.int||0)-(e.int||0))*5+(u.side==='shu'&&typeof advBattleBonus==='function'?advBattleBonus():0)))}
@@ -919,9 +974,9 @@ function fireBurn(e,ew){return Math.min(e.troops,Math.max(500,Math.round(e.troop
 function fireDmg(u,e,rnd){const t=terAt(e.x,e.y);const m=t==='f'?1.8:t==='c'?.6:t==='='?1.2:1;return Math.round((110+u.int*1.4)*m*(rnd?.9+Math.random()*.2:1))}
 function forecast(a,d,o={}){
   const dist=manh(a,d),ranged=dist>1;
-  const deal=Math.min(d.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false,d.war)*(o.mult||1)));
+  const deal=Math.min(d.troops,Math.round(tf(a)*((__wxU=a),1)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,false,d.war)*(o.mult||1)));
   const left=d.troops-deal;
-  const take=!o.noCounter&&inRange(d.type,dist)?Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(d.troops+left)/2,a.type,terAt(a.x,a.y),ranged,false,a.war)*(o.ctrMult??.65))):0;
+  const take=!o.noCounter&&inRange(d.type,dist)?Math.min(a.troops,Math.round(tf(d)*((__wxU=d),1)*dmgCalc(d.type,d.war,(d.troops+left)/2,a.type,terAt(a.x,a.y),ranged,false,a.war)*(o.ctrMult??.65))):0;
   return {deal,take,m:typeMult(a.type,d.type)}}
 const behind=(a,d)=>({x:d.x+(d.x-a.x),y:d.y+(d.y-a.y)});
 const openSq=p=>inb(p.x,p.y)&&terAt(p.x,p.y)!=='w'&&!unitAt(p.x,p.y);
@@ -970,7 +1025,7 @@ function startBattle(cfg){
   showScreen('battleView');$('#log').innerHTML='';
   setTimeout(()=>{sprRelease(cfg.units);sprWait(cfg.units);spPreAll(cfg.units)},0);G={roster:cfg.units.map(u=>({id:u.id,name:u.name,side:u.side,hpMax:HPM(u),max:u.troops+HPM(u)})),dealt:{},units:cfg.units.map(u=>({...u,hpMax:HPM(u),troops:u.troops+HPM(u),max:u.troops+HPM(u),acted:false,stun:0,dueled:false,px:u.x,py:u.y,cd:{},guard:false})),turn:1,maxTurn:cfg.hulao?30:15,phase:'player',sel:null,view:null,mode:'idle',reach:null,origin:null,targets:[],tmode:null,log:[],floats:[],fires:[],enemyTiles:null,busy:false,over:false,cfg,broken:[],captured:[]};
   const pc=G.units.find(u=>u.side==='shu'&&u.cmd),ec=G.units.find(u=>u.side==='wei'&&u.cmd);
-  G.pcName=pc.name;G.ecName=ec.name;
+  G.pcName=pc.name;G.ecName=ec.name;wxInit();
   log(cfg.playerAttacks?`Break <span class="w">${ec.name}</span>'s force within 15 turns to take the city. Your commander is ${pc.name}.`:`Hold the walls for 15 turns, or break <span class="w">${ec.name}</span>'s force. Your commander is ${pc.name}.`);
   $('#logPanel').hidden=true;resizeMap();G.phase='prep';G.view=pc;updateUI();setTimeout(()=>prepDlg(),120);
   return new Promise(res=>{battleResolve=res});
@@ -982,9 +1037,9 @@ function prepHint(t){const foes=G.units.filter(u=>u.side==='wei');const good=foe
   return [good.length?`<span class="adv">strong vs ${good.map(f=>f.name).join(', ')}</span>`:'',bad.length?`<span class="dis">vulnerable to ${bad.map(f=>f.name).join(', ')}</span>`:''].filter(Boolean).join(' · ')||'no clear match-ups'}
 async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
   for(;;){const foes=G.units.filter(u=>u.side==='wei'),mine=G.units.filter(u=>u.side==='shu');
-    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The change applies to this battle only.</p>
+    const r=await dialog(`<h2>Battle preparation</h2><p class="muted">${G.wx?`<b>${WXD[G.wx].ic} ${WXD[G.wx].zh} ${WXD[G.wx].n}</b> — ${WXD[G.wx].fx}. `:''}Choose each officer's troop type. Scout first to see the ground. The change applies to this battle only.</p>
       <div class="muted" style="font-size:12px">ENEMY FORCES</div><div class="prep-foe">${foes.map(f=>`<span>${TZH[f.type]||'兵'} <b>${f.name}</b> · ${TSHORT[f.type]||f.type} · ${fmt(f.troops)}</span>`).join('')}</div>
-      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav',...(WU_GENS.has(u.id)?['wu']:[]),...(u.id==='zhaoyun'?['dragon']:[]),'xbow','rattan','hcav'].map(t=>`<button data-r="t:${u.id}:${t}" class="${(t==='dragon'?u.dragon:u.type===t&&!(t==='cav'&&u.dragon))?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
+      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav',...(WU_GENS.has(u.id)?['wu']:[]),...(u.id==='zhaoyun'?['dragon']:[]),...(NEWT_ON?['xbow','rattan','hcav']:[])].map(t=>`<button data-r="t:${u.id}:${t}" class="${(t==='dragon'?u.dragon:u.type===t&&!(t==='cav'&&u.dragon))?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
       [['scout','Scout field'],['go','Begin battle','primary']]);
     if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&t==='dragon'){if(!u.dragon){u.type='cav';u.dragon=true;u.cd={}}}else if(u&&TYPES[t]&&(u.type!==t||u.dragon)){u.type=t;u.dragon=false;u.cd={}}updateUI();continue}
     if(r==='go'){prepBegin();return}
@@ -995,7 +1050,7 @@ function log(h){G.log.unshift(h);if(G.log.length>30)G.log.pop();const ol=$('#log
 const nm=u=>`<span class="${u.side==='shu'?'s':'w'}">${u.name}</span>`;
 
 function reach(u){
-  const k=(x,y)=>x+','+y, dist=new Map([[k(u.x,u.y),0]]), prev=new Map(), open=[[0,u.x,u.y]], mv=TYPES[u.type].mv+(u.swift?3:0)+(u.dragon?1:0)+(u.xmv||0);
+  const k=(x,y)=>x+','+y, dist=new Map([[k(u.x,u.y),0]]), prev=new Map(), open=[[0,u.x,u.y]], mv=TYPES[u.type].mv+(u.swift?3:0)+(u.dragon?1:0)+(u.xmv||0)-wxMv(u);
   while(open.length){
     open.sort((a,b)=>a[0]-b[0]); const [c,x,y]=open.shift(); if(c>dist.get(k(x,y)))continue;
     for(const [dx,dy] of DIRS){const nx=x+dx,ny=y+dy; if(!inb(nx,ny))continue;
@@ -1332,9 +1387,9 @@ function finish(u){
 // ---------- actions ----------
 async function doAttack(a,d,o={}){if(a.hid)a.hid=false;mfx('hit',d.x,d.y,1000,1.5);if(!speed)SND.fx(manh(a,d)>1?'arrows':'hit');if(a.type==='cav'&&manh(a,d)<=1)mfx('dust',a.x,a.y,1000,2);
   const dist=o.dist??manh(a,d),ranged=dist>1,aB=a.troops,dB=d.troops;
-  let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true,d.war)*(o.mult||1)*(a.dragon?1.2:1)*(d.dragon&&a.type==='spear'?1/1.4:1)*(d.iron?.5:1)*(d.pierceT>G.turn?1.2:1)*(d.markT>G.turn?(d.markM||1):1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;
+  let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*((__wxU=a),1)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),ranged,true,d.war)*(o.mult||1)*(a.dragon?1.2:1)*(d.dragon&&a.type==='spear'?1/1.4:1)*(d.iron?.5:1)*(d.pierceT>G.turn?1.2:1)*(d.markT>G.turn?(d.markM||1):1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;
   let ctr=0;const ctrOn=!o.noCounter&&!d.mute&&!(a.dragon&&dist<=1)&&(o.forceCounter||inRange(d.type,dist));
-  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true,a.war)*(o.ctrMult??.65)*(a.rallyT>0?1/1.2:1)));a.troops-=ctr;(G.dealt=G.dealt||{})[d.id]=(G.dealt[d.id]||0)+ctr}
+  if(ctrOn){ctr=Math.min(a.troops,Math.round(tf(d)*((__wxU=d),1)*dmgCalc(d.type,d.war,(dB+d.troops)/2,a.type,terAt(a.x,a.y),ranged,true,a.war)*(o.ctrMult??.65)*(a.rallyT>0?1/1.2:1)));a.troops-=ctr;(G.dealt=G.dealt||{})[d.id]=(G.dealt[d.id]||0)+ctr}
   const ctrVis=!o.noCounter&&!d.mute&&!(a.dragon&&dist<=1)&&(o.forceCounter||inRange(d.type,dist));
   if(d.troops<=0)d.fate=fateRoll(d,a);if(a.troops<=0)a.fate=fateRoll(a,d);
   await playBattle(a,d,{aB,dB,dmg,ctr,ctrOn:ctrOn||ctrVis,ranged,charge:o.charge,push:o.push,label:o.label,tint:o.tint});
@@ -1353,13 +1408,13 @@ async function doPush(a,d){
 async function doVolley(a,d){
   a.cd.volley=CD;const n=splashOf(d);
   await doAttack(a,d,{noCounter:true,label:'Volley',verb:'looses a volley on'});
-  if(n&&G.units.includes(n)&&G.units.includes(a)){const dm=Math.min(n.troops,Math.round(tf(a)*dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true,n.war)*.6));
+  if(n&&G.units.includes(n)&&G.units.includes(a)){const dm=Math.min(n.troops,Math.round(tf(a)*((__wxU=a),1)*dmgCalc(a.type,a.war,a.troops,n.type,terAt(n.x,n.y),true,true,n.war)*.6));
     n.troops-=dm;float(n,'-'+dm,'#ff9a86');log(`Arrows fall on ${nm(n)} as well: −${dm}.`);await sleep(350);sweep()}}
 function doHide(s){s.hid=true;s.cd.hide=CD;mfx('smoke',s.x,s.y,1000,1.4);log(`${nm(s)} hides his troops in the forest and lies in wait. The first enemy to move next to him will be ambushed.`);finish(s)}
 function ambushOn(e,path){if(e.side==='shu')return null;for(let i=0;i<path.length;i++){const p=path[i],h=G.units.find(u=>u.side!==e.side&&u.hid&&Math.abs(u.x-p.x)+Math.abs(u.y-p.y)===1);if(h)return{i,h}}return null}
 async function springAmbush(h,e){h.hid=false;G.view=h;updateUI();const pc=fireChance(h,e);mfx('ring',h.x,h.y,900);float(h,'埋伏 Ambush!','#9be36a');SND.fx('shout');await sleep(500);
   if(Math.random()*100>=pc){float(e,'看破 Spotted','#e8dcc0');log(`${nm(h)} springs an ambush on ${nm(e)}, but ${e.name} sees through it (${pc}% chance). His march is still halted, and ${h.name} is exposed.`);await sleep(600);return 'miss'}
-  mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');
+  mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1)*(wxIs('fog')?1.5:1));dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,h);if(speed)await playAmbush(h,e,dmg,before);float(e,'-'+dmg,'#9be36a');
   log(`<b>Ambush!</b> ${nm(h)} bursts out of the forest onto ${nm(e)}: −${dmg}. ${e.name}'s march is halted. ${h.name} is exposed.`);await sleep(700);sweep();return 'hit'}
 function doGuard(s){s.guard=true;s.guardT0=performance.now();mfx('guard',s.x,s.y,1000,2.2);s.cd.guard=CD;log(`${nm(s)} braces spears. Cavalry or spearmen attacking within 2 squares will meet him instead.`);finish(s)}
 async function doRock(u,e){u.cd.rock=CD;const pc=fireChance(u,e);mfx('rocks',e.x,e.y,1300,1);SND.fx('crit');await sleep(650);
@@ -1367,8 +1422,8 @@ async function doRock(u,e){u.cd.rock=CD;const pc=fireChance(u,e);mfx('rocks',e.x
   let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));dmg=ironSave(e,dmg);const before=e.troops;e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(speed)await playRock(u,e,dmg,before);float(e,'-'+dmg,'#e0c9a0');
   log(`${nm(u)} starts a <b>rock slide</b> onto ${nm(e)} beside the hill: −${dmg}.`);await sleep(600);sweep()}
 async function doFire(u,e){
-  u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;const pc=fireChance(u,e);if(Math.random()*100>=pc){mfx('smoke',e.x,e.y,1100,1.6);SND.fx('dud');float(e,'失敗 Fizzles','#e8dcc0');log(`${nm(u)} tries to set the forest around ${nm(e)} alight, but ${e.name} sees through it (${pc}% chance). The fire fails.`);await sleep(700);sweep();return}
-  let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1)),before=e.troops;dmg=ironSave(e,dmg);
+  u.cd.fire=CD;if(wxIs('rain')){float(e,'雨 Rain','#cfe3ff');log(`${nm(u)} tries to start a fire, but the rain puts it out.`);await sleep(500);sweep();return}const ew=u.eastWind;u.eastWind=false;const pc=fireChance(u,e);if(Math.random()*100>=pc){mfx('smoke',e.x,e.y,1100,1.6);SND.fx('dud');float(e,'失敗 Fizzles','#e8dcc0');log(`${nm(u)} tries to set the forest around ${nm(e)} alight, but ${e.name} sees through it (${pc}% chance). The fire fails.`);await sleep(700);sweep();return}
+  let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1)*(wxIs('wind')?1.5:1)),before=e.troops;dmg=ironSave(e,dmg);
   G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});
   e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(ew)for(const n of adjE(e).filter(n=>n!==u))G.ewSplash=(G.ewSplash||[]).concat([n]);
   if(speed===0)await sleep(350);else await playFire(u,e,dmg,before);float(e,'-'+dmg,'#ffb15a');
@@ -1399,7 +1454,7 @@ function checkEnd(){
   if(!pc||!G.units.some(u=>u.side==='shu'))return endGame(false,`${G.pcName}'s force is broken. Your army falls back.`);
   if(!ec||!enemies().length)return endGame(true,`${G.ecName}'s force breaks on turn ${G.turn}.`);
   return false}
-function endGame(win,text,retreat){SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;try{battleStats(win)}catch(e){console.error(e)}$('#modal').hidden=false;return true}
+function endGame(win,text,retreat){setTimeout(wxApply,0);SND.fx(win?'victory':'defeat');SND.music(win?'victory':'defeat');if(G.auto){G.auto=false;speed=G.autoSpeed??speed}G.over=true;G.win=win;G.retreat=!!retreat;G.mode='idle';updateUI();$('#mBig').textContent=win?'勝':'敗';$('#mBig').style.color=win?'var(--gold)':'#e88b7f';$('#mTitle').textContent=win?'Victory':'Defeat';$('#mText').textContent=text;try{battleStats(win)}catch(e){console.error(e)}$('#modal').hidden=false;return true}
 $('#mBtn').onclick=()=>{$('#modal').hidden=true;const left={};for(const u of G.units)left[u.id]=Math.max(0,Math.round(SOL(u)));
   const r={win:G.win,retreat:G.retreat,left,captured:[...G.captured]};showScreen('campaign');try{sprRelease([])}catch(e){}if(battleResolve){const f=battleResolve;battleResolve=null;f(r)}};
 $('#retreatBtn').onclick=async()=>{if(G.over)return;
@@ -1425,8 +1480,8 @@ function planAuto(u){
   let best=null;
   for(const t of tiles){const tt=terAt(t.x,t.y);
     for(const p of foes){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(u.type,dist))continue;
-      const ranged=dist>1,deal=Math.min(p.troops,tf(u)*dmgCalc(u.type,u.war,u.troops,p.type,terAt(p.x,p.y),ranged,false,p.war));
-      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,(p.troops+left)/2,u.type,tt,ranged,false,u.war)*.65:0;
+      const ranged=dist>1,deal=Math.min(p.troops,tf(u)*((__wxU=u),1)*dmgCalc(u.type,u.war,u.troops,p.type,terAt(p.x,p.y),ranged,false,p.war));
+      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*((__wxU=p),1)*dmgCalc(p.type,p.war,(p.troops+left)/2,u.type,tt,ranged,false,u.war)*.65:0;
       if(u.cmd&&(u.troops-take*1.4<u.max*.5||thr(t)-(left<=0?1:0)>1))continue;
       const sc=deal-take*(u.cmd?1.6:.7)+(left<=0?300:0)+(p.cmd?90:0)+T_INFO[tt].def*25;
       if(!best||sc>best.sc)best={sc,t,p}}}
@@ -1469,7 +1524,7 @@ async function endTurn(){
       {const xg=tgt.guardBy&&G.units.find(u=>u.id===tgt.guardBy&&manh(u,tgt)<=1);if(xg&&xg!==tgt){log(`<b>Tiger Guard!</b> ${nm(xg)} throws himself in front of ${nm(tgt)}.`);mfx('shield',xg.x,xg.y,900);tgt=xg;o={...o,mult:(o.mult||1)*.5}}}
       await doAttack(e,tgt,o);if(checkEnd())return}
     await sleep(160)}
-  G.turn++;for(const u of G.units){u.xmv=0;if(u.poison>0&&u.troops>1){const l=Math.min(u.troops-1,Math.max(1,Math.round(u.troops*.1)));u.troops-=l;u.poison--;float(u,'☠ -'+l,'#9be36a')}if(u.fear)u.fear--;if(u.rallyT)u.rallyT--;if(u.mute)u.mute--;if(u.iron){u.iron--;if(!u.iron)u.ironSave=false}u.guardBy=null;u.swift=false}
+  G.turn++;wxTurn();for(const u of G.units){u.xmv=0;if(u.poison>0&&u.troops>1){const l=Math.min(u.troops-1,Math.max(1,Math.round(u.troops*.1)));u.troops-=l;u.poison--;float(u,'☠ -'+l,'#9be36a')}if(u.fear)u.fear--;if(u.rallyT)u.rallyT--;if(u.mute)u.mute--;if(u.iron){u.iron--;if(!u.iron)u.ironSave=false}u.guardBy=null;u.swift=false}
   if(G.turn>G.maxTurn){if(G.cfg.spar){endGame(false,'Time is up after fifteen turns. The bout ends without a winner.');return}endGame(!G.cfg.playerAttacks,G.cfg.playerAttacks?'Fifteen turns pass and the walls still stand. Your army withdraws.':'Fifteen turns pass and the attackers give up the siege.');return}
   for(const u of enemies())for(const k in (u.cd||{}))if(u.cd[k]>0)u.cd[k]--;
   G.phase='player';for(const u of G.units.filter(u=>u.side==='shu')){u.guard=false;for(const k in u.cd)if(u.cd[k]>0)u.cd[k]--;u.acted=!!u.stun;if(u.stun){log(`${nm(u)} spends the turn rallying.`);u.stun=0}}
@@ -1481,8 +1536,8 @@ function planEnemy(e){
   let best=null;
   for(const t of tiles){const tt=terAt(t.x,t.y);
     for(const p of players){const dist=Math.abs(t.x-p.x)+Math.abs(t.y-p.y);if(!inRange(e.type,dist))continue;
-      const ranged=dist>1,deal=Math.min(p.troops,tf(e)*dmgCalc(e.type,e.war,e.troops,p.type,terAt(p.x,p.y),ranged,false,p.war));
-      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*dmgCalc(p.type,p.war,(p.troops+left)/2,e.type,tt,ranged,false,e.war)*.65:0;
+      const ranged=dist>1,deal=Math.min(p.troops,tf(e)*((__wxU=e),1)*dmgCalc(e.type,e.war,e.troops,p.type,terAt(p.x,p.y),ranged,false,p.war));
+      const left=p.troops-deal,take=inRange(p.type,dist)?tf(p)*((__wxU=p),1)*dmgCalc(p.type,p.war,(p.troops+left)/2,e.type,tt,ranged,false,e.war)*.65:0;
       const sc=(G.cfg.hulao&&e.id==='lubu'?(1-p.troops/p.max)*900:0)+deal-take*.7+(left<=0?300:0)+(p.cmd?70:0)+T_INFO[tt].def*25+(e.cmd&&tt==='c'?60:0);
       if(!best||sc>best.sc)best={sc,t,p}}}
   if(best)return{path:pathTo(R,e,best.t.x,best.t.y),target:best.p};
@@ -1693,7 +1748,7 @@ async function cutIn(u,h){if(speed===0)return;const P0=PORT[u.id]&&spPre(PORT[u.
   const end=()=>{if(done)return;done=true;CUTIN.className='on out';setTimeout(()=>{CUTIN.hidden=true;CUTIN.className='';res()},240)};
   const clip=CUTIN.querySelector('.ci-clip');if(clip){let f=0;const step=()=>{if(done)return;clip.style.backgroundPosition=`${(f%4)*100/3}% ${Math.floor(f/4)*100/3}%`;if(++f<16)setTimeout(step,125)};step()}
   CUTIN.onpointerdown=end;const vid=CUTIN.querySelector('.ci-vid');if(vid){vid.onended=end;const ls=vid.querySelector('source:last-child');if(ls)ls.onerror=end}setTimeout(end,vid?7600:(clip||GODIDS.has(p)?2100:1250)/Math.max(.6,speed||1))})}
-function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;mfx('hit',d.x,d.y,1000,1.5);let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true,d.war)*mult*(d.iron?.5:1)*(d.pierceT>G.turn?1.2:1)*(d.markT>G.turn?(d.markM||1):1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
+function quickHit(a,d,mult,o={}){if(!G.units.includes(d))return 0;mfx('hit',d.x,d.y,1000,1.5);let dmg=Math.min(d.troops,Math.round(gapF(a,d)*tf(a)*((__wxU=a),1)*dmgCalc(a.type,a.war,a.troops,d.type,terAt(d.x,d.y),false,true,d.war)*mult*(d.iron?.5:1)*(d.pierceT>G.turn?1.2:1)*(d.markT>G.turn?(d.markM||1):1)));dmg=ironSave(d,dmg);d.troops-=dmg;(G.dealt=G.dealt||{})[a.id]=(G.dealt[a.id]||0)+dmg;if(d.troops<=0)d.fate=fateRoll(d,a);float(d,'-'+dmg,o.color||'#ff9a86');return dmg}
 function fireHit(u,e,mult){if(!G.units.includes(e))return 0;let dmg=Math.min(e.troops,Math.round(fireDmg(u,e,true)*mult*(e.iron?.5:1)));dmg=ironSave(e,dmg);e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});float(e,'-'+dmg,'#ffb15a');return dmg}
 async function heroAct(k,s,t){const h=HERO[k];s.cd[k]=CD;if(h.once){s.used=s.used||{};s.used[k]=1}
   await cutIn(s,h);SND.fx('sk_'+k);let keep=false;
@@ -2226,7 +2281,7 @@ const GEN_DEF=[
   ['caoren','Cao Ren','仁','wei','jiangling',85,70,60,72,'shield','cao_ren',100],
   ['xiahoudun','Xiahou Dun','惇','wei','xuchang',90,58,70,80,'cav','xiahou_dun',100],
   ['xunyu','Xun Yu','荀','wei','xuchang',30,95,96,90,'shield','xun_yu',85],
-  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'hcav','xiahou_yuan',100],
+  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'archer','xiahou_yuan',100],
   ['manchong','Man Chong','滿','wei','runan',66,82,80,70,'shield','man_chong',88],
   ['zhangliao','Zhang Liao','遼','wei','hefei',92,78,58,76,'cav','zhang_liao',90],
   ['lidian','Li Dian','典','wei','hefei',74,76,66,68,'archer','li_dian',88],
@@ -2288,7 +2343,7 @@ const GEN_DEF=[
   ['zhuzhi','Zhu Zhi','治','wu','kuaiji',66,70,74,72,'shield','p_zhuzhi',95],
   ['zhugejin','Zhuge Jin','瑾','wu','jianye',40,82,86,84,'shield','p_zhugejin',95],
   ['kanze','Kan Ze','澤','wu','jianye',20,84,82,70,'shield','p_kanze',92],
-  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'xbow','p_xusheng',95],
+  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'archer','p_xusheng',95],
   ['panzhang','Pan Zhang','璋','wu','kuaiji',82,60,40,52,'cav','p_panzhang',85],
   ['dongxi','Dong Xi','襲','wu','chaisang',85,40,32,62,'spear','p_dongxi',95],
   ['zhuran','Zhu Ran','然','wu','chaisang',79,70,56,66,'archer','p_zhuran',95],
@@ -2312,7 +2367,7 @@ const GEN_DEF=[
   ['wangcan','Wang Can','粲','wei','xuchang',20,86,88,72,'shield','p_wangcan',85],
   ['xushu','Xu Shu','庶','wei','jiangling',64,93,82,84,'archer','p_xushu',60],
   ['yangling','Yang Ling','齡','han','changsha',70,40,36,50,'spear','p_yangling',85],
-  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'rattan','p_shamoke',85],
+  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'cav','p_shamoke',85],
   ['liuxian','Liu Xian','賢','liu','lingling',70,42,40,52,'spear','p_liuxian',90],
   ['baolong','Bao Long','龍','zhao','guiyang',78,30,24,48,'spear','p_baolong',85],
   ['menghuo','Meng Huo','獲',null,'guiyang',88,40,36,72,'shield','p_menghuo',80,1],
@@ -2652,7 +2707,7 @@ $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 $('#galBtn').onclick=()=>openGallery();
-const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry'],['xbow','Crossbow'],['rattan','Rattan'],['hcav','Horse archer']];
+const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];
 const SPAR={a:null,b:null,ta:null,tb:null};
 function sparGen(k){const d=GEN_DEF.find(x=>x[0]===k);if(k==='hero')return {id:'hero',name:'The Hero',ch:'俠',fac:'shu',war:95,int:85,type:'cav',img:'hero'};if(d)return {id:k,name:d[1],ch:d[2],fac:d[3],war:d[5],int:d[6],type:d[9],img:d[10]};const e=GAL_EXTRA[k];return e?{id:k,name:e[1],ch:e[2],fac:null,war:e[5],int:e[6],type:e[9],img:e[10]}:null}
 function openSparring(){const SPR=g=>g.id==='hero'?0:isFem(g)?(g.war>=90?1:2):g.war>=90?3:4;const L=galList().map(g=>sparGen(g.k)).filter(Boolean).sort((a,b)=>SPR(a)-SPR(b)||b.war-a.war);if(!SPAR.a){SPAR.a=L[0].id;SPAR.b=(L[1]||L[0]).id}
@@ -3286,7 +3341,7 @@ function playCampaignBattle(a,c,gens,defG){
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
   const thm=route&&route[3]?'river':themeFor(a,c);window.BTHEME=thm;const THN={plains:'open plains',hills:'rolling hills',forest:'deep forest',river:'river valley',marsh:'marshland',pass:'mountain pass'};
-  return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6),thm),
+  return startBattle({units:[...attU,...defU],foe,walls:c.walls,wxCity:c.id,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6),thm),
     playerAttacks:me,title:c.field?`Battle on ${c.name}`:`Battle of ${c.name}`,sub:c.field?`Field battle · ${FACS[a.fac].short} meets ${FACS[c.owner].short} in the open, no walls · ${THN[thm]||''}`:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls} · ${THN[thm]||''}`})
     .then(r=>{const att={},def={},attBroken=[],defBroken=[];
       const read=(gs,tr,side,out,brk)=>gs.forEach((g,i)=>{if(r.left[g.id]!=null)out[g.id]=r.left[g.id];else{out[g.id]=0;brk.push(g.id)}});
@@ -3570,7 +3625,7 @@ function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),'satu
 // ---------- map: units as sprites on a friend/foe ring ----------
 const GSCALE={f_lubu:1.2,tiger:.75,wolf:.85};
 const SCW=sh=>sh.naturalWidth===4608?192:256,SCH=sh=>sh.naturalWidth===4608?132:176,SROWS=sh=>Math.round(sh.naturalHeight/SCH(sh));function sprK(src){const m=/sprites\/([a-z0-9_]+?)_(shu|wei|wu|ind)\.png/.exec(src||'');return m&&GSCALE[m[1]]||1}
-function drawToken(c,u,now){if(u.hid&&!u._hd){u._hd=1;c.save();c.globalAlpha=.45;drawToken(c,u,now);c.restore();u._hd=0;const X=u.px*T+T/2,Y=u.py*T+T*.2;c.save();c.font=`900 ${Math.round(T*.3)}px "Noto Serif TC",serif`;c.textAlign='center';c.lineWidth=4;c.strokeStyle='#14110d';c.strokeText('伏',X,Y);c.fillStyle='#9be36a';c.fillText('伏',X,Y);c.restore();return}
+function drawToken(c,u,now){if(wxHidden(u))return;if(u.hid&&!u._hd){u._hd=1;c.save();c.globalAlpha=.45;drawToken(c,u,now);c.restore();u._hd=0;const X=u.px*T+T/2,Y=u.py*T+T*.2;c.save();c.font=`900 ${Math.round(T*.3)}px "Noto Serif TC",serif`;c.textAlign='center';c.lineWidth=4;c.strokeStyle='#14110d';c.strokeText('伏',X,Y);c.fillStyle='#9be36a';c.fillText('伏',X,Y);c.restore();return}
   const fk=sprFac(u.side),osh=sprSheet(femKey(u)||'general',fk),ssh=sprSheet(u.type,fk);
   if(!osh||!ssh){drawToken0(c,u,now);return}
   const fr=u.side==='shu',ring=fr?LM_FR:LM_FO,X=u.px*T+T/2,Y=u.py*T+T/2;

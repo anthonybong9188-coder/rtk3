@@ -2375,7 +2375,8 @@ rep("s+per*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100)","s+per*(20+g.war)*(1+Math
 
 # ===== v417 new troop types: 弩 crossbowmen, 藤 rattan armour, 射 horse archers (Anthony 1 Nov) =====
 rep("const TYPES={wolf:","const TYPES={xbow:{n:'Crossbowmen',mv:2,rng:[1,2]},rattan:{n:'Rattan armour',mv:3,rng:[1,1]},hcav:{n:'Horse archers',mv:4,rng:[1,2]},wolf:")
-rep("function typeMult(a,d){","""const RANGEDT=new Set(['archer','xbow','hcav']),CAVT=new Set(['cav','hcav']);
+rep("function typeMult(a,d){","""const NEWT_ON=false; // 1 Nov: Anthony shelved crossbow/rattan/horse archer - set true to bring them back
+const RANGEDT=new Set(['archer','xbow','hcav']),CAVT=new Set(['cav','hcav']);
 // placeholder sheets until Grok's troop sprites arrive: drop a key here once its sprites/<type>_<fac>.png files are installed
 const SPAL={xbow:'archer',rattan:'shield',hcav:'cav'};
 function typeMult(a,d){if(d==='rattan'&&RANGEDT.has(a))return .5;if(a==='rattan'&&(d==='archer'||d==='xbow'))return 1.3;if(CAVT.has(a)&&d==='rattan')return 1.2;
@@ -2397,10 +2398,83 @@ rep("function drawGlyph(c,type,x,y,r){","function drawGlyph(c,type,x,y,r){type=S
 rep("({spear:'槍',shield:'盾',archer:'弓',cav:'騎'})","({spear:'槍',shield:'盾',archer:'弓',cav:'騎',xbow:'弩',rattan:'藤',hcav:'射'})")
 rep("const TZH={dragon:'龍',","const TZH={xbow:'弩',rattan:'藤',hcav:'騎射',dragon:'龍',")
 rep("TSHORT={dragon:'Dragon',","TSHORT={xbow:'Crossbow',rattan:'Rattan',hcav:'Horse archer',dragon:'Dragon',")
-rep("...(u.id==='zhaoyun'?['dragon']:[])","...(u.id==='zhaoyun'?['dragon']:[]),'xbow','rattan','hcav'")
+rep("...(u.id==='zhaoyun'?['dragon']:[])","...(u.id==='zhaoyun'?['dragon']:[]),...(NEWT_ON?['xbow','rattan','hcav']:[])")
 rep(".prep-types{display:flex;gap:5px}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}")
-rep("const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];","const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry'],['xbow','Crossbow'],['rattan','Rattan'],['hcav','Horse archer']];")
 rep("let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1))","let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1))")
-rep("<tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>","<tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>\n          <tr><td>Crossbowmen 弩</td><td>range 1–2, move 2, pierce Shields &amp; Cavalry ×1.3</td></tr>\n          <tr><td>Rattan armour 藤</td><td>arrows ×0.5, beat Archers ×1.3, FIRE ×2</td></tr>\n          <tr><td>Horse archers 騎射</td><td>move 4, range 1–2 (×0.85), beat Archers &amp; Crossbows ×1.2; Spears &amp; Cavalry beat them ×1.3</td></tr>")
 rep("function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);","function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(SPAL[u.type]||u.type);")
 rep("undead:1,tiger:1,wolf:1};const LADYT","undead:1,tiger:1,wolf:1,xbow:1,rattan:1,hcav:1};const LADYT")
+
+# ===== v418 WEATHER 天候 (Anthony 1 Nov): rain / fog / snow / strong wind, drawn live over the map and the fight scene =====
+rep("const tf=u=>",r'''const WXD={clear:{n:'Clear',zh:'晴',ic:'☀️',fx:'No effect'},rain:{n:'Rain',zh:'雨',ic:'🌧️',fx:'Fire ✕ · Arrows −20% · Mud: cavalry −1 move'},fog:{n:'Fog',zh:'霧',ic:'🌫️',fx:'See only 2 squares · Range 1 only · Ambush ×1.5'},snow:{n:'Snow',zh:'雪',ic:'❄️',fx:'All units −1 move · All damage −10%'},wind:{n:'Strong wind',zh:'風',ic:'🍃',fx:'Fire ×1.5 · Arrows with the wind +15%, against −15%'}};
+const WX_N=new Set(['xuchang','runan','wancheng','hefei','xiangyang']);
+const wxIs=k=>typeof G!=='undefined'&&G&&G.wx===k;
+function wxWeights(){const cf=(G&&G.cfg)||{},m=(typeof S!=='undefined'&&S&&S.month)||G.wxMonth,north=WX_N.has(cf.wxCity),th=window.BTHEME;
+  const sea=m===12||m<=2?'w':m<=5?'sp':m<=8?'su':'au';
+  const w={sp:{clear:45,rain:25,fog:20,wind:10,snow:0},su:{clear:45,rain:35,fog:5,wind:15,snow:0},au:{clear:50,rain:15,fog:15,wind:20,snow:0},w:north?{clear:40,rain:5,fog:10,wind:15,snow:30}:{clear:45,rain:20,fog:20,wind:15,snow:0}}[sea];
+  const r={...w};if(!north&&cf.wxCity)r.rain=Math.round(r.rain*1.4);if(th==='marsh'||th==='river')r.fog=Math.round(r.fog*1.5);return r}
+function wxRoll(not){const w=wxWeights();if(not)w[not]=0;let t=0;for(const k in w)t+=w[k];let x=Math.random()*t;for(const k in w){x-=w[k];if(x<0)return k}return 'clear'}
+function wxInit(){G.wxMonth=1+Math.floor(Math.random()*12);G.wx=G.cfg.spar?'clear':wxRoll();G.wxN=Math.random()<.65?G.wx:wxRoll(G.wx);if(window.__WXCLEAR){G.wx=G.wxN='clear'}
+  const sx=G.units.filter(u=>u.side==='shu').reduce((a,u)=>a+u.x,0)/Math.max(1,G.units.filter(u=>u.side==='shu').length);G.wxShuL=sx<COLS/2;G.wxDir=Math.random()<.5?1:-1;
+  if(G.wx!=='clear')log(`<b>${WXD[G.wx].zh} ${WXD[G.wx].n}.</b> ${WXD[G.wx].fx}.`);wxApply()}
+function wxTurn(){if(!G||G.cfg.spar||window.__WXCLEAR)return;const old=G.wx;G.wx=G.wxN||G.wx;G.wxN=Math.random()<.65?G.wx:wxRoll(G.wx);
+  if(G.wx!==old){log(`<b>The weather turns: ${WXD[G.wx].zh} ${WXD[G.wx].n}.</b> ${WXD[G.wx].fx}.`);wxBanner()}wxApply()}
+function wxDmg(u,ranged){if(!G||!G.wx||!u)return 1;let m=1;if(G.wx==='snow')m*=.9;if(ranged){if(G.wx==='rain')m*=.8;if(G.wx==='wind')m*=u.side===((G.wxDir>0)===G.wxShuL?'shu':'wei')?1.15:.85}return m}
+function wxMv(u){if(!G)return 0;return G.wx==='snow'?1:G.wx==='rain'&&CAVT.has(u.type)?1:0}
+function wxHidden(u){return wxIs('fog')&&!G.over&&u.side!=='shu'&&!G.units.some(s=>s.side==='shu'&&!s.gone&&manh(s,u)<=2)}
+let __wxU=null;
+// ---- visuals: one particle layer over the battle map, one over the fight scene ----
+function wxLayer(id,tgt,z,soft){let cv=document.getElementById(id);const t=document.getElementById(tgt);if(!t)return null;
+  if(!cv){cv=document.createElement('canvas');cv.id=id;cv.style.cssText='position:absolute;pointer-events:none;'+(z?'z-index:'+z:'');if(id==='wxMap')t.parentElement.appendChild(cv);else t.insertAdjacentElement('afterend',cv);cv._p=[];cv._f=[];cv._k=null;cv._soft=soft}
+  const W=t.offsetWidth,H=t.offsetHeight;if(cv._w!==W||cv._h!==H||cv._l!==t.offsetLeft||cv._t!==t.offsetTop){cv.style.left=t.offsetLeft+'px';cv.style.top=t.offsetTop+'px';cv.style.width=W+'px';cv.style.height=H+'px';cv.width=W;cv.height=H;cv._w=W;cv._h=H;cv._l=t.offsetLeft;cv._t=t.offsetTop;cv._k=null}
+  return cv}
+function wxSeed(cv,k){const W=cv.width,H=cv.height,A=W*H/1e6;cv._p=[];cv._f=[];cv._k=k;
+  const n=Math.round((k==='rain'?560:k==='snow'?280:k==='wind'?70:0)*Math.min(3,Math.max(.4,A)));
+  for(let i=0;i<n;i++)cv._p.push({x:Math.random()*W,y:Math.random()*H,v:.6+Math.random()*.8,s:Math.random(),r:Math.random()*6.28});
+  if(k==='fog')for(let i=0;i<Math.round(18*Math.max(.5,A));i++)cv._f.push({x:Math.random()*W,y:Math.random()*H,r:(120+Math.random()*180)*Math.min(1.3,Math.max(.6,Math.sqrt(A))),v:.15+Math.random()*.25,a:(.35+Math.random()*.3)*(cv._soft?.6:1)})}
+function wxDraw(cv,k,t){const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);if(!k||k==='clear')return;if(cv._k!==k)wxSeed(cv,k);const dir=(G&&G.wxDir)||1;
+  if(k==='rain'){ctx.fillStyle='rgba(25,38,62,'+(cv._soft?.18:.3)+')';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(205,220,240,.6)';ctx.lineWidth=1.3;ctx.beginPath();
+    for(const p of cv._p){p.y+=14*p.v;p.x-=3*p.v;if(p.y>H){p.y=-20;p.x=Math.random()*W*1.2}ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+6,p.y-26*p.v)}ctx.stroke();
+    ctx.strokeStyle='rgba(220,230,245,.35)';const nr=Math.round(W*H/40000);for(let i=0;i<nr;i++){const x=(Math.sin(i*91+Math.floor(t*3))*.5+.5)*W,y=(Math.cos(i*37+Math.floor(t*3))*.5+.5)*H,r=((t*3)%1)*8;ctx.beginPath();ctx.ellipse(x,y,r,r*.4,0,0,6.28);ctx.stroke()}
+    if(Math.floor(t*10)%97===0){ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(0,0,W,H)}}
+  else if(k==='snow'){ctx.fillStyle='rgba(235,242,252,'+(cv._soft?.16:.32)+')';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.9)';
+    for(const p of cv._p){p.y+=1.2*p.v;p.x+=Math.sin(t*1.5+p.r)*.6;if(p.y>H){p.y=-5;p.x=Math.random()*W}ctx.beginPath();ctx.arc(p.x,p.y,1.5+p.s*3,0,6.28);ctx.fill()}}
+  else if(k==='fog'){ctx.fillStyle='rgba(215,220,225,'+(cv._soft?.1:.2)+')';ctx.fillRect(0,0,W,H);
+    for(const f of cv._f){f.x+=f.v;if(f.x-f.r>W)f.x=-f.r;const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);g.addColorStop(0,`rgba(232,236,240,${f.a})`);g.addColorStop(1,'rgba(232,236,240,0)');ctx.fillStyle=g;ctx.fillRect(f.x-f.r,f.y-f.r,f.r*2,f.r*2)}
+    if(!cv._soft){const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.7);v.addColorStop(0,'rgba(230,234,238,0)');v.addColorStop(1,'rgba(230,234,238,.5)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H)}}
+  else if(k==='wind'){ctx.fillStyle='rgba(210,180,120,.08)';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,252,240,.55)';ctx.lineWidth=2;const ns=Math.round(H/24);
+    for(let i=0;i<ns;i++){const y=(i*53.7)%H;let x=((t*420+i*173)%(W+300))-150;if(dir<0)x=W-x;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+60*dir,y-6,x+120*dir,y+2);ctx.stroke()}
+    for(const p of cv._p){p.x+=6*p.v*dir;p.y+=Math.sin(t*3+p.r)*1.2;p.r+=.1;if(dir>0&&p.x>W+10){p.x=-10;p.y=Math.random()*H}if(dir<0&&p.x<-10){p.x=W+10;p.y=Math.random()*H}
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.s>.5?'rgba(196,150,60,.9)':'rgba(120,150,60,.9)';ctx.beginPath();ctx.ellipse(0,0,9,3.8,0,0,6.28);ctx.fill();ctx.restore()}}}
+const WXFILT={rain:'brightness(.8) saturate(.75)',snow:'saturate(.35) brightness(1.12) contrast(.9)',fog:'saturate(.7)',wind:'',clear:''};
+function wxApply(){const m=document.getElementById('map');if(m)m.style.filter=G&&G.wx&&!G.over?WXFILT[G.wx]:'';wxChip()}
+function wxChip(){let c=document.getElementById('wxChip');const bv=document.getElementById('battleView');if(!bv)return;
+  if(!c){c=document.createElement('div');c.id='wxChip';bv.appendChild(c)}
+  if(!G||!G.wx||G.over){c.hidden=true;return}c.hidden=false;const w=WXD[G.wx],n=WXD[G.wxN||G.wx];
+  c.innerHTML=`<div class="wxh"><span class="wxi">${w.ic}</span><b>${w.zh} ${w.n}</b>${G.wx==='wind'?`<span class="wxd">${G.wxDir>0?'→':'←'}</span>`:''}</div><div class="wxe">${w.fx}</div><div class="wxn">Next turn: ${n.ic} ${n.n}</div>`}
+function wxBanner(){const b=document.createElement('div');b.className='wxban';b.innerHTML=`${WXD[G.wx].ic} <b>${WXD[G.wx].zh}</b> ${WXD[G.wx].n}`;document.getElementById('battleView').appendChild(b);setTimeout(()=>b.remove(),2200)}
+(function wxLoop(){const now=performance.now()/1000;try{const bv=document.getElementById('battleView'),on=bv&&!bv.hidden&&typeof G!=='undefined'&&G&&G.wx&&!G.over;
+  const a=on?wxLayer('wxMap','map',2,false):document.getElementById('wxMap');if(a)wxDraw(a,on?G.wx:null,now);
+  const st=document.getElementById('stage'),so=on&&st&&!st.hidden;const b=so?wxLayer('wxSc','sc','',true):document.getElementById('wxSc');if(b)wxDraw(b,so?G.wx:null,now);
+  if(!on){const m=document.getElementById('map');if(m&&m.style.filter)m.style.filter='';const c=document.getElementById('wxChip');if(c)c.hidden=true}}catch(e){}
+  requestAnimationFrame(wxLoop)})();
+const tf=u=>''')
+# damage: every dmgCalc call is preceded by tf(X)* - remember the attacker for wxDmg
+import re as _re
+_n=len(_re.findall(r"tf\((\w)\)\*dmgCalc\(",s))
+s=_re.sub(r"tf\((\w)\)\*dmgCalc\(",r"tf(\1)*((__wxU=\1),1)*dmgCalc(",s)
+print('wx dmg hooks',_n)
+rep("if(RANGEDT.has(aType)&&!ranged)m*=.8;","if(RANGEDT.has(aType)&&!ranged)m*=.8;m*=wxDmg(__wxU,ranged);")
+rep("function inRange(type,d){const [a,b]=TYPES[type].rng;return d>=a&&d<=b}","function inRange(type,d){const [a,b]=TYPES[type].rng;return d>=a&&d<=(wxIs('fog')?Math.min(b,1):b)}")
+rep("+(u.xmv||0);","+(u.xmv||0)-wxMv(u);")
+rep("G.pcName=pc.name;G.ecName=ec.name;","G.pcName=pc.name;G.ecName=ec.name;wxInit();")
+rep("G.turn++;for(const u of G.units){","G.turn++;wxTurn();for(const u of G.units){")
+rep("fire:{n:'Fire',zh:'火',who:u=>u.int>=75,","fire:{n:'Fire',zh:'火',who:u=>u.int>=75&&!wxIs('rain'),")
+rep("volley:{n:'Volley',zh:'射',who:u=>u.type==='archer'||u.type==='xbow',","volley:{n:'Volley',zh:'射',who:u=>(u.type==='archer'||u.type==='xbow')&&!wxIs('fog'),")
+rep("u.cd.fire=CD;const ew=u.eastWind;","u.cd.fire=CD;if(wxIs('rain')){float(e,'雨 Rain','#cfe3ff');log(`${nm(u)} tries to start a fire, but the rain puts it out.`);await sleep(500);sweep();return}const ew=u.eastWind;")
+rep("let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1))","let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1)*(wxIs('wind')?1.5:1))")
+rep("mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1));","mfx('hit',e.x,e.y,1000,1.6);SND.fx('crit');let dmg=Math.round(fireBurn(e,false)*(e.iron?.5:1)*(wxIs('fog')?1.5:1));")
+rep("function drawToken(c,u,now){","function drawToken(c,u,now){if(wxHidden(u))return;")
+rep("function endGame(win,text,retreat){","function endGame(win,text,retreat){setTimeout(wxApply,0);")
+rep("Choose each officer's troop type. Scout first to see the ground.","${G.wx?`<b>${WXD[G.wx].ic} ${WXD[G.wx].zh} ${WXD[G.wx].n}</b> — ${WXD[G.wx].fx}. `:''}Choose each officer's troop type. Scout first to see the ground.")
+rep("<h4>Terrain (damage taken ÷)</h4>","<h4>Weather 天候</h4><table><tr><td>🌧️ Rain</td><td>no Fire · arrows −20% · cavalry −1 move</td></tr><tr><td>🌫️ Fog</td><td>see 2 squares · range 1 · Ambush ×1.5</td></tr><tr><td>❄️ Snow</td><td>all −1 move · damage −10%</td></tr><tr><td>🍃 Wind</td><td>Fire ×1.5 · arrows with wind +15%, against −15%</td></tr></table><p class=\"muted\" style=\"font-size:12px\">Weather can change each turn. The card at top right shows next turn's weather.</p><h4>Terrain (damage taken ÷)</h4>")
+rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}\n#wxChip{position:absolute;right:12px;top:62px;z-index:6;max-width:250px;background:rgba(20,17,13,.8);border:1px solid #b08a4a;border-radius:10px;padding:6px 10px;color:#f1e6cc;font:13px/1.3 system-ui,sans-serif;pointer-events:none}\n#wxChip .wxh{display:flex;align-items:center;gap:6px}#wxChip .wxi{font-size:20px}#wxChip b{font-size:14.5px}#wxChip .wxd{font-size:18px;color:#ffd27a}#wxChip .wxe{color:#cfc4aa;font-size:12px;margin-top:2px}#wxChip .wxn{color:#a99c80;font-size:11.5px;margin-top:3px}\n@media (max-width:600px),(max-height:450px){#wxChip{max-width:200px;top:54px;right:8px;padding:3px 8px;font-size:11px}#wxChip .wxi{font-size:15px}#wxChip b{font-size:12.5px}#wxChip .wxe{font-size:10.5px}#wxChip .wxn{font-size:10px;margin-top:1px}}\n.wxban{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);z-index:30;background:rgba(20,17,13,.85);border:1px solid #d4ad55;border-radius:14px;padding:12px 26px;color:#f6eed8;font:600 24px var(--f-display,serif);pointer-events:none;animation:wxb 2.2s ease forwards}.wxban b{font-size:30px;color:#ffd27a}\n@keyframes wxb{0%{opacity:0;transform:translate(-50%,-40%)}15%,75%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0}}")

@@ -45,7 +45,7 @@ const GEN_DEF=[
   ['caoren','Cao Ren','仁','wei','jiangling',85,70,60,72,'shield','cao_ren',100],
   ['xiahoudun','Xiahou Dun','惇','wei','xuchang',90,58,70,80,'cav','xiahou_dun',100],
   ['xunyu','Xun Yu','荀','wei','xuchang',30,95,96,90,'shield','xun_yu',85],
-  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'hcav','xiahou_yuan',100],
+  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'archer','xiahou_yuan',100],
   ['manchong','Man Chong','滿','wei','runan',66,82,80,70,'shield','man_chong',88],
   ['zhangliao','Zhang Liao','遼','wei','hefei',92,78,58,76,'cav','zhang_liao',90],
   ['lidian','Li Dian','典','wei','hefei',74,76,66,68,'archer','li_dian',88],
@@ -107,7 +107,7 @@ const GEN_DEF=[
   ['zhuzhi','Zhu Zhi','治','wu','kuaiji',66,70,74,72,'shield','p_zhuzhi',95],
   ['zhugejin','Zhuge Jin','瑾','wu','jianye',40,82,86,84,'shield','p_zhugejin',95],
   ['kanze','Kan Ze','澤','wu','jianye',20,84,82,70,'shield','p_kanze',92],
-  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'xbow','p_xusheng',95],
+  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'archer','p_xusheng',95],
   ['panzhang','Pan Zhang','璋','wu','kuaiji',82,60,40,52,'cav','p_panzhang',85],
   ['dongxi','Dong Xi','襲','wu','chaisang',85,40,32,62,'spear','p_dongxi',95],
   ['zhuran','Zhu Ran','然','wu','chaisang',79,70,56,66,'archer','p_zhuran',95],
@@ -131,7 +131,7 @@ const GEN_DEF=[
   ['wangcan','Wang Can','粲','wei','xuchang',20,86,88,72,'shield','p_wangcan',85],
   ['xushu','Xu Shu','庶','wei','jiangling',64,93,82,84,'archer','p_xushu',60],
   ['yangling','Yang Ling','齡','han','changsha',70,40,36,50,'spear','p_yangling',85],
-  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'rattan','p_shamoke',85],
+  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'cav','p_shamoke',85],
   ['liuxian','Liu Xian','賢','liu','lingling',70,42,40,52,'spear','p_liuxian',90],
   ['baolong','Bao Long','龍','zhao','guiyang',78,30,24,48,'spear','p_baolong',85],
   ['menghuo','Meng Huo','獲',null,'guiyang',88,40,36,72,'shield','p_menghuo',80,1],
@@ -1031,7 +1031,7 @@ function playCampaignBattle(a,c,gens,defG){
   const attU=gens.map((g,i)=>toUnit(g,aT[i],me?'shu':'wei',SPA(me?'L':'R')[i],i===0,a.train));
   const defU=dGs.map((g,i)=>toUnit(g,dT[i],me?'wei':'shu',SPD(me?'R':'L')[i],i===0,c.train));
   const thm=route&&route[3]?'river':themeFor(a,c);window.BTHEME=thm;const THN={plains:'open plains',hills:'rolling hills',forest:'deep forest',river:'river valley',marsh:'marshland',pass:'mountain pass'};
-  return startBattle({units:[...attU,...defU],foe,walls:c.walls,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6),thm),
+  return startBattle({units:[...attU,...defU],foe,walls:c.walls,wxCity:c.id,map:genBattleMap(fortSide,river,Math.floor(Math.random()*1e6),thm),
     playerAttacks:me,title:c.field?`Battle on ${c.name}`:`Battle of ${c.name}`,sub:c.field?`Field battle · ${FACS[a.fac].short} meets ${FACS[c.owner].short} in the open, no walls · ${THN[thm]||''}`:`${FACS[a.fac].short} attacks · ${FACS[c.owner].short} defends behind walls ${c.walls} · ${THN[thm]||''}`})
     .then(r=>{const att={},def={},attBroken=[],defBroken=[];
       const read=(gs,tr,side,out,brk)=>gs.forEach((g,i)=>{if(r.left[g.id]!=null)out[g.id]=r.left[g.id];else{out[g.id]=0;brk.push(g.id)}});
