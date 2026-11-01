@@ -2518,3 +2518,18 @@ if(STANDALONE)document.documentElement.classList.add('standalone');
 function iosFullTip(){dialog(`<h2>⛶ Full screen on iPhone</h2><p>iPhone Safari does not let web pages go full screen. To play with no browser bars:</p><ol><li>Open <b>rtk3.tikabon.com</b> in <b>Safari</b>.</li><li>Tap <b>Share</b> <span style="font-size:18px">⎋</span>, then <b>Add to Home Screen</b>.</li><li>Start RTK3 from the new icon on your home screen. It opens full screen, like an app.</li></ol><p class="muted">Your saved games stay in the browser you saved them in, so the home-screen app starts with its own saves.</p>`,[['ok','OK','primary']]).then(()=>{$('#dlg').hidden=true})}
 function toggleFull(){if(IOS&&!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen)){iosFullTip();return}try{""")
 rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}\nhtml.standalone #fsBtn,html.standalone #tfsBtn,html.standalone #cfsBtn{display:none}")
+
+# ===== v424 whole-China map + scenarios (Anthony 1 Nov) =====
+import re as _re2
+def _mapcss(m):
+    t=m.group(0).replace('aspect-ratio:3/2','aspect-ratio:2400/1790')
+    return _re2.sub(r'\*1\.5\)',r'*1.3408)',t)
+s=_re2.sub(r'\.mapbox\{[^}]*\}',_mapcss,s)
+rep("const F=FACS[cfg.foe];FAC.wei={main:F.main,dark:F.dark,light:F.light,name:F.short};","const F=FACS[cfg.foe];FAC.wei={main:F.main,dark:F.dark,light:F.light,name:F.short};{const P=FACS.shu;if(P)FAC.shu={...FAC.shu,main:P.main,dark:P.dark,light:P.light,name:P.short}}")
+rep("function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}",
+ "function sprFac(f){const foe=G&&G.cfg&&G.cfg.foe,FS=typeof FACS!=='undefined'&&FACS,my=(FS&&FS.shu&&FS.shu.spr)||'shu';if(f==='shu')return my;let o=FS&&FS[foe]&&FS[foe].spr?FS[foe].spr:(foe==='wei'||foe==='wu'?foe:foe?'ind':'wei');if(o===my)o=my==='ind'?'wei':'ind';return o}")
+rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}\n.rull .rulb{display:flex;align-items:center;gap:10px;text-align:left}.rull .rface{flex:none;display:flex}.rull .rface .gport,.rull .rface .gseal{border-radius:6px;object-fit:cover;object-position:50% 12%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}\n.scenl .szh{font-family:var(--f-zh,serif);color:var(--gold,#d4ad55);margin-right:4px}")
+s=_re2.sub(r'\.pkmap\{[^}]*\}',lambda m:_re2.sub(r'\*1\.5\)',r'*1.3408)',m.group(0)),s)
+rep('<span class="lbl">Scenario · 208 AD</span>','<span class="lbl">AD 189 · 194 · 208</span>')
+rep(".rull .rulb{display:flex;align-items:center;gap:10px;text-align:left}",".rull .rulb{display:flex;align-items:center;gap:10px;text-align:left;justify-content:flex-start}.rull .rulb .sl{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left}")
+rep('<title>RTK3</title>','<meta charset="utf-8">\n<title>雄霸天下 RTK3</title>')

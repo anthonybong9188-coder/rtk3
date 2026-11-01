@@ -2,7 +2,7 @@ import re, os, sys
 D = os.path.dirname(os.path.abspath(__file__))
 SP = os.path.dirname(D)
 s = open(os.path.join(SP, 'rtk3-battle.html')).read()
-camp = open(os.path.join(D, 'sound.js')).read() + '\n' + open(os.path.join(D, 'bios.js')).read() + '\n' + open(os.path.join(D, 'camp.js')).read()
+camp = open(os.path.join(D, 'sound.js')).read() + '\n' + open(os.path.join(D, 'bios.js')).read() + '\n' + open(os.path.join(D, 'camp.js')).read() + '\n' + open(os.path.join(D, 'scen.js')).read()
 
 def rep(o, n, c=1):
     global s
