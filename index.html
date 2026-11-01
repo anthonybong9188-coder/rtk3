@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RTK3">
+<meta name="theme-color" content="#14110d">
+<link rel="apple-touch-icon" href="art/icon-180.png">
 <style>html,body{margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}[hidden]{display:none!important}</style>
 <title>RTK3</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -493,6 +499,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
 .prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
 .prep-types{display:flex;gap:5px;flex-wrap:wrap}
+html.standalone #fsBtn,html.standalone #tfsBtn,html.standalone #cfsBtn{display:none}
 .acts2.fan{left:auto;top:auto;transform:none;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:74px;height:74px;padding:0;margin:0;display:block;background:none;border:0;box-shadow:none;border-radius:0;max-width:none;animation:none}
 .acts2.fan:empty{display:none}
 .acts2.fan>.rbtn{position:absolute;animation:fanIn .18s ease-out both}
@@ -3614,7 +3621,11 @@ async function marketDlg(c){for(;;){const r=riceRate(c),sr=riceSell(c),season=S.
 setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
 for(const id of ['#newBtn','#contBtn'])$(id).addEventListener('click',goFull,true);
-function toggleFull(){try{if(document.fullscreenElement){FS.want(false);document.exitFullscreen()}else FS.want(true);if(document.fullscreenElement);else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
+const IOS=/iP(hone|od)/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1&&!document.documentElement.requestFullscreen);
+const STANDALONE=!!(navigator.standalone||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches);
+if(STANDALONE)document.documentElement.classList.add('standalone');
+function iosFullTip(){dialog(`<h2>⛶ Full screen on iPhone</h2><p>iPhone Safari does not let web pages go full screen. To play with no browser bars:</p><ol><li>Open <b>rtk3.tikabon.com</b> in <b>Safari</b>.</li><li>Tap <b>Share</b> <span style="font-size:18px">⎋</span>, then <b>Add to Home Screen</b>.</li><li>Start RTK3 from the new icon on your home screen. It opens full screen, like an app.</li></ol><p class="muted">Your saved games stay in the browser you saved them in, so the home-screen app starts with its own saves.</p>`,[['ok','OK','primary']]).then(()=>{$('#dlg').hidden=true})}
+function toggleFull(){if(IOS&&!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen)){iosFullTip();return}try{if(document.fullscreenElement){FS.want(false);document.exitFullscreen()}else FS.want(true);if(document.fullscreenElement);else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
 $('#fsBtn').onclick=toggleFull;$('#tfsBtn').onclick=toggleFull;$('#cfsBtn').onclick=toggleFull;
 var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')==='1'}catch(e){}
   const set=v=>{want=v;try{localStorage.setItem('rtk3-fs',v?'1':'0')}catch(e){}};

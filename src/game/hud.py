@@ -2510,3 +2510,11 @@ rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",""".prep-types{display:fl
 .acts2.fan>.rbtn.big .rzh{font-size:28px}.acts2.fan>.rbtn.big .rl{font-size:11px}
 @media (max-width:600px),(max-height:440px){.acts2.fan{width:62px;height:62px;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px))}.acts2.fan>.rbtn .rzh{font-size:17px}.acts2.fan>.rbtn .rl{font-size:8.5px}.acts2.fan>.rbtn.big .rzh{font-size:24px}.acts2.fan>.rbtn.big .rl{font-size:10px}}
 @keyframes fanIn{from{opacity:0;transform:translate(18px,18px) scale(.5)}to{opacity:1;transform:none}}""")
+
+# ===== v422 iPhone: no page full screen in Safari -> tell the player to Add to Home Screen; hide the button when already running as a home-screen app =====
+rep("function toggleFull(){try{",r"""const IOS=/iP(hone|od)/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1&&!document.documentElement.requestFullscreen);
+const STANDALONE=!!(navigator.standalone||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches);
+if(STANDALONE)document.documentElement.classList.add('standalone');
+function iosFullTip(){dialog(`<h2>⛶ Full screen on iPhone</h2><p>iPhone Safari does not let web pages go full screen. To play with no browser bars:</p><ol><li>Open <b>rtk3.tikabon.com</b> in <b>Safari</b>.</li><li>Tap <b>Share</b> <span style="font-size:18px">⎋</span>, then <b>Add to Home Screen</b>.</li><li>Start RTK3 from the new icon on your home screen. It opens full screen, like an app.</li></ol><p class="muted">Your saved games stay in the browser you saved them in, so the home-screen app starts with its own saves.</p>`,[['ok','OK','primary']]).then(()=>{$('#dlg').hidden=true})}
+function toggleFull(){if(IOS&&!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen)){iosFullTip();return}try{""")
+rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}\nhtml.standalone #fsBtn,html.standalone #tfsBtn,html.standalone #cfsBtn{display:none}")

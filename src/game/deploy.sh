@@ -3,7 +3,7 @@
 set -e
 S=/tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad; cd $S
 python3 game/assemble.py && node --check game/chk.js
-W=RTK3/app/src/main/assets/www; { printf '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<style>html,body{margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}[hidden]{display:none!important}</style>\n'; cat rtk3-game.html; printf '\n</html>\n'; } > $W/index.html
+W=RTK3/app/src/main/assets/www; { printf '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="apple-mobile-web-app-title" content="RTK3">\n<meta name="theme-color" content="#14110d">\n<link rel="apple-touch-icon" href="art/icon-180.png">\n<style>html,body{margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}[hidden]{display:none!important}</style>\n'; cat rtk3-game.html; printf '\n</html>\n'; } > $W/index.html
 python3 - <<'PYCLEAN'
 import shutil,os
 for base in ['/tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/RTK3/app/src/main/assets/www','/tmp/claude-0/-home-claude/3caa1e0b-7a90-56f6-b65a-93a3eae7fddc/scratchpad/site','/home/claude/rtk3']:
