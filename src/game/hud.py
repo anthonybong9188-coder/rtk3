@@ -2542,3 +2542,5 @@ rep("async function heroAct(k,s,t){","const WFX={musou:4.2,roar:3.6,sweep:3.4,lo
 rep("mfx('whirl',s.x,s.y,1000,4.2);SND.fx('crit');await sleep(550);\n    let tot=0;for(const e of hit)tot+=quickHit(s,e,1.2,","SND.fx('crit');await sleep(550);\n    let tot=0;for(const e of hit)tot+=quickHit(s,e,1.2,")
 rep("mfx('rally',s.x,s.y,1100,3.2)","0")
 rep("mfx('arc',s.x,s.y,900,3.4)","0")
+# Anthony 1 Nov: restore Xu Chu Tiger Guard + Zhang Liao Hefei Terror (they had no special)
+rep("'ironwall','whiterobe','firstwall','twinsea'].includes(k))delete HERO[k];","'ironwall','whiterobe','firstwall','twinsea','tiger','terror'].includes(k))delete HERO[k];")
