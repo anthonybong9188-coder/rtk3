@@ -493,6 +493,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
 .prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
 .prep-types{display:flex;gap:5px;flex-wrap:wrap}
+.tfs{position:absolute;z-index:3;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));min-height:42px;padding:0 16px;display:flex;align-items:center;gap:6px;background:rgba(20,17,13,.62);border:1px solid #b08a4a;border-radius:21px;color:#f1e6cc;font-size:14px;backdrop-filter:blur(4px)}.tfs .fsi{font-size:18px}.tfs.on{border-color:#d4ad55;color:#ffd27a}
 #wxChip{position:absolute;right:12px;top:62px;z-index:6;max-width:250px;background:rgba(20,17,13,.8);border:1px solid #b08a4a;border-radius:10px;padding:6px 10px;color:#f1e6cc;font:13px/1.3 system-ui,sans-serif;pointer-events:none}
 #wxChip .wxh{display:flex;align-items:center;gap:6px}#wxChip .wxi{font-size:20px}#wxChip b{font-size:14.5px}#wxChip .wxd{font-size:18px;color:#ffd27a}#wxChip .wxe{color:#cfc4aa;font-size:12px;margin-top:2px}#wxChip .wxn{color:#a99c80;font-size:11.5px;margin-top:3px}
 @media (max-width:600px),(max-height:450px){#wxChip{max-width:200px;top:54px;right:8px;padding:3px 8px;font-size:11px}#wxChip .wxi{font-size:15px}#wxChip b{font-size:12.5px}#wxChip .wxe{font-size:10.5px}#wxChip .wxn{font-size:10px;margin-top:1px}}
@@ -699,6 +700,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 <div id="title" class="screen" hidden>
   <img class="tbg" id="tbg" src="art/title_liubei.jpg" alt=""><div class="tlogo" id="tlogo">赤壁之戰</div>
   <div class="tshade"></div>
+  <button id="tfsBtn" class="tfs" aria-label="Full screen"><span class="fsi">⛶</span> <span class="fsl">Full screen</span></button>
   <div class="tcontent">
     <div class="tbrand"><div class="seal">國</div><div><div class="tname">RTK3</div><div class="tsub">A strategy game of the Three Kingdoms</div></div></div>
     <div class="tbig">天下三分</div>
@@ -714,7 +716,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
     <div class="cres"><div><span>Gold</span><b id="cGold"></b></div><div><span>Rice</span><b id="cRice"></b></div><div><span>Troops</span><b id="cTroops"></b></div><div><span>Cities</span><b id="cCities"></b></div></div>
     <div class="spacer"></div>
     <button id="mapBtn" class="iconbtn" aria-label="Open the map of China"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 3.5l6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg><span>Map</span><i id="mapBadge" class="badge" hidden></i></button>
-    <button class="iconbtn sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+    <button id="cfsBtn" class="iconbtn" aria-label="Full screen"><b class="fsi" style="font-size:20px;line-height:22px">⛶</b><span class="fsl">Full</span></button><button class="iconbtn sndbtn" onclick="soundDlg()" aria-label="Mute sound">🔊</button><button id="menuBtn" class="iconbtn" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
     <button id="endMonth" class="primary">End month</button>
   </header>
   <main class="cbody">
@@ -3596,7 +3598,7 @@ setupStage();requestAnimationFrame(loop);
 function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen&&matchMedia('(pointer:coarse)').matches){d.requestFullscreen({navigationUI:'hide'}).then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}}catch(e){}}
 for(const id of ['#newBtn','#contBtn'])$(id).addEventListener('click',goFull,true);
 function toggleFull(){try{if(document.fullscreenElement){FS.want(false);document.exitFullscreen()}else FS.want(true);if(document.fullscreenElement);else{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}}catch(e){}}
-$('#fsBtn').onclick=toggleFull;
+$('#fsBtn').onclick=toggleFull;$('#tfsBtn').onclick=toggleFull;$('#cfsBtn').onclick=toggleFull;
 var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')==='1'}catch(e){}
   const set=v=>{want=v;try{localStorage.setItem('rtk3-fs',v?'1':'0')}catch(e){}};
   document.addEventListener('visibilitychange',()=>{if(document.hidden)hidAt=performance.now()});
@@ -3608,7 +3610,7 @@ var FS=(()=>{let want=false,hidAt=0;try{want=localStorage.getItem('rtk3-fs')==='
     try{(d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen()).then?.(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch?.(()=>{})}catch(e){}}};
   addEventListener('pointerup',back,{capture:true,passive:true});addEventListener('touchend',back,{capture:true,passive:true});
   return {want:set}})();
-document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;$('#fsBtn').textContent='⛶';$('#fsBtn').classList.toggle('on',f);setTimeout(()=>{if(G&&!$('#battleView').hidden){resizeMap();const u=G.sel||G.view;if(u)focusUnit(u,true)}},200)});
+document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;for(const id of ['tfsBtn','cfsBtn']){const b=document.getElementById(id);if(!b)continue;b.classList.toggle('on',f);const l=b.querySelector('.fsl');if(l)l.textContent=id==='tfsBtn'?(f?'Exit full screen':'Full screen'):(f?'Exit':'Full');b.setAttribute('aria-label',f?'Exit full screen':'Full screen')}$('#fsBtn').textContent='⛶';$('#fsBtn').classList.toggle('on',f);setTimeout(()=>{if(G&&!$('#battleView').hidden){resizeMap();const u=G.sel||G.view;if(u)focusUnit(u,true)}},200)});
 {const m=document.createElement('link');m.rel='manifest';m.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify({name:'RTK3',short_name:'RTK3',start_url:location.href.split('#')[0],display:'fullscreen',orientation:'landscape',background_color:'#0b0a08',theme_color:'#0b0a08',icons:[{src:new URL('art/icon-192.png',location.href).href,sizes:'192x192',type:'image/png',purpose:'any'},{src:new URL('art/icon-512.png',location.href).href,sizes:'512x512',type:'image/png',purpose:'any maskable'}]}));document.head.appendChild(m);[['apple-touch-icon','art/icon-180.png'],['icon','art/icon-32.png']].forEach(([r,h])=>{const l=document.createElement('link');l.rel=r;l.href=h;document.head.appendChild(l);});
  for(const [n,c] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent'],['theme-color','#0b0a08']]){const t=document.createElement('meta');t.name=n;t.content=c;document.head.appendChild(t)}}
 {let MZ=1;const body=()=>$('#mapView .mvbody'),box=()=>$('#mapView .mapbox');
