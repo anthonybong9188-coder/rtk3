@@ -493,6 +493,14 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
 .prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
 .prep-types{display:flex;gap:5px;flex-wrap:wrap}
+.acts2.fan{left:auto;top:auto;transform:none;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:74px;height:74px;padding:0;margin:0;display:block;background:none;border:0;box-shadow:none;border-radius:0;max-width:none;animation:none}
+.acts2.fan:empty{display:none}
+.acts2.fan>.rbtn{position:absolute;animation:fanIn .18s ease-out both}
+.acts2.fan>.rbtn .rzh{font-size:20px}.acts2.fan>.rbtn .rl{font-size:9.5px;margin-top:1px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.acts2.fan>.rbtn.big{background:radial-gradient(circle at 35% 28%,#5d8ad8,#132550 72%);border:3px solid #cfe6ff;box-shadow:0 0 16px rgba(110,180,255,.6),0 4px 12px rgba(0,0,0,.7)}
+.acts2.fan>.rbtn.big .rzh{font-size:28px}.acts2.fan>.rbtn.big .rl{font-size:11px}
+@media (max-width:600px),(max-height:440px){.acts2.fan{width:62px;height:62px;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px))}.acts2.fan>.rbtn .rzh{font-size:17px}.acts2.fan>.rbtn .rl{font-size:8.5px}.acts2.fan>.rbtn.big .rzh{font-size:24px}.acts2.fan>.rbtn.big .rl{font-size:10px}}
+@keyframes fanIn{from{opacity:0;transform:translate(18px,18px) scale(.5)}to{opacity:1;transform:none}}
 .tfs{position:absolute;z-index:3;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));min-height:42px;padding:0 16px;display:flex;align-items:center;gap:6px;background:rgba(20,17,13,.62);border:1px solid #b08a4a;border-radius:21px;color:#f1e6cc;font-size:14px;backdrop-filter:blur(4px)}.tfs .fsi{font-size:18px}.tfs.on{border-color:#d4ad55;color:#ffd27a}
 #wxChip{position:absolute;right:12px;top:62px;z-index:6;max-width:250px;background:rgba(20,17,13,.8);border:1px solid #b08a4a;border-radius:10px;padding:6px 10px;color:#f1e6cc;font:13px/1.3 system-ui,sans-serif;pointer-events:none}
 #wxChip .wxh{display:flex;align-items:center;gap:6px}#wxChip .wxi{font-size:20px}#wxChip b{font-size:14.5px}#wxChip .wxd{font-size:18px;color:#ffd27a}#wxChip .wxe{color:#cfc4aa;font-size:12px;margin-top:2px}#wxChip .wxn{color:#a99c80;font-size:11.5px;margin-top:3px}
@@ -1291,15 +1299,24 @@ function updateUI0(){
   let ah='';const rb=(attr,zh,label,ok,cls,cd)=>`<button class="rbtn ${cls||''}" ${attr} ${ok?'':'disabled'}><span class="rzh">${zh}</span><span class="rl">${label}</span>${cd?`<i class="cdb">${cd}</i>`:''}</button>`;
   if(G.mode==='moved'&&G.sel&&G.phase==='player'){const s=G.sel;
     ah+=rb('data-a="attack"',RANGEDT.has(s.type)?'射':'攻',RANGEDT.has(s.type)?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
-    for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||k==='hide'&&terAt(s.x,s.y)==='f'&&!s.hid||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
+    for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||k==='hide'&&terAt(s.x,s.y)==='f'&&!s.hid||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);if(ok||cd)ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
     {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
     
     ah+=rb('data-a="wait" title="End this unit\'s turn"','待','Wait',true);
   }
   let tp='';
   if(G.mode==='target'&&G.targets.length&&G.targets.every(t=>t.u.fake&&t.u.dir))tp=`<div class="skhint"><span>Tap an arrow next to ${G.sel?G.sel.name:'the unit'} to choose the direction.</span><button data-a="back">Cancel</button></div>`;else if(G.mode==='target')tp=`<div class="tlist">${G.targets.map((tg,i)=>`<button data-t="${i}"><span>${tg.u.label||tg.u.name+' <small>'+TYPES[tg.u.type].n+'</small>'}</span><small>${tg.note}</small></button>`).join('')}<button data-a="back">Back</button></div>`;
-  box.innerHTML=h;$('#acts').innerHTML=ah;$('#tpanel').innerHTML=tp;$('#tpanel').hidden=!tp;
+  box.innerHTML=h;$('#acts').innerHTML=ah;fanLayout();$('#tpanel').innerHTML=tp;$('#tpanel').hidden=!tp;
 }
+function fanLayout(){const a=document.getElementById('acts');if(!a)return;a.classList.add('fan');const bs=[...a.children];if(!bs.length)return;
+  const W=Math.min(innerWidth,innerHeight)<440?1:0,BIG=W?62:74,SM=W?48:56,R1=W?78:94,R2=W?132:158,R3=W?184:220,C=BIG/2;
+  const wait=bs.find(b=>b.dataset.a==='wait'),rest=bs.filter(b=>b!==wait);
+  if(wait){wait.classList.add('big');Object.assign(wait.style,{left:'0px',top:'0px',width:BIG+'px',height:BIG+'px'})}
+  const rings=[[R1,[45,0,90]],[R2,null],[R3,null]];let i=0,d=0;
+  for(const [R,fixed] of rings){if(i>=rest.length)break;const cap=fixed?3:R===R2?4:5,n=Math.min(cap,rest.length-i);
+    const angs=fixed?fixed.slice(0,n):Array.from({length:n},(_,j)=>n===1?45:(cap===4?11.25+22.5*j+(4-n)*11.25:9+18*j+(5-n)*9));
+    for(const ang of angs){const b=rest[i++],t=ang*Math.PI/180,x=C-R*Math.cos(t),y=C-R*Math.sin(t);
+      Object.assign(b.style,{left:(x-SM/2)+'px',top:(y-SM/2)+'px',width:SM+'px',height:SM+'px',animationDelay:(d++*25)+'ms'})}}}
 const jointParts=e=>G.units.filter(u=>u.side==='shu'&&manh(u,e)===1);
 function jointTargets(s){if(!G||G.jointTurn===G.turn)return[];return enemies().filter(e=>manh(s,e)===1&&jointParts(e).length>=2)}
 async function doJoint(s,t){G.jointTurn=G.turn;const ps=[s,...jointParts(t).filter(u=>u!==s)],before=t.troops;

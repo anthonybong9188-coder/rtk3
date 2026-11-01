@@ -2487,3 +2487,26 @@ rep('<button class="iconbtn sndbtn" onclick="soundDlg()" aria-label="Mute sound"
 rep("$('#fsBtn').onclick=toggleFull;","$('#fsBtn').onclick=toggleFull;$('#tfsBtn').onclick=toggleFull;$('#cfsBtn').onclick=toggleFull;")
 rep("document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;","document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;for(const id of ['tfsBtn','cfsBtn']){const b=document.getElementById(id);if(!b)continue;b.classList.toggle('on',f);const l=b.querySelector('.fsl');if(l)l.textContent=id==='tfsBtn'?(f?'Exit full screen':'Full screen'):(f?'Exit':'Full');b.setAttribute('aria-label',f?'Exit full screen':'Full screen')}")
 rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}\n.tfs{position:absolute;z-index:3;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));min-height:42px;padding:0 16px;display:flex;align-items:center;gap:6px;background:rgba(20,17,13,.62);border:1px solid #b08a4a;border-radius:21px;color:#f1e6cc;font-size:14px;backdrop-filter:blur(4px)}.tfs .fsi{font-size:18px}.tfs.on{border-color:#d4ad55;color:#ffd27a}")
+
+# ===== v421 action buttons as a Langrisser-style fan in the bottom-right corner (Anthony 1 Nov: "nearly cover half my screen ... clean") =====
+rep('ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,','if(ok||cd)ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,')
+rep("box.innerHTML=h;$('#acts').innerHTML=ah;","box.innerHTML=h;$('#acts').innerHTML=ah;fanLayout();")
+rep("const jointParts=e=>",r'''function fanLayout(){const a=document.getElementById('acts');if(!a)return;a.classList.add('fan');const bs=[...a.children];if(!bs.length)return;
+  const W=Math.min(innerWidth,innerHeight)<440?1:0,BIG=W?62:74,SM=W?48:56,R1=W?78:94,R2=W?132:158,R3=W?184:220,C=BIG/2;
+  const wait=bs.find(b=>b.dataset.a==='wait'),rest=bs.filter(b=>b!==wait);
+  if(wait){wait.classList.add('big');Object.assign(wait.style,{left:'0px',top:'0px',width:BIG+'px',height:BIG+'px'})}
+  const rings=[[R1,[45,0,90]],[R2,null],[R3,null]];let i=0,d=0;
+  for(const [R,fixed] of rings){if(i>=rest.length)break;const cap=fixed?3:R===R2?4:5,n=Math.min(cap,rest.length-i);
+    const angs=fixed?fixed.slice(0,n):Array.from({length:n},(_,j)=>n===1?45:(cap===4?11.25+22.5*j+(4-n)*11.25:9+18*j+(5-n)*9));
+    for(const ang of angs){const b=rest[i++],t=ang*Math.PI/180,x=C-R*Math.cos(t),y=C-R*Math.sin(t);
+      Object.assign(b.style,{left:(x-SM/2)+'px',top:(y-SM/2)+'px',width:SM+'px',height:SM+'px',animationDelay:(d++*25)+'ms'})}}}
+const jointParts=e=>''')
+rep(".prep-types{display:flex;gap:5px;flex-wrap:wrap}",""".prep-types{display:flex;gap:5px;flex-wrap:wrap}
+.acts2.fan{left:auto;top:auto;transform:none;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:74px;height:74px;padding:0;margin:0;display:block;background:none;border:0;box-shadow:none;border-radius:0;max-width:none;animation:none}
+.acts2.fan:empty{display:none}
+.acts2.fan>.rbtn{position:absolute;animation:fanIn .18s ease-out both}
+.acts2.fan>.rbtn .rzh{font-size:20px}.acts2.fan>.rbtn .rl{font-size:9.5px;margin-top:1px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.acts2.fan>.rbtn.big{background:radial-gradient(circle at 35% 28%,#5d8ad8,#132550 72%);border:3px solid #cfe6ff;box-shadow:0 0 16px rgba(110,180,255,.6),0 4px 12px rgba(0,0,0,.7)}
+.acts2.fan>.rbtn.big .rzh{font-size:28px}.acts2.fan>.rbtn.big .rl{font-size:11px}
+@media (max-width:600px),(max-height:440px){.acts2.fan{width:62px;height:62px;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px))}.acts2.fan>.rbtn .rzh{font-size:17px}.acts2.fan>.rbtn .rl{font-size:8.5px}.acts2.fan>.rbtn.big .rzh{font-size:24px}.acts2.fan>.rbtn.big .rl{font-size:10px}}
+@keyframes fanIn{from{opacity:0;transform:translate(18px,18px) scale(.5)}to{opacity:1;transform:none}}""")
