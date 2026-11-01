@@ -2544,3 +2544,22 @@ rep("mfx('rally',s.x,s.y,1100,3.2)","0")
 rep("mfx('arc',s.x,s.y,900,3.4)","0")
 # Anthony 1 Nov: restore Xu Chu Tiger Guard + Zhang Liao Hefei Terror (they had no special)
 rep("'ironwall','whiterobe','firstwall','twinsea'].includes(k))delete HERO[k];","'ironwall','whiterobe','firstwall','twinsea','tiger','terror'].includes(k))delete HERO[k];")
+
+# ---- v430 (2 Nov): Grok vfx batch B -> skill_fx_d.jpg rows 36-46; restore Xiahou Yuan Swift March; new specials Ma Chao, Dian Wei, Guo Jia
+rep("const skfxIm=row=>row<12?SKFX:row<24?SKFX2:SKFX3;","const SKFX4=new Image();SKFX4.src='sprites/skill_fx_d.jpg';const skfxIm=row=>row<12?SKFX:row<24?SKFX2:row<36?SKFX3:SKFX4;")
+rep("w_ambush:33,w_yellowbeard:34}","w_ambush:33,w_yellowbeard:34,w_assassin:36,w_swift:37,w_iron:38,w_onefury:39,w_longdrive:40,w_hellfire:41,w_burn:42,w_twinsea:43,w_ironwall:44,w_firstwall:45,w_whiterobe:46}")
+rep("terror:3.2,ambush:3,yellowbeard:3.2};","terror:3.2,ambush:3,yellowbeard:3.2,assassin:3,swift:2.8,iron:2.8,onefury:3,longdrive:3.2,hellfire:3,burn:3,twinsea:3.2,ironwall:3,firstwall:3,whiterobe:3.6};")
+rep("'tiger','terror'].includes(k))delete HERO[k];","""'tiger','terror','swift','splendid','evilcome','foresight','redturban','conqueror'].includes(k))delete HERO[k];
+HERO.redturban={who:'sunjian',zh:'江東猛虎',n:'Red Turban',targets:s=>adjE(s),desc:'×1.3 attack; Sun Jian’s red turban rallies every adjacent ally: +20% attack for 2 turns'};
+HERO.conqueror={who:'sunce',zh:'小霸王',n:'Little Conqueror',targets:s=>adjE(s),desc:'×1.4, no counter; if the target is wiped out, Sun Ce can still move and act'};
+HERO.splendid={who:'machao',zh:'錦馬超',n:'Splendid Charge',targets:s=>adjE(s),desc:'×1.5 cavalry charge, no counter; the target loses 20% attack for 2 turns'};
+HERO.evilcome={who:'dianwei',zh:'古之惡來',n:'Evil-Come Fury',self:1,can:s=>adjE(s).length>0,desc:'Swings both great halberds: every adjacent enemy takes ×1.1 and loses 20% attack for 2 turns; Dian Wei takes half damage until your next turn'};
+HERO.foresight={who:'guojia',zh:'遺計',n:'Ten Victories',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'Guo Jia foresees the enemy: a target up to 3 squares away and its neighbours lose 20% attack for 2 turns, and the target cannot strike back until your next turn'};""")
+rep("else if(k==='terror'){","""else if(k==='splendid'){await doAttack(s,t,{mult:1.5,noCounter:true,charge:true,label:'Splendid Charge',tint:'rgba(220,230,255,.14)'});if(G.units.includes(t)){t.fear=2;float(t,'Attack −20%','#dfe8ff')}log(`<b>Splendid Charge!</b> ${nm(s)} breaks through like the western wind.`)}
+  else if(k==='evilcome'){const hit=adjE(s);mfx('whirl',s.x,s.y,1000,3.2);SND.fx('crit');await sleep(450);let tot=0;for(const e of hit){tot+=quickHit(s,e,1.1,{color:'#8fb4ff'});if(G.units.includes(e))e.fear=2}s.iron=Math.max(s.iron||0,1);float(s,'Half damage','#8fb4ff');
+    log(`<b>Evil-Come Fury!</b> ${nm(s)} swings both great halberds through ${hit.map(nm).join(', ')}: −${tot}.`);await sleep(600)}
+  else if(k==='foresight'){mfx('scroll',t.x,t.y,1000,2.6);SND.fx('special');await sleep(450);const grp=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1)];for(const e of grp){e.fear=2;float(e,'Attack −20%','#c8b6ff')}t.mute=2;float(t,'Cannot strike back','#c8b6ff');
+    log(`<b>Ten Victories!</b> ${nm(s)} foresees every move of ${nm(t)}: it and its neighbours lose 20% attack, and it cannot strike back.`);await sleep(600)}
+  else if(k==='redturban'){await doAttack(s,t,{mult:1.3,label:'Red Turban',tint:'rgba(200,40,30,.12)'});const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);mfx('rally',s.x,s.y,1000,2.6);for(const u of al){u.rallyT=2;float(u,'+20% attack','#ff9a7a')}log(`<b>Red Turban!</b> The Tiger of Jiangdong leads the charge${al.length?' and '+al.map(nm).join(', ')+' rally to him':''}.`)}
+  else if(k==='conqueror'){await doAttack(s,t,{mult:1.4,noCounter:true,label:'Little Conqueror',tint:'rgba(230,60,40,.12)'});if(!G.units.includes(t)&&G.units.includes(s)){keep=true;s.swift=false;float(s,'Act again','#ffd27a');log(`<b>Little Conqueror!</b> ${nm(s)} cuts through and presses on.`)}}
+  else if(k==='terror'){""")
