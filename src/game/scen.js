@@ -67,14 +67,15 @@ const FAC_ALL={
 // new rulers / generals not in GEN_DEF yet (portrait null until Grok's portrait is approved: a seal is shown)
 // id, name, token, war, int, pol, cha, type, portrait
 const GEN_NEW=[
- ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav',null],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav',null],
- ['yuanshu','Yuan Shu','術',62,62,64,66,'shield',null],['sunjian','Sun Jian','堅',93,80,74,92,'cav',null],['sunce','Sun Ce','策',94,76,72,96,'cav',null],
+ ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav','p_dongzhuo'],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav','p_yuanshao'],
+ ['yuanshu','Yuan Shu','術',62,62,64,66,'shield','p_yuanshu'],['sunjian','Sun Jian','堅',93,80,74,92,'cav','p_sunjian'],['sunce','Sun Ce','策',94,76,72,96,'cav','p_sunce'],
  ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav',null],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav',null],
  ['gongsundu','Gongsun Du','度',78,62,60,66,'cav',null],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav',null],['liubiao','Liu Biao','表',40,78,86,84,'shield',null],
  ['liuyan','Liu Yan','焉',32,72,76,70,'shield',null],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield',null],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield',null],
  ['taoqian','Tao Qian','陶',30,62,74,80,'shield',null],['kongrong','Kong Rong','孔',30,82,84,88,'archer',null],['hanfu','Han Fu','馥',40,56,60,52,'shield',null],
  ['liuyao','Liu Yao','繇',50,58,64,70,'shield',null],['wanglang','Wang Lang','朗',42,76,82,72,'shield',null],['yanbaihu','Yan Baihu','虎',74,30,22,46,'spear',null],
- ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear',null],['lijue','Li Jue','傕',80,40,20,30,'cav',null]];
+ ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear',null],['lijue','Li Jue','傕',80,40,20,30,'cav',null],
+ ['machao','Ma Chao','超',97,44,30,82,'cav','p_machao'],['dianwei','Dian Wei','韋',97,35,20,58,'spear','p_dianwei'],['guojia','Guo Jia','嘉',15,98,82,86,'archer','p_guojia']];
 // fictional characters made for this game: only in New Hero games, and only the hero's own Search finds them
 const FICTIONAL=['xuannu','monu','xishi','huangyi','renrui','miren','mishao'];
 // ---------- scenarios: start date, goal, factions with their cities and troops, alliance, intro
@@ -107,6 +108,7 @@ const SCENS={
 // ---------- where each general is in 189 and 194 ('fac@city', 'free@city' = hidden, waiting to be found). d = year he enters the game.
 // Generals not listed for a scenario: if d <= start year they wait, hidden, in their 208 city; otherwise they appear in year d.
 const GSC={
+ machao:{d:192,home:'xiliang',194:'mateng@xiliang',208:'mateng@xiliang'},dianwei:{x:197,d:189,189:'wei@chenliu',194:'wei@chenliu'},guojia:{x:207,d:191,home:'xuchang',194:'wei@xuchang'},
  liubei:{d:184,189:'lb@pingyuan',194:'lb@xuzhou'},guanyu:{d:184,189:'lb@pingyuan',194:'lb@xiapi'},zhangfei:{d:184,189:'lb@pingyuan',194:'lb@xuzhou'},
  zhaoyun:{d:189,189:'gongsun@beiping',194:'gongsun@beiping'},zhugeliang:{d:207,home:'xiangyang'},mizhu:{d:189,189:'taoqian@xuzhou',194:'lb@xuzhou'},
  sunqian:{d:189,189:'lb@pingyuan',194:'lb@xuzhou'},jianyong:{d:184,189:'lb@pingyuan',194:'lb@xiapi'},guanyinping:{d:206},huangyueying:{d:205,home:'xiangyang'},
@@ -248,6 +250,9 @@ cicImg=function(key,w){const q=CICON[key]||CICON2[key];if(!q)return `<img src="a
 // short biographies for the new lords (portraits follow from Grok)
 Object.assign(BIO,{
  lubu:BIO.lubu||{zh:'呂布',st:'Fengxian',y:'?–198',bg:'A peerless warrior of the northern frontier, armed with the Sky Piercer halberd and riding Red Hare.',h:'He killed two masters, Ding Yuan and Dong Zhuo, and was called the greatest fighter of his age. Brave beyond measure but faithless, he seized Puyang and Xu province before Cao Cao besieged him at Xiapi.',f:['Mightiest warrior of the age','Sky Piercer and Red Hare','Killed Dong Zhuo']},
+ machao:{zh:'馬超',st:'Mengqi',y:'176–222',bg:'Eldest son of Ma Teng of Xiliang, famed as Splendid Ma Chao for his looks and his spear.',h:'He rose against Cao Cao to avenge his family at Tong Pass and nearly captured him. Later he joined Liu Bei and became one of the Five Tiger Generals.',f:['Splendid Ma Chao','Battle of Tong Pass','One of the Five Tigers']},
+ dianwei:{zh:'典韋',st:'',y:'?–197',bg:'A giant of enormous strength who fought with a pair of great halberds.',h:'Cao Cao\'s personal bodyguard, called the Evil-Coming. When Zhang Xiu revolted at Wancheng he held the camp gate alone so his lord could escape, and died there.',f:['Twin great halberds','Cao Cao\'s bodyguard','Died holding the gate at Wancheng']},
+ guojia:{zh:'郭嘉',st:'Fengxiao',y:'170–207',bg:'A brilliant young strategist from Yingchuan, recommended to Cao Cao by Xun Yu.',h:'His plans won Cao Cao the wars against Lü Bu and Yuan Shao, and he foresaw the deaths and quarrels of his enemies. He died young on the northern campaign, and Cao Cao said he would not have lost at Red Cliffs had Guo Jia lived.',f:['Cao Cao\'s favourite strategist','Ten victories and ten defeats','Died young in 207']},
  dongzhuo:{zh:'董卓',st:'Zhongying',y:'?–192',bg:'A frontier general of Liang province who marched on Luoyang when the court collapsed in 189.',h:'He deposed the young emperor, burned Luoyang and dragged the court to Chang\'an, ruling by terror until Wang Yun and Lü Bu murdered him.',f:['Seized the Han court','Burned Luoyang','Slain by Lü Bu']},
  yuanshao:{zh:'袁紹',st:'Benchu',y:'?–202',bg:'Heir of the Yuan clan, four generations of the highest ministers.',h:'Leader of the coalition against Dong Zhuo, he became master of the four northern provinces, the strongest lord of his day, until Cao Cao crushed him at Guandu in 200.',f:['Leader of the coalition','Lord of Hebei','Defeated at Guandu']},
  yuanshu:{zh:'袁術',st:'Gonglu',y:'?–199',bg:'Yuan Shao\'s proud younger cousin, lord of Nanyang and later of Shouchun.',h:'Holding the imperial seal, he declared himself emperor in 197. Lavish and cruel, he lost his allies, and died of hunger and despair two years later.',f:['Held the imperial seal','Called himself emperor','Brother-rival of Yuan Shao']},
