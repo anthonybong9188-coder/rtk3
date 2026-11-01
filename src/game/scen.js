@@ -78,7 +78,7 @@ const GEN_NEW=[
  ['machao','Ma Chao','超',97,44,30,82,'cav','p_machao'],['dianwei','Dian Wei','韋',97,35,20,58,'spear','p_dianwei'],['guojia','Guo Jia','嘉',15,98,82,86,'archer','p_guojia']];
 // fictional characters made for this game: only in New Hero games, and only the hero's own Search finds them
 // Anthony 2 Nov: minor rulers use shared common-general faces and are not playable
-const NOPLAY=['gongsunzan','liubiao','liuzhang','zhanglu','taoqian','kongrong','liuyao','hanfu','liuyan','wanglang','yanbaihu','gongsundu','gongsunkang','hansui','lijue','zhangxiu'];
+const NOPLAY=['gongsunzan','liubiao','liuzhang','zhanglu','taoqian','kongrong','liuyao','hanfu','liuyan','wanglang','yanbaihu','gongsundu','gongsunkang','hansui','lijue','zhangxiu','jinxuan','hanxuan','liudu','zhaofan'];
 const FICTIONAL=['xuannu','monu','xishi','huangyi','renrui','miren','mishao'];
 // ---------- scenarios: start date, goal, factions with their cities and troops, alliance, intro
 const SCENS={
