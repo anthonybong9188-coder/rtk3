@@ -1317,7 +1317,7 @@ function updateUI0(){
 }
 function fanLayout(){const a=document.getElementById('acts');if(!a)return;a.classList.add('fan');const bs=[...a.children];if(!bs.length)return;
   const W=Math.min(innerWidth,innerHeight)<440?1:0,BIG=W?62:74,SM=W?48:56,R1=W?78:94,R2=W?132:158,R3=W?184:220,C=BIG/2;
-  const wait=bs.find(b=>b.dataset.a==='wait'),rest=bs.filter(b=>b!==wait);
+  const wait=bs.find(b=>b.dataset.a==='wait'),rest=bs.filter(b=>b!==wait);const sig=bs.map(b=>(b.dataset.sk||b.dataset.a)+(b.disabled?0:1)).join()+'|'+(G&&G.sel&&G.sel.id);const same=a._sig===sig;a._sig=sig;if(same)bs.forEach(b=>b.style.animation='none');
   if(wait){wait.classList.add('big');Object.assign(wait.style,{left:'0px',top:'0px',width:BIG+'px',height:BIG+'px'})}
   const rings=[[R1,[45,0,90]],[R2,null],[R3,null]];let i=0,d=0;
   for(const [R,fixed] of rings){if(i>=rest.length)break;const cap=fixed?3:R===R2?4:5,n=Math.min(cap,rest.length-i);
