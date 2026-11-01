@@ -2563,3 +2563,6 @@ rep("else if(k==='terror'){","""else if(k==='splendid'){await doAttack(s,t,{mult
   else if(k==='redturban'){await doAttack(s,t,{mult:1.3,label:'Red Turban',tint:'rgba(200,40,30,.12)'});const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);mfx('rally',s.x,s.y,1000,2.6);for(const u of al){u.rallyT=2;float(u,'+20% attack','#ff9a7a')}log(`<b>Red Turban!</b> The Tiger of Jiangdong leads the charge${al.length?' and '+al.map(nm).join(', ')+' rally to him':''}.`)}
   else if(k==='conqueror'){await doAttack(s,t,{mult:1.4,noCounter:true,label:'Little Conqueror',tint:'rgba(230,60,40,.12)'});if(!G.units.includes(t)&&G.units.includes(s)){keep=true;s.swift=false;float(s,'Act again','#ffd27a');log(`<b>Little Conqueror!</b> ${nm(s)} cuts through and presses on.`)}}
   else if(k==='terror'){""")
+# v433 (2 Nov): Grok sprite sets for Dian Wei + Sun Jian; Dian Wei cut-in (Sun Jian cut-in sent for redo)
+rep("const GSHEET={","const GSHEET={dianwei:'f_dianwei',sunjian:'f_sunjian',")
+rep("VIDS=new Set(['xi_shi',","VIDS=new Set(['p_dianwei','xi_shi',")
