@@ -2372,3 +2372,35 @@ s=s[:_k]+'const SPS=new Set(['+','.join("'"+x+"'" for x in _ids if x not in _V a
 rep("const p=effT(aTroops)/1000*(60+aWar*.6);","const p=effT(aTroops)/1000*(20+aWar);")
 rep("m*=((aWar||60)+50)/((dWar||60)+50);","m*=((aWar||60)+20)/((dWar||60)+20);")
 rep("s+per*(60+g.war*.6)*(1+Math.max(0,g.war-80)/100)","s+per*(20+g.war)*(1+Math.max(0,g.war-80)/100)")
+
+# ===== v417 new troop types: 弩 crossbowmen, 藤 rattan armour, 射 horse archers (Anthony 1 Nov) =====
+rep("const TYPES={wolf:","const TYPES={xbow:{n:'Crossbowmen',mv:2,rng:[1,2]},rattan:{n:'Rattan armour',mv:3,rng:[1,1]},hcav:{n:'Horse archers',mv:4,rng:[1,2]},wolf:")
+rep("function typeMult(a,d){","""const RANGEDT=new Set(['archer','xbow','hcav']),CAVT=new Set(['cav','hcav']);
+// placeholder sheets until Grok's troop sprites arrive: drop a key here once its sprites/<type>_<fac>.png files are installed
+const SPAL={xbow:'archer',rattan:'shield',hcav:'cav'};
+function typeMult(a,d){if(d==='rattan'&&RANGEDT.has(a))return .5;if(a==='rattan'&&(d==='archer'||d==='xbow'))return 1.3;if(CAVT.has(a)&&d==='rattan')return 1.2;
+  if(a==='xbow'&&(d==='shield'||CAVT.has(d)))return 1.3;if(a==='hcav'&&(d==='archer'||d==='xbow'))return 1.2;if(a==='spear'&&d==='hcav')return 1.3;if(a==='cav'&&d==='hcav')return 1.3;
+  if(d==='xbow'&&!RANGEDT.has(a))return 1.2;""")
+rep("function sprSheet(type,fk){","function sprSheet(type,fk){type=SPAL[type]||type;")
+rep("function moveCost(t,type){if(t==='w')return Infinity;if(t==='f'||t==='h')return type==='cav'?3:2;return 1}","function moveCost(t,type){if(t==='w')return Infinity;if(t==='f'||t==='h')return CAVT.has(type)?3:2;return 1}")
+rep('const cav=u.type==="cav",','const cav=CAVT.has(u.type),')
+rep("volley:{n:'Volley',zh:'射',who:u=>u.type==='archer',","volley:{n:'Volley',zh:'射',who:u=>u.type==='archer'||u.type==='xbow',")
+rep("if(aType==='archer'&&!ranged)m*=.8;","if(RANGEDT.has(aType)&&!ranged)m*=.8;if(aType==='hcav'&&ranged)m*=.85;")
+rep("(s.type==='archer'&&d===2?100:0)","(RANGEDT.has(s.type)&&d===2?100:0)")
+rep("s.type==='archer'?'射':'攻',s.type==='archer'?'Shoot':'Attack'","RANGEDT.has(s.type)?'射':'攻',RANGEDT.has(s.type)?'Shoot':'Attack'")
+rep("const rng=att.type==='archer'||(def.type==='archer'&&r.ctrOn);if(rng)SND.fx('arrows',.35);if(att.type!=='archer'||(r.ctrOn&&def.type!=='archer'))","const rng=RANGEDT.has(att.type)||(RANGEDT.has(def.type)&&r.ctrOn);if(rng)SND.fx('arrows',.35);if(!RANGEDT.has(att.type)||(r.ctrOn&&!RANGEDT.has(def.type)))")
+rep("S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'","S.melee=S.acts&&!RANGEDT.has(S.u.type);S.shoot=S.acts&&RANGEDT.has(S.u.type)")
+rep("S.pb=S.u.type==='archer'&&O.melee","S.pb=RANGEDT.has(S.u.type)&&O.melee")
+rep("const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer","const cv=(CAVT.has(f.type)&&(!f.hw||f.dg))||f.officer")
+rep("u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'","(u.type==='archer'||u.type==='xbow')?'farcher':CAVT.has(u.type)?'fcav':u.type==='spear'?'fspear':u.type==='rattan'?'fshield':'fgeneral'")
+rep("function drawGlyph(c,type,x,y,r){","function drawGlyph(c,type,x,y,r){type=SPAL[type]||type;")
+rep("({spear:'槍',shield:'盾',archer:'弓',cav:'騎'})","({spear:'槍',shield:'盾',archer:'弓',cav:'騎',xbow:'弩',rattan:'藤',hcav:'射'})")
+rep("const TZH={dragon:'龍',","const TZH={xbow:'弩',rattan:'藤',hcav:'騎射',dragon:'龍',")
+rep("TSHORT={dragon:'Dragon',","TSHORT={xbow:'Crossbow',rattan:'Rattan',hcav:'Horse archer',dragon:'Dragon',")
+rep("...(u.id==='zhaoyun'?['dragon']:[])","...(u.id==='zhaoyun'?['dragon']:[]),'xbow','rattan','hcav'")
+rep(".prep-types{display:flex;gap:5px}",".prep-types{display:flex;gap:5px;flex-wrap:wrap}")
+rep("const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];","const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry'],['xbow','Crossbow'],['rattan','Rattan'],['hcav','Horse archer']];")
+rep("let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1))","let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1))")
+rep("<tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>","<tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>\n          <tr><td>Crossbowmen 弩</td><td>range 1–2, move 2, pierce Shields &amp; Cavalry ×1.3</td></tr>\n          <tr><td>Rattan armour 藤</td><td>arrows ×0.5, beat Archers ×1.3, FIRE ×2</td></tr>\n          <tr><td>Horse archers 騎射</td><td>move 4, range 1–2 (×0.85), beat Archers &amp; Crossbows ×1.2; Spears &amp; Cavalry beat them ×1.3</td></tr>")
+rep("function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);","function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(SPAL[u.type]||u.type);")
+rep("undead:1,tiger:1,wolf:1};const LADYT","undead:1,tiger:1,wolf:1,xbow:1,rattan:1,hcav:1};const LADYT")

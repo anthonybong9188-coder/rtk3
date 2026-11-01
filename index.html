@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允先光八六兵典冬凌出刀刃分到剑劉劍勝化十千南卦双史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫失奇奕女奸妃威子孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴市布帥師平度庶廖廬延建弓張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新施旋昌明易星春昭昱晃普暈暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治法波泰洪流海淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾看睛矛矢石破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華落葛董蒙蒯蓋蔡蔣蕊虎虛蛇蜀融蟬術衛衣褚襄襲西要計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&text=七丈三下不丕中主之九乾亂二于五亮人仁任伊伏佐侯俠倉偃備允先光八六兵典冬凌出刀刃分到剑劉劍勝化十千南卦双史司合向吳呂周命咆哮商啖喬單四國埋城報壁夏夜大天太夫失奇奕女奸妃威子孟孫守安宓宛寧寵寶封射小尚屈屍屏峻巡巴市布帥師平度庶廖廬延建弓弩張彧彰征待徐徵必志忠惇慈應懿戟戰拒拔挑掌探推摩撫操擒攸攻敗敵文斬新施旋昌明易星春昭昱晃普暈暗曲曹會月朗朱李東柯柴桂桑楊業榮槍樂權欽正武殺毒民水汝江沙治法波泰洪流海淵淹渡滅滿潘澤火烈無焰然煉燒營牙狼獄獲玄王珠琦琬琰瑁瑜瑾璋甄甘甲當登白盛盾看睛矛矢石破祝神禁秋程稽突竺笳策箭範簡籍粲糜純絕統羽聘肅肥胡臘臧舞船良花芳英荀華落葛董蒙蒯蓋蔡蔣蕊藤虎虛蛇蜀融蟬術衛衣褚襄襲西要計訓許詡說諸貂賈賞賢赤越趙軍輪農退通速連進運道遜遭遼邢郃金釭銀鐵長閉關闞降陣陳陵陸陽隆雄雍雙難雨雲零雷震霍霸靈青面鞏韓韶顧風飛馬騎驅鬚魏魔魯鮑黃黑齡龍龐&display=swap" rel="stylesheet">
 <style>
 /* Layout: one lacquered war-table column — status bar, battle map, unit card + log beneath; cinematic stage overlays for combat and duels */
 :root{
@@ -492,7 +492,7 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
 .prep-foe span{background:rgba(160,60,50,.18);border:1px solid rgba(220,120,100,.35);border-radius:10px;padding:3px 9px;font-size:13px}
 .prep-row{display:grid;grid-template-columns:minmax(96px,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(212,173,85,.18)}
 .prep-row .pn b{display:block}.prep-row .pn small{color:var(--muted,#a99a7c)}
-.prep-types{display:flex;gap:5px}
+.prep-types{display:flex;gap:5px;flex-wrap:wrap}
 .prep-types button{min-width:54px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.1;border-radius:9px}
 .prep-types button .zh{font-size:17px;font-weight:900}.prep-types button small{font-size:10px}
 .prep-types button.on{background:var(--gold,#d4ad55);color:#1a140c;border-color:var(--gold,#d4ad55)}
@@ -746,6 +746,9 @@ button.orow.pick{grid-template-columns:38px minmax(0,1fr) minmax(0,1.2fr);border
           <tr><td>Cavalry</td><td>beat Shields, Archers ×1.4</td></tr>
           <tr><td>Shield infantry</td><td>beat Spearmen ×1.4</td></tr>
           <tr><td>Archers</td><td>range 1–2, no counter at 2</td></tr>
+          <tr><td>Crossbowmen 弩</td><td>range 1–2, move 2, pierce Shields &amp; Cavalry ×1.3</td></tr>
+          <tr><td>Rattan armour 藤</td><td>arrows ×0.5, beat Archers ×1.3, FIRE ×2</td></tr>
+          <tr><td>Horse archers 騎射</td><td>move 4, range 1–2 (×0.85), beat Archers &amp; Crossbows ×1.2; Spears &amp; Cavalry beat them ×1.3</td></tr>
         </table>
       </div>
       <div>
@@ -812,14 +815,14 @@ let MAP=[];
 const PORT={};const PIMG={};const PK=im=>(im.naturalWidth||512)/512;
 function portImg(id){const f=PORT[id];if(!f)return null;let im=PIMG[f];if(!im){im=new Image();im.src=`portraits/${f}.webp`;PIMG[f]=im}return im.complete&&im.naturalWidth?im:null}
 const T_INFO={'.':{n:'Plain',def:1},f:{n:'Forest',def:1.2},h:{n:'Hill',def:1.25},w:{n:'River',def:1},'=':{n:'Bridge',def:0.9},c:{n:'Fort',def:1.5},p:{n:'Road',def:1}};
-const TYPES={wolf:{n:'Wolf pack',mv:5,rng:[1,1]},tiger:{n:'Tigers',mv:4,rng:[1,1]},undead:{n:'Undead horde',mv:2,rng:[1,1]},peasant:{n:'Peasant levy',mv:3,rng:[1,1]},wu:{n:'Martial artists',mv:4,rng:[1,2]},shield:{n:'Shield infantry',mv:3,rng:[1,1]},spear:{n:'Spearmen',mv:3,rng:[1,1]},cav:{n:'Cavalry',mv:5,rng:[1,1]},archer:{n:'Archers',mv:3,rng:[1,2]}};
+const TYPES={xbow:{n:'Crossbowmen',mv:2,rng:[1,2]},rattan:{n:'Rattan armour',mv:3,rng:[1,1]},hcav:{n:'Horse archers',mv:4,rng:[1,2]},wolf:{n:'Wolf pack',mv:5,rng:[1,1]},tiger:{n:'Tigers',mv:4,rng:[1,1]},undead:{n:'Undead horde',mv:2,rng:[1,1]},peasant:{n:'Peasant levy',mv:3,rng:[1,1]},wu:{n:'Martial artists',mv:4,rng:[1,2]},shield:{n:'Shield infantry',mv:3,rng:[1,1]},spear:{n:'Spearmen',mv:3,rng:[1,1]},cav:{n:'Cavalry',mv:5,rng:[1,1]},archer:{n:'Archers',mv:3,rng:[1,2]}};
 const FAC={shu:{main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',name:'Shu'},wei:{main:'#4a78c0',dark:'#28457a',light:'#8fb2ea',name:'Wei'}};
 const CD=3;
 const SKILLS={
  charge:{n:'Charge',zh:'突',who:u=>u.type==='cav',desc:'×1.5 damage, weak counter, then ride through to the square behind'},
  guard:{n:'Brace',zh:'守',who:u=>u.type==='spear',desc:'Until the enemy turn ends, intercept any cavalry or spear attack on a unit within 2 squares (diagonals included)'},
  push:{n:'Push',zh:'推',who:u=>u.type==='shield',desc:'Shove an adjacent enemy back 1 square, no counter. Full damage if it is blocked'},
- volley:{n:'Volley',zh:'射',who:u=>u.type==='archer',desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
+ volley:{n:'Volley',zh:'射',who:u=>u.type==='archer'||u.type==='xbow',desc:'Shoot an enemy exactly 2 squares away with no counter; one enemy next to it takes 60% splash'},
  hide:{n:'Ambush',zh:'埋伏',who:u=>true,desc:'Hide in the forest you stand in. The first enemy that moves next to you on its turn is ambushed: chance = (your Int − his Int) × 5%, destroys 20% of his troops (at least 500) and leaves him dazed: he loses the rest of his turn. Even if he sees through it, his march stops there. Ambushing reveals you'},
  rock:{n:'Rock Slide',zh:'落石',who:u=>u.int>=75,desc:'Bring rocks down on an enemy standing BESIDE A HILL within 3 squares. Chance = (your Int − his Int) × 5%. Crushes 20% of his troops (at least 500)'},
  fire:{n:'Fire',zh:'火',who:u=>u.int>=75,desc:'Set fire to an enemy in a FOREST within 3 squares. Chance = (your Int − his Int) × 5%. Burns 20% of his troops (at least 500)'}};
@@ -890,15 +893,20 @@ function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.i
 function ln(c,a,b,x,y){c.beginPath();c.moveTo(a,b);c.lineTo(x,y);c.stroke()}
 function circ(c,x,y,r){c.beginPath();c.arc(x,y,r,0,Math.PI*2)}
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
-function moveCost(t,type){if(t==='w')return Infinity;if(t==='f'||t==='h')return type==='cav'?3:2;return 1}
-function typeMult(a,d){if(a==='undead'&&d!=='undead')return 1.1;if(d==='undead'&&a==='archer')return .6;if(d==='undead'&&a==='wu')return 1.3;if(d==='peasant'&&a!=='peasant')return 1.3;if(a==='peasant'&&d!=='peasant')return .75;if(a==='wu'&&(d==='shield'||d==='spear'))return 1.3;if(a==='cav'&&d==='wu')return 1.3;if(a==='wu'&&d==='cav')return .8;
+function moveCost(t,type){if(t==='w')return Infinity;if(t==='f'||t==='h')return CAVT.has(type)?3:2;return 1}
+const RANGEDT=new Set(['archer','xbow','hcav']),CAVT=new Set(['cav','hcav']);
+// placeholder sheets until Grok's troop sprites arrive: drop a key here once its sprites/<type>_<fac>.png files are installed
+const SPAL={xbow:'archer',rattan:'shield',hcav:'cav'};
+function typeMult(a,d){if(d==='rattan'&&RANGEDT.has(a))return .5;if(a==='rattan'&&(d==='archer'||d==='xbow'))return 1.3;if(CAVT.has(a)&&d==='rattan')return 1.2;
+  if(a==='xbow'&&(d==='shield'||CAVT.has(d)))return 1.3;if(a==='hcav'&&(d==='archer'||d==='xbow'))return 1.2;if(a==='spear'&&d==='hcav')return 1.3;if(a==='cav'&&d==='hcav')return 1.3;
+  if(d==='xbow'&&!RANGEDT.has(a))return 1.2;if(a==='undead'&&d!=='undead')return 1.1;if(d==='undead'&&a==='archer')return .6;if(d==='undead'&&a==='wu')return 1.3;if(d==='peasant'&&a!=='peasant')return 1.3;if(a==='peasant'&&d!=='peasant')return .75;if(a==='wu'&&(d==='shield'||d==='spear'))return 1.3;if(a==='cav'&&d==='wu')return 1.3;if(a==='wu'&&d==='cav')return .8;
   if(a==='spear'&&d==='cav')return 1.4; if(a==='cav'&&(d==='shield'||d==='archer'))return 1.4; if(a==='shield'&&d==='spear')return 1.4;
   if(a==='cav'&&d==='spear')return .7; if(a==='shield'&&d==='cav')return .7; if(a==='spear'&&d==='shield')return .7;
   if(d==='archer'&&a!=='archer')return 1.2; return 1}
 function inRange(type,d){const [a,b]=TYPES[type].rng;return d>=a&&d<=b}
 const effT=t=>t<=3000?t:3000+(t-3000)*.4;
 function dmgCalc(aType,aWar,aTroops,dType,dTile,ranged,rnd,dWar){
-  let m=typeMult(aType,dType);if(dWar!=null)m*=((aWar||60)+20)/((dWar||60)+20); if(aType==='archer'&&!ranged)m*=.8;
+  let m=typeMult(aType,dType);if(dWar!=null)m*=((aWar||60)+20)/((dWar||60)+20); if(RANGEDT.has(aType)&&!ranged)m*=.8;if(aType==='hcav'&&ranged)m*=.85;
   const p=effT(aTroops)/1000*(20+aWar);
   const gen=1+Math.max(0,aWar-80)/100;
   return Math.max(0,Math.round(p*2.2*m*gen/T_INFO[dTile].def*(rnd?.9+Math.random()*.2:1)))}
@@ -946,7 +954,7 @@ function movePath(s,x,y){if(s.x===G.origin.x&&s.y===G.origin.y)return pathTo(G.r
 function bestAttackTile(s,e){
   let best=null;
   for(const t of G.reach.tiles){const d=Math.abs(t.x-e.x)+Math.abs(t.y-e.y);if(!inRange(s.type,d))continue;
-    const sc=(s.type==='archer'&&d===2?100:0)+T_INFO[terAt(t.x,t.y)].def*50-pathTo(G.reach,s,t.x,t.y).length*3+(t.x===s.x&&t.y===s.y?40:0);
+    const sc=(RANGEDT.has(s.type)&&d===2?100:0)+T_INFO[terAt(t.x,t.y)].def*50-pathTo(G.reach,s,t.x,t.y).length*3+(t.x===s.x&&t.y===s.y?40:0);
     if(!best||sc>best.sc)best={sc,t}}
   return best&&best.t}
 
@@ -967,7 +975,7 @@ function startBattle(cfg){
   $('#logPanel').hidden=true;resizeMap();G.phase='prep';G.view=pc;updateUI();setTimeout(()=>prepDlg(),120);
   return new Promise(res=>{battleResolve=res});
 }
-const TZH={dragon:'龍',spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武',peasant:'民',undead:'屍',tiger:'虎',wolf:'狼'},TSHORT={dragon:'Dragon',spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry',wu:'Martial',peasant:'Peasants',undead:'Undead',tiger:'Tigers',wolf:'Wolves'};const BEAST={tiger:5,wolf:2};const DSOL=(u,n)=>u&&BEAST[u.type]?Math.ceil(n/BEAST[u.type]):Math.round(n);const WU_GENS=new Set(['huangyi','renrui','xuannu','monu','xishi']);
+const TZH={xbow:'弩',rattan:'藤',hcav:'騎射',dragon:'龍',spear:'槍',shield:'盾',archer:'弓',cav:'騎',wu:'武',peasant:'民',undead:'屍',tiger:'虎',wolf:'狼'},TSHORT={xbow:'Crossbow',rattan:'Rattan',hcav:'Horse archer',dragon:'Dragon',spear:'Spear',shield:'Shield',archer:'Archer',cav:'Cavalry',wu:'Martial',peasant:'Peasants',undead:'Undead',tiger:'Tigers',wolf:'Wolves'};const BEAST={tiger:5,wolf:2};const DSOL=(u,n)=>u&&BEAST[u.type]?Math.ceil(n/BEAST[u.type]):Math.round(n);const WU_GENS=new Set(['huangyi','renrui','xuannu','monu','xishi']);
 function prepBar(show){let b=document.getElementById('prepBar');if(!b){b=document.createElement('div');b.id='prepBar';b.innerHTML=`<div class="pt"><b>Preparation</b><br>Drag to scout · tap a unit to inspect</div><button data-p="types">兵 Troop types</button><button data-p="go" class="primary">Begin battle</button>`;
   b.onclick=e=>{const k=e.target.closest('[data-p]');if(!k)return;if(k.dataset.p==='go')prepBegin();else prepDlg()};$('#battleView').appendChild(b)}b.hidden=!show}
 function prepHint(t){const foes=G.units.filter(u=>u.side==='wei');const good=foes.filter(f=>typeMult(t,f.type)>1),bad=foes.filter(f=>typeMult(f.type,t)>1&&typeMult(t,f.type)<=1);
@@ -976,7 +984,7 @@ async function prepDlg(){if(!G||G.phase!=='prep')return;prepBar(false);
   for(;;){const foes=G.units.filter(u=>u.side==='wei'),mine=G.units.filter(u=>u.side==='shu');
     const r=await dialog(`<h2>Battle preparation</h2><p class="muted">Choose each officer's troop type. Scout first to see the ground. The change applies to this battle only.</p>
       <div class="muted" style="font-size:12px">ENEMY FORCES</div><div class="prep-foe">${foes.map(f=>`<span>${TZH[f.type]||'兵'} <b>${f.name}</b> · ${TSHORT[f.type]||f.type} · ${fmt(f.troops)}</span>`).join('')}</div>
-      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav',...(WU_GENS.has(u.id)?['wu']:[]),...(u.id==='zhaoyun'?['dragon']:[])].map(t=>`<button data-r="t:${u.id}:${t}" class="${(t==='dragon'?u.dragon:u.type===t&&!(t==='cav'&&u.dragon))?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
+      <div class="muted" style="font-size:12px">YOUR OFFICERS</div>${mine.map(u=>`<div class="prep-row"><div class="pn"><b>${u.name}${u.cmd?' ★':''}</b><small>${fmt(u.troops)} troops · War ${u.war}</small></div><div class="prep-types">${['spear','shield','archer','cav',...(WU_GENS.has(u.id)?['wu']:[]),...(u.id==='zhaoyun'?['dragon']:[]),'xbow','rattan','hcav'].map(t=>`<button data-r="t:${u.id}:${t}" class="${(t==='dragon'?u.dragon:u.type===t&&!(t==='cav'&&u.dragon))?'on':''}"><span class="zh">${TZH[t]}</span><small>${TSHORT[t]}</small></button>`).join('')}</div><div class="prep-hint">${prepHint(u.type)}</div></div>`).join('')}`,
       [['scout','Scout field'],['go','Begin battle','primary']]);
     if(r.startsWith('t:')){const [,id,t]=r.split(':'),u=G.units.find(x=>x.id===id&&x.side==='shu');if(u&&t==='dragon'){if(!u.dragon){u.type='cav';u.dragon=true;u.cd={}}}else if(u&&TYPES[t]&&(u.type!==t||u.dragon)){u.type=t;u.dragon=false;u.cd={}}updateUI();continue}
     if(r==='go'){prepBegin();return}
@@ -1115,7 +1123,7 @@ function renderTerrain0(T){
   c.strokeStyle='rgba(0,0,0,.14)';c.lineWidth=1;for(let i=1;i<COLS;i++)ln(c,i*T+.5,0,i*T+.5,H);for(let j=1;j<ROWS;j++)ln(c,0,j*T+.5,W,j*T+.5);
   const v=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.75);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.35)');c.fillStyle=v;c.fillRect(0,0,W,H);
   return cv}
-function drawGlyph(c,type,x,y,r){
+function drawGlyph(c,type,x,y,r){type=SPAL[type]||type;
   c.save();c.translate(x,y);c.strokeStyle='#f3ead3';c.fillStyle='#f3ead3';c.lineWidth=Math.max(1.2,r*.22);c.lineCap='round';
   if(type==='spear'){ln(c,-r*.6,r*.6,r*.5,-r*.5);c.beginPath();c.moveTo(r*.7,-r*.7);c.lineTo(r*.15,-r*.45);c.lineTo(r*.45,-r*.15);c.fill()}
   if(type==='shield'){c.beginPath();c.moveTo(-r*.55,-r*.6);c.lineTo(r*.55,-r*.6);c.lineTo(r*.5,r*.1);c.lineTo(0,r*.7);c.lineTo(-r*.5,r*.1);c.closePath();c.stroke()}
@@ -1134,7 +1142,7 @@ function drawToken0(c,u,now){
   {const bx=s*.44,by=-s*.42,br=s*.215;c.fillStyle='rgba(0,0,0,.45)';circ(c,bx+1,by+2,br+1);c.fill();
    c.fillStyle=F.main;circ(c,bx,by,br);c.fill();c.lineWidth=Math.max(1.6,s*.035);c.strokeStyle='#e8c25e';c.stroke();
    c.fillStyle='#fff6e2';c.font=`900 ${Math.round(br*1.3)}px "Noto Serif TC","Songti TC",serif`;c.textAlign='center';c.textBaseline='middle';
-   c.fillText(({spear:'槍',shield:'盾',archer:'弓',cav:'騎'})[u.type]||'兵',bx,by+br*.06)}
+   c.fillText(({spear:'槍',shield:'盾',archer:'弓',cav:'騎',xbow:'弩',rattan:'藤',hcav:'射'})[u.type]||'兵',bx,by+br*.06)}
   const bw=s,bh=Math.max(3,T*.07);c.fillStyle='#0d0b08';c.fillRect(-bw/2,s*.38,bw,bh);c.fillStyle=u.troops/u.max>.35?'#d4ad55':'#c4473a';c.fillRect(-bw/2,s*.38,bw*clamp(u.troops/u.max),bh);
   if(u.acted&&u.side==='shu'&&G.phase==='player'){rr(c,-s/2,-s/2,s,s*.84,s*.16);c.fillStyle='rgba(20,17,13,.55)';c.fill()}
   if(u.stun){c.fillStyle='#e88b7f';c.font=`700 ${Math.round(s*.3)}px "Alegreya Sans", sans-serif`;c.fillText('✕',-s*.34,-s*.3)}
@@ -1223,7 +1231,7 @@ function updateUI0(){
   }
   let ah='';const rb=(attr,zh,label,ok,cls,cd)=>`<button class="rbtn ${cls||''}" ${attr} ${ok?'':'disabled'}><span class="rzh">${zh}</span><span class="rl">${label}</span>${cd?`<i class="cdb">${cd}</i>`:''}</button>`;
   if(G.mode==='moved'&&G.sel&&G.phase==='player'){const s=G.sel;
-    ah+=rb('data-a="attack"',s.type==='archer'?'射':'攻',s.type==='archer'?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
+    ah+=rb('data-a="attack"',RANGEDT.has(s.type)?'射':'攻',RANGEDT.has(s.type)?'Shoot':'Attack',(G.atk||[]).length>0,'atk');
     for(const [k,v] of Object.entries(SKILLS))if(v.who(s)){const cd=s.cd[k]||0,ok=!cd&&(k==='guard'||k==='hide'&&terAt(s.x,s.y)==='f'&&!s.hid||(HERO[k]&&HERO[k].self?HERO[k].can(s):skillTargets(k,s).length>0))&&!(HERO[k]&&HERO[k].once&&s.used&&s.used[k]);ah+=rb(`data-sk="${k}" title="${v.desc}"`,v.zh,v.n,ok,HERO[k]?'sk hero':'sk',cd)}
     {const jt=jointTargets(s);if(jt.length||G.jointTurn===G.turn)ah+=rb(`data-a="joint" title="${G.jointTurn===G.turn?'Already used this turn':'Every unit next to the enemy strikes together. Only the leader takes a counter-attack; no turns used. Once per turn.'}"`,'合','Joint',jt.length>0,'atk')}
     
@@ -1360,7 +1368,7 @@ async function doRock(u,e){u.cd.rock=CD;const pc=fireChance(u,e);mfx('rocks',e.x
   log(`${nm(u)} starts a <b>rock slide</b> onto ${nm(e)} beside the hill: −${dmg}.`);await sleep(600);sweep()}
 async function doFire(u,e){
   u.cd.fire=CD;const ew=u.eastWind;u.eastWind=false;const pc=fireChance(u,e);if(Math.random()*100>=pc){mfx('smoke',e.x,e.y,1100,1.6);SND.fx('dud');float(e,'失敗 Fizzles','#e8dcc0');log(`${nm(u)} tries to set the forest around ${nm(e)} alight, but ${e.name} sees through it (${pc}% chance). The fire fails.`);await sleep(700);sweep();return}
-  let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)),before=e.troops;dmg=ironSave(e,dmg);
+  let dmg=Math.round(fireBurn(e,ew)*(e.iron?.5:1)*(e.type==='rattan'?2:1)),before=e.troops;dmg=ironSave(e,dmg);
   G.fires.push({x:e.x,y:e.y,t0:performance.now(),dur:1300});
   e.troops-=dmg;if(e.troops<=0)e.fate=fateRoll(e,u);if(ew)for(const n of adjE(e).filter(n=>n!==u))G.ewSplash=(G.ewSplash||[]).concat([n]);
   if(speed===0)await sleep(350);else await playFire(u,e,dmg,before);float(e,'-'+dmg,'#ffb15a');
@@ -1502,9 +1510,9 @@ function drawHorse(c,ph,running,F){
   leg(-6,g*5,'#6d4a2a');leg(13,-g*5,'#6d4a2a');
   c.fillStyle=F.main;c.strokeStyle=O;c.lineWidth=1.2;c.beginPath();c.moveTo(-9,-24);c.lineTo(7,-24);c.lineTo(8,-13);c.lineTo(-10,-13);c.closePath();c.fill();c.stroke();
   c.strokeStyle='#d4ad55';c.lineWidth=1;ln(c,-9.5,-14.5,7.5,-14.5)}
-const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1};const LADYT={spear:1,shield:1,archer:1,cav:1};const SPIMG={};
+const SPRITES={spear:1,shield:1,archer:1,cav:1,wu:1,peasant:1,undead:1,tiger:1,wolf:1,xbow:1,rattan:1,hcav:1};const LADYT={spear:1,shield:1,archer:1,cav:1};const SPIMG={};
 function sprFac(f){if(f==='shu')return 'shu';const foe=G&&G.cfg&&G.cfg.foe;return foe==='wei'||foe==='wu'?foe:foe?'ind':'wei'}
-function sprSheet(type,fk){const k=type+'_'+(/^[fg]_/.test(type)||type==='tiger'||type==='wolf'||type==='undead'||type==='dragon'?'shu':fk);let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
+function sprSheet(type,fk){type=SPAL[type]||type;const k=type+'_'+(/^[fg]_/.test(type)||type==='tiger'||type==='wolf'||type==='undead'||type==='dragon'?'shu':fk);let im=SPIMG[k];if(!im){im=new Image();im.src=`sprites/${k}.png`;SPIMG[k]=im}return im.complete&&im.naturalWidth?im:null}
 const TURNSH={cav:1,archer:1,general:1},TURN_MS=360;
 function TURNK(t,ts){return null;for(let i=0;i<ts.length;i++)if(t>=ts[i]&&t<ts[i]+TURN_MS)return [i,(t-ts[i])/TURN_MS];return null}
 function TURN(t,ts){for(const t0 of ts)if(t>=t0&&t<t0+120)return -1;return 1}
@@ -1526,7 +1534,7 @@ function drawSprite(c,f,sh){
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
   if(false&&f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
-  const cv=(f.type==='cav'&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
+  const cv=(CAVT.has(f.type)&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
   if(row===3&&SROWS(sh)>4&&!f.wave&&!(f.shoot&&f.officer&&!(f.fall>0)&&!(f.defeat>0)))row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
@@ -1856,7 +1864,7 @@ function makeBG0(ter,defSide,duel){
   return cv}
 function buildSide(u,side,before,after){
   const hm=u.hpMax||0,REF=Math.max(1,window.__figRef||Math.max(0,before-hm)),fig=v=>{const s=Math.max(0,v-hm);return s<=0?0:Math.max(1,Math.min(12,Math.round(12*s/REF)))},nB=fig(before),nA=Math.min(nB,fig(after)),face=side==='L'?1:-1,sol=[];
-  const cav=u.type==="cav",ROWS4=4,gap=cav?96:84;
+  const cav=CAVT.has(u.type),ROWS4=4,gap=cav?96:84;
   // ranks (col 0 = front line) of 4 soldiers each, staggered, nearer rows larger
   for(let i=0;i<nB;i++){const col=Math.floor(i/ROWS4),row=i%ROWS4,y=GROUND-40+row*42,s=1.5+row*.12;const hx=250-col*gap-(row%2)*18+(row===0?6:0);
     sol.push({i,col,row,hx:side==='L'?hx:W-hx,hy:y,s,tx:0,deathT:Infinity,fx:false,seed:Math.random()*6,dl:col*90+Math.random()*220})}
@@ -1918,8 +1926,8 @@ function drawFightHud0(c,SL,SR,sl,sr){
     c.fillStyle=g;const ww=bw*frac;rr(c,L?bx:bx+bw-ww,y+24,Math.max(ww,1),12,6);c.fill();
     c.textAlign=L?'right':'left';c.fillStyle='#f3e6c4';c.font='700 19px "Alegreya Sans", sans-serif';c.lineWidth=3;c.strokeStyle='#14110d';const tx=L?cxm-14:cxm+14;c.strokeText(String(Math.round(v)),tx,y+38);c.fillText(String(Math.round(v)),tx,y+38)}
   c.textAlign='left'}
-const FEM=new Set(['xishi','monu','mishao','miren','renrui','huangyi','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={huanggai:'f_huanggai',pangtong:'f_pangtong',huangzhong:'f_huangzhong',weiyan:'f_weiyan',zhouyu:'f_zhouyu',taishici:'f_taishici',zhoutai:'f_zhoutai',lusu:'f_lusu',luxun:'f_luxun',sunquan:'f_sunquan',monu:'f_monu',caocao:'f_caocao',xuchu:'f_xuchu',xiahoudun:'f_xiahoudun',xiahouyuan:'f_xiahouyuan',zhangliao:'f_zhangliao',xuhuang:'f_xuhuang',caozhang:'f_caozhang',xishi:'f_xishi',caoren:'f_caoren',lumeng:'f_lumeng',yuejin:'f_yuejin',xunyu:'f_xunyu',simayi:'f_simayi',jiaxu:'f_jiaxu',chengyu:'f_chengyu',xunyou:'f_xunyou',xushu:'f_xushu',liubei:'f_liubei',guanyu:'f_guanyu',zhangfei:'f_zhangfei',zhugeliang:'f_zhugeliang',guanping:'f_guanping',zhoucang:'f_zhoucang',zhaoyun:'f_zhaoyun',mishao:'f_mishao',miren:'f_miren',xuannu:'f_xuannu',zhenji:'f_consortzhao',daqiao:'f_consortli',xiaoqiao:'f_consortyan',renrui:'f_renrui',zhurong:'f_zhurong',huangyi:'f_huangyi',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'f_ganning',jiangchen:'f_jiangchen',xiaohei:'f_xiaohei',xiaoming:'f_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',caiwenji:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',hero:'f_hero'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(!FEM.has(u.id)&&u.id&&(u.int||0)>(u.war||0)&&u.hpMax!==0&&!['tiger','wolf','undead','peasant'].includes(u.type)?'gstrat':false)||(FEM.has(u.id)?(u.type==='shield'?'fshield':u.type==='archer'?'farcher':u.type==='cav'?'fcav':u.type==='spear'?'fspear':'fgeneral'):false);
-function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(u.type);if(u.dragon)t.add('dragon');if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero')t.add('mwu');t.add(femKey(u)||'general');t.add('duel_'+weaponOf(u))}return [...t]}
+const FEM=new Set(['xishi','monu','mishao','miren','renrui','huangyi','sunshangxiang','daqiao','xiaoqiao','diaochan','huangyueying','guanyinping','zhurong','caiwenji','zhenji','zhangchunhua','ladygan','ladymi','xuannu','nuwa','fentian','yueshuang']);const GSHEET={huanggai:'f_huanggai',pangtong:'f_pangtong',huangzhong:'f_huangzhong',weiyan:'f_weiyan',zhouyu:'f_zhouyu',taishici:'f_taishici',zhoutai:'f_zhoutai',lusu:'f_lusu',luxun:'f_luxun',sunquan:'f_sunquan',monu:'f_monu',caocao:'f_caocao',xuchu:'f_xuchu',xiahoudun:'f_xiahoudun',xiahouyuan:'f_xiahouyuan',zhangliao:'f_zhangliao',xuhuang:'f_xuhuang',caozhang:'f_caozhang',xishi:'f_xishi',caoren:'f_caoren',lumeng:'f_lumeng',yuejin:'f_yuejin',xunyu:'f_xunyu',simayi:'f_simayi',jiaxu:'f_jiaxu',chengyu:'f_chengyu',xunyou:'f_xunyou',xushu:'f_xushu',liubei:'f_liubei',guanyu:'f_guanyu',zhangfei:'f_zhangfei',zhugeliang:'f_zhugeliang',guanping:'f_guanping',zhoucang:'f_zhoucang',zhaoyun:'f_zhaoyun',mishao:'f_mishao',miren:'f_miren',xuannu:'f_xuannu',zhenji:'f_consortzhao',daqiao:'f_consortli',xiaoqiao:'f_consortyan',renrui:'f_renrui',zhurong:'f_zhurong',huangyi:'f_huangyi',ladygan:'f_ladygan',ladymi:'f_ladymi',ganning:'f_ganning',jiangchen:'f_jiangchen',xiaohei:'f_xiaohei',xiaoming:'f_xiaoming',tigerking:'tiger',wolfking:'wolf',sunshangxiang:'f_sunshangxiang',lubu:'f_lubu',caiwenji:'f_huangwenjing',huangyueying:'f_huangyueying',diaochan:'f_diaochan',guanyinping:'f_guanyinping',hero:'f_hero'};const isFem=u=>!!u&&FEM.has(u.id);const femKey=u=>!u?false:GSHEET[u.id]||(!FEM.has(u.id)&&u.id&&(u.int||0)>(u.war||0)&&u.hpMax!==0&&!['tiger','wolf','undead','peasant'].includes(u.type)?'gstrat':false)||(FEM.has(u.id)?(u.type==='shield'?'fshield':(u.type==='archer'||u.type==='xbow')?'farcher':CAVT.has(u.type)?'fcav':u.type==='spear'?'fspear':u.type==='rattan'?'fshield':'fgeneral'):false);
+function sprNeed(us){const t=new Set(['general_cap','general_sig']);for(const u of us){if(!u)continue;t.add(SPAL[u.type]||u.type);if(u.dragon)t.add('dragon');if(isFem(u)&&LADYT[u.type])t.add('f'+u.type);if(u.id==='hero')t.add('mwu');t.add(femKey(u)||'general');t.add('duel_'+weaponOf(u))}return [...t]}
 function sprLoad(fk,us){if(us&&us.length)return sprNeed(us).map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk)]});return ['dragon','spear','shield','archer','cav','wu','peasant','undead','tiger','wolf','general','fgeneral','fshield','farcher','fcav','fspear','general_cap','general_sig','duel_guandao','duel_spear','duel_sabre',].map(t=>{sprSheet(t,fk);return SPIMG[t+'_'+(t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk)]})}
 function sprRelease(us){const keep=new Set();for(const fk of ['shu',sprFac('x')])for(const t of sprNeed(us))keep.add(t+'_'+(/^[fg]_/.test(t)||t==='tiger'||t==='wolf'||t==='undead'||t==='dragon'?'shu':fk));for(const k of Object.keys(SPIMG))if(!keep.has(k)){SPIMG[k].src='';delete SPIMG[k]}}
 function sprWait(us){const U=us&&us.length?us:(G&&G.units)||[];const ims=[...sprLoad('shu',U),...sprLoad(sprFac('x'),U),...Object.values(BGIMG)];
@@ -1932,14 +1940,14 @@ async function lmZoomIn(att,def){try{if(!speed||(G&&G.auto)||window.ZOOMFX===fal
 function lmLand(){try{const bv=$('#battleView'),ov=document.getElementById('zoomBlur'),si=document.querySelector('#stage .stage-inner');if(!ov||+ov.style.opacity<.5)return;const D=Math.round(450/Math.max(1,speed||1));
   if(si){si.style.transition='none';si.style.transform='scale(1.3)';void si.offsetWidth;si.style.transition='transform '+D+'ms cubic-bezier(.2,.7,.3,1)';si.style.transform='scale(1)'}
   ov.style.transition='opacity '+D+'ms ease-out';ov.style.opacity=0;setTimeout(()=>{if(bv){bv.style.transition='none';bv.style.transform=''}},60)}catch(e){}}
-async function playBattle(att,def,r){await sprWait();{const w=(window.BAN_UNTIL||0)-performance.now();if(w>0&&speed)await sleep(w)}await lmZoomIn(att,def);if(speed){if(r.charge)SND.fx('gallop');SND.fx('shout',.15);const rng=att.type==='archer'||(def.type==='archer'&&r.ctrOn);if(rng)SND.fx('arrows',.35);if(att.type!=='archer'||(r.ctrOn&&def.type!=='archer'))SND.fx('melee',r.charge?1.1:.7)}const pr=playBattle0(att,def,r);requestAnimationFrame(lmLand);return pr}
+async function playBattle(att,def,r){await sprWait();{const w=(window.BAN_UNTIL||0)-performance.now();if(w>0&&speed)await sleep(w)}await lmZoomIn(att,def);if(speed){if(r.charge)SND.fx('gallop');SND.fx('shout',.15);const rng=RANGEDT.has(att.type)||(RANGEDT.has(def.type)&&r.ctrOn);if(rng)SND.fx('arrows',.35);if(!RANGEDT.has(att.type)||(r.ctrOn&&!RANGEDT.has(def.type)))SND.fx('melee',r.charge?1.1:.7)}const pr=playBattle0(att,def,r);requestAnimationFrame(lmLand);return pr}
 let DUST=[];
 function playBattle0_(att,def,r){
   return new Promise(resolve=>{
     if(speed===0){resolve();return}
     const L=att.side==='shu'?att:def,R=L===att?def:att;
     window.__figRef=Math.max((L===att?r.aB:r.dB)-(L.hpMax||0),(R===att?r.aB:r.dB)-(R.hpMax||0),1);const SL=buildSide(L,'L',L===att?r.aB:r.dB,L.troops),SR=buildSide(R,'R',R===att?r.aB:r.dB,R.troops);
-    for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&S.u.type!=='archer';S.shoot=S.acts&&S.u.type==='archer'}for(const S of [SL,SR]){const O=S===SL?SR:SL;S.opp=O;S.back=!r.charge&&(S.u.war||0)<=(O.u.war||0)-20;S.pb=S.u.type==='archer'&&O.melee}for(const S of [SL,SR])S.step=S.pb&&!S.back&&!S.opp.back&&!r.charge;for(const S of [SL,SR]){const O=S.opp;if(!S.sol.length&&S.u.hpMax!==0&&O.melee){S.acts=true;S.melee=true;S.shoot=false;S.back=false;S.pb=false;S.step=false}}
+    for(const S of [SL,SR]){const isAtt=S.u===att;S.acts=isAtt||r.ctrOn;S.melee=S.acts&&!RANGEDT.has(S.u.type);S.shoot=S.acts&&RANGEDT.has(S.u.type)}for(const S of [SL,SR]){const O=S===SL?SR:SL;S.opp=O;S.back=!r.charge&&(S.u.war||0)<=(O.u.war||0)-20;S.pb=RANGEDT.has(S.u.type)&&O.melee}for(const S of [SL,SR])S.step=S.pb&&!S.back&&!S.opp.back&&!r.charge;for(const S of [SL,SR]){const O=S.opp;if(!S.sol.length&&S.u.hpMax!==0&&O.melee){S.acts=true;S.melee=true;S.shoot=false;S.back=false;S.pb=false;S.step=false}}
     const CW=terAt(def.x,def.y)==='c'?(def===L?SL:SR):null;if(CW)castleFix(CW,(SL.melee&&SR.melee)||!!r.charge);const both=SL.melee&&SR.melee;setTargets(SL,SR,both);setTargets(SR,SL,both);for(const S of [SL,SR]){const fk=femKey(S.u),sh=fk&&sprSheet(fk,sprFac(S.u.side));if(!both&&S.melee&&!r.charge&&sh&&SROWS(sh)>4&&Math.random()<.4){S.wave=1;S.off.tx=S.off.hx}if(S.back&&S.melee&&!r.charge){S.rb=1;S.rbw=!!(sh&&SROWS(sh)>4)}}if(false&&both&&!r.charge){const D=def===L?SL:SR,A2=D===SL?SR:SL;for(const s of D.sol)s.tx=s.hx;D.off.tx=D.off.hx;D.hold=1;D.holdT=1350;D.holdE=2800;D.holdC=1;setTargets(A2,D,false);A2.off.tx=D.off.hx-A2.face*110;{const bf=D.sol.filter(s=>s.col===0).map(s=>s.hx),fx=bf.length?(D.side==='R'?Math.min(...bf):Math.max(...bf)):D.off.hx;for(const s of A2.sol){const r=Math.random();s.tx=r<.3?fx+A2.face*(10+Math.random()*50):fx-A2.face*(s.col*24+Math.random()*30-8)}}}
     if(r.charge){const S=att===L?SL:SR,O=S===SL?SR:SL;for(const s of O.sol)s.tx=s.hx;O.off.tx=O.off.hx;O.hold=true;chargePlan(S,O)}
     if(r.push){(def===L?SL:SR).pushed=true}
@@ -2218,7 +2226,7 @@ const GEN_DEF=[
   ['caoren','Cao Ren','仁','wei','jiangling',85,70,60,72,'shield','cao_ren',100],
   ['xiahoudun','Xiahou Dun','惇','wei','xuchang',90,58,70,80,'cav','xiahou_dun',100],
   ['xunyu','Xun Yu','荀','wei','xuchang',30,95,96,90,'shield','xun_yu',85],
-  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'archer','xiahou_yuan',100],
+  ['xiahouyuan','Xiahou Yuan','淵','wei','wancheng',91,54,60,72,'hcav','xiahou_yuan',100],
   ['manchong','Man Chong','滿','wei','runan',66,82,80,70,'shield','man_chong',88],
   ['zhangliao','Zhang Liao','遼','wei','hefei',92,78,58,76,'cav','zhang_liao',90],
   ['lidian','Li Dian','典','wei','hefei',74,76,66,68,'archer','li_dian',88],
@@ -2280,7 +2288,7 @@ const GEN_DEF=[
   ['zhuzhi','Zhu Zhi','治','wu','kuaiji',66,70,74,72,'shield','p_zhuzhi',95],
   ['zhugejin','Zhuge Jin','瑾','wu','jianye',40,82,86,84,'shield','p_zhugejin',95],
   ['kanze','Kan Ze','澤','wu','jianye',20,84,82,70,'shield','p_kanze',92],
-  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'archer','p_xusheng',95],
+  ['xusheng','Xu Sheng','盛','wu','jianye',84,74,54,68,'xbow','p_xusheng',95],
   ['panzhang','Pan Zhang','璋','wu','kuaiji',82,60,40,52,'cav','p_panzhang',85],
   ['dongxi','Dong Xi','襲','wu','chaisang',85,40,32,62,'spear','p_dongxi',95],
   ['zhuran','Zhu Ran','然','wu','chaisang',79,70,56,66,'archer','p_zhuran',95],
@@ -2304,7 +2312,7 @@ const GEN_DEF=[
   ['wangcan','Wang Can','粲','wei','xuchang',20,86,88,72,'shield','p_wangcan',85],
   ['xushu','Xu Shu','庶','wei','jiangling',64,93,82,84,'archer','p_xushu',60],
   ['yangling','Yang Ling','齡','han','changsha',70,40,36,50,'spear','p_yangling',85],
-  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'cav','p_shamoke',85],
+  ['shamoke','Shamoke','摩','jin','wuling',88,26,20,60,'rattan','p_shamoke',85],
   ['liuxian','Liu Xian','賢','liu','lingling',70,42,40,52,'spear','p_liuxian',90],
   ['baolong','Bao Long','龍','zhao','guiyang',78,30,24,48,'spear','p_baolong',85],
   ['menghuo','Meng Huo','獲',null,'guiyang',88,40,36,72,'shield','p_menghuo',80,1],
@@ -2644,7 +2652,7 @@ $('#newBtn').onclick=async()=>{const sv=loadSave();if(sv&&!sv.over&&await dialog
 $('#contBtn').onclick=()=>startFrom(loadSave());
 $('#loadBtn').onclick=()=>saveLoadDlg('load');
 $('#galBtn').onclick=()=>openGallery();
-const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry']];
+const SPAR_T=[['spear','Spear'],['shield','Shield'],['archer','Archer'],['cav','Cavalry'],['xbow','Crossbow'],['rattan','Rattan'],['hcav','Horse archer']];
 const SPAR={a:null,b:null,ta:null,tb:null};
 function sparGen(k){const d=GEN_DEF.find(x=>x[0]===k);if(k==='hero')return {id:'hero',name:'The Hero',ch:'俠',fac:'shu',war:95,int:85,type:'cav',img:'hero'};if(d)return {id:k,name:d[1],ch:d[2],fac:d[3],war:d[5],int:d[6],type:d[9],img:d[10]};const e=GAL_EXTRA[k];return e?{id:k,name:e[1],ch:e[2],fac:null,war:e[5],int:e[6],type:e[9],img:e[10]}:null}
 function openSparring(){const SPR=g=>g.id==='hero'?0:isFem(g)?(g.war>=90?1:2):g.war>=90?3:4;const L=galList().map(g=>sparGen(g.k)).filter(Boolean).sort((a,b)=>SPR(a)-SPR(b)||b.war-a.war);if(!SPAR.a){SPAR.a=L[0].id;SPAR.b=(L[1]||L[0]).id}
