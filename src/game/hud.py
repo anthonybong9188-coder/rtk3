@@ -2575,3 +2575,22 @@ rep("firstwall:3,whiterobe:3.6};","firstwall:3,whiterobe:3.6,splendid:3.2,evilco
 rep("else if(k==='evilcome'){const hit=adjE(s);mfx('whirl',s.x,s.y,1000,3.2);","else if(k==='evilcome'){const hit=adjE(s);")
 rep("else if(k==='foresight'){mfx('scroll',t.x,t.y,1000,2.6);","else if(k==='foresight'){")
 rep("const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);mfx('rally',s.x,s.y,1000,2.6);","const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);")
+# ---- v436 (2 Nov): specials for the new 90+ generals (generic map fx until Grok vfx batch D)
+rep("'redturban','conqueror'].includes(k))delete HERO[k];","""'redturban','conqueror','coffin','hebei','champion','sishui','trapcamp','counsel','grandplan','counterplot'].includes(k))delete HERO[k];
+HERO.coffin={who:'pangde',zh:'抬櫬決戰',n:'Coffin Vow',targets:s=>adjE(s),desc:'×1.4, no counter; ×1.8 when Pang De has lost half his troops'};
+HERO.hebei={who:'wenchou',zh:'河北猛將',n:'Hebei Fury',targets:s=>adjE(s),desc:'×1.3 strike that carries through: the enemy directly behind also takes ×0.7'};
+HERO.champion={who:'yanliang',zh:'河北庭柱',n:'Champion’s Strike',targets:s=>adjE(s),desc:'One huge ×1.6 blow'};
+HERO.sishui={who:'huaxiong',zh:'汜水關',n:'Sishui Gate',self:1,can:s=>true,desc:'Half damage for 2 turns; adjacent enemies lose 20% attack'};
+HERO.trapcamp={who:'gaoshun',zh:'陷陣營',n:'Trap Camp',self:1,can:s=>true,desc:'Gao Shun and every adjacent ally take half damage until your next turn'};
+HERO.counsel={who:'tianfeng',zh:'直諫',n:'Upright Counsel',targets:s=>G.units.filter(u=>u.side===s.side&&manh(s,u)<=3),desc:'An ally up to 3 squares away gains +20% attack for 2 turns and shakes off fear and silence'};
+HERO.grandplan={who:'jushou',zh:'監軍',n:'Grand Strategy',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'A target up to 3 squares away and its neighbours cannot strike back until your next turn'};
+HERO.counterplot={who:'chengong',zh:'智計',n:'Counterplot',targets:s=>enemies().filter(e=>manh(s,e)<=3),desc:'×1.0 strike up to 3 squares away, no counter; the target loses 20% attack for 2 turns'};""")
+rep("else if(k==='terror'){","""else if(k==='coffin'){const m=s.troops<(s.max||s.troops)*.5?1.8:1.4;await doAttack(s,t,{mult:m,noCounter:true,label:'Coffin Vow',tint:'rgba(60,60,60,.15)'});log(`<b>Coffin Vow!</b> ${nm(s)} fights as a man already dead (×${m}).`)}
+  else if(k==='hebei'){const dx=Math.sign(t.x-s.x),dy=Math.sign(t.y-s.y);await doAttack(s,t,{mult:1.3,label:'Hebei Fury',tint:'rgba(200,150,40,.12)'});const b=unitAt(t.x+dx,t.y+dy);if(b&&b.side!==s.side&&G.units.includes(b)){mfx('hit',b.x,b.y,700);const d=quickHit(s,b,.7,{color:'#ffd27a'});log(`The blow carries through to ${nm(b)}: −${d}.`)}}
+  else if(k==='champion'){await doAttack(s,t,{mult:1.6,label:'Champion’s Strike',tint:'rgba(230,190,60,.14)'})}
+  else if(k==='sishui'){s.iron=Math.max(s.iron||0,2);float(s,'Half damage','#c8a070');for(const e of adjE(s)){e.fear=2;float(e,'Attack −20%','#c8a070')}mfx('shield',s.x,s.y,1100);log(`<b>Sishui Gate!</b> ${nm(s)} bars the pass.`);await sleep(500)}
+  else if(k==='trapcamp'){const al=[s,...G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1)];for(const u of al){u.iron=Math.max(u.iron||0,1);float(u,'Half damage','#9fb4d0')}mfx('guard',s.x,s.y,1100,2.6);log(`<b>Trap Camp!</b> ${nm(s)}'s men lock shields: ${al.map(nm).join(', ')} take half damage.`);await sleep(500)}
+  else if(k==='counsel'){t.rallyT=2;t.fear=0;t.mute=0;float(t,'+20% attack','#9fe0a0');mfx('rally',t.x,t.y,1000,2.4);log(`<b>Upright Counsel!</b> ${nm(s)} steadies ${nm(t)}.`);await sleep(500)}
+  else if(k==='grandplan'){const grp=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1)];for(const e of grp){e.mute=2;float(e,'Cannot strike back','#c8b6ff')}mfx('bagua',t.x,t.y,1000,2.8);log(`<b>Grand Strategy!</b> ${nm(s)} pins down ${grp.map(nm).join(', ')}.`);await sleep(500)}
+  else if(k==='counterplot'){mfx('scroll',t.x,t.y,900,2.4);await sleep(300);const d=quickHit(s,t,1.0,{color:'#d8b0ff'});if(G.units.includes(t)){t.fear=2;float(t,'Attack −20%','#d8b0ff')}log(`<b>Counterplot!</b> ${nm(s)} turns the enemy's plan against ${nm(t)}: −${d}.`);await sleep(500)}
+  else if(k==='terror'){""")
