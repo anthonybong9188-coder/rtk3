@@ -36,6 +36,9 @@ const TIER_STATS={c:[1000,1000,90,600],l:[850,850,75,400],s:[700,650,55,240],f:[
 const CITY_TIER44={c:'capital',l:'large',s:'small',f:'small'};
 // ---------- every faction that can appear; key 'lb' = Liu Bei (the player's chosen faction is renamed 'shu' at start)
 const FAC_ALL={
+ free:{name:'No lord',short:'Local militia',zh:'民',main:'#a8a8a8',dark:'#5a5a5a',light:'#e2e2e2',ruler:null,spr:'ind',ico:'free',ai:'passive',gold:0,rice:2000},
+ yt:{name:'Yellow Turbans',short:'Yellow Turbans',zh:'黃',main:'#e3c21a',dark:'#7a6508',light:'#f5e27a',ruler:'heyi',spr:'ind',ico:'yt',ai:'aggressive'},
+ heishan:{name:'Black Mountain',short:'Black Mountain',zh:'黑',main:'#4a4a4a',dark:'#1e1e1e',light:'#b0b0b0',ruler:'zhangyan',spr:'ind',ico:'heishan',ai:'aggressive'},
  wei:{name:'Cao Cao',short:'Cao Cao',zh:'曹',main:'#4a78c0',dark:'#28457a',light:'#8fb2ea',ruler:'caocao',spr:'wei',ico:'wei',ai:'aggressive'},
  lb:{name:'Liu Bei',short:'Liu Bei',zh:'劉',main:'#4f9a5a',dark:'#2c5a34',light:'#86cc90',ruler:'liubei',spr:'shu',ico:'shu',ai:'defensive'},
  wu:{name:'Sun Jian',short:'Sun Jian',zh:'孫',main:'#c4473a',dark:'#7e2a21',light:'#e88b7f',ruler:'sunjian',spr:'wu',ico:'wu',ai:'defensive'},
@@ -67,6 +70,8 @@ const FAC_ALL={
 // new rulers / generals not in GEN_DEF yet (portrait null until Grok's portrait is approved: a seal is shown)
 // id, name, token, war, int, pol, cha, type, portrait
 const GEN_NEW=[
+ ['heyi','He Yi','儀',62,26,20,48,'peasant',null],['liupi','Liu Pi','辟',64,30,22,44,'peasant',null],['gongdu','Gong Du','都',60,28,18,38,'peasant',null],
+ ['guanhai','Guan Hai','亥',78,30,16,40,'peasant',null],['zhangyan','Zhang Yan','燕',78,60,52,74,'cav',null],['suigu','Sui Gu','固',64,38,30,40,'spear',null],
  ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav','p_dongzhuo'],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav','p_yuanshao'],
  ['yuanshu','Yuan Shu','術',62,62,64,66,'shield','p_yuanshu'],['sunjian','Sun Jian','堅',93,80,74,92,'cav','p_sunjian'],['sunce','Sun Ce','策',94,76,72,96,'cav','p_sunce'],
  ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav','p_hansui'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_gongsunzan'],
@@ -80,18 +85,19 @@ const GEN_NEW=[
  ['tianfeng','Tian Feng','豐',25,92,86,70,'archer','p_tianfeng'],['jushou','Ju Shou','授',40,92,85,78,'archer','p_jushou'],['chengong','Chen Gong','宮',48,90,78,70,'archer','p_chengong']];
 // fictional characters made for this game: only in New Hero games, and only the hero's own Search finds them
 // Anthony 2 Nov: minor rulers use shared common-general faces and are not playable
-const NOPLAY=['gongsunzan','liubiao','liuzhang','zhanglu','taoqian','kongrong','liuyao','hanfu','liuyan','wanglang','yanbaihu','gongsundu','gongsunkang','hansui','lijue','zhangxiu','jinxuan','hanxuan','liudu','zhaofan'];
+const NOPLAY=['gongsunzan','liubiao','liuzhang','zhanglu','taoqian','kongrong','liuyao','hanfu','liuyan','wanglang','yanbaihu','gongsundu','gongsunkang','hansui','lijue','zhangxiu','jinxuan','hanxuan','liudu','zhaofan','heyi','zhangyan'];
 const FICTIONAL=['xuannu','monu','xishi','huangyi','renrui','miren','mishao'];
 // ---------- scenarios: start date, goal, factions with their cities and troops, alliance, intro
 const SCENS={
  189:{y:189,m:1,end:214,win:30,zh:'董卓亂政',t:'AD 189 · Dong Zhuo seizes the capital',
   p:'The emperor is a puppet of the tyrant Dong Zhuo. Lords across the realm raise their banners against him, and against each other.',
-  f:{dong:['luoyang','changan','hongnong','xuchang','anding','jinyang'],yuanshao:['nanpi','puyang'],hanfu:['ye'],wei:['chenliu','qiao'],yuanshu:['wancheng','runan','shouchun','hefei'],
-   wu:['changsha'],liubiao:['xiangyang','jiangling','xinye','jiangxia','wuling','lingling','guiyang'],liuyan:['chengdu','zitong','jiangzhou','yongan'],zhanglu:['hanzhong','shangyong'],
-   mateng:['xiliang','tianshui','xiabian'],gongsun:['beiping','daixian'],gongsundu:['xiangping'],taoqian:['xuzhou','xiapi'],kongrong:['beihai'],lb:['pingyuan'],
-   liuyao:['jianye','lujiang','chaisang'],wanglang:['kuaiji'],yanbaihu:['wu']},
-  big:{dong:48000,yuanshao:22000,yuanshu:16000,liubiao:15000,wei:9000,wu:12000,lb:6000},
-  intro:['189. Emperor Ling is dead. The tyrant Dong Zhuo marches into Luoyang, deposes the young emperor and rules the court by terror.','The lords of the east swear an oath against him. Whoever takes the realm will be decided by the sword.']},
+  f:{dong:['luoyang','changan','hongnong','xuchang','anding'],yuanshao:['nanpi','puyang'],hanfu:['ye'],wei:['chenliu','qiao'],yuanshu:['wancheng','shouchun','hefei'],
+   wu:['changsha'],liubiao:['xiangyang','xinye'],liuyan:['chengdu','zitong','jiangzhou','yongan'],zhanglu:['hanzhong'],
+   mateng:['xiliang','tianshui','xiabian'],gongsun:['beiping','daixian'],gongsundu:['xiangping'],taoqian:['xuzhou','xiapi'],lb:['pingyuan'],
+   liuyao:['jianye'],wanglang:['kuaiji'],yanbaihu:['wu'],
+   yt:['runan','beihai'],heishan:['jinyang'],free:['jiangling','jiangxia','wuling','lingling','guiyang','lujiang','chaisang','shangyong']},
+  big:{dong:48000,yuanshao:22000,yuanshu:16000,liubiao:15000,wei:9000,wu:12000,lb:6000,yt:14000,heishan:12000},
+  intro:['189. Emperor Ling is dead. The tyrant Dong Zhuo marches into Luoyang, deposes the young emperor and rules the court by terror.','The lords of the east swear an oath against him. Whoever takes the realm will be decided by the sword.','The Yellow Turbans are broken but not gone: He Yi holds Runan, Guan Hai roams Qingzhou, and Zhang Yan\'s Black Mountain bandits rule the hills of Bing. Across the south, eight cities have no lord at all, only local militia.']},
  194:{y:194,m:1,end:219,win:30,zh:'群雄割據',t:'AD 194 · The warlords carve up the realm',
   p:'Dong Zhuo is dead. Lü Bu wanders with his cavalry, Cao Cao rises in Yanzhou, and Liu Bei is offered Xu province.',
   f:{wei:['chenliu','qiao','xuchang'],lubu:['puyang'],lb:['xuzhou','xiapi'],yuanshao:['ye','nanpi','pingyuan','jinyang'],gongsun:['beiping','daixian'],gongsundu:['xiangping'],kongrong:['beihai'],
@@ -112,6 +118,8 @@ const SCENS={
 // ---------- where each general is in 189 and 194 ('fac@city', 'free@city' = hidden, waiting to be found). d = year he enters the game.
 // Generals not listed for a scenario: if d <= start year they wait, hidden, in their 208 city; otherwise they appear in year d.
 const GSC={
+ heyi:{x:197,home:'runan',189:'yt@runan'},liupi:{x:201,home:'runan',189:'yt@runan'},gongdu:{x:201,home:'runan',189:'yt@runan'},guanhai:{x:194,home:'beihai',189:'yt@beihai'},
+ zhangyan:{x:206,home:'jinyang',189:'heishan@jinyang'},suigu:{x:199,home:'jinyang',189:'heishan@jinyang'},
  pangde:{x:219,d:189,189:'mateng@xiliang',194:'mateng@xiliang',208:'mateng@xiliang'},wenchou:{x:200,d:189,189:'yuanshao@nanpi',194:'yuanshao@ye'},huaxiong:{x:191,d:189,189:'dong@luoyang'},gaoshun:{x:198,d:189,189:'dong@luoyang',194:'lubu@puyang'},
  tianfeng:{x:200,d:189,189:'hanfu@ye',194:'yuanshao@ye'},jushou:{x:200,d:189,189:'hanfu@ye',194:'yuanshao@ye'},chengong:{x:198,d:190,home:'chenliu',194:'lubu@puyang'},
  machao:{d:192,home:'xiliang',194:'mateng@xiliang',208:'mateng@xiliang'},dianwei:{x:197,d:189,189:'wei@chenliu',194:'wei@chenliu'},guojia:{x:207,d:191,home:'xuchang',194:'wei@xuchang'},
@@ -168,11 +176,11 @@ function newScenario(sid,pick,diff,hero){const sc=SCENS[sid];
   S.t0=sc.y*12+sc.m;if(hero){S.mode='hero';S.hero={name:hero.name}}
   const own={};for(const [f,cs] of Object.entries(sc.f))for(const c of cs)own[c]=f;
   const facs={};for(const f of Object.keys(sc.f)){const F={...FAC_ALL[f]};if(sc.names&&sc.names[f])F.name=F.short=sc.names[f];F.ruler=(sc.rulers&&sc.rulers[f])||F.ruler;
-    const n=sc.f[f].length;F.gold=600+500*n;F.rice=6000+8000*n;facs[f]=F}
+    const n=sc.f[f].length;F.gold=600+500*n;F.rice=6000+8000*n;if(f==='free'){F.gold=0;F.rice=2000}facs[f]=F}
   for(const [id,name,zh,x,y,t] of CITY44){const o=own[id];if(!o)continue;const d=sid==208&&CITY_DEF.find(r=>r[0]===id);let c;
     if(d){const [,,,,,,troops,farm,farmMax,com,comMax,walls,order,pop,train]=d;c={troops,farm,farmMax,com,comMax,walls,order,pop,train}}
     else{const [fm,cm,w,p]=TIER_STATS[t],big=sc.big&&sc.big[o]&&sc.f[o][0]===id;
-      c={troops:big?sc.big[o]:{c:12000,l:9000,s:6000,f:4000}[t],farm:Math.round(fm*.6),farmMax:fm,com:Math.round(cm*.55),comMax:cm,walls:w,order:70,pop:p,train:60}}
+      c={troops:o==='free'?3000:big?sc.big[o]:{c:12000,l:9000,s:6000,f:4000}[t],farm:Math.round(fm*.6),farmMax:fm,com:Math.round(cm*.55),comMax:cm,walls:w,order:70,pop:p,train:60}}
     S.cities[id]={id,name,zh,x,y,owner:o,...c,gold:0,rice:0}}
   const rows=[...GEN_DEF.map(r=>({id:r[0],name:r[1],ch:r[2],fac:r[3]==='shu'?'lb':r[3],city:r[4],war:r[5],int:r[6],pol:r[7],cha:r[8],type:r[9],img:r[10],loy:r[11],hid:!!r[12],old:1})),
     ...GEN_NEW.map(r=>({id:r[0],name:r[1],ch:r[2],fac:null,city:null,war:r[3],int:r[4],pol:r[5],cha:r[6],type:r[7],img:r[8],loy:90,hid:true}))];
@@ -246,7 +254,8 @@ async function heroSetup(){let name='';for(;;){const r=await dialog(`<h2>俠 A n
 const HEROINES=['xuannu','monu','huangyi','renrui','xishi'];
 // where the New Hero starts: his family town of Luling, or a city taken from one of the minor lords (never a lord's last city or seat)
 function heroCityOpts(sc){const o=[['luling','Luling','廬陵','Your family town in the far south. Safe, small, out of the way.']];
-  for(const [f,cs] of Object.entries(sc.f)){const rid=(sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler;if(!NOPLAY.includes(rid)||cs.length<2)continue;
+  for(const id of (sc.f.free||[])){const c=CITY44.find(x=>x[0]===id);if(c)o.push([id,c[1],c[2],'Empty: no lord, only about 3,000 local militia.'])}
+  for(const [f,cs] of Object.entries(sc.f)){const rid=(sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler;if(f==='free'||!NOPLAY.includes(rid)||cs.length<2)continue;
     const nm=(sc.names&&sc.names[f])||FAC_ALL[f].name;for(const id of cs.slice(1)){const c=CITY44.find(x=>x[0]===id);if(c)o.push([id,c[1],c[2],`Now held by ${nm}. His men there leave for his other cities.`])}}
   return o}
 async function heroCityPick(sc){const o=heroCityOpts(sc);
@@ -255,7 +264,7 @@ async function heroCityPick(sc){const o=heroCityOpts(sc);
 async function newGameFlow(){const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;
   for(;;){const sid=await dialog(`<h2>Choose a year</h2><div class="tlist slots scenl">${Object.entries(SCENS).map(([k,v])=>`<button data-r="${k}"><span class="sl"><b><span class="szh">${v.zh}</span> ${v.t}</b><small>${v.p}</small></span><em>${Object.keys(v.f).length} lords</em></button>`).join('')}</div>`,[['cancel','Cancel']]);
     if(!SCENS[sid])return;const sc=SCENS[sid];
-    const fl=Object.keys(sc.f).filter(f=>!NOPLAY.includes((sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler)).sort((a,b)=>sc.f[b].length-sc.f[a].length);
+    const fl=Object.keys(sc.f).filter(f=>f!=='free'&&!NOPLAY.includes((sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler)).sort((a,b)=>sc.f[b].length-sc.f[a].length);
     const row=f=>{const F=FAC_ALL[f],nm=(sc.names&&sc.names[f])||F.name,rid=(sc.rulers&&sc.rulers[f])||F.ruler,face=rulerFace(rid,40)||`<span class="gseal" style="width:40px;height:46px;background:${F.main};font-size:22px">${F.zh}</span>`;
       return `<button data-r="f:${f}" class="rulb"><span class="rface">${face}</span><span class="sl"><b style="color:${F.light}">${nm}</b><small>${sc.f[f].length} cit${sc.f[f].length>1?'ies':'y'}: ${sc.f[f].map(id=>(CITY44.find(c=>c[0]===id)||[0,id])[1]).join(', ')}</small></span></button>`};
     const r=await dialog(`<h2>${sc.zh} ${sc.y} · choose your ruler</h2><div class="tlist slots rull"><button data-r="hero" class="rulb"><span class="rface"><img class="gport" style="width:40px;height:46px" src="portraits/hero.webp" alt=""></span><span class="sl"><b style="color:#ecc874">俠 New Hero</b><small>Your own hero with a family fortune, starting in Luling or an empty city you choose. The only way to meet the legendary heroines of this game.</small></span></button>${fl.map(row).join('')}</div>`,[['back','Back'],['cancel','Cancel']]);
@@ -270,6 +279,12 @@ cicImg=function(key,w){const q=CICON[key]||CICON2[key];if(!q)return `<img src="a
   return `<i class="cimg" style="width:${w}px;height:${(q[3]*s).toFixed(1)}px;background:url(art/city_icons${s2?'2':''}.png) ${-(q[0]*s).toFixed(2)}px ${-(q[1]*s).toFixed(2)}px/${((s2?CICW2:CICW)*s).toFixed(2)}px auto no-repeat"></i>`};
 // short biographies for the new lords (portraits follow from Grok)
 Object.assign(BIO,{
+ heyi:{zh:'何儀',st:'',y:'?–196',bg:'A Yellow Turban chief of Runan and Yingchuan, years after the great rising was crushed.',h:'He held out in Runan with tens of thousands of followers until Cao Cao broke his band in 196 and he submitted.',f:['Yellow Turban chief of Runan','Defeated by Cao Cao']},
+ liupi:{zh:'劉辟',st:'',y:'?–201',bg:'A Yellow Turban leader of Runan.',h:'He later sided with Yuan Shao and sheltered Liu Bei in Runan during the Guandu campaign, and died fighting Cao Cao\'s men.',f:['Yellow Turban of Runan','Ally of Liu Bei']},
+ gongdu:{zh:'龔都',st:'',y:'?–201',bg:'A Yellow Turban captain of Runan.',h:'With Liu Pi he joined Liu Bei in Runan against Cao Cao and was routed by Cao Cao\'s forces.',f:['Yellow Turban of Runan','Fought for Liu Bei']},
+ guanhai:{zh:'管亥',st:'',y:'?–?',bg:'A Yellow Turban leader of Qingzhou.',h:'He besieged Kong Rong at Beihai until Taishi Ci slipped out to bring Liu Bei\'s relief. In the novel he dies at Guan Yu\'s hand.',f:['Besieged Beihai','Foe of Kong Rong']},
+ zhangyan:{zh:'張燕',st:'',y:'?–?',bg:'Called the Flying Swallow for his speed, leader of the Black Mountain bandits of the Taihang hills.',h:'He commanded a vast host in the mountains of Ji and Bing, fought Yuan Shao for years, and finally surrendered to Cao Cao in 205 with all his men.',f:['Flying Swallow','Lord of the Black Mountain','Surrendered to Cao Cao']},
+ suigu:{zh:'眭固',st:'',y:'?–199',bg:'A Black Mountain chief.',h:'He raided Dong commandery with Yu Fuluo, was beaten by Cao Cao, and was killed in 199 while trying to join Yuan Shao.',f:['Black Mountain chief','Killed in 199']},
  lubu:BIO.lubu||{zh:'呂布',st:'Fengxian',y:'?–198',bg:'A peerless warrior of the northern frontier, armed with the Sky Piercer halberd and riding Red Hare.',h:'He killed two masters, Ding Yuan and Dong Zhuo, and was called the greatest fighter of his age. Brave beyond measure but faithless, he seized Puyang and Xu province before Cao Cao besieged him at Xiapi.',f:['Mightiest warrior of the age','Sky Piercer and Red Hare','Killed Dong Zhuo']},
  pangde:{zh:'龐德',st:'Lingming',y:'?–219',bg:'A fierce general of Liang province who served Ma Teng and Ma Chao.',h:'He later joined Cao Cao and marched to Fan castle carrying his own coffin, vowing to kill Guan Yu or die. Captured when the flood destroyed his army, he refused to surrender and was executed.',f:['Carried his own coffin','Fought Guan Yu at Fan','Refused to surrender']},
  wenchou:{zh:'文醜',st:'',y:'?–200',bg:'One of Yuan Shao\'s two great champions, famed across Hebei.',h:'Together with Yan Liang he was the pride of Yuan Shao\'s army. He fell in the fighting at Yan ford in the Guandu campaign, soon after Yan Liang.',f:['Champion of Hebei','Partner of Yan Liang','Fell at Yan ford']},
