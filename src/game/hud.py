@@ -2594,3 +2594,11 @@ rep("else if(k==='terror'){","""else if(k==='coffin'){const m=s.troops<(s.max||s
   else if(k==='grandplan'){const grp=[t,...enemies().filter(e=>e!==t&&manh(e,t)===1)];for(const e of grp){e.mute=2;float(e,'Cannot strike back','#c8b6ff')}mfx('bagua',t.x,t.y,1000,2.8);log(`<b>Grand Strategy!</b> ${nm(s)} pins down ${grp.map(nm).join(', ')}.`);await sleep(500)}
   else if(k==='counterplot'){mfx('scroll',t.x,t.y,900,2.4);await sleep(300);const d=quickHit(s,t,1.0,{color:'#d8b0ff'});if(G.units.includes(t)){t.fear=2;float(t,'Attack −20%','#d8b0ff')}log(`<b>Counterplot!</b> ${nm(s)} turns the enemy's plan against ${nm(t)}: −${d}.`);await sleep(500)}
   else if(k==='terror'){""")
+# v440 (2 Nov): limit the black margin around the battlefield — only enough to slide edge squares out from under the HUD, not half a screen
+rep("function applyMapT(full){","""function mapPad(bm){const hy=Math.max(0,Math.round(bm.clientHeight/2-T/2)),hx=Math.max(0,Math.round(bm.clientWidth/2-T/2)),br=bm.getBoundingClientRect(),port=br.height>br.width;
+  let top=0,bot=0;for(const sel of ['#info','.rail','#wxChip']){const e=document.querySelector(sel);if(!e||e.hidden)continue;const r=e.getBoundingClientRect();if(r.height&&r.top<br.top+br.height/2)top=Math.max(top,r.bottom-br.top)}
+  const a=document.querySelector('#acts');if(a&&!a.hidden){const r=a.getBoundingClientRect();if(r.height&&r.bottom>br.top+br.height/2)bot=Math.max(bot,br.bottom-r.top)}
+  top=Math.max(top+8,port?200:120);bot=Math.max(bot+64,120);const side=Math.max(48,Math.round(T*.6));
+  return `${Math.min(hy,Math.round(top))}px ${Math.min(hx,side)}px ${Math.min(hy,Math.round(bot))}px`}
+function applyMapT(full){""")
+rep("$('.mapwrap').style.padding=`${Math.max(0,Math.round(bm.clientHeight/2-T/2))}px ${Math.max(0,Math.round(bm.clientWidth/2-T/2))}px`;","$('.mapwrap').style.padding=mapPad(bm);")

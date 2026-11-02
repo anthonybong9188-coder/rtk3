@@ -1107,8 +1107,13 @@ function field(targets,type){
 // ---------- map rendering ----------
 const MC=$('#map'); let mctx, T=56, terrainCv=null;
 let ZOOM=1,mapBaseT=60;
+function mapPad(bm){const hy=Math.max(0,Math.round(bm.clientHeight/2-T/2)),hx=Math.max(0,Math.round(bm.clientWidth/2-T/2)),br=bm.getBoundingClientRect(),port=br.height>br.width;
+  let top=0,bot=0;for(const sel of ['#info','.rail','#wxChip']){const e=document.querySelector(sel);if(!e||e.hidden)continue;const r=e.getBoundingClientRect();if(r.height&&r.top<br.top+br.height/2)top=Math.max(top,r.bottom-br.top)}
+  const a=document.querySelector('#acts');if(a&&!a.hidden){const r=a.getBoundingClientRect();if(r.height&&r.bottom>br.top+br.height/2)bot=Math.max(bot,br.bottom-r.top)}
+  top=Math.max(top+8,port?200:120);bot=Math.max(bot+64,120);const side=Math.max(48,Math.round(T*.6));
+  return `${Math.min(hy,Math.round(top))}px ${Math.min(hx,side)}px ${Math.min(hy,Math.round(bot))}px`}
 function applyMapT(full){const bm=$('.bmap');T=Math.round(clamp(mapBaseT*ZOOM,26,180));
-  $('.mapwrap').style.padding=`${Math.max(0,Math.round(bm.clientHeight/2-T/2))}px ${Math.max(0,Math.round(bm.clientWidth/2-T/2))}px`;
+  $('.mapwrap').style.padding=mapPad(bm);
   const d=DPR(); MC.width=COLS*T*d; MC.height=ROWS*T*d; MC.style.width=COLS*T+'px'; MC.style.height=ROWS*T+'px';
   mctx=MC.getContext('2d'); mctx.setTransform(d,0,0,d,0,0); if(full||!terrainCv)terrainCv=renderTerrain(T)}
 function resizeMap(){const bm=$('.bmap');mapBaseT=Math.max(52,Math.min(120,Math.min(bm.clientHeight,bm.clientWidth)/5.4));applyMapT(true)}
