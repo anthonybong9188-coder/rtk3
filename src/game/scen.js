@@ -196,15 +196,21 @@ function newScenario(sid,pick,diff,hero){const sc=SCENS[sid];
   if(P)ren(P,'shu');
   if(hero){if(facs.shu)ren('shu','lb');
     facs.shu={name:hero.name,short:hero.name,zh:'俠',main:'#b98a2e',dark:'#6b4c16',light:'#ecc874',ruler:'hero',spr:'shu',ico:'hero',gold:5000,rice:30000};
-    S.cities.luling={id:'luling',name:'Luling',zh:'廬陵',x:HERO_CITY[3],y:HERO_CITY[4],owner:'shu',troops:4000,farm:320,farmMax:700,com:260,comMax:550,walls:40,order:70,pop:110,train:50,gold:0,rice:0};
-    S.gens.hero={id:'hero',name:hero.name,ch:'俠',fac:'shu',city:'luling',...hero.stats,type:'cav',img:'hero',loy:100,hidden:false,acted:false,army:null};S.rulers.shu='hero'}
+    const hc=hero.city&&hero.city!=='luling'&&S.cities[hero.city]?hero.city:'luling';S.heroCity=hc;
+    if(hc==='luling')S.cities.luling={id:'luling',name:'Luling',zh:'廬陵',x:HERO_CITY[3],y:HERO_CITY[4],owner:'shu',troops:4000,farm:320,farmMax:700,com:260,comMax:550,walls:40,order:70,pop:110,train:50,gold:0,rice:0};
+    else{const c=S.cities[hc],o=c.owner,to=Object.values(S.cities).find(x=>x.owner===o&&x.id!==hc);
+      for(const g of Object.values(S.gens))if(g.city===hc&&g.fac){if(g.fac===o&&to)g.city=to.id;else if(g.fac===o){g.fac=null;g.hidden=true}}
+      if(to)to.troops+=Math.round(c.troops/2);c.owner='shu';c.troops=4000;c.train=50;c.order=70}
+    // the five heroines of this game wait, hidden, in the hero's home town: one turns up every time he searches it
+    for(const id of HEROINES)if(S.gens[id]){S.gens[id].city=hc;S.gens[id].hidden=true;S.gens[id].fac=null}
+    S.gens.hero={id:'hero',name:hero.name,ch:'俠',fac:'shu',city:hc,...hero.stats,type:'cav',img:'hero',loy:100,hidden:false,acted:false,army:null};S.rulers.shu='hero'}
   facs.shu.ruler=S.rulers.shu;facs.shu.ai=null;S.facs=facs;
   S.ally=(sc.ally||[]).map(([a,b,t])=>[a===P?'shu':a,b===P?'shu':b,t]);
   applyScen();
   for(const f in FACS)spreadStores(f,f==='shu'&&!hero?Math.max(DF().gold,FACS[f].gold):FACS[f].gold,f==='shu'&&!hero?Math.max(DF().rice,FACS[f].rice):FACS[f].rice);
-  S.sel=hero?'luling':(citiesOf('shu')[0]||{}).id;
+  S.sel=hero?S.heroCity:(citiesOf('shu')[0]||{}).id;
   for(const l of sc.intro)addLog(l);
-  if(hero)addLog(`Far to the south, in the little town of Luling, ${hero.name} buries his family and opens their vaults: five thousand gold, thirty thousand measures of rice and four thousand men loyal to his name.`);
+  if(hero)addLog(`${S.heroCity==='luling'?'Far to the south, in the little town of Luling':'In '+S.cities[S.heroCity].name}, ${hero.name} buries his family and opens their vaults: five thousand gold, thirty thousand measures of rice and four thousand men loyal to his name.`);
   addLog(`Your goal: hold ${sc.win} of the ${Object.keys(S.cities).length} cities by the end of ${sc.end}.`);
   save()}
 // generals who come of age join the world, hidden in their home city until someone finds them
@@ -237,15 +243,24 @@ async function heroSetup(){let name='';for(;;){const r=await dialog(`<h2>俠 A n
     const r=await dialog(`<h2>${name}</h2><p class="muted">Roll his talents. Every stat lands between 75 and 95. Roll as often as you like.</p>
       <div class="hstats">${row('war','War')}${row('int','Int')}${row('pol','Pol')}${row('cha','Cha')}</div><p class="muted">Total ${st.war+st.int+st.pol+st.cha} of 380</p>`,[['cancel','Cancel'],['roll','🎲 Roll again'],['ok','Accept','primary']]);
     if(r==='cancel')return null;if(r==='roll'){st=rollHero();continue}return {name,stats:st}}}
+const HEROINES=['xuannu','monu','huangyi','renrui','xishi'];
+// where the New Hero starts: his family town of Luling, or a city taken from one of the minor lords (never a lord's last city or seat)
+function heroCityOpts(sc){const o=[['luling','Luling','廬陵','Your family town in the far south. Safe, small, out of the way.']];
+  for(const [f,cs] of Object.entries(sc.f)){const rid=(sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler;if(!NOPLAY.includes(rid)||cs.length<2)continue;
+    const nm=(sc.names&&sc.names[f])||FAC_ALL[f].name;for(const id of cs.slice(1)){const c=CITY44.find(x=>x[0]===id);if(c)o.push([id,c[1],c[2],`Now held by ${nm}. His men there leave for his other cities.`])}}
+  return o}
+async function heroCityPick(sc){const o=heroCityOpts(sc);
+  const r=await dialog(`<h2>俠 Where does he begin?</h2><p class="muted">Pick an empty city to make his own. He starts there with 4,000 men, and the five heroines are hidden there waiting to be found.</p><div class="tlist slots hcity">${o.map(([id,n,zh,d])=>`<button data-r="c:${id}"><span class="sl"><b><span class="szh">${zh}</span> ${n}</b><small>${d}</small></span></button>`).join('')}</div>`,[['back','Back']]);
+  return r&&r.startsWith('c:')?r.slice(2):null}
 async function newGameFlow(){const sv=loadSave();if(sv&&!sv.over&&await dialog(`<h2>Start a new game?</h2><p>Your current game (${sv.year}, month ${sv.month}) will be replaced.</p>`,[['no','Keep my game'],['yes','Start over','primary']])!=='yes')return;
   for(;;){const sid=await dialog(`<h2>Choose a year</h2><div class="tlist slots scenl">${Object.entries(SCENS).map(([k,v])=>`<button data-r="${k}"><span class="sl"><b><span class="szh">${v.zh}</span> ${v.t}</b><small>${v.p}</small></span><em>${Object.keys(v.f).length} lords</em></button>`).join('')}</div>`,[['cancel','Cancel']]);
     if(!SCENS[sid])return;const sc=SCENS[sid];
     const fl=Object.keys(sc.f).filter(f=>!NOPLAY.includes((sc.rulers&&sc.rulers[f])||FAC_ALL[f].ruler)).sort((a,b)=>sc.f[b].length-sc.f[a].length);
     const row=f=>{const F=FAC_ALL[f],nm=(sc.names&&sc.names[f])||F.name,rid=(sc.rulers&&sc.rulers[f])||F.ruler,face=rulerFace(rid,40)||`<span class="gseal" style="width:40px;height:46px;background:${F.main};font-size:22px">${F.zh}</span>`;
       return `<button data-r="f:${f}" class="rulb"><span class="rface">${face}</span><span class="sl"><b style="color:${F.light}">${nm}</b><small>${sc.f[f].length} cit${sc.f[f].length>1?'ies':'y'}: ${sc.f[f].map(id=>(CITY44.find(c=>c[0]===id)||[0,id])[1]).join(', ')}</small></span></button>`};
-    const r=await dialog(`<h2>${sc.zh} ${sc.y} · choose your ruler</h2><div class="tlist slots rull"><button data-r="hero" class="rulb"><span class="rface"><img class="gport" style="width:40px;height:46px" src="portraits/hero.webp" alt=""></span><span class="sl"><b style="color:#ecc874">俠 New Hero</b><small>Your own hero in Luling, with a family fortune. The only way to meet the legendary heroines of this game.</small></span></button>${fl.map(row).join('')}</div>`,[['back','Back'],['cancel','Cancel']]);
+    const r=await dialog(`<h2>${sc.zh} ${sc.y} · choose your ruler</h2><div class="tlist slots rull"><button data-r="hero" class="rulb"><span class="rface"><img class="gport" style="width:40px;height:46px" src="portraits/hero.webp" alt=""></span><span class="sl"><b style="color:#ecc874">俠 New Hero</b><small>Your own hero with a family fortune, starting in Luling or an empty city you choose. The only way to meet the legendary heroines of this game.</small></span></button>${fl.map(row).join('')}</div>`,[['back','Back'],['cancel','Cancel']]);
     if(r==='back')continue;if(r==='cancel'||!r)return;
-    let hero=null,pick=null;if(r==='hero'){hero=await heroSetup();if(!hero)continue}else pick=r.slice(2);
+    let hero=null,pick=null;if(r==='hero'){hero=await heroSetup();if(!hero)continue;const hc=await heroCityPick(sc);if(!hc)continue;hero.city=hc}else pick=r.slice(2);
     const dr=await dialog(`<h2>Choose difficulty</h2><div class="tlist slots">${Object.entries(DIFF).map(([k,v])=>`<button data-r="${k}" class="${k==='normal'?'on':''}"><span class="sl"><b>${v.zh} ${v.n}</b><small>${v.d}</small></span><em>${k==='normal'?'Recommended':''}</em></button>`).join('')}</div>`,[['cancel','Cancel']]);
     if(!DIFF[dr])return;newScenario(+sid,pick,dr,hero);UI={mode:'city',cmd:null,busy:false};showScreen('campaign');renderCampaign();return}}
 $('#newBtn').onclick=newGameFlow;

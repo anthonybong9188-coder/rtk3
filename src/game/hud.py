@@ -2602,3 +2602,8 @@ rep("function applyMapT(full){","""function mapPad(bm){const hy=Math.max(0,Math.
   return `${Math.min(hy,Math.round(top))}px ${Math.min(hx,side)}px ${Math.min(hy,Math.round(bot))}px`}
 function applyMapT(full){""")
 rep("$('.mapwrap').style.padding=`${Math.max(0,Math.round(bm.clientHeight/2-T/2))}px ${Math.max(0,Math.round(bm.clientWidth/2-T/2))}px`;","$('.mapwrap').style.padding=mapPad(bm);")
+# v442 (2 Nov): no click sound on buttons or tooltips (Anthony: the "dong dong" is annoying)
+rep("const r=b.dataset.r;if(r==='cancel'||r==='no'||r==='stay'||b.dataset.pkx!=null)SND.fx('cancel');else if(b.classList.contains('primary'))SND.fx('confirm');else SND.fx('tap')},true);","},true);")
+rep("tipEl.style.top=(y-r.height-14<8?y+20:y-r.height-14)+'px';SND.fx('tap')};","tipEl.style.top=(y-r.height-14<8?y+20:y-r.height-14)+'px'};")
+# v442: New Hero — a search of a city where one of the five heroines hides always finds her (one per search), by any of his officers
+rep("const god=g.id===LORD()&&f==='shu'&&nextGod();\n    if(god){","const hl=f==='shu'&&isHeroMode()&&Object.values(S.gens).find(x=>x.hidden&&!x.fac&&x.city===c.id&&HEROINES.includes(x.id));\n    const god=!hl&&g.id===LORD()&&f==='shu'&&nextGod();\n    if(hl){hl.hidden=false;hl.fac='shu';hl.acted=true;hl.loy=Math.max(hl.loy||0,90);UI.found=hl.id;m=`${g.name} searches ${c.name} and finds ${hl.name}, who agrees to serve ${FACS.shu.name}!`}\n    else if(god){")
