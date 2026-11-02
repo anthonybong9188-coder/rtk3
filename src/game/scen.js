@@ -69,12 +69,12 @@ const FAC_ALL={
 const GEN_NEW=[
  ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav','p_dongzhuo'],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav','p_yuanshao'],
  ['yuanshu','Yuan Shu','術',62,62,64,66,'shield','p_yuanshu'],['sunjian','Sun Jian','堅',93,80,74,92,'cav','p_sunjian'],['sunce','Sun Ce','策',94,76,72,96,'cav','p_sunce'],
- ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav','p_panzhang'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_wenpin'],
- ['gongsundu','Gongsun Du','度',78,62,60,66,'cav','p_chengpu'],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav','p_caochun'],['liubiao','Liu Biao','表',40,78,86,84,'shield','p_kuaiyue'],
- ['liuyan','Liu Yan','焉',32,72,76,70,'shield','p_zhuzhi'],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield','p_jiangwan'],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield','p_kanze'],
- ['taoqian','Tao Qian','陶',30,62,74,80,'shield','p_yiji'],['kongrong','Kong Rong','孔',30,82,84,88,'archer','p_liuba'],['hanfu','Han Fu','馥',40,56,60,52,'shield','p_xianglang'],
- ['liuyao','Liu Yao','繇',50,58,64,70,'shield','p_zhugejin'],['wanglang','Wang Lang','朗',42,76,82,72,'shield','p_wangcan'],['yanbaihu','Yan Baihu','虎',74,30,22,46,'spear','p_baolong'],
- ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear','p_liaohua'],['lijue','Li Jue','傕',80,40,20,30,'cav','p_dongxi'],
+ ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav','p_hansui'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_gongsunzan'],
+ ['gongsundu','Gongsun Du','度',78,62,60,66,'cav','p_gongsundu'],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav','p_gongsunkang'],['liubiao','Liu Biao','表',40,78,86,84,'shield','p_liubiao'],
+ ['liuyan','Liu Yan','焉',32,72,76,70,'shield','p_liuyan'],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield','p_liuzhang'],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield','p_zhanglu'],
+ ['taoqian','Tao Qian','陶',30,62,74,80,'shield','p_taoqian'],['kongrong','Kong Rong','孔',30,82,84,88,'archer','p_kongrong'],['hanfu','Han Fu','馥',40,56,60,52,'shield','p_hanfu'],
+ ['liuyao','Liu Yao','繇',50,58,64,70,'shield','p_liuyao'],['wanglang','Wang Lang','朗',42,76,82,72,'shield','p_wanglang'],['yanbaihu','Yan Baihu','虎',74,30,22,46,'spear','p_yanbaihu'],
+ ['zhangxiu','Zhang Xiu','繡',84,62,48,68,'spear','p_zhangxiu'],['lijue','Li Jue','傕',80,40,20,30,'cav','p_lijue'],
  ['machao','Ma Chao','超',97,44,30,82,'cav','p_machao'],['dianwei','Dian Wei','韋',97,35,20,58,'spear','p_dianwei'],['guojia','Guo Jia','嘉',15,98,82,86,'archer','p_guojia'],
  ['pangde','Pang De','德',94,70,44,68,'cav','p_pangde'],['wenchou','Wen Chou','醜',94,30,28,52,'cav','p_wenchou'],['huaxiong','Hua Xiong','雄',92,48,30,50,'cav','p_huaxiong'],['gaoshun','Gao Shun','順',87,65,50,72,'spear','p_gaoshun'],
  ['tianfeng','Tian Feng','豐',25,92,86,70,'archer','p_tianfeng'],['jushou','Ju Shou','授',40,92,85,78,'archer','p_jushou'],['chengong','Chen Gong','宮',48,90,78,70,'archer','p_chengong']];
@@ -291,3 +291,6 @@ Object.assign(BIO,{
 
 // Anthony 1 Nov: one general, one special. Guan Yu keeps Dragon Sweep only.
 delete HERO.flood;
+
+// Anthony 2 Nov: Gao Shun (W87) and Chen Gong (I90) are not above 90 -> no special
+delete HERO.trapcamp;delete HERO.counterplot;

@@ -2576,7 +2576,7 @@ rep("else if(k==='evilcome'){const hit=adjE(s);mfx('whirl',s.x,s.y,1000,3.2);","
 rep("else if(k==='foresight'){mfx('scroll',t.x,t.y,1000,2.6);","else if(k==='foresight'){")
 rep("const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);mfx('rally',s.x,s.y,1000,2.6);","const al=G.units.filter(u=>u.side===s.side&&u!==s&&manh(u,s)===1);")
 # ---- v436 (2 Nov): specials for the new 90+ generals (generic map fx until Grok vfx batch D)
-rep("'redturban','conqueror'].includes(k))delete HERO[k];","""'redturban','conqueror','coffin','hebei','champion','sishui','trapcamp','counsel','grandplan','counterplot'].includes(k))delete HERO[k];
+rep("'redturban','conqueror'].includes(k))delete HERO[k];","""'redturban','conqueror','coffin','hebei','champion','sishui','counsel','grandplan'].includes(k))delete HERO[k];
 HERO.coffin={who:'pangde',zh:'抬櫬決戰',n:'Coffin Vow',targets:s=>adjE(s),desc:'×1.4, no counter; ×1.8 when Pang De has lost half his troops'};
 HERO.hebei={who:'wenchou',zh:'河北猛將',n:'Hebei Fury',targets:s=>adjE(s),desc:'×1.3 strike that carries through: the enemy directly behind also takes ×0.7'};
 HERO.champion={who:'yanliang',zh:'河北庭柱',n:'Champion’s Strike',targets:s=>adjE(s),desc:'One huge ×1.6 blow'};
