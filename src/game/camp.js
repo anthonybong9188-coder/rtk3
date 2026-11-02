@@ -979,7 +979,7 @@ function succession(f){if(!citiesOf(f).length)return;const heir=gensOf(f).sort((
 
 // ---------- hand-off to the tactical battle
 // battlefield themes by region, so fields look different from place to place
-const CITY_THEME={xuchang:'plains',runan:'plains',wancheng:'hills',hefei:'marsh',xiangyang:'river',jiangling:'river',jiangxia:'river',chaisang:'marsh',jianye:'marsh',kuaiji:'hills',wuling:'forest',changsha:'forest',lingling:'hills',guiyang:'forest',luling:'forest'};
+const CITY_THEME={xuchang:'plains',runan:'plains',wancheng:'hills',hefei:'marsh',xiangyang:'river',jiangling:'river',jiangxia:'river',chaisang:'marsh',jianye:'marsh',kuaiji:'hills',wuling:'forest',changsha:'forest',lingling:'hills',guiyang:'forest',luling:'forest',hanzhong:'pass',zitong:'pass',xiabian:'pass',shangyong:'pass',hongnong:'pass',daixian:'pass',jiangzhou:'river',yongan:'river',shouchun:'river',puyang:'river',xiapi:'river',pingyuan:'river',tianshui:'hills',jinyang:'hills',beihai:'hills',beiping:'hills',xiangping:'hills',lujiang:'marsh',nanpi:'marsh',wu:'marsh',xiliang:'plains',anding:'plains',changan:'plains',luoyang:'plains',chengdu:'plains',xinye:'plains',chenliu:'plains',qiao:'plains',xuzhou:'plains',ye:'plains'};
 const THEMES={
  plains:{f:.05,h:.04,clump:3,ridge:0,lakes:0,river:.15,name:'open plains'},
  hills:{f:.07,h:.16,clump:3,ridge:1,lakes:0,river:.15,name:'hill country'},
