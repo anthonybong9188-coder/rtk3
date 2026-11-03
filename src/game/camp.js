@@ -72,7 +72,7 @@ const GEN_DEF=[
   ['renrui','Ren Rui','蕊',null,'kuaiji',92,70,62,72,'shield','ren_rui',75,1],
   ['xuannu','Jiutian Xuannü','玄',null,'runan',97,94,91,92,'cav','xuannu',75,1],
 ['monu','Mo Nü','魔',null,'guiyang',94,85,76,93,'cav','mo_nu',75,1],
-['xishi','Xi Shi','施',null,'kuaiji',88,83,84,97,'cav','xi_shi',75,1],
+['xishi','Xi Shi','施',null,'kuaiji',88,95,84,97,'cav','xi_shi',75,1],
   ['miren','Mi Ren','任',null,'jiangling',84,97,98,100,'shield','mi_ren',80,1],
   ['mishao','Mi Shao','韶',null,'jiangling',82,94,93,98,'shield','mi_shao',80,1],
   ['zhenji','Zhen Ji','甄','wei','xuchang',40,80,76,96,'archer','consort_zhao',85],
@@ -283,8 +283,8 @@ document.addEventListener('input',e=>{if(e.target.id==='dG'||e.target.id==='dR')
 async function requestDlg(c){openMarch(c.id,null,'transfer')}
 // ===== tooltips (long-press on phones, hover on desktop)
 const TIPS={Troops:'Soldiers stationed here. A city can hold about 12% of its population.',Training:'How well drilled the troops are. Fully trained troops hit about 30% harder.',
-  Farming:'Sets the rice harvest in the 7th month (40 rice per point).',Commerce:'Sets the gold the city earns each month, scaled by order.',Walls:'Fortifications. Higher walls make defenders much stronger in sieges.',
-  Order:'Public order. Low order cuts income; below 30 troops start to desert.',Population:'People living here. Limits recruiting and grows when order is 60 or more.',Harvest:'Months until the next harvest (7th month).',
+  Farming:'Sets the rice harvest in the 7th month (40 rice per point, scaled by population).',Commerce:'Sets the gold the city earns each month, scaled by order and population.',Walls:'Fortifications. Higher walls make defenders much stronger in sieges.',
+  Order:'Public order. Low order cuts income; below 30 troops start to desert.',Population:'People living here. More people means more gold and a bigger harvest (300k = normal; from ×0.7 up to ×1.4). Limits recruiting and grows when order is 60 or more.',Harvest:'Months until the next harvest (7th month).',
   War:'War: strength in battle and duels.',Int:'Intelligence: fire attacks, searching, persuading and envoys.',Pol:'Politics: farming, commerce and walls.',Cha:'Charisma: recruiting and how loyal your officers stay.',Loy:'Loyalty: below 75 rivals can lure him away; below 60 he may leave on his own. Reward raises it.',
   Gold:'Total gold in all your cities. Each city pays for its own orders and officers (5 gold each a month); move gold with Transfer.',Rice:'Total rice in all your cities. Troops eat from their own city: 0.1 a month per soldier, 0.2 on the march.','City gold':'Gold kept in this city. Its orders, rewards and officer salaries are paid from here.','City rice':'Rice kept in this city. Its troops eat from here and its harvest lands here.',Cities:'Cities you hold. Hold 10 of the 14 by the end of 215 to win.',
   Status:'Ready: can act this month. Done: has acted. Assigned: on a long-term task.'};
@@ -347,7 +347,7 @@ function renderCity(){
   let a=`<div class="cscene" style="${sceneStyle(c)}">
     ${mine&&my.length>1?`<button class="cnav prev" data-act="prevCity" aria-label="Previous city">‹</button><button class="cnav next" data-act="nextCity" aria-label="Next city">›</button>`:''}
     <div class="cscap"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?`Your city${my.length>1?` · ${idx+1} of ${my.length}`:''}`:`${F.short} · ruled by ${F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div></div>`;
-  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${mine?statRow('Farming',c.farm,c.farmMax):''}${mine?statRow('Commerce',c.com,c.comMax):''}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${mine?statRow('Population',fmt(c.pop*1000)):''}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>${mine?advSlot()+mktSlot(c):''}`;
+  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${statRow('Farming',c.farm,c.farmMax)}${statRow('Commerce',c.com,c.comMax)}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${statRow('Population',fmt(c.pop*1000))}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>${mine?advSlot()+mktSlot(c):''}`;
   $('#cA').innerHTML=a;
   // ---- column B: officers
   const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
@@ -725,11 +725,12 @@ async function doSurrender(c){
     else{(S.grudge[f]=S.grudge[f]||{}).shu=true;m=`${FACS[f].name} refuses to surrender.`}
     addLog(`<b>${m}</b>`,'shu');save();try{await actFx(env,'surrender',m,c,ok)}catch(e){}UI.busy=false;
     if(ok){renderCampaign();checkCampaignEnd()}else renderCampaign();return}}
+const POPF=c=>Math.min(1.4,Math.max(.7,.6+.4*(c.pop||0)/300));
 function economy(){
   for(const f of Object.keys(FACS)){if(!alive(f))continue;const cs=citiesOf(f);let starve=0,broke=0;
-    for(const c of cs){c.gold=Math.round(c.gold+c.com*.5*c.order/100*(f==='shu'?DF().inc:1)-gensIn(c.id).length*SALARY);
+    for(const c of cs){c.gold=Math.round(c.gold+c.com*.5*c.order/100*POPF(c)*(f==='shu'?DF().inc:1)-gensIn(c.id).length*SALARY);
       c.rice=Math.round(c.rice-c.troops*RICE_CITY);
-      if(S.month===7){const h=c.farm*40;c.rice+=h;if(f==='shu')addLog(`${c.name}'s harvest brings in ${fmt(h)} rice.`,'shu')}
+      if(S.month===7){const h=Math.round(c.farm*40*POPF(c));c.rice+=h;if(f==='shu')addLog(`${c.name}'s harvest brings in ${fmt(h)} rice.`,'shu')}
       if(c.rice<0){c.rice=0;c.troops=Math.round(c.troops*.9);c.order=Math.max(0,c.order-5);starve++;if(f==='shu')addLog(`<b>${c.name} has run out of rice.</b> 10% of its troops desert and order falls.`,'shu')}
       if(c.gold<0){c.gold=0;c.order=Math.max(0,c.order-2);broke++;if(f==='shu')addLog(`${c.name} cannot pay its officials. Order slips.`,'shu')}
       if(c.order>=60)c.pop=Math.round((c.pop*1.004)*10)/10;
@@ -1228,7 +1229,7 @@ function makeAdvice(){const ag=advisor(),sees=ag?advSees(ag):true,out=[],mine=ci
   for(const a of S.armies.filter(a=>mineIds.has(a.to)&&hostile(a.fac)).sort((x,y)=>x.left-y.left).slice(0,2)){const c=C(a.to),gs=a.gens.map(id=>GN(id).name);
     out.push({p:100-a.left,k:'war',t:'Enemy on the march',h:`${fs(a.fac)} is sending ${fmt(a.troops)} troops${gs.length?` under ${gs.slice(0,2).join(' and ')}`:''} against ${cn(c)}. They arrive ${a.left<=1?'<b>next month</b>':`in ${a.left} months`}. ${cn(c)} holds ${fmt(c.troops)} troops behind walls of ${c.walls}. ${c.troops<a.troops?'Reinforce it now, or raise its walls.':'Hold the walls and they will break on them.'}`})}
   // 2. unrest: riots below order 30 (rice or pay running out pushes order down)
-  for(const c of mine){const riceShort=S.month!==7&&c.rice-c.troops*RICE_CITY<0,goldShort=c.gold+c.com*.5*c.order/100*DF().inc-gensIn(c.id).length*SALARY<0,o2=c.order-(riceShort?5:0)-(goldShort?2:0);
+  for(const c of mine){const riceShort=S.month!==7&&c.rice-c.troops*RICE_CITY<0,goldShort=c.gold+c.com*.5*c.order/100*POPF(c)*DF().inc-gensIn(c.id).length*SALARY<0,o2=c.order-(riceShort?5:0)-(goldShort?2:0);
     if(o2<30&&(sees||c.order<30))out.push({p:80,k:'riot',t:c.order<30?'Riots':'Unrest',h:c.order<30?`Riots are already breaking out in ${cn(c)} (order ${c.order}); every month 5% of its troops desert. Send an officer to <b>Patrol</b> there at once.`:`Order in ${cn(c)} is ${c.order}${riceShort?' and its granary will be empty next month':goldShort?' and it cannot pay its officials next month':''}. Unless it improves, <b>riots will break out next month</b> and troops will desert. Send an officer to <b>Patrol</b>${riceShort?' and move rice there':''}.`})}
   // 3. a strong enemy beside one of our cities
   let threat=null;for(const o of mine)for(const nid of neighbours(o.id)){const e=C(nid);if(!hostile(e.owner)||S.armies.some(a=>a.to===o.id&&a.fac===e.owner))continue;
