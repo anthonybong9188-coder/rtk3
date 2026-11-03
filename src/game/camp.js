@@ -347,7 +347,7 @@ function renderCity(){
   let a=`<div class="cscene" style="${sceneStyle(c)}">
     ${mine&&my.length>1?`<button class="cnav prev" data-act="prevCity" aria-label="Previous city">‹</button><button class="cnav next" data-act="nextCity" aria-label="Next city">›</button>`:''}
     <div class="cscap"><span class="phzh" style="color:${F.light}">${c.zh}</span><div><div class="phn">${c.name}</div><div class="phs" style="color:${F.light}">${mine?`Your city${my.length>1?` · ${idx+1} of ${my.length}`:''}`:`${F.short} · ruled by ${F.name}`}${!mine&&allied('shu',c.owner)?' · ally':''}</div></div></div></div>`;
-  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${statRow('Farming',c.farm,c.farmMax)}${statRow('Commerce',c.com,c.comMax)}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${statRow('Population',fmt(c.pop*1000))}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>${mine?advSlot()+mktSlot(c):''}`;
+  a+=`<div class="sgrid">${mine?statRow('City gold',fmt(c.gold))+statRow('City rice',fmt(c.rice)):''}${statRow('Troops',fmt(c.troops))}${statRow('Training',c.train,100)}${statRow('Farming',c.farm,c.farmMax)}${statRow('Commerce',c.com,c.comMax)}${statRow('Walls',c.walls,100)}${statRow('Order',c.order,100)}${statRow('Population',fmt(c.pop*1000))}${mine?statRow('Harvest',S.month===7?'This month':`${((7-S.month+12)%12)||12} months`):''}</div>${mine?advSlot():''}`;
   $('#cA').innerHTML=a;
   // ---- column B: officers
   const gs=gensIn(c.id).sort((x,y)=>(isRuler(y)-isRuler(x))||y.war-x.war);
@@ -375,7 +375,7 @@ function renderCity(){
     cc+=`<div class="sec">Governed city</div><div class="govcard"><b>${gv?gv.name:'—'}</b><small>Governor · ${GOV_MODES[c.mode||'auto']} policy</small><div><b>${fmt(c.gold)}</b> gold · <b>${fmt(c.rice)}</b> rice</div></div>
       <button class="primary wide" data-act="request"><span class="czh">運</span> Order a transfer</button><button class="wide" data-act="delegate"><span class="czh">守</span> Governor & policy</button>`;
   } else if(mine){
-    cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}</div>`;
+    cc+=`<div class="sec">Commands</div><div class="cmdgrid">${Object.entries(CMDS).map(([k,v])=>`<button data-cmd="${k}" class="${UI.mode==='cmd'&&UI.cmd===k?'on':''}" title="${v.tip}"><span class="czh">${v.zh}</span>${v.n}</button>`).join('')}<button data-act="market" title="Buy or sell rice with the merchants"><span class="czh">市</span>Market</button></div>`;
     cc+=`<div class="mvrow"><button class="primary" data-act="march"><span class="czh">征</span> March</button><button data-act="transfer"><span class="czh">運</span> Transfer</button></div>`;
     if(!gensIn(c.id).some(g=>g.id===LORD())&&gensIn(c.id).length)cc+=`<button class="wide" data-act="delegate"><span class="czh">守</span> Delegate to a governor</button>`;
   } else {
@@ -1268,13 +1268,14 @@ function riceRate(c){const m=S.month,base=m>=7&&m<=9?10:m>=3&&m<=6?6:8;let h=0;f
   const swing=(h%31)/100-.15,com=.15*(c.com/Math.max(1,c.comMax));return Math.max(3,Math.round(base*(1+swing+com)*10)/10)}
 const riceSell=c=>Math.round(riceRate(c)*1.3*10)/10;
 function mktSlot(c){return `<button class="advb mkt" data-act="market"><span class="czh big">市</span><span><b>Market</b><small>This month 1 gold buys ${riceRate(c)} rice · ${riceSell(c)} rice sells for 1 gold</small></span></button>`}
-async function marketDlg(c){for(;;){const r=riceRate(c),sr=riceSell(c),season=S.month>=7&&S.month<=9?'just after the harvest, so rice is cheap':S.month>=3&&S.month<=6?'in spring before the harvest, so rice is dear':'between seasons';
-  const buys=[...new Set([100,500,1000,2000].filter(g=>g<=c.gold).concat(c.gold>=10?[c.gold]:[]))].sort((x,y)=>x-y),sells=[...new Set([1000,5000,10000,20000].filter(x=>x<=c.rice).concat(c.rice>=sr*10?[Math.floor(c.rice/2)]:[]))].sort((x,y)=>x-y);
+async function marketDlg(c){const BU=100,SU=1000;for(;;){const r=riceRate(c),sr=riceSell(c),season=S.month>=7&&S.month<=9?'just after the harvest, so rice is cheap':S.month>=3&&S.month<=6?'in spring before the harvest, so rice is dear':'between seasons';
   const need=Math.round(c.troops*RICE_CITY);
-  const html=`<h2>市 Market · ${c.name}</h2><p class="muted">The merchants of ${c.name} trade rice for gold. Prices change every month: it is ${season}. A city with higher commerce gets better prices.</p>
+  const BS='style="display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;padding:6px 4px"';const bb=m=>`<button ${BS} data-r="b:${m*BU}" ${m*BU>c.gold?'disabled':''}><b>×${m}</b><small>${fmt(m*BU)} gold → ${fmt(Math.floor(m*BU*r))} rice</small></button>`;
+  const sb=m=>`<button ${BS} data-r="s:${m*SU}" ${m*SU>c.rice?'disabled':''}><b>×${m}</b><small>${fmt(m*SU)} rice → ${fmt(Math.floor(m*SU/sr))} gold</small></button>`;
+  const html=`<h2>市 Market · ${c.name}</h2><p class="muted">Prices change every month: it is ${season}. Higher commerce gets better prices.</p>
     <div class="sgrid" style="margin:8px 0">${statRow('City gold',fmt(c.gold))}${statRow('City rice',fmt(c.rice))}${statRow('Buy',`1 gold → ${r} rice`)}${statRow('Sell',`${sr} rice → 1 gold`)}${statRow('Troops eat',fmt(need)+' rice / month')}</div>
-    <div class="sec">Buy rice</div><div class="tlist">${buys.length?buys.map(g=>`<button data-r="b:${g}"><span><b>Buy ${fmt(Math.floor(g*r))} rice</b>&nbsp;<small>for ${fmt(g)} gold${g===c.gold?' (all your gold)':''}</small></span></button>`).join(''):'<p class="muted">Not enough gold to buy.</p>'}</div>
-    <div class="sec">Sell rice</div><div class="tlist">${sells.length?sells.map(x=>`<button data-r="s:${x}"><span><b>Sell ${fmt(x)} rice</b>&nbsp;<small>for ${fmt(Math.floor(x/sr))} gold${x===Math.floor(c.rice/2)?' (half your rice)':''}</small></span></button>`).join(''):'<p class="muted">Not enough rice to sell.</p>'}</div>`;
+    <div class="sec">Buy rice <small class="muted">(×1 = ${BU} gold)</small></div><div class="mktx" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0 8px">${bb(1)}${bb(5)}${bb(10)}</div>
+    <div class="sec">Sell rice <small class="muted">(×1 = ${fmt(SU)} rice)</small></div><div class="mktx" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0 8px">${sb(1)}${sb(5)}${sb(10)}</div>`;
   const v=await dialog(html,[['done','Done','primary']]);
   if(!v||!/^[bs]:/.test(v))return;const n=+v.slice(2);
   if(v[0]==='b'){if(n>c.gold)continue;const got=Math.floor(n*r);c.gold-=n;c.rice+=got;addLog(`${c.name} buys ${fmt(got)} rice from the merchants for ${fmt(n)} gold.`,'shu')}
