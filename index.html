@@ -1642,7 +1642,7 @@ function drawSprite(c,f,sh){
   if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}if(f.jy)c.translate(0,-f.jy/f.s);
   if(row===3&&SROWS(sh)>4&&!f.wave&&!(f.shoot&&f.officer&&!(f.fall>0)&&!(f.defeat>0)))row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
-const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuhuang:'overhead',xuchu:'overhead',dianwei:'overhead',lubu:'overhead',zhoucang:'overhead',caozhang:'overhead',zhangliao:'overhead',
+const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuhuang:'side',xuchu:'side',dianwei:'overhead',lubu:'overhead',zhoucang:'overhead',caozhang:'overhead',zhangliao:'overhead',
  huangzhong:'side',zhoutai:'side',ganning:'side',caoren:'side',lumeng:'side',yuejin:'side',sunjian:'side',taishici:'side',guanping:'side',xiahoudun:'side',huanggai:'side',
  huangyi:'float',xuannu:'float',renrui:'float',xishi:'float',liubei:'float',caocao:'float',sunquan:'float',zhouyu:'float',monu:'float',sunshangxiang:'float',
  zhaoyun:'thrust',machao:'thrust',zhangfei:'thrust',sunce:'thrust',xiahouyuan:'thrust',hero:'palm'};

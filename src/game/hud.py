@@ -2623,7 +2623,7 @@ rep("await cutIn(s,h);SND.fx('sk_'+k);","await cutIn(s,h);SND.fx(SKSND[k]||'sk_'
 #   thrust   = spear users drive forward in a low lunge
 #   palm     = the New Hero: palm strike, golden dragon flies into the enemy
 rep("const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';",'''const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
-const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuhuang:'overhead',xuchu:'overhead',dianwei:'overhead',lubu:'overhead',zhoucang:'overhead',caozhang:'overhead',zhangliao:'overhead',
+const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuhuang:'side',xuchu:'side',dianwei:'overhead',lubu:'overhead',zhoucang:'overhead',caozhang:'overhead',zhangliao:'overhead',
  huangzhong:'side',zhoutai:'side',ganning:'side',caoren:'side',lumeng:'side',yuejin:'side',sunjian:'side',taishici:'side',guanping:'side',xiahoudun:'side',huanggai:'side',
  huangyi:'float',xuannu:'float',renrui:'float',xishi:'float',liubei:'float',caocao:'float',sunquan:'float',zhouyu:'float',monu:'float',sunshangxiang:'float',
  zhaoyun:'thrust',machao:'thrust',zhangfei:'thrust',sunce:'thrust',xiahouyuan:'thrust',hero:'palm'};
