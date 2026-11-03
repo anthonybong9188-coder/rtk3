@@ -2616,34 +2616,30 @@ rep("background:url(art/city_icons${s2?'2':''}.png) ${-(q[0]*s).toFixed(2)}px ${
 rep("async function heroAct(k,s,t){","""const SKSND={tiger:'sk_roar',raid:'sk_assassin',sharp:'sk_pierce',twin:'sk_crescent',terror:'sk_roar',ambush:'sk_assassin',swift:'sk_pierce',iron:'gong',blaze:'sk_burn',rally:'sk_bless',burncamps:'sk_burn',onefury:'sk_musou',longdrive:'sk_sweep',yellowbeard:'sk_roar',wolfgaze:'sk_bagua',poison:'sk_assassin',ambush10:'sk_bagua',twelve:'sk_star',breaker:'sk_crescent',lord:'sk_bless',ships:'sk_burn',ironwall:'gong',whiterobe:'sk_assassin',firstwall:'gong',twinsea:'sk_crescent',coffin:'sk_musou',hebei:'sk_pierce',champion:'sk_sweep',sishui:'gong',counsel:'sk_grace',grandplan:'sk_bagua',redturban:'sk_roar',conqueror:'sk_musou',splendid:'sk_pierce',evilcome:'sk_roar',foresight:'sk_star'};
 async function heroAct(k,s,t){""")
 rep("await cutIn(s,h);SND.fx('sk_'+k);","await cutIn(s,h);SND.fx(SKSND[k]||'sk_'+k);")
-# v445 (3 Nov): dash attack in the fight scene — the attacking melee general opens with a signature move as he closes in:
-#   leap  = jumps and slashes down (Guan Yu, Xu Chu, Lü Bu ... and generic officers)
-#   stab  = sword/spear users lunge low with the point forward (Huang Yi, Xuannü, Zhao Yun, Ma Chao ...)
-#   palm  = the New Hero thrusts his palm and a golden dragon blast flies into the enemy
-rep("const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';","""const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
-const DASH_STAB=new Set(['huangyi','xuannu','renrui','xishi','liubei','caocao','sunquan','zhaoyun','machao','zhangfei','sunce','wenchou','monu','sunshangxiang','xiahouyuan']);
-const dashKind=u=>u.id==='hero'?'palm':DASH_STAB.has(u.id)?'stab':'leap';
-const DA=880,DB=1200;
-function dashF(S,t,flee){if(!S.dashOn||flee)return {};const k=S.dashK;
-  if(k==='palm'){if(t>=980&&t<1330)return {fight:true,run:null,frz:clamp((t-980)/260)*.55};return {}}
-  if(t<DA||t>=DB)return {};const q=(t-DA)/(DB-DA);
-  if(k==='stab')return {fight:true,run:null,frz:.42,jy:Math.sin(Math.PI*q)*16*S.off.s};
-  return {fight:true,run:null,frz:q*.85,jy:Math.sin(Math.PI*q)*78*S.off.s}}
-function dashRow(u){const h=Object.entries(HERO).find(([k,v])=>v.who===u.id&&FXROW['w_'+k]!=null);return h?FXROW['w_'+h[0]]:FXROW.arc}
-function dashFX(c,sides,t){for(const S of sides){if(!S.dashOn)continue;const o=S.off,sc=o.s*FIGSZ,k=S.dashK,f=S.face;
-  const hx=sXo(o,S,Math.min(t,DB)),hy=o.y-40*sc;
-  if(k==='palm'){const t0=1060,t1=1260;
-    if(t>=t0&&t<t1){const p=(t-t0)/(t1-t0),x=lerp(hx+f*30*sc,hx+f*120*sc,p),im=fxSheet('hero');if(im.complete&&im.naturalWidth){const s=(90+60*p)*sc;c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame('hero',im,Math.min(7,Math.floor(p*8))),x-s/2,hy-s/2,s,s);c.restore()}}
-    if(t>=t1&&t<t1+420){const p=(t-t1)/420,im=fxSheet('hero');if(im.complete&&im.naturalWidth){const s=170*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.7?(1-p)/.3:1;c.drawImage(fxFrame('hero',im,8+Math.min(7,Math.floor(p*8))),hx+f*120*sc-s/2,hy-s/2,s,s);c.restore()}
-      if(!S._dh){S._dh=1;burst(hx+f*120*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}}
+# v445b (3 Nov): fight-scene dash attack, martial-art style — waits for each general's own dash clip (6th sprite row, from Grok).
+#   overhead = guandao / great blade / axe / club raised above the head, smooth downward slash (no jump)
+#   side     = sabre swung sideways like a bat (no jump)
+#   float    = sword users glide two steps with qinggong, sword raised upright, graceful pose
+#   thrust   = spear users drive forward in a low lunge
+#   palm     = the New Hero: palm strike, golden dragon flies into the enemy
+rep("const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';",'''const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
+const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuhuang:'overhead',xuchu:'overhead',dianwei:'overhead',lubu:'overhead',zhoucang:'overhead',caozhang:'overhead',zhangliao:'overhead',
+ huangzhong:'side',zhoutai:'side',ganning:'side',caoren:'side',lumeng:'side',yuejin:'side',sunjian:'side',taishici:'side',guanping:'side',xiahoudun:'side',huanggai:'side',
+ huangyi:'float',xuannu:'float',renrui:'float',xishi:'float',liubei:'float',caocao:'float',sunquan:'float',zhouyu:'float',monu:'float',sunshangxiang:'float',
+ zhaoyun:'thrust',machao:'thrust',zhangfei:'thrust',sunce:'thrust',xiahouyuan:'thrust',hero:'palm'};
+const dashKind=u=>DASH_STYLE[u.id]||null;
+function dashReady(u){if(!dashKind(u))return false;const k=femKey(u);if(!k)return false;const sh=sprSheet(k,'shu');return !!(sh&&sh.naturalWidth&&SROWS(sh)>5)}
+const DA=860,DB=1200;
+function dashF(S,t,flee){if(!S.dashOn||flee||t<DA||t>=DB+120)return {};const q=clamp((t-DA)/(DB+120-DA)),k=S.dashK;
+  return {dash:true,fight:false,run:null,frz:q,jy:k==='float'?Math.sin(Math.PI*clamp((t-DA)/(DB-DA)))*26*S.off.s:0}}
+function dashFX(c,sides,t){for(const S of sides){if(!S.dashOn)continue;const o=S.off,sc=o.s*FIGSZ,f=S.face,hx=sXo(o,S,Math.min(t,DB)),hy=o.y-40*sc;
+  if(S.dashK==='palm'){const t0=1040,t1=1240,im=fxSheet('hero');if(!(im.complete&&im.naturalWidth))continue;
+    if(t>=t0&&t<t1){const p=(t-t0)/(t1-t0),x=lerp(hx+f*30*sc,hx+f*120*sc,p),s=(90+60*p)*sc;c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame('hero',im,Math.min(7,Math.floor(p*8))),x-s/2,hy-s/2,s,s);c.restore()}
+    if(t>=t1&&t<t1+420){const p=(t-t1)/420,s=170*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.7?(1-p)/.3:1;c.drawImage(fxFrame('hero',im,8+Math.min(7,Math.floor(p*8))),hx+f*120*sc-s/2,hy-s/2,s,s);c.restore();if(!S._dh){S._dh=1;burst(hx+f*120*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}}
     continue}
-  const ix=hx+f*(k==='stab'?66:58)*sc;
-  if(k==='stab'&&t>=DB-160&&t<DB+60){const p=(t-(DB-160))/220,len=(70+90*p)*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=1-p*.6;const g=c.createLinearGradient(hx,0,hx+f*len,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(230,245,255,.95)');c.strokeStyle=g;c.lineWidth=5*sc+1;c.beginPath();c.moveTo(hx,hy+6*sc);c.lineTo(hx+f*len,hy+6*sc);c.stroke();c.restore()}
-  if(t>=DB-40&&t<DB+420){const p=(t-(DB-40))/460,row=k==='stab'?FXROW.hit:dashRow(S.u),fr=Math.min(7,Math.floor(p*8)),s=(k==='stab'?110:150)*sc;
-    c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.75?(1-p)*4:1;if(f<0){c.translate(ix,0);c.scale(-1,1);c.translate(-ix,0)}skfxDraw(c,fr,row,ix-s/2,(k==='stab'?hy:o.y-34*sc)-s/2,s,s);c.restore();
-    if(!S._dh){S._dh=1;burst(ix,hy,k==='stab'?12:20,'#ffe7a8',k==='stab'?3:4.4);SND.fx('hit')}}}}""")
+  if(t>=DB&&!S._dh){S._dh=1;burst(hx+f*60*sc,hy,14,'#ffe7a8',3.4);SND.fx('hit')}}}''')
 rep("if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}","if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}if(f.jy)c.translate(0,-f.jy/f.s);")
-rep("if(Math.abs(f.turn??1)===.999){row=0;fr=0}","if(f.frz!=null&&row===2){const nf2=Math.round(sh.naturalWidth/SCW(sh));fr=Math.min(nf2-1,Math.floor(f.frz*nf2))}if(Math.abs(f.turn??1)===.999){row=0;fr=0}")
+rep("if(Math.abs(f.turn??1)===.999){row=0;fr=0}","if(f.dash&&SROWS(sh)>5){row=5;const nf2=Math.round(sh.naturalWidth/SCW(sh));fr=Math.min(nf2-1,Math.floor((f.frz||0)*nf2))}if(Math.abs(f.turn??1)===.999){row=0;fr=0}")
 rep("tf:S.face,alpha:1-flee}})}","tf:S.face,alpha:1-flee,...dashF(S,t,flee)}})}")
 rep("items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}","items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}dashFX(c,[SL,SR],t);")
-rep("const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';","const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax}")
+rep("const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';","const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u)}")
