@@ -2652,3 +2652,8 @@ rep("redturban:3,conqueror:3};","redturban:3,conqueror:3,coffin:3.2,hebei:3,cham
 rep("float(t,'+20% attack','#9fe0a0');mfx('rally',t.x,t.y,1000,2.4);","float(t,'+20% attack','#9fe0a0');")
 rep("float(e,'Cannot strike back','#c8b6ff')}mfx('bagua',t.x,t.y,1000,2.8);","float(e,'Cannot strike back','#c8b6ff')}")
 rep("const SKSND={tiger:'sk_roar',raid:'sk_assassin',sharp:'sk_pierce',twin:'sk_crescent',terror:'sk_roar',ambush:'sk_assassin',swift:'sk_pierce',iron:'gong',blaze:'sk_burn',rally:'sk_bless',burncamps:'sk_burn',onefury:'sk_musou',longdrive:'sk_sweep',yellowbeard:'sk_roar',wolfgaze:'sk_bagua',poison:'sk_assassin',ambush10:'sk_bagua',twelve:'sk_star',breaker:'sk_crescent',lord:'sk_bless',ships:'sk_burn',ironwall:'gong',whiterobe:'sk_assassin',firstwall:'gong',twinsea:'sk_crescent',coffin:'sk_musou',hebei:'sk_pierce',champion:'sk_sweep',sishui:'gong',counsel:'sk_grace',grandplan:'sk_bagua',redturban:'sk_roar',conqueror:'sk_musou',splendid:'sk_pierce',evilcome:'sk_roar',foresight:'sk_star'};","const SKSND={};")
+# v448 (3 Nov): Grok redos — Sishui Gate map effect (skill_fx_e row 58), Ju Shou cut-in, Sun Jian melee + dash, Yan Liang added (portrait), 28 more dash rows (directsheet: dash frames keep full opacity)
+rep("w_grandplan:57}","w_grandplan:57,w_sishui:58}")
+rep("counsel:3,grandplan:3};","counsel:3,grandplan:3,sishui:3.2};")
+rep("for(const e of adjE(s)){e.fear=2;float(e,'Attack −20%','#c8a070')}mfx('shield',s.x,s.y,1100);","for(const e of adjE(s)){e.fear=2;float(e,'Attack −20%','#c8a070')}")
+rep("VIDS=new Set(['p_pangde',","VIDS=new Set(['p_jushou','p_pangde',")
