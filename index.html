@@ -1634,14 +1634,35 @@ function drawSprite(c,f,sh){
     if(f.fall>0)fr=Math.min(nf-1,Math.floor(f.fall*nf));else if(f.defeat>0)fr=Math.min(nf-1,Math.floor(clamp(f.defeat)*nf*.6));
     else if(row===2&&f.officer&&!f.fight&&f.swing>0)fr=Math.min(nf-1,Math.floor(f.swing*nf));
     else if((row===2||row===3&&f.shoot&&!(f.fall>0)&&!(f.defeat>0))&&f.officer){const T=f.gt!=null?f.gt:now/2;if(SRC._ft==null)SRC._ft=T;fr=Math.floor(((T-SRC._ft)%750)/750*nf)%nf}else if(row===2)fr=Math.floor(now/((f.slow?110:75)*12/nf)+sd*5)%nf;else if(row===1)fr=Math.floor(f.run*nf/10.4*RM(sh))%nf;else fr=pp(Math.floor(now/(110*12/nf)+sd*7),nf)}}
-  if(Math.abs(f.turn??1)===.999){row=0;fr=0}
+  if(f.frz!=null&&row===2){const nf2=Math.round(sh.naturalWidth/SCW(sh));fr=Math.min(nf2-1,Math.floor(f.frz*nf2))}if(Math.abs(f.turn??1)===.999){row=0;fr=0}
   let dir=f.face*Math.sign(f.turn??1);
   const tkey=f.officer?(f.fem||'general'):f.type;
   if(false&&f.tk&&!f.fall&&TURNSH[tkey]){const ts=sprSheet(tkey+'_turn',sprFac(f.fac));if(ts){sh=ts;row=f.tk[0];fr=Math.min(3,Math.floor(f.tk[1]*4));dir=f.tf}}
   const cv=(CAVT.has(f.type)&&(!f.hw||f.dg))||f.officer,k=sprK(sh.src)*(f.officer?84:cv?74:f.type==='tiger'?108:f.type==='wolf'?90:62)/150;c.save();c.globalAlpha=f.alpha??1;c.translate(f.x,f.y);c.scale(f.s*dir,f.s);
-  if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}
+  if(!f.fall){c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,1,cv?22:10,3,0,0,Math.PI*2);c.fill()}if(f.jy)c.translate(0,-f.jy/f.s);
   if(row===3&&SROWS(sh)>4&&!f.wave&&!(f.shoot&&f.officer&&!(f.fall>0)&&!(f.defeat>0)))row=4;c.drawImage(sh,fr*SCW(sh),row*SCH(sh),SCW(sh),SCH(sh),-128*k,-168*k,256*k,176*k);c.restore()}
 const FIREFX=new Image();FIREFX.src='sprites/fire_fx.jpg';
+const DASH_STAB=new Set(['huangyi','xuannu','renrui','xishi','liubei','caocao','sunquan','zhaoyun','machao','zhangfei','sunce','wenchou','monu','sunshangxiang','xiahouyuan']);
+const dashKind=u=>u.id==='hero'?'palm':DASH_STAB.has(u.id)?'stab':'leap';
+const DA=880,DB=1200;
+function dashF(S,t,flee){if(!S.dashOn||flee)return {};const k=S.dashK;
+  if(k==='palm'){if(t>=980&&t<1330)return {fight:true,run:null,frz:clamp((t-980)/260)*.55};return {}}
+  if(t<DA||t>=DB)return {};const q=(t-DA)/(DB-DA);
+  if(k==='stab')return {fight:true,run:null,frz:.42,jy:Math.sin(Math.PI*q)*16*S.off.s};
+  return {fight:true,run:null,frz:q*.85,jy:Math.sin(Math.PI*q)*78*S.off.s}}
+function dashRow(u){const h=Object.entries(HERO).find(([k,v])=>v.who===u.id&&FXROW['w_'+k]!=null);return h?FXROW['w_'+h[0]]:FXROW.arc}
+function dashFX(c,sides,t){for(const S of sides){if(!S.dashOn)continue;const o=S.off,sc=o.s*FIGSZ,k=S.dashK,f=S.face;
+  const hx=sXo(o,S,Math.min(t,DB)),hy=o.y-40*sc;
+  if(k==='palm'){const t0=1060,t1=1260;
+    if(t>=t0&&t<t1){const p=(t-t0)/(t1-t0),x=lerp(hx+f*30*sc,hx+f*120*sc,p),im=fxSheet('hero');if(im.complete&&im.naturalWidth){const s=(90+60*p)*sc;c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame('hero',im,Math.min(7,Math.floor(p*8))),x-s/2,hy-s/2,s,s);c.restore()}}
+    if(t>=t1&&t<t1+420){const p=(t-t1)/420,im=fxSheet('hero');if(im.complete&&im.naturalWidth){const s=170*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.7?(1-p)/.3:1;c.drawImage(fxFrame('hero',im,8+Math.min(7,Math.floor(p*8))),hx+f*120*sc-s/2,hy-s/2,s,s);c.restore()}
+      if(!S._dh){S._dh=1;burst(hx+f*120*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}}
+    continue}
+  const ix=hx+f*(k==='stab'?66:58)*sc;
+  if(k==='stab'&&t>=DB-160&&t<DB+60){const p=(t-(DB-160))/220,len=(70+90*p)*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=1-p*.6;const g=c.createLinearGradient(hx,0,hx+f*len,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(230,245,255,.95)');c.strokeStyle=g;c.lineWidth=5*sc+1;c.beginPath();c.moveTo(hx,hy+6*sc);c.lineTo(hx+f*len,hy+6*sc);c.stroke();c.restore()}
+  if(t>=DB-40&&t<DB+420){const p=(t-(DB-40))/460,row=k==='stab'?FXROW.hit:dashRow(S.u),fr=Math.min(7,Math.floor(p*8)),s=(k==='stab'?110:150)*sc;
+    c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.75?(1-p)*4:1;if(f<0){c.translate(ix,0);c.scale(-1,1);c.translate(-ix,0)}skfxDraw(c,fr,row,ix-s/2,(k==='stab'?hy:o.y-34*sc)-s/2,s,s);c.restore();
+    if(!S._dh){S._dh=1;burst(ix,hy,k==='stab'?12:20,'#ffe7a8',k==='stab'?3:4.4);SND.fx('hit')}}}}
 function drawSig(c,f){const sh=sprSheet('general_sig',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function fx(c,row,fr,x,y,s,a){if(!FIREFX.complete||!FIREFX.naturalWidth)return;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a??1;c.drawImage(FIREFX,fr*200,row*200,200,200,x-100*s,y-196*s,200*s,200*s);c.restore()}
@@ -2083,7 +2104,7 @@ function playBattle0_(att,def,r){
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];DUST=[];
     const END=4100,start=performance.now();let skip=false,last=start;
     const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
-    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';
+    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax}
     const shownT=(S,t)=>{const k=kindOf(S)==='arrow'?clamp((t-1280)/600):clamp((t-1650)/1000);return lerp(S.before,S.after,k)};
     function frame(now){
       let t=skip?END:(now-start)*speed*FIGHT_SLOW;const dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;
@@ -2108,8 +2129,8 @@ function playBattle0_(att,def,r){
         if(fate==='capture'&&t>2550){const k3=t>3050,hx=ox-S.face*Math.max(0,t-3050)*.32;
           if(k3){items.push({y:o.y-1,f:{cap:true,fem:femKey(S.u),fr:2,x:hx,y:o.y,s:o.s,face:S.face,fac:S.u.side,alpha:clamp(1-(t-3500)/500)}});items.push({y:o.y+2,f:{cap:true,fem:femKey(S.u),fr:t<3350?3:4,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
           else items.push({y:o.y,f:{cap:true,fem:femKey(S.u),fr:t<2800?0:1,x:ox,y:o.y,s:o.s,face:S.face,fac:S.u.side}})}
-        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y,s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave||(S.rbw&&!flee&&t>=1200&&t<=2700?1:0),ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<(S.back?2700:1400),fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):(S.melee&&(!S.back||S.rb)&&!flee&&t>=1200&&t<=2700||S.step&&!flee&&t>=1800&&t<=2700),slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold&&!S.back?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee}})}
-      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}if(wfront&&!cam)BGZ(c,wfront,0);
+        else items.push({y:o.y,f:{x:ox-S.face*flee*(fate==='breakout'?260:140),y:o.y,s:o.s,face:oface,fac:S.u.side,type:S.u.type,dg:S.u.dragon,officer:true,src:o,gt:t,nohero:!S.u.hpMax,wave:S.wave||(S.rbw&&!flee&&t>=1200&&t<=2700?1:0),ch:S.u.ch,fem:femKey(S.u),run:S.wave?null:orun,swing:osw,shoot:S.shoot&&t>600&&t<(S.back?2700:1400),fight:S.ch?ochf:S.hold?!flee&&t>=(S.holdT||1050)&&t<=(S.holdE||2500):(S.melee&&(!S.back||S.rb)&&!flee&&t>=1200&&t<=2700||S.step&&!flee&&t>=1800&&t<=2700),slow:ochf,defeat:fate==='escape'&&t>2550&&t<=2900?clamp((t-2550)/350):0,seed:1.7,turn:flee?TURN(t,[2900]):S.melee&&!S.ch&&!S.hold&&!S.back?TURN(t,[2700,3500]):1,tk:flee?TURNK(t,[2900]):S.ch?(t>=3450&&t<3450+TURN_MS?[0,(t-3450)/TURN_MS]:null):S.melee&&!S.ch&&!S.hold?TURNK(t,[2700,3500]):null,tf:S.face,alpha:1-flee,...dashF(S,t,flee)}})}
+      items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}dashFX(c,[SL,SR],t);if(wfront&&!cam)BGZ(c,wfront,0);
       for(const a of arrows){if(t<a.t0||t>a.t0+a.dur||a.src.deathT<a.t0)continue;const p=(t-a.t0)/a.dur;
         const sx=sX(a.src,a.S,a.t0),sy=a.src.hy-24*a.src.s,tx=sX(a.tgt,a.O,Math.min(a.t0+a.dur,a.tgt.deathT))+a.jx,ty=a.tgt.hy-20*a.tgt.s;
         const x=lerp(sx,tx,p),y=lerp(sy,ty,p)-Math.sin(Math.PI*p)*90,dx=tx-sx,dy=(ty-sy)-Math.cos(Math.PI*p)*90*Math.PI,ang=Math.atan2(dy,dx);
