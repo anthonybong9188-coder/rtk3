@@ -74,7 +74,7 @@ const GEN_NEW=[
  ['guanhai','Guan Hai','亥',78,30,16,40,'peasant',null],['zhangyan','Zhang Yan','燕',78,60,52,74,'cav',null],['suigu','Sui Gu','固',64,38,30,40,'spear',null],
  ['lubu','Lü Bu','呂',100,26,13,40,'cav','lu_bu'],['dongzhuo','Dong Zhuo','董',87,68,30,46,'cav','p_dongzhuo'],['yuanshao','Yuan Shao','袁',70,74,76,90,'cav','p_yuanshao'],
  ['yuanshu','Yuan Shu','術',62,62,64,66,'shield','p_yuanshu'],['sunjian','Sun Jian','堅',93,80,74,92,'cav','p_sunjian'],['sunce','Sun Ce','策',94,76,72,96,'cav','p_sunce'],
- ['mateng','Ma Teng','騰',86,50,58,84,'cav',null],['hansui','Han Sui','遂',80,72,54,72,'cav','p_hansui'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_gongsunzan'],
+ ['mateng','Ma Teng','騰',86,50,58,84,'cav','p_mateng'],['hansui','Han Sui','遂',80,72,54,72,'cav','p_hansui'],['gongsunzan','Gongsun Zan','瓚',84,70,62,76,'cav','p_gongsunzan'],
  ['gongsundu','Gongsun Du','度',78,62,60,66,'cav','p_gongsundu'],['gongsunkang','Gongsun Kang','康',72,60,62,60,'cav','p_gongsunkang'],['liubiao','Liu Biao','表',40,78,86,84,'shield','p_liubiao'],
  ['liuyan','Liu Yan','焉',32,72,76,70,'shield','p_liuyan'],['liuzhang','Liu Zhang','璋',30,56,64,62,'shield','p_liuzhang'],['zhanglu','Zhang Lu','魯',40,74,82,82,'shield','p_zhanglu'],
  ['taoqian','Tao Qian','陶',30,62,74,80,'shield','p_taoqian'],['kongrong','Kong Rong','孔',30,82,84,88,'archer','p_kongrong'],['hanfu','Han Fu','馥',40,56,60,52,'shield','p_hanfu'],

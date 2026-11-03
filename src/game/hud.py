@@ -2643,3 +2643,12 @@ rep("if(Math.abs(f.turn??1)===.999){row=0;fr=0}","if(f.dash&&SROWS(sh)>5){row=5;
 rep("tf:S.face,alpha:1-flee}})}","tf:S.face,alpha:1-flee,...dashF(S,t,flee)}})}")
 rep("items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}","items.sort((a,b)=>a.y-b.y);for(const it of items){it.f.s*=FIGSZ;drawFigure(c,it.f)}dashFX(c,[SL,SR],t);")
 rep("const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';","const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u)}")
+
+# v446 (3 Nov): Grok round 2 - sprite sheets for Pang De, Wen Chou, Hua Xiong, Tian Feng, Ju Shou, Dong Zhuo, Yuan Shao, Yuan Shu; cut-ins; vfx batch D rows 53-57 in skill_fx_e.jpg; all 36 specials have their own sounds now (SKSND emptied)
+rep("const GSHEET={machao:'f_machao',","const GSHEET={pangde:'f_pangde',wenchou:'f_wenchou',huaxiong:'f_huaxiong',tianfeng:'f_tianfeng',jushou:'f_jushou',dongzhuo:'f_dongzhuo',yuanshao:'f_yuanshao',yuanshu:'f_yuanshu',machao:'f_machao',")
+rep("VIDS=new Set(['p_machao',","VIDS=new Set(['p_pangde','p_wenchou','p_huaxiong','p_tianfeng','p_sunjian','p_machao',")
+rep("w_conqueror:52}","w_conqueror:52,w_coffin:53,w_hebei:54,w_champion:55,w_counsel:56,w_grandplan:57}")
+rep("redturban:3,conqueror:3};","redturban:3,conqueror:3,coffin:3.2,hebei:3,champion:3.2,counsel:3,grandplan:3};")
+rep("float(t,'+20% attack','#9fe0a0');mfx('rally',t.x,t.y,1000,2.4);","float(t,'+20% attack','#9fe0a0');")
+rep("float(e,'Cannot strike back','#c8b6ff')}mfx('bagua',t.x,t.y,1000,2.8);","float(e,'Cannot strike back','#c8b6ff')}")
+rep("const SKSND={tiger:'sk_roar',raid:'sk_assassin',sharp:'sk_pierce',twin:'sk_crescent',terror:'sk_roar',ambush:'sk_assassin',swift:'sk_pierce',iron:'gong',blaze:'sk_burn',rally:'sk_bless',burncamps:'sk_burn',onefury:'sk_musou',longdrive:'sk_sweep',yellowbeard:'sk_roar',wolfgaze:'sk_bagua',poison:'sk_assassin',ambush10:'sk_bagua',twelve:'sk_star',breaker:'sk_crescent',lord:'sk_bless',ships:'sk_burn',ironwall:'gong',whiterobe:'sk_assassin',firstwall:'gong',twinsea:'sk_crescent',coffin:'sk_musou',hebei:'sk_pierce',champion:'sk_sweep',sishui:'gong',counsel:'sk_grace',grandplan:'sk_bagua',redturban:'sk_roar',conqueror:'sk_musou',splendid:'sk_pierce',evilcome:'sk_roar',foresight:'sk_star'};","const SKSND={};")
