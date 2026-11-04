@@ -173,13 +173,13 @@ async function st_afterYT(){P.flags.yt=1;P.gold+=150;st_gainManual('tiger');
   await st_say('chief','How... can one man... stand against the Yellow Sky...');
   await st_say('narr','The camp scatters. By nightfall the whole county speaks of a young hero with a palm of gold.');
   await st_say('narr','In Zhuo, three men — Liu Bei, Guan Yu and Zhang Fei — are raising volunteers against the rebels. They want to meet you...<br><br><b style="color:#ffd77a">End of Chapter 1.</b> Chapter 2: the road to Hu Lao Gate — coming soon.');st_save();st_showMap()}
-function st_learn(k){if(!P.arts[k]){P.arts[k]={lv:1,xp:0};st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
+function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};if(lv0){st_toast('Learned '+ARTS[k].n+' at level 0 — equip it and win battles to reach level 1',3600);return}st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
 
 // ---------- hero panel ----------
 function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';
   const q=QG[P.qg],I=INNER[P.inner];P.manuals=P.manuals||[];P.antidote=P.antidote||0;
   const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`;
-  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/10 · ${A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small></div>`}).join('')}
+  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/10 · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small></div>`}).join('')}
     <div class="sec2">內功 Inner art <small>passive</small></div><div class="art"><div class="ah"><b>${I.zh} ${I.n}</b></div><small>${I.desc}</small></div>
     <div class="sec2">輕功 Lightness skill</div><div class="art"><div class="ah"><b>${q.zh} ${q.n}</b></div><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>`;
   const inv=`<div class="sec2">包裹 Inventory</div>
@@ -193,7 +193,7 @@ function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=t
   p.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>st_heroPanel(b.dataset.tab));
   p.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{P.eq=b.dataset.eq;st_save();st_heroPanel('skills');st_toast('Equipped: '+ARTS[P.eq].n)});
   p.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{if(b.dataset.use==='herb'){P.herbs--;P.hp=Math.min(P.hpMax,P.hp+50)}else{P.antidote--;P.poison=0;st_toast('Poison cured')}st_hud();st_save();st_heroPanel('inv')});
-  p.querySelectorAll('[data-learn]').forEach(b=>b.onclick=()=>{const k=b.dataset.learn;P.manuals=P.manuals.filter(x=>x!==k);st_learn(k);st_save();st_heroPanel('inv')})}
+  p.querySelectorAll('[data-learn]').forEach(b=>b.onclick=()=>{const k=b.dataset.learn;P.manuals=P.manuals.filter(x=>x!==k);st_learn(k,1);st_save();st_heroPanel('inv')})}
 function st_gainManual(k){P.manuals=P.manuals||[];if(!P.arts[k]&&!P.manuals.includes(k)){P.manuals.push(k);st_toast('Manual obtained: '+ARTS[k].n+' — study it in the Hero screen',3200)}}
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
@@ -204,7 +204,7 @@ function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalW
 
 // ---------- battle ----------
 let B=null;const COLS=14,ROWS=8;
-function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts),hero:true}}
+function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>P.arts[k].lv>=1),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
   const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
