@@ -4035,10 +4035,10 @@ const PLACES=[
  {id:'ytcamp',zh:'黃巾營',n:'Yellow Turban Camp',x:.80,y:.74,need:'temple'}];
 const E=(id,name,sheet,lv,hp,atk,def,arts,xp,port,mv)=>({id,name,sheet,lv,hp,hpMax:hp,mp:0,mpMax:0,atk,def,arts,xp,port,mv:mv||2,dodge:.05,side:'E'});
 const BATTLES={
- spar:{bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12)],pos:[[6,1],[6,3]]},
- bw:{bg:'bg_forest',title:'Black Wind Fort',foes:()=>[E('xiaohei','Black Wind Chief','f_xiaohei_shu',4,115,18,7,['axe'],40,'xiao_hei'),E('b1','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b2','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b3','Bandit','peasant_wei',2,45,12,4,['slash'],14)],pos:[[7,2],[6,1],[6,3],[8,0]]},
- temple:{bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16)],pos:[[8,2],[6,1],[6,3]]},
- yt:{bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18)],pos:[[8,2],[6,0],[6,2],[6,4],[7,1]]}};
+ spar:{theme:'pass',bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12)],pos:[[9,2],[9,5]]},
+ bw:{theme:'forest',bg:'bg_forest',title:'Black Wind Fort',foes:()=>[E('xiaohei','Black Wind Chief','f_xiaohei_shu',4,115,18,7,['axe'],40,'xiao_hei'),E('b1','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b2','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b3','Bandit','peasant_wei',2,45,12,4,['slash'],14)],pos:[[12,4],[10,2],[10,5],[11,6]]},
+ temple:{theme:'hills',bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16)],pos:[[12,3],[10,2],[10,5]]},
+ yt:{theme:'river',bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18)],pos:[[12,4],[10,1],[10,3],[10,5],[11,6]]}};
 const xpNeed=lv=>20+lv*15;
 
 // ---------- state ----------
@@ -4188,22 +4188,26 @@ function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idl
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
 // ---------- battle ----------
-let B=null;const COLS=9,ROWS=5;
+let B=null;const COLS=14,ROWS=8;
 function st_heroUnit(){const q=QG[P.qg];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp,hpMax:P.hpMax,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def,mv:q.mv,dodge:q.dodge,arts:Object.keys(P.arts),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
-  const ppos=[[1,2],[1,1],[1,3],[0,2]];us.forEach((u,i)=>{[u.x,u.y]=ppos[i]});
-  const fs=D.foes();fs.forEach((u,i)=>{[u.x,u.y]=D.pos[i]});
-  B={key,D,units:[...us,...fs],turn:'P',sel:null,mode:'idle',res,bg:st_img('art/'+D.bg+'.jpg'),hl:[],t0:performance.now()};
+  const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
+  let map=null;try{map=genBattleMap('N',D.theme==='river',1000+Math.floor(Math.random()*9000),D.theme)}catch(e){}if(!map||map.length!==ROWS)map=Array.from({length:ROWS},()=>'.'.repeat(COLS));
+  B={key,D,map,units:[],turn:'P',sel:null,mode:'idle',res,bg:st_img('art/'+D.bg+'.jpg'),hl:[],t0:performance.now()};
+  const place=(u,x,y)=>{let best=null,bd=1e9;for(let X=0;X<COLS;X++)for(let Y=0;Y<ROWS;Y++){if(!st_pass(X,Y)||B.units.some(v=>v.x===X&&v.y===Y))continue;const d=Math.abs(X-x)+Math.abs(Y-y);if(d<bd){bd=d;best=[X,Y]}}[u.x,u.y]=best;B.units.push(u)};
+  us.forEach((u,i)=>place(u,...ppos[i]));fs.forEach((u,i)=>place(u,...D.pos[i]));
   $s('#stMap').hidden=true;const cv=$s('#stCv');cv.hidden=false;mus('battle');st_fit();cv.onpointerdown=st_onTap;
   st_toast(D.title,2000);for(const u of B.units)u.done=false;st_loop();st_actBar()})}
 function st_fit(){const cv=$s('#stCv'),r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;B.dp=dp;
-  const T=Math.min(cv.width/COLS,(cv.height-60*dp)/ROWS);B.T=T;B.ox=(cv.width-T*COLS)/2;B.oy=(cv.height-60*dp-T*ROWS)/2+8*dp}
+  const T=Math.min(cv.width/COLS,(cv.height-60*dp)/ROWS);B.T=T;B.ox=(cv.width-T*COLS)/2;B.oy=(cv.height-60*dp-T*ROWS)/2+8*dp;B.terr=null;st_terr()}
+function st_terr(){if(!B||B.terr)return;try{if(typeof mapArtReady==='function'&&!mapArtReady())return;const pm=MAP,pt=window.BTHEME;MAP=B.map;window.BTHEME=B.D.theme;try{B.terr=renderTerrainArt(B.T/B.dp)}finally{MAP=pm;window.BTHEME=pt}}catch(e){B.terr=false}}
+const st_ter=(x,y)=>B&&B.map&&B.map[y]?B.map[y][x]:'.';const st_pass=(x,y)=>st_ter(x,y)!=='w';const st_tdef=(x,y)=>{try{return (T_INFO[st_ter(x,y)]||{def:1}).def}catch(e){return 1}};
 window.addEventListener('resize',()=>{if(B&&!$s('#stCv').hidden)st_fit()});
 const st_at=(x,y)=>B.units.find(u=>u.hp>0&&u.x===x&&u.y===y);
 const st_inb=(x,y)=>x>=0&&y>=0&&x<COLS&&y<ROWS;
 function st_reach(u){const out=[[u.x,u.y]],seen=new Set([u.x+','+u.y]);let fr=[[u.x,u.y,0]];
-  while(fr.length){const n=[];for(const [x,y,d] of fr){if(d>=u.mv)continue;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,k=X+','+Y;if(!st_inb(X,Y)||seen.has(k))continue;const o=st_at(X,Y);if(o&&o.side!==u.side)continue;seen.add(k);n.push([X,Y,d+1]);if(!o)out.push([X,Y])}}fr=n}return out}
+  while(fr.length){const n=[];for(const [x,y,d] of fr){if(d>=u.mv)continue;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,k=X+','+Y;if(!st_inb(X,Y)||seen.has(k)||!st_pass(X,Y))continue;const o=st_at(X,Y);if(o&&o.side!==u.side)continue;seen.add(k);n.push([X,Y,d+1]);if(!o)out.push([X,Y])}}fr=n}return out}
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?from[1]:u.y,foe=o=>o&&o.side!==u.side;const opts=[];
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
@@ -4218,11 +4222,18 @@ function st_actBar(){const a=$s('#stAct');if(!B||B.turn!=='P'||B.busy){a.hidden=
   a.hidden=true}
 function st_onTap(e){if(!B||B.turn!=='P'||B.busy)return;const r=e.currentTarget.getBoundingClientRect(),px=(e.clientX-r.left)*B.dp,py=(e.clientY-r.top)*B.dp;
   const x=Math.floor((px-B.ox)/B.T),y=Math.floor((py-B.oy)/B.T);if(!st_inb(x,y))return;const o=st_at(x,y);
+  if((B.mode==='idle'||B.mode==='move'||B.mode==='act')&&o&&o.side==='E'){st_quickHit(o);return}
   if(B.mode==='idle'||B.mode==='move'){
     if(o&&o.side==='P'&&!o.done&&(B.mode==='idle'||o!==B.sel)){B.sel=o;B.mode='move';B.orig=[o.x,o.y];B.hl=st_reach(o).map(t=>({t,c:'mv'}));st_actBar();return}
     if(B.mode==='move'&&B.hl.some(h=>h.t[0]===x&&h.t[1]===y)){const u=B.sel;st_moveTo(u,x,y).then(()=>{B.mode='act';B.hl=[];st_actBar()});return}
     if(B.mode==='move'){B.mode='idle';B.sel=null;B.hl=[];st_actBar()}return}
   if(B.mode==='target'){const opt=B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(opt)st_doAttack(B.sel,B.art,opt)}}
+function st_quickHit(o){let u=B.sel&&!B.sel.done?B.sel:null;if(!u){u=B.units.find(v=>v.hero&&v.hp>0&&!v.done)||B.units.find(v=>v.side==='P'&&v.hp>0&&!v.done)}if(!u)return;
+  const hits=(from)=>{for(const k of u.arts){const A=ARTS[k];if(u.mp<A.mp)continue;const op=st_targetsFor(u,k,from).find(op=>op.hit.includes(o));if(op)return {k,op}}return null};
+  if(B.mode==='act'){const h=hits();if(h){B.sel=u;st_doAttack(u,h.k,h.op)}else st_toast('Out of reach');return}
+  let best=null;for(const t of st_reach(u)){const h=hits(t);if(h){const d=Math.abs(t[0]-u.x)+Math.abs(t[1]-u.y);if(!best||d<best.d)best={t,d}}}
+  if(!best)return st_toast(u.name+' cannot reach '+o.name+' this turn');B.sel=u;B.hl=[];$s('#stAct').hidden=true;B.busy=true;
+  st_moveTo(u,best.t[0],best.t[1]).then(()=>{B.busy=false;const h=hits();if(h)st_doAttack(u,h.k,h.op);else{B.mode='act';st_actBar()}})}
 function st_moveTo(u,x,y){return new Promise(res=>{if(u.x===x&&u.y===y)return res();const fx=u.x,fy=u.y;u.anim={k:'run',t0:performance.now(),dur:260,fx,fy};u.face=x<fx?-1:x>fx?1:u.face;u.x=x;u.y=y;setTimeout(()=>{u.anim=null;res()},270)})}
 function st_chooseArt(k){const u=B.sel;
   if(k==='back'){if(B.orig){u.x=B.orig[0];u.y=B.orig[1]}B.mode='move';B.hl=st_reach(u).map(t=>({t,c:'mv'}));st_actBar();return}
@@ -4232,7 +4243,7 @@ function st_chooseArt(k){const u=B.sel;
 function st_finish(u){u.done=true;B.sel=null;B.mode='idle';B.hl=[];st_actBar();st_checkEnd();if(B&&B.units.filter(v=>v.side==='P'&&v.hp>0).every(v=>v.done))st_endTurn()}
 async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[];const A=ARTS[k];u.mp-=A.mp;
   const res=opt.hit.map(t=>{const lv=u.hero?P.arts[k].lv:1;const dodge=Math.random()<t.dodge;let dmg=0,crit=false;
-    if(!dodge){crit=Math.random()<.08;dmg=Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)*rnd(.9,1.1)*(crit?1.5:1)))}return {t,dodge,dmg,crit}});
+    if(!dodge){crit=Math.random()<.08;dmg=Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)*rnd(.9,1.1)*(crit?1.5:1)/st_tdef(t.x,t.y)))}return {t,dodge,dmg,crit}});
   await st_fightScene(u,A,res);
   for(const r of res){if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hp<=0&&r.t.side==='E'&&u.side==='P'){B.xp=(B.xp||0)+r.t.xp}}}
   if(A.kb&&opt.dir){for(const r of res)if(r.t.hp>0&&!r.dodge){const X=r.t.x+opt.dir[0],Y=r.t.y+opt.dir[1];if(st_inb(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
@@ -4249,7 +4260,7 @@ async function st_enemyAct(e){const k=e.arts[0],ps=B.units.filter(v=>v.side==='P
   // approach nearest
   const near=ps.sort((a,b)=>(Math.abs(a.x-e.x)+Math.abs(a.y-e.y))-(Math.abs(b.x-e.x)+Math.abs(b.y-e.y)))[0];
   let bt=null,bd=1e9;for(const t of st_reach(e)){const d=Math.abs(t[0]-near.x)+Math.abs(t[1]-near.y);if(d<bd){bd=d;bt=t}}if(bt)await st_moveTo(e,bt[0],bt[1]);await st_wait(120)}
-async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{const dodge=Math.random()<t.dodge;const dmg=dodge?0:Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)));return {t,dodge,dmg}});
+async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{const dodge=Math.random()<t.dodge;const dmg=dodge?0:Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)/st_tdef(t.x,t.y)));return {t,dodge,dmg}});
   await st_fightScene(e,A,res);for(const r of res)if(!r.dodge)r.t.hp=Math.max(0,r.t.hp-r.dmg)}
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
   const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,hero.hp);P.mp=hero.mp;
@@ -4263,15 +4274,14 @@ async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await 
 
 // ---------- board render ----------
 function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimationFrame(st_loop);return}const c=cv.getContext('2d'),now=performance.now(),T=B.T;
-  c.clearRect(0,0,cv.width,cv.height);const bg=B.bg;if(bg.complete&&bg.naturalWidth){const s=Math.max(cv.width/bg.naturalWidth,cv.height/bg.naturalHeight);c.drawImage(bg,(cv.width-bg.naturalWidth*s)/2,(cv.height-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
-  c.fillStyle='rgba(10,8,6,.25)';c.fillRect(0,0,cv.width,cv.height);
-  for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){c.strokeStyle='rgba(255,240,200,.22)';c.lineWidth=1;c.strokeRect(B.ox+x*T,B.oy+y*T,T,T)}
+  c.fillStyle='#1d1a14';c.fillRect(0,0,cv.width,cv.height);if(!B.terr&&B.terr!==false)st_terr();
+  if(B.terr)c.drawImage(B.terr,B.ox,B.oy,T*COLS,T*ROWS);else{c.fillStyle='#5a7a3a';c.fillRect(B.ox,B.oy,T*COLS,T*ROWS);for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){const tt=st_ter(x,y);if(tt!=='.'){c.fillStyle=tt==='w'?'#3a6a9a':tt==='f'?'#2f5a2a':tt==='h'?'#7a6a4a':'#a08a60';c.fillRect(B.ox+x*T,B.oy+y*T,T,T)}c.strokeStyle='rgba(0,0,0,.2)';c.strokeRect(B.ox+x*T,B.oy+y*T,T,T)}}
   for(const h of B.hl){c.fillStyle=h.c==='mv'?'rgba(80,150,255,.35)':'rgba(255,70,60,.42)';c.fillRect(B.ox+h.t[0]*T+1,B.oy+h.t[1]*T+1,T-2,T-2)}
   const us=B.units.filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
   for(const u of us){const sh=st_sheetOf(u.sheet);if(!sh.complete||!sh.naturalWidth)continue;const R=st_rowsOf(sh);let px=B.ox+(u.x+.5)*T,py=B.oy+(u.y+.88)*T;
     let row=R.idle,fr=Math.floor((now/80+(u.id.length*3))%24);
     if(u.anim&&u.anim.k==='run'){const q=clamp01((now-u.anim.t0)/u.anim.dur);px=lerp2(B.ox+(u.anim.fx+.5)*T,px,q);py=lerp2(B.oy+(u.anim.fy+.88)*T,py,q);row=R.run;fr=Math.floor(now/40)%24}
-    const face=u.face||(u.side==='P'?1:-1),k=1.25*T/114;
+    const face=u.face||(u.side==='P'?1:-1),k=1.45*T/114;
     if(B.sel===u){c.strokeStyle='#ffd77a';c.lineWidth=3*B.dp;c.strokeRect(B.ox+u.x*T+2,B.oy+u.y*T+2,T-4,T-4)}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(px,py,T*.28,T*.08,0,0,7);c.fill();
     st_drawCell(c,sh,row,fr,px,py,k,face,u.done&&u.side==='P'&&B.turn==='P'?.6:1);
@@ -4286,6 +4296,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const sh=st_sheetOf(att.sheet),R=st_rowsOf(sh),bg=B.bg,parts=[],pops=[];let t0=performance.now();
   const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee';
   const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=n>1&&anim!=='ranged';
+  const GD=st_img('art/gdragon.jpg'),dragon=att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5;
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
   snd(anim==='ranged'?'fx':'swing');
   function frame(){const now=performance.now(),t=now-t0;c.clearRect(0,0,W,H);
@@ -4311,6 +4322,8 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
     if(R.dash==null&&anim==='melee'&&row===R.melee)row=R.melee;
     const face=(anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
+    if(dragon&&GD.complete&&GD.naturalWidth){const h0=hitT[0],a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[0]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),py=gy-k*64,dw=k*300,dh=dw/2;
+      c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}c.drawImage(GD,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}
     // particles + popups
     for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.2*dp;p.l-=.03;if(p.l>0){c.globalAlpha=p.l;c.fillStyle=p.col;c.fillRect(p.x,p.y,4*dp,4*dp)}}c.globalAlpha=1;
     for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle=p.col;c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.075)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
