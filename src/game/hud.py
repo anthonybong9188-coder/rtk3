@@ -2660,3 +2660,8 @@ rep("VIDS=new Set(['p_pangde',","VIDS=new Set(['p_jushou','p_pangde',")
 rep("const GSHEET={pangde:'f_pangde',","const GSHEET={mateng:'f_mateng',pangde:'f_pangde',")
 rep("const GSHEET={mateng:'f_mateng',","const GSHEET={yanliang:'f_yanliang',mateng:'f_mateng',")
 rep("VIDS=new Set(['p_jushou',","VIDS=new Set(['p_yanliang','p_jushou',")
+# v456 (4 Nov): hero real dash - new clip (row 5, 48 frames). Hero stands, then dashes across the gap and palm-strikes on arrival.
+rep("function dashF(S,t,flee){if(!S.dashOn||flee||t<DA||t>=DB+120)return {};const q=clamp((t-DA)/(DB+120-DA)),k=S.dashK;","function dashF(S,t,flee){const a0=S.dA||DA,b0=S.dB||DB+120;if(!S.dashOn||flee||t<a0||t>=b0)return {};const q=clamp((t-a0)/(b0-a0)),k=S.dashK;")
+rep("function sXo(s,S,t){","function sXo(s,S,t){if(S.dashOn&&S.dB&&s===S.off&&t<2700){const a=S.dA,L=S.dB-S.dA;if(t<a+L*.2)return s.hx;if(t<a+L*.6)return lerp(s.hx,s.tx,ease((t-a-L*.2)/(L*.4)));return s.tx}")
+rep("S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u)}","S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u);S.dA=0;S.dB=0;if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}}")
+rep("  if(S.dashK==='palm'){const t0=1040","  if(S.dashK==='palm'&&S.dB){const th=S.dA+(S.dB-S.dA)*.6;if(t>=th&&!S._dh){S._dh=1;burst(hx+f*70*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}continue}\n  if(S.dashK==='palm'){const t0=1040")

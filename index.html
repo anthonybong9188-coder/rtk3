@@ -1649,9 +1649,10 @@ const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuh
 const dashKind=u=>DASH_STYLE[u.id]||null;
 function dashReady(u){if(!dashKind(u))return false;const k=femKey(u);if(!k)return false;const sh=sprSheet(k,'shu');return !!(sh&&sh.naturalWidth&&SROWS(sh)>5)}
 const DA=860,DB=1200;
-function dashF(S,t,flee){if(!S.dashOn||flee||t<DA||t>=DB+120)return {};const q=clamp((t-DA)/(DB+120-DA)),k=S.dashK;
+function dashF(S,t,flee){const a0=S.dA||DA,b0=S.dB||DB+120;if(!S.dashOn||flee||t<a0||t>=b0)return {};const q=clamp((t-a0)/(b0-a0)),k=S.dashK;
   return {dash:true,fight:false,run:null,frz:q,jy:k==='float'?Math.sin(Math.PI*clamp((t-DA)/(DB-DA)))*26*S.off.s:0}}
 function dashFX(c,sides,t){for(const S of sides){if(!S.dashOn)continue;const o=S.off,sc=o.s*FIGSZ,f=S.face,hx=sXo(o,S,Math.min(t,DB)),hy=o.y-40*sc;
+  if(S.dashK==='palm'&&S.dB){const th=S.dA+(S.dB-S.dA)*.6;if(t>=th&&!S._dh){S._dh=1;burst(hx+f*70*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}continue}
   if(S.dashK==='palm'){const t0=1040,t1=1240,im=fxSheet('hero');if(!(im.complete&&im.naturalWidth))continue;
     if(t>=t0&&t<t1){const p=(t-t0)/(t1-t0),x=lerp(hx+f*30*sc,hx+f*120*sc,p),s=(90+60*p)*sc;c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame('hero',im,Math.min(7,Math.floor(p*8))),x-s/2,hy-s/2,s,s);c.restore()}
     if(t>=t1&&t<t1+420){const p=(t-t1)/420,s=170*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.7?(1-p)/.3:1;c.drawImage(fxFrame('hero',im,8+Math.min(7,Math.floor(p*8))),hx+f*120*sc-s/2,hy-s/2,s,s);c.restore();if(!S._dh){S._dh=1;burst(hx+f*120*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}}
@@ -2021,7 +2022,7 @@ function chargePlan(S,O){const f=S.face,pr=x=>f*x,ox=[...O.sol.map(s=>s.hx),O.of
   S.ch={f,Ef,Er,Dc:Ef-24-fr,Dp:Er+24-fr,Df,cam:f===1?Math.max(0,xf-(W-185)):-Math.max(0,185-xf)}}
 function chCam(S,t){return !S||t<1050?0:lerp(0,S.ch.cam,ease(clamp((t-1050)/2350)))}
 function chD(S,t){const c=S.ch;if(t<600)return 0;if(t<1050)return lerp(0,c.Dc,(t-600)/450);if(t<2300)return lerp(c.Dc,c.Dp,(t-1050)/1250);if(t<3400)return lerp(c.Dp,c.Df,ease((t-2300)/1100));return c.Df}
-function sXo(s,S,t){if(S.step){const m=S.opp.off.tx+S.opp.face*116;if(t<1400)return s.hx;if(t<1800)return lerp(s.hx,m,ease((t-1400)/400));if(t<2700)return m;if(t<3500)return lerp(m,s.hx,ease((t-2700)/800));return s.hx}if(S.ch||!S.melee)return sX(s,S,t);if(t<600)return s.hx;if(t<1200){const k=(t-600)/600;return lerp(s.hx,s.tx,1-(1-k)*(1-k)*.6-(1-k)*.4)}if(t<2700)return s.tx;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
+function sXo(s,S,t){if(S.dashOn&&S.dB&&s===S.off&&t<2700){const a=S.dA,L=S.dB-S.dA;if(t<a+L*.2)return s.hx;if(t<a+L*.6)return lerp(s.hx,s.tx,ease((t-a-L*.2)/(L*.4)));return s.tx}if(S.step){const m=S.opp.off.tx+S.opp.face*116;if(t<1400)return s.hx;if(t<1800)return lerp(s.hx,m,ease((t-1400)/400));if(t<2700)return m;if(t<3500)return lerp(m,s.hx,ease((t-2700)/800));return s.hx}if(S.ch||!S.melee)return sX(s,S,t);if(t<600)return s.hx;if(t<1200){const k=(t-600)/600;return lerp(s.hx,s.tx,1-(1-k)*(1-k)*.6-(1-k)*.4)}if(t<2700)return s.tx;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 function sX(s,S,t){if(s.dtx!=null){if(t<600)return s.hx;if(t<1200)return lerp(s.hx,s.dtx,ease((t-600)/600));if(t<2700)return s.dtx+Math.sin(t*.018+s.seed)*4;if(t<3500)return lerp(s.dtx,s.hx,ease((t-2700)/800));return s.hx}if(S.ch)return s.hx+S.ch.f*chD(S,t);if(!S.melee)return s.hx;const d=s.dl||0;if(t<600+d)return s.hx;if(t<1500+d)return lerp(s.hx,s.tx,ease((t-600-d)/900));if(t<2700)return s.tx+Math.sin(t*.018+s.seed)*5;if(t<3500)return lerp(s.tx,s.hx,ease((t-2700)/800));return s.hx}
 let parts=[];
 function burst(x,y,n,col,spd){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=spd*(.4+Math.random());parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,life:1,col})}}
@@ -2098,7 +2099,7 @@ function playBattle0_(att,def,r){
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];DUST=[];
     const END=4100,start=performance.now();let skip=false,last=start;
     const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
-    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u)}
+    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u);S.dA=0;S.dB=0;if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}}
     const shownT=(S,t)=>{const k=kindOf(S)==='arrow'?clamp((t-1280)/600):clamp((t-1650)/1000);return lerp(S.before,S.after,k)};
     function frame(now){
       let t=skip?END:(now-start)*speed*FIGHT_SLOW;const dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;
