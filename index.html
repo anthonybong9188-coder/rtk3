@@ -1646,18 +1646,18 @@ const DASH_STYLE={guanyu:'overhead',weiyan:'overhead',guanyinping:'overhead',xuh
  huangzhong:'side',zhoutai:'side',ganning:'side',caoren:'side',lumeng:'side',yuejin:'side',sunjian:'side',taishici:'side',guanping:'side',xiahoudun:'side',huanggai:'side',
  huangyi:'float',xuannu:'float',renrui:'float',xishi:'float',liubei:'float',caocao:'float',sunquan:'float',zhouyu:'float',monu:'float',sunshangxiang:'float',
  zhaoyun:'thrust',machao:'thrust',zhangfei:'thrust',sunce:'thrust',xiahouyuan:'thrust',hero:'palm'};
-const dashKind=u=>DASH_STYLE[u.id]||null;
+const dashKind=u=>DASH_STYLE[u.id]||null;const NEWDASH=new Set(['hero','huangyi','xuannu','renrui','xishi','monu','sunshangxiang','guanyinping','guanyu','zhangfei','zhaoyun','zhouyu']);
 function dashReady(u){if(!dashKind(u))return false;const k=femKey(u);if(!k)return false;const sh=sprSheet(k,'shu');return !!(sh&&sh.naturalWidth&&SROWS(sh)>5)}
 const DA=860,DB=1200;
 function dashF(S,t,flee){const a0=S.dA||DA,b0=S.dB||DB+120;if(!S.dashOn||flee||t<a0||t>=b0)return {};const q=clamp((t-a0)/(b0-a0)),k=S.dashK;
-  return {dash:true,fight:false,run:null,frz:q,jy:k==='float'?Math.sin(Math.PI*clamp((t-DA)/(DB-DA)))*26*S.off.s:0}}
+  return {dash:true,fight:false,run:null,frz:q,jy:k==='float'&&!S.dB?Math.sin(Math.PI*clamp((t-DA)/(DB-DA)))*26*S.off.s:0}}
 function dashFX(c,sides,t){for(const S of sides){if(!S.dashOn)continue;const o=S.off,sc=o.s*FIGSZ,f=S.face,hx=sXo(o,S,Math.min(t,DB)),hy=o.y-40*sc;
   if(S.dashK==='palm'&&S.dB){const th=S.dA+(S.dB-S.dA)*.6;if(t>=th&&!S._dh){S._dh=1;burst(hx+f*70*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}continue}
   if(S.dashK==='palm'){const t0=1040,t1=1240,im=fxSheet('hero');if(!(im.complete&&im.naturalWidth))continue;
     if(t>=t0&&t<t1){const p=(t-t0)/(t1-t0),x=lerp(hx+f*30*sc,hx+f*120*sc,p),s=(90+60*p)*sc;c.save();c.globalCompositeOperation='lighter';c.drawImage(fxFrame('hero',im,Math.min(7,Math.floor(p*8))),x-s/2,hy-s/2,s,s);c.restore()}
     if(t>=t1&&t<t1+420){const p=(t-t1)/420,s=170*sc;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=p>.7?(1-p)/.3:1;c.drawImage(fxFrame('hero',im,8+Math.min(7,Math.floor(p*8))),hx+f*120*sc-s/2,hy-s/2,s,s);c.restore();if(!S._dh){S._dh=1;burst(hx+f*120*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}}
     continue}
-  if(t>=DB&&!S._dh){S._dh=1;burst(hx+f*60*sc,hy,14,'#ffe7a8',3.4);SND.fx('hit')}}}
+  if(t>=(S.dB?S.dA+(S.dB-S.dA)*.6:DB)&&!S._dh){S._dh=1;burst(hx+f*60*sc,hy,14,'#ffe7a8',3.4);SND.fx('hit')}}}
 function drawSig(c,f){const sh=sprSheet('general_sig',sprFac(f.fac));if(!sh)return false;const k=84/150;
   c.save();c.translate(f.x,f.y);c.scale(f.s*f.face,f.s);c.drawImage(sh,f.fr*300,0,300,300,-150*k,-292*k,300*k,300*k);c.restore();return true}
 function fx(c,row,fr,x,y,s,a){if(!FIREFX.complete||!FIREFX.naturalWidth)return;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a??1;c.drawImage(FIREFX,fr*200,row*200,200,200,x-100*s,y-196*s,200*s,200*s);c.restore()}
@@ -2099,7 +2099,7 @@ function playBattle0_(att,def,r){
     $('#duelUI').hidden=true;$('#stage').hidden=false;parts=[];DUST=[];
     const END=4100,start=performance.now();let skip=false,last=start;
     const onSkip=()=>{skip=true};SC.addEventListener('pointerdown',onSkip);
-    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u);S.dA=0;S.dB=0;if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}}
+    const kindOf=S=>(S===SL?SR:SL).shoot?'arrow':'melee';for(const S of [SL,SR]){S._dh=0;S.dashK=dashKind(S.u);S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u);S.dA=0;S.dB=0;if(S.dashOn&&NEWDASH.has(S.u.id)){S.dA=700;S.dB=1900}}
     const shownT=(S,t)=>{const k=kindOf(S)==='arrow'?clamp((t-1280)/600):clamp((t-1650)/1000);return lerp(S.before,S.after,k)};
     function frame(now){
       let t=skip?END:(now-start)*speed*FIGHT_SLOW;const dt=Math.min(50,now-last)*(skip?0:speed*FIGHT_SLOW);last=now;

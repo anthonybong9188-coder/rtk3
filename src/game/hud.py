@@ -2665,3 +2665,8 @@ rep("function dashF(S,t,flee){if(!S.dashOn||flee||t<DA||t>=DB+120)return {};cons
 rep("function sXo(s,S,t){","function sXo(s,S,t){if(S.dashOn&&S.dB&&s===S.off&&t<2700){const a=S.dA,L=S.dB-S.dA;if(t<a+L*.2)return s.hx;if(t<a+L*.6)return lerp(s.hx,s.tx,ease((t-a-L*.2)/(L*.4)));return s.tx}")
 rep("S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u)}","S.dashOn=S.u===att&&S.melee&&!S.ch&&!S.hold&&!S.back&&!S.step&&!S.wave&&!!S.u.hpMax&&dashReady(S.u);S.dA=0;S.dB=0;if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}}")
 rep("  if(S.dashK==='palm'){const t0=1040","  if(S.dashK==='palm'&&S.dB){const th=S.dA+(S.dB-S.dA)*.6;if(t>=th&&!S._dh){S._dh=1;burst(hx+f*70*sc,hy,22,'#ffd75a',4.2);SND.fx('hit')}continue}\n  if(S.dashK==='palm'){const t0=1040")
+# v457 (5 Nov): real dash for 10 more (dash_A) + Zhou Yu; travel timing for all NEWDASH; no float hop for them
+rep("const dashKind=u=>DASH_STYLE[u.id]||null;","const dashKind=u=>DASH_STYLE[u.id]||null;const NEWDASH=new Set(['hero','huangyi','xuannu','renrui','xishi','monu','sunshangxiang','guanyinping','guanyu','zhangfei','zhaoyun','zhouyu']);")
+rep("if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}","if(S.dashOn&&NEWDASH.has(S.u.id)){S.dA=700;S.dB=1900}")
+rep("jy:k==='float'?","jy:k==='float'&&!S.dB?")
+rep("if(t>=DB&&!S._dh){S._dh=1;burst(hx+f*60*sc","if(t>=(S.dB?S.dA+(S.dB-S.dA)*.6:DB)&&!S._dh){S._dh=1;burst(hx+f*60*sc")
