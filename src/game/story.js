@@ -11,12 +11,17 @@ const ARTS={
  palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.0,mp:0,anim:'dash',fx:'#ffd75a',desc:'Palm strike on an adjacent enemy.'},
  wave:{zh:'金龍氣',n:'Dragon Qi Wave',shape:'line3',pow:.85,mp:6,anim:'ranged',fx:'#ffd75a',desc:'Gold wave hits every enemy in a line of 3.'},
  thunder:{zh:'奔雷掌',n:'Rolling Thunder Palm',shape:'line2',pow:1.3,mp:10,anim:'dash',fx:'#9fd7ff',kb:1,desc:'Charges through 2 squares in a line, knocks back.'},
+ tiger:{zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
+ whirl:{zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Spinning kick that hits every adjacent enemy.'},
+ star:{zh:'追星腿',n:'Shooting-Star Kick',shape:'r2',pow:1.2,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Flying kick that reaches an enemy 2 squares away.'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  axe:{zh:'斧',n:'Axe Chop',shape:'adj',pow:1.2,mp:0,anim:'melee',fx:'#ffb060'},
  bell:{zh:'攝魂鈴',n:'Soul Bell',shape:'r2',pow:1.1,mp:0,anim:'ranged',fx:'#7dff9a'},
  staff:{zh:'棍',n:'Staff Strike',shape:'adj',pow:.8,mp:0,anim:'melee',fx:'#ffe7a8'}};
-const INNER={hunyuan:{zh:'混元氣',n:'Primordial Breath',regen:4,desc:'Restores 4 內力 each turn.'}};
+const INNER={hunyuan:{zh:'混元氣',n:'Primordial Breath',regen:4,def:4,dodge:.03,hp:0,desc:'Passive: +4 defence, +3% dodge, restores 4 內力 each turn.'},
+ jinzhong:{zh:'金鐘罩',n:'Golden Bell Shield',regen:2,def:12,dodge:0,hp:30,desc:'Passive: +12 defence, +30 HP, restores 2 內力 each turn.'},
+ jiuyang:{zh:'九陽功',n:'Nine-Yang Art',regen:6,def:6,dodge:.05,hp:60,desc:'Passive: +60 HP, +6 defence, +5% dodge, restores 6 內力 each turn.'}};
 const QG=[{zh:'無',n:'None',mv:2,dodge:.05},{zh:'踏雲步',n:'Cloud Step',mv:3,dodge:.12},{zh:'燕回翔',n:'Swallow Glide',mv:4,dodge:.18}];
 const PEOPLE={hero:{n:'You',port:'hero'},hermit:{n:'Hermit Master',zh:'隱'},elder:{n:'Village Elder',zh:'老'},xiaoming:{n:'Xiao Ming',port:'xiao_ming'},xiaohei:{n:'Black Wind Chief',port:'xiao_hei'},jiangchen:{n:'Jiang Chen',port:'jiang_chen'},chief:{n:'Yellow Turban Chief',zh:'黃'},narr:{n:''}};
 const PLACES=[
@@ -35,7 +40,7 @@ const xpNeed=lv=>20+lv*15;
 
 // ---------- state ----------
 let P=null;
-function st_freshHero(){return {lv:1,xp:0,hp:120,hpMax:120,mp:30,mpMax:30,atk:22,def:10,talent:70,gold:30,herbs:1,qg:0,inner:'hunyuan',arts:{palm:{lv:1,use:0}},flags:{},party:[],day:1}}
+function st_freshHero(){return {lv:1,xp:0,hp:120,hpMax:120,mp:30,mpMax:30,atk:22,def:10,talent:70,gold:30,herbs:1,qg:0,inner:'hunyuan',arts:{palm:{lv:1,xp:0}},eq:'palm',flags:{},party:[],day:1}}
 function st_save(){try{localStorage.setItem(SKEY,JSON.stringify(P))}catch(e){}}
 function st_load(){try{const s=localStorage.getItem(SKEY);return s?JSON.parse(s):null}catch(e){return null}}
 window.storyHasSave=()=>!!st_load();
@@ -92,7 +97,7 @@ function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
 function st_exitStory(){st_save();$s('#story').hidden=true;try{showScreen('title');renderTitle()}catch(e){$s('#title').hidden=false}}
 window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;P=st_freshHero();st_save();st_enter();await st_prologue()};
-window.storyContinue=function(){P=st_load();if(!P)return;st_enter()};
+window.storyContinue=function(){P=st_load();if(!P)return;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
 
 // ---------- dialogue ----------
 function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');const pp=PEOPLE[who]||{n:who};
@@ -155,33 +160,33 @@ async function st_afterTemple(){P.flags.temple=1;P.gold+=60;
   await st_say('jiangchen','My bell... broken... Great Teacher Zhang Jiao will avenge me...');
   await st_say('narr','Behind the altar, hidden in a hollow beam, is a scroll of 輕功: <b>Cloud Step 踏雲步</b>. Your body feels as light as mist.');
   P.qg=Math.max(P.qg,1);st_toast('輕功 learned: Cloud Step — move 3 squares, better dodge',3000);st_save();st_showMap()}
-async function st_afterYT(){P.flags.yt=1;P.gold+=150;
+async function st_afterYT(){P.flags.yt=1;P.gold+=150;st_learn('tiger');
   await st_say('chief','How... can one man... stand against the Yellow Sky...');
   await st_say('narr','The camp scatters. By nightfall the whole county speaks of a young hero with a palm of gold.');
   await st_say('narr','In Zhuo, three men — Liu Bei, Guan Yu and Zhang Fei — are raising volunteers against the rebels. They want to meet you...<br><br><b style="color:#ffd77a">End of Chapter 1.</b> Chapter 2: the road to Hu Lao Gate — coming soon.');st_save();st_showMap()}
-function st_learn(k){if(!P.arts[k]){P.arts[k]={lv:1,use:0};st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
+function st_learn(k){if(!P.arts[k]){P.arts[k]={lv:1,xp:0};st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
 
 // ---------- hero panel ----------
 function st_heroPanel(){const p=$s('#stPanel');if(!p.hidden){p.hidden=true;return}
   const q=QG[P.qg],inn=INNER[P.inner];
   p.innerHTML=`<h3>俠 The Hero · Level ${P.lv}</h3><div class="g"><div>HP ${P.hp}/${P.hpMax}</div><div>內力 ${P.mp}/${P.mpMax}</div><div>Attack ${P.atk}</div><div>Defence ${P.def}</div><div>Talent 悟性 ${P.talent}</div><div>XP ${P.xp}/${xpNeed(P.lv)}</div><div>Gold ${P.gold}</div><div>Herbs ${P.herbs}</div></div>
-  <h3>武功 Martial arts</h3>${Object.entries(P.arts).map(([k,a])=>`<div class="art"><b>${ARTS[k].zh} ${ARTS[k].n}</b> · level ${a.lv}/10 · ${ARTS[k].mp} 內力<br><small>${ARTS[k].desc||''}</small></div>`).join('')}
+  <h3>武功 Martial arts <small style="font-weight:400;color:#c9b98f">· the equipped manual gains half of your battle XP</small></h3>${Object.entries(P.arts).map(([k,a])=>`<div class="art"><b>${P.eq===k?'★ ':''}${ARTS[k].zh} ${ARTS[k].n}</b> · level ${a.lv}/10 · ${ARTS[k].mp} 內力${P.eq===k?` · manual XP ${a.xp||0}/${xpNeed(a.lv)}`:` <button data-eq="${k}" style="min-height:26px;padding:2px 10px;margin-left:6px">Equip</button>`}<br><small>${ARTS[k].desc||''}</small></div>`).join('')}
   <h3>內功 Inner art</h3><div class="art"><b>${inn.zh} ${inn.n}</b><br><small>${inn.desc}</small></div>
   <h3>輕功 Lightness skill</h3><div class="art"><b>${q.zh} ${q.n}</b><br><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>
   <h3>Party</h3><div>${['You',...P.party.map(k=>PEOPLE[k].n)].join(', ')}</div>
   <div class="row"><button id="stHerb">Use a herb (+50 HP)</button><button id="stClose" class="pri">Close</button></div>`;
-  p.hidden=false;$s('#stClose').onclick=()=>p.hidden=true;$s('#stHerb').onclick=()=>{if(!P.herbs)return st_toast('No herbs');P.herbs--;P.hp=Math.min(P.hpMax,P.hp+50);st_hud();p.hidden=true;st_heroPanel()}}
+  p.hidden=false;$s('#stClose').onclick=()=>p.hidden=true;p.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{P.eq=b.dataset.eq;st_save();p.hidden=true;st_heroPanel();st_toast('Equipped: '+ARTS[P.eq].n)});$s('#stHerb').onclick=()=>{if(!P.herbs)return st_toast('No herbs');P.herbs--;P.hp=Math.min(P.hpMax,P.hp+50);st_hud();p.hidden=true;st_heroPanel()}}
 
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
 const st_sheetOf=k=>st_img('sprites/'+k+'.png');
-function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
+function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
 // draw cell with feet anchor (90,126) at (x,y); scale k; face 1=right,-1=left
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
 // ---------- battle ----------
 let B=null;const COLS=14,ROWS=8;
-function st_heroUnit(){const q=QG[P.qg];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp,hpMax:P.hpMax,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def,mv:q.mv,dodge:q.dodge,arts:Object.keys(P.arts),hero:true}}
+function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,arts:Object.keys(P.arts),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
   const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
@@ -203,6 +208,7 @@ function st_reach(u){const out=[[u.x,u.y]],seen=new Set([u.x+','+u.y]);let fr=[[
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?from[1]:u.y,foe=o=>o&&o.side!==u.side;const opts=[];
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
+  else if(A.shape==='ring'){const hit=[],tl=[];for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
   else if(A.shape==='r2'){for(const o of B.units)if(foe(o)&&o.hp>0&&Math.abs(o.x-x)+Math.abs(o.y-y)<=2)opts.push({tiles:[[o.x,o.y]],hit:[o],click:[[o.x,o.y]]})}
   else{const L=A.shape==='line3'?3:2;for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
   return opts}
@@ -238,15 +244,15 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
     if(!dodge){crit=Math.random()<.08;dmg=Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)*rnd(.9,1.1)*(crit?1.5:1)/st_tdef(t.x,t.y)))}return {t,dodge,dmg,crit}});
   await st_fightScene(u,A,res);
   for(const r of res){if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hp<=0&&r.t.side==='E'&&u.side==='P'){B.xp=(B.xp||0)+r.t.xp}}}
+  if(A.stun){for(const r of res)if(r.t.hp>0&&!r.dodge&&Math.random()<A.stun){r.t.stun=1;st_toast(r.t.name+' is stunned!')}}
   if(A.kb&&opt.dir){for(const r of res)if(r.t.hp>0&&!r.dodge){const X=r.t.x+opt.dir[0],Y=r.t.y+opt.dir[1];if(st_inb(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
-  if(u.hero){const a=P.arts[k];a.use++;if(a.lv<10&&a.use>=4+a.lv*2){a.use=0;a.lv++;st_toast(A.n+' rises to level '+a.lv,2400)}}
   B.busy=false;st_finish(u)}
 function st_checkEnd(){if(!B)return;const pe=B.units.filter(v=>v.side==='P'&&v.hp>0),ee=B.units.filter(v=>v.side==='E'&&v.hp>0),hero=B.units.find(v=>v.hero);
   if(!ee.length)return st_endBattle(true);if(hero.hp<=0||!pe.length)return st_endBattle(false)}
 async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];st_actBar();
   for(const e of B.units.filter(v=>v.side==='E'&&v.hp>0)){if(!B)return;await st_enemyAct(e);st_checkEnd();if(!B)return}
   B.turn='P';for(const u of B.units){u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}st_toast('Your turn',900);st_actBar()}
-async function st_enemyAct(e){const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
+async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
   let best=null;for(const t of st_reach(e)){const op=st_targetsFor(e,k,t);if(op.length){const sc=-(op[0].hit[0].hp)+(op[0].hit[0].hero?15:0);if(!best||sc>best.sc)best={t,sc}}}
   if(best){await st_moveTo(e,best.t[0],best.t[1]);await st_wait(150);const op=st_targetsFor(e,k)[0];if(op){B.busy=true;await st_doAttackE(e,k,op);B.busy=false}return}
   // approach nearest
@@ -255,8 +261,9 @@ async function st_enemyAct(e){const k=e.arts[0],ps=B.units.filter(v=>v.side==='P
 async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{const dodge=Math.random()<t.dodge;const dmg=dodge?0:Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)/st_tdef(t.x,t.y)));return {t,dodge,dmg}});
   await st_fightScene(e,A,res);for(const r of res)if(!r.dodge)r.t.hp=Math.max(0,r.t.hp-r.dmg)}
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
-  const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,hero.hp);P.mp=hero.mp;
+  const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
+    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<10&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400)}}}
     while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
       if(P.lv>=3&&!P.arts.wave){await st_wait(900);st_learn('wave')}}}
   else{P.gold=Math.floor(P.gold*.8);P.hp=P.hpMax;P.mp=P.mpMax;}
@@ -286,7 +293,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const W=cv.width,H=cv.height,c=cv.getContext('2d'),n=res.length,mir=att.side==='E'?-1:1,X=v=>mir>0?v*W:W-v*W;
   const k=(n>1?.34:.42)*H/114,gy=H*.86,ax0=.24,tx=res.map((_,i)=>n>1?.58+i*.12:.66),ty=res.map((_,i)=>gy-(n>1?(i%2)*H*.05:0));
   const sh=st_sheetOf(att.sheet),R=st_rowsOf(sh),bg=B.bg,parts=[],pops=[];let t0=performance.now();
-  const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee';
+  const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee',mrow=(A.anim==='punch'||A.anim==='kick')&&R[A.anim]!=null?R[A.anim]:R.melee;
   const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=n>1&&anim!=='ranged';
   const GD=st_img('art/gdragon.jpg'),dragon=att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5;
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
@@ -308,7 +315,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     let ax=X(ax0),row=R.idle,fr=Math.floor(now/80)%24;const last=X(tx[n-1]),first=X(tx[0]);
     if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*.1;if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
       else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*.1;ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40)%24}}
-    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=R.melee;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}
+    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}
     else{if(t>=350&&t<1500){row=R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
       if(t>800&&t<800+170*n+300){const q=clamp01((t-800)/(150*n+200));const px=lerp2(X(ax0)+mir*W*.06,last+mir*W*.05,q),py=gy-k*62;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.fillStyle=A.fx;c.globalAlpha=.25-j*.04;c.beginPath();c.arc(px-mir*j*k*10,py,k*(22-j*2),0,7);c.fill()}c.restore()}}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
