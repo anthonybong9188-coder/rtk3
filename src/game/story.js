@@ -91,6 +91,7 @@ const CSS=`
 #stInfo .ibr{display:flex;align-items:center;gap:4px}#stInfo .ibr>b{position:relative;z-index:2;width:36px;text-align:right;font:italic 900 12px/1 Georgia,serif;color:#ffe08a;text-shadow:0 1px 0 #000,0 0 3px #000,0 0 3px #000;flex:none}
 #stInfo .ibr .ib{flex:1;height:18px;margin:0;border-radius:4px 9px 9px 4px;border:1.5px solid #c9a24a}#stInfo .ibr .ib span{font:800 12px/16px system-ui}#stInfo .ist{margin-left:40px;font-size:11px;color:#cfc4aa}
 #stInfo .ftr{display:flex!important;align-items:center;gap:6px;margin-top:4px;justify-content:flex-start!important}#stInfo .fc .fp{display:block;width:44px;height:44px;flex:none;border-radius:9px;border:2px solid #e0574a}#stInfo .fc .fr2{display:block;flex:1;min-width:0}#stInfo .fn{display:flex;justify-content:space-between;font-size:12px}#stInfo .fn span:first-child{color:#fff;font-weight:700}#stInfo .ftr .ib{position:relative;height:18px;margin:2px 0 0;border-radius:4px 9px 9px 4px;border:1.5px solid #c9a24a;overflow:hidden;background:#000}#stInfo .ftr .ib i{position:absolute;top:0;bottom:0;left:0;border-radius:0}#stInfo .ftr .ib i.fl{background:#fff6c8;animation:lmBlink .55s steps(2) infinite}#stInfo .ftr .ib span{position:absolute;inset:0;text-align:center;font:800 12px/15px system-ui;color:#fff;text-shadow:0 1px 2px #000}#stInfo .ftr em{font-style:normal;color:#ffe08a}
+#stInfo .skc .skn{font:700 16px Georgia,serif;color:#fff;margin-bottom:6px}#stInfo .skc .skn b{color:#ffd77a;font-size:19px}#stInfo .skb{display:flex;gap:6px}#stInfo .skb button{flex:1;margin-top:0}
 #stInfo .fc{margin-top:5px;padding-top:5px;border-top:1px solid #4a4030}#stInfo .fc div{display:flex;justify-content:space-between}#stInfo button{margin-top:6px;width:100%}
 #stBanner{position:absolute;left:0;right:0;top:40%;z-index:6;text-align:center;font:900 34px var(--f-display,serif);color:#ffd77a;text-shadow:0 3px 10px #000;background:linear-gradient(90deg,transparent,rgba(10,8,6,.85) 20%,rgba(10,8,6,.85) 80%,transparent);padding:10px 0;pointer-events:none;animation:stBan 1.1s ease forwards}
 #stBanner.en{color:#ff8a7a}
@@ -292,8 +293,8 @@ function st_onTap(e){if(!B||B.turn!=='P'||B.busy)return;const r=e.currentTarget.
     if(o&&o.side==='P'&&!o.done&&(B.mode==='idle'||o!==B.sel)){B.sel=o;B.mode='move';B.orig=[o.x,o.y];B.hl=st_reach(o).map(t=>({t,c:'mv'}));st_actBar();return}
     if(B.mode==='move'&&B.hl.some(h=>h.t[0]===x&&h.t[1]===y)){const u=B.sel;st_moveTo(u,x,y).then(()=>{B.mode='act';B.hl=[];st_actBar()});return}
     if(B.mode==='move'){B.mode='idle';B.sel=null;B.hl=[];st_actBar()}return}
-  if(B.mode==='target'){const opt=B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(!opt)return;if(B.pendOpt===opt){B.pendOpt=null;$s('#stInfo').hidden=true;st_doAttack(B.sel,B.art,opt);return}
-    B.pendOpt=opt;B.hl=[];for(const op of B.opts)for(const t of op.tiles)B.hl.push({t,c:op===opt?'tg':'tg2'});B.pend=()=>{B.pendOpt=null;st_doAttack(B.sel,B.art,opt)};st_info(opt.hit[0],st_fcHtml(B.sel,B.art,opt.hit))}}
+  if(B.mode==='target'){const opt=B.opts.find(op=>op.dir&&B.sel&&B.sel.x+op.dir[0]===x&&B.sel.y+op.dir[1]===y)||B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(!opt)return;if(B.pendOpt===opt){B.pendOpt=null;$s('#stInfo').hidden=true;st_doAttack(B.sel,B.art,opt);return}
+    B.pendOpt=opt;B.hl=opt.tiles.map(t=>({t,c:'tg'}));const A=ARTS[B.art],el=$s('#stInfo');el.innerHTML=`<div class="ibody skc"><div class="skn"><b>${A.zh}</b> <span>${A.n}</span></div><div class="skb"><button class="pri" data-go>Use</button><button data-no>Cancel</button></div></div>`;el.hidden=false;el.querySelector('[data-go]').onclick=()=>{B.pendOpt=null;el.hidden=true;st_doAttack(B.sel,B.art,opt)};el.querySelector('[data-no]').onclick=()=>{B.pendOpt=null;st_tgView()}}}
 function st_est(u,k,t){const A=ARTS[k],lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1,base=Math.max(1,(u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)/st_tdef(t.x,t.y));return {lo:Math.max(1,Math.round(base*.9)),hi:Math.max(1,Math.round(base*1.1)),hit:Math.round((1-t.dodge)*100)}}
 const TNAME={'.':'Plain','f':'Forest','h':'Hill','w':'River','=':'Bridge','p':'Road','c':'Fort'};
 function st_face(k,sz){const z=1.7*(sz||84)/84;return k?`background:#3a2c1c url(sprites/${k}.png) ${-72*z}px ${-8*z}px/${4608*z}px auto no-repeat`:''}
@@ -317,7 +318,8 @@ function st_chooseArt(k){const u=B.sel;
   if(k==='wait'){st_finish(u);return}
   if(k==='anti'){P.antidote--;u.poison=0;st_toast('Poison cured');st_finish(u);return}
   if(k==='herb'){P.herbs--;u.hp=Math.min(u.hpMax,u.hp+50);st_toast('+50 HP');st_finish(u);return}
-  B.art=k;B.pendOpt=null;B.opts=st_targetsFor(u,k);B.mode='target';B.hl=[];for(const op of B.opts)for(const t of op.tiles)B.hl.push({t,c:'tg'});st_actBar()}
+  B.art=k;B.pendOpt=null;B.opts=st_targetsFor(u,k);B.mode='target';st_tgView();st_actBar()}
+function st_tgView(){B.hl=[];for(const op of B.opts)if(!op.dir)for(const t of op.hit.length?op.hit.map(o=>[o.x,o.y]):op.tiles)B.hl.push({t,c:'tg2'});$s('#stInfo').hidden=true}
 function st_finish(u){u.done=true;B.sel=null;B.mode='idle';B.hl=[];st_actBar();st_checkEnd();if(B&&B.units.filter(v=>v.side==='P'&&v.hp>0).every(v=>v.done))st_endTurn()}
 async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[];const A=ARTS[k];u.mp-=A.mp;
   const res=opt.hit.map(t=>{const lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1;const dodge=Math.random()<t.dodge;let dmg=0,crit=false;
@@ -331,7 +333,7 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
   B.busy=false;st_finish(u)}
 function st_checkEnd(){if(!B)return;const pe=B.units.filter(v=>v.side==='P'&&v.hp>0),ee=B.units.filter(v=>v.side==='E'&&v.hp>0),hero=B.units.find(v=>v.hero);
   if(!ee.length)return st_endBattle(true);if(hero.hp<=0||!pe.length)return st_endBattle(false)}
-async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1);await st_wait(900/SPD);
+async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1);await st_wait(900/SPD);if(!B)return;
   for(const e of B.units.filter(v=>v.side==='E'&&v.hp>0)){if(!B)return;await st_enemyAct(e);st_checkEnd();if(!B)return}
   B.turn='P';for(const u of B.units){if(u.poison&&u.hp>0&&u.side==='P'){u.hp=Math.max(1,u.hp-6);u.poison--}u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}B.turnN=(B.turnN||1)+1;st_banner('Your turn · '+B.turnN);st_actBar()}
 async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
@@ -370,6 +372,7 @@ function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimat
     st_drawCell(c,sh,row,fr,px,py,k,face,u.done&&u.side==='P'&&B.turn==='P'?.6:1);
     const bw=T*.7,bx=px-bw/2,by=B.oy+u.y*T+3*B.dp;c.fillStyle='#000';c.fillRect(bx,by,bw,5*B.dp);c.fillStyle=u.side==='P'?'#5ad06a':'#e0574a';c.fillRect(bx,by,bw*clamp01(u.hp/u.hpMax),5*B.dp);
     if(u.mpMax){c.fillStyle='#58a8ff';c.fillRect(bx,by+5*B.dp,bw*clamp01(u.mp/u.mpMax),3*B.dp)}}
+  if(B.mode==='target'&&B.opts)for(const op of B.opts){if(!op.dir)continue;const on=B.pendOpt===op;if(B.pendOpt&&!on)continue;const [dx,dy]=op.dir,X=B.sel.x+dx,Y=B.sel.y+dy,p=(Math.sin(now/200)+1)/2,L=T*(.36+(on?.06:.03*p));c.save();c.translate(B.ox+(X+.5)*T+dx*T*.06*p,B.oy+(Y+.5)*T+dy*T*.06*p);c.rotate(Math.atan2(dy,dx));c.beginPath();c.moveTo(L,0);c.lineTo(-L*.15,-L*.75);c.lineTo(-L*.15,-L*.32);c.lineTo(-L*.9,-L*.32);c.lineTo(-L*.9,L*.32);c.lineTo(-L*.15,L*.32);c.lineTo(-L*.15,L*.75);c.closePath();c.fillStyle=on?'#ff8a2a':'#ffd23c';c.fill();c.lineWidth=Math.max(2,T*.05);c.strokeStyle=on?'#fff3c0':'#5a3a00';c.stroke();c.restore()}
   requestAnimationFrame(st_loop)}
 
 // ---------- side-view fight scene ----------

@@ -2701,3 +2701,24 @@ s=s[:_a]+"""  const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const 
     const row=(lab,a,b,m,fm,cls)=>`<div class="pbr"><b>${lab}</b><div class="pvbar ${cls}"><i class="now" style="width:${100*clamp(b/m)}%"></i><i class="loss" style="left:${100*clamp(b/m)}%;width:${100*clamp((a-b)/m)}%"></i><span>${fm(a)}${b<a?` → <em>${fm(b)}</em>`:''}</span></div></div>`;
     return `<div class="pvs pv2 ${fr?'fr':'fo'}">${lmFace(u)}<div class="pi"><div class="pnm"><span>${u.name}</span><small>${TYPES[u.type].n} ${arrow}</small></div>${row(u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldier',s0,s1,sm,v=>DSOL(u,v),'')}${hm?row('Hero',h0,h1,hm,v=>v,'hb'):''}</div></div>`};
 """+s[_b:]
+# v476: Twin Swords picks a direction (arrows), chosen skill area shown in red, confirm card = skill name + Use/Cancel only
+rep("""HERO.twinsea={who:'xishi',zh:'双剑出海',n:'Twin Swords Out to Sea',targets:s=>adjE(s),""","""HERO.twinsea={who:'xishi',zh:'双剑出海',n:'Twin Swords Out to Sea',targets:s=>DIRS.map(([dx,dy])=>{const cells=[];for(let r=1;r<=2;r++)for(let l=-1;l<=1;l++){const x=s.x+dx*r+dy*l,y=s.y+dy*r+dx*l;if(inb(x,y))cells.push({x,y})}const hit=cells.map(p=>unitAt(p.x,p.y)).filter(u=>u&&u.side!==s.side);if(!hit.length||!inb(s.x+dx,s.y+dy))return null;const a=ARW[dx+','+dy];return{fake:1,x:s.x+dx,y:s.y+dy,dir:[dx,dy],area:cells,label:`${a[0]} ${a[1]}`,name:a[1],type:'shield',note:`hits ${hit.map(u=>u.name).join(', ')}`}}).filter(Boolean),""")
+rep("""const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,120,40,.28)','#ffb347',true);""","""const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,40,30,.38)','#ff5a46',true);""")
+rep("""  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);""","""  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);else if(G.mode==='target'&&G.skc&&G.tmode!=='attack')lmRegion(c,lmSkArea(G.tmode,G.sel,G.skc),'rgba(255,40,30,.38)','#ff5a46',true);""")
+rep("""function lmDirArrows(c,now){""","""function lmSkArea(k,s,u){if(u.area)return u.area;const a=[{x:u.x,y:u.y}];if(!s||u.fake)return a;const dx=Math.sign(u.x-s.x),dy=Math.sign(u.y-s.y);
+  if((k==='hebei'||k==='crescent')&&inb(u.x+dx,u.y+dy))a.push({x:u.x+dx,y:u.y+dy});
+  else if(k==='bagua'){for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)if((i||j)&&inb(u.x+i,u.y+j))a.push({x:u.x+i,y:u.y+j})}
+  else if(k==='petal'){for(const [i,j] of DIRS){const e=unitAt(u.x+i,u.y+j);if(e&&e.side!==s.side)a.push({x:e.x,y:e.y})}}
+  return a}
+function lmDirArrows(c,now){""")
+rep("""  const u=G.skc;if(u&&G.targets.some(t=>t.u===u)){const tg=G.targets.find(t=>t.u===u);""","""  const u=G.skc;if(u&&G.targets.some(t=>t.u===u)){pv.innerHTML=`<div class="skc"><div class="skn"><b>${zh}</b><span>${nm}</span></div></div><div class="pvbtns"><button data-sk="go" class="go">Use</button><button data-sk="no">Cancel</button></div>`;pv.hidden=false;tp.hidden=true}
+  else if(0){const tg=null;""")
+# v476b: direction mode: no yellow range/target fill, red impact area under units, arrows drawn above units
+rep("""  if(G.mode==='target'&&G.sel&&G.tmode!=='attack')lmRegion(c,skRange(),""","""  const DIRM=G.mode==='target'&&G.targets.length&&G.targets.every(t=>t.u.fake&&t.u.dir);
+  if(G.mode==='target'&&G.sel&&G.tmode!=='attack'&&!DIRM)lmRegion(c,skRange(),""")
+rep("""  if(G.mode==='target'){for(const tg of G.targets)if(tg.u.area){""","""  if(G.mode==='target'&&!DIRM){for(const tg of G.targets)if(tg.u.area){""")
+rep("""  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);else if(G.mode==='target'&&G.skc&&G.tmode!=='attack')lmRegion(c,lmSkArea(G.tmode,G.sel,G.skc),'rgba(255,40,30,.38)','#ff5a46',true);
+  for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);""","""  if(G.mode==='target'&&G.skc&&G.tmode!=='attack')lmRegion(c,lmSkArea(G.tmode,G.sel,G.skc),'rgba(255,40,30,.42)','#ff5a46',true);
+  for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
+  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);""")
+rep("""const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,40,30,.38)','#ff5a46',true);""","""const sel=G.skc&&G.skc.dir?G.skc:null;""")
