@@ -12,7 +12,7 @@ const ARTS={
  wave:{zh:'金龍氣',n:'Dragon Qi Wave',shape:'wave',pow:.85,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: a gold wave through every enemy in a line.'},
  green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
- whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Spinning kick that hits every adjacent enemy.'},
+ whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
  star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
@@ -230,7 +230,7 @@ function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?f
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
   else if(A.shape==='kick'){const L=u.hero&&P.arts.star?Math.max(1,P.arts.star.lv):1;for(const [dx,dy] of DIRS){const tl=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o)){opts.push({tiles:tl.slice(),hit:[o],click:[[X,Y]],dir:[dx,dy]});break}if(o)break}}}
   else if(A.shape==='aoe'){const N=aoeDepth(u.hero&&P.arts[A.sub||'green']?P.arts.green.lv:1);for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=N;i++)for(const w of [-1,0,1]){const X=x+dx*i+(dy?w:0),Y=y+dy*i+(dx?w:0);if(!st_inb(X,Y))continue;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
-  else if(A.shape==='ring'){const hit=[],tl=[];for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
+  else if(A.shape==='ring'){const wl=u.hero&&P.arts.whirl?P.arts.whirl.lv:1,RD=wl>=3?DIRS.concat([[1,1],[1,-1],[-1,1],[-1,-1]]):DIRS;const hit=[],tl=[];for(const [dx,dy] of RD){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
   else if(A.shape==='r2'){for(const o of B.units)if(foe(o)&&o.hp>0&&Math.abs(o.x-x)+Math.abs(o.y-y)<=2)opts.push({tiles:[[o.x,o.y]],hit:[o],click:[[o.x,o.y]]})}
   else{const L=A.shape==='wave'?waveLen(u.hero&&P.arts.palm?P.arts.palm.lv:3):A.shape==='line3'?3:2;for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
   return opts}
@@ -268,6 +268,7 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
   await st_fightScene(u,A,res);
   for(const r of res){if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hp<=0&&r.t.side==='E'&&u.side==='P'){B.xp=(B.xp||0)+r.t.xp}}}
   if(A.pass&&opt.dir){const t0=opt.hit[0],bx=t0.x+opt.dir[0],by=t0.y+opt.dir[1];const free=(X,Y)=>st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y);let land=null;if(free(bx,by))land=[bx,by];else{let bd=1e9;for(const [dx,dy] of DIRS){const X=t0.x+dx,Y=t0.y+dy;if(!free(X,Y))continue;const d=Math.abs(X-bx)+Math.abs(Y-by)+(dx===-opt.dir[0]&&dy===-opt.dir[1]?.5:0);if(d<bd){bd=d;land=[X,Y]}}}if(land){u.x=land[0];u.y=land[1];u.face=opt.dir[0]?opt.dir[0]:u.face}}
+  if(A.shape==='ring'&&u.hero&&P.arts.whirl&&P.arts.whirl.lv>=5){for(const r of res)if(r.t.hp>0&&!r.dodge&&Math.random()<.4){const dx=Math.sign(r.t.x-u.x),dy=Math.sign(r.t.y-u.y),X=r.t.x+dx,Y=r.t.y+dy;if(st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
   if(A.stun){for(const r of res)if(r.t.hp>0&&!r.dodge&&Math.random()<A.stun){r.t.stun=1;st_toast(r.t.name+' is stunned!')}}
   if(A.kb&&opt.dir){for(const r of res)if(r.t.hp>0&&!r.dodge){const X=r.t.x+opt.dir[0],Y=r.t.y+opt.dir[1];if(st_inb(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
   B.busy=false;st_finish(u)}
