@@ -80,6 +80,16 @@ const CSS=`
 #stMap .pl.lock{opacity:.4;pointer-events:none}
 #stMap .pl.new{box-shadow:0 0 0 2px #ffd77a,0 0 14px #ffd77a}
 #stCv{position:absolute;inset:var(--sb) 0 0 0;width:100%;height:calc(100% - var(--sb));touch-action:none}
+#stTools{position:absolute;right:8px;top:calc(var(--sb) + 8px);z-index:4;display:flex;flex-direction:column;gap:5px}
+#stTools button{min-height:34px!important;width:38px;padding:0!important;font-size:16px;background:rgba(30,26,20,.85)!important}
+#stTools button.on{border-color:#ff7060!important;color:#ff9080}
+#stInfo{position:absolute;left:8px;top:calc(var(--sb) + 8px);z-index:4;width:min(240px,46vw);background:rgba(20,17,13,.92);border:1px solid #6a5a3a;border-radius:8px;padding:7px 9px;font-size:12px;line-height:1.35}
+#stInfo .ih{display:flex;gap:8px;align-items:center;margin-bottom:4px}#stInfo .ip{width:40px;height:40px;border-radius:6px;background:#2a241b center top/cover;flex:none;display:flex;align-items:center;justify-content:center;font:900 22px var(--f-zh,serif);color:#ffd77a}
+#stInfo b{color:#ffd77a}#stInfo .ib{height:6px;background:#000;border-radius:3px;margin:2px 0}#stInfo .ib i{display:block;height:100%;border-radius:3px}
+#stInfo .fc{margin-top:5px;padding-top:5px;border-top:1px solid #4a4030}#stInfo .fc div{display:flex;justify-content:space-between}#stInfo button{margin-top:6px;width:100%}
+#stBanner{position:absolute;left:0;right:0;top:40%;z-index:6;text-align:center;font:900 34px var(--f-display,serif);color:#ffd77a;text-shadow:0 3px 10px #000;background:linear-gradient(90deg,transparent,rgba(10,8,6,.85) 20%,rgba(10,8,6,.85) 80%,transparent);padding:10px 0;pointer-events:none;animation:stBan 1.1s ease forwards}
+#stBanner.en{color:#ff8a7a}
+@keyframes stBan{0%{opacity:0;transform:translateX(-30%)}20%{opacity:1;transform:none}80%{opacity:1;transform:none}100%{opacity:0;transform:translateX(30%)}}
 #stFight{position:absolute;inset:0;z-index:5;width:100%;height:100%;background:#000}
 #stAct{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;z-index:4;max-width:96%}
 #stAct button small{display:block;font-size:10.5px;opacity:.8}
@@ -110,7 +120,7 @@ function st_build(){
   const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
   const d=document.createElement('div');d.id='story';d.hidden=true;
   d.innerHTML=`<div class="stbar"><div class="who"><b>俠</b><span class="lv" id="stLv">Lv 1</span></div><div class="bars"><div class="bx"><span>HP</span><div class="bar"><i id="stHp" style="background:linear-gradient(90deg,#3fae52,#7be08a)"></i><em id="stHpT"></em></div></div><div class="bx"><span>內力</span><div class="bar"><i id="stMp" style="background:linear-gradient(90deg,#3a7fd8,#7ab8ff)"></i><em id="stMpT"></em></div></div><div class="bx xp"><span>XP</span><div class="bar"><i id="stXp" style="background:linear-gradient(90deg,#c9962e,#ffd77a)"></i><em id="stXpT"></em></div></div></div><div class="res"><span id="stGold"></span><span id="stHerbs"></span></div><div class="btns"><button id="stFsBtn" title="Full screen" aria-label="Full screen">⛶</button><button id="stHeroBtn">Hero</button><button id="stMenuBtn">Menu</button></div></div>
-  <div id="stMap"></div><canvas id="stCv" hidden></canvas><div id="stAct" hidden></div><canvas id="stFight" hidden></canvas><div id="stMsg" style="opacity:0"></div><div id="stDlg" hidden></div><div id="stPanel" hidden></div>`;
+  <div id="stMap"></div><canvas id="stCv" hidden></canvas><div id="stTools" hidden><button data-z="in" title="Zoom in">＋</button><button data-z="out" title="Zoom out">－</button><button data-z="fit" title="Fit board">⤢</button><button data-z="thr" title="Enemy threat range">⚠</button><button data-z="spd" title="Battle speed">1×</button></div><div id="stInfo" hidden></div><div id="stBanner" hidden></div><div id="stAct" hidden></div><canvas id="stFight" hidden></canvas><div id="stMsg" style="opacity:0"></div><div id="stDlg" hidden></div><div id="stPanel" hidden></div>`;
   document.body.appendChild(d);
   $s('#stMenuBtn').onclick=()=>{if(B)return st_toast('Finish the battle first');st_exitStory()};
   $s('#stHeroBtn').onclick=()=>st_heroPanel();
@@ -221,7 +231,7 @@ function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idl
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
 // ---------- battle ----------
-let B=null;const COLS=14,ROWS=8;
+let B=null;const COLS=14,ROWS=8;let SPD=1;try{SPD=+localStorage.getItem('rtk3_story_spd')||1}catch(e){}
 function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1).concat(['basic']).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
@@ -230,11 +240,24 @@ function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[
   B={key,D,map,units:[],turn:'P',sel:null,mode:'idle',res,bg:st_img('art/'+D.bg+'.jpg'),hl:[],t0:performance.now()};
   const place=(u,x,y)=>{let best=null,bd=1e9;for(let X=0;X<COLS;X++)for(let Y=0;Y<ROWS;Y++){if(!st_pass(X,Y)||B.units.some(v=>v.x===X&&v.y===Y))continue;const d=Math.abs(X-x)+Math.abs(Y-y);if(d<bd){bd=d;best=[X,Y]}}[u.x,u.y]=best;B.units.push(u)};
   us.forEach((u,i)=>place(u,...ppos[i]));fs.forEach((u,i)=>place(u,...D.pos[i]));
-  $s('#stMap').hidden=true;const cv=$s('#stCv');cv.hidden=false;mus('battle');st_fit();cv.onpointerdown=st_onTap;
-  st_toast(D.title,2000);for(const u of B.units)u.done=false;st_loop();st_actBar()})}
+  $s('#stMap').hidden=true;const cv=$s('#stCv');cv.hidden=false;mus('battle');B.zoom=1;B.panX=0;B.panY=0;B.turnN=1;st_fit();st_gestures(cv);st_tools(true);
+  st_toast(D.title,2000);for(const u of B.units)u.done=false;st_loop();st_actBar();setTimeout(()=>st_banner('Your turn'),400)})}
+function st_banner(t,en){const b=$s('#stBanner');if(!b)return;b.hidden=true;b.className=en?'en':'';b.textContent=t;void b.offsetWidth;b.hidden=false;clearTimeout(st_banner.h);st_banner.h=setTimeout(()=>b.hidden=true,1150)}
+function st_tools(on){const tb=$s('#stTools');tb.hidden=!on;if(!on){$s('#stInfo').hidden=true;return}tb.querySelector('[data-z=spd]').textContent=SPD+'×';tb.querySelector('[data-z=thr]').classList.toggle('on',!!(B&&B.threat));
+  tb.querySelectorAll('button').forEach(b=>b.onclick=()=>{const z=b.dataset.z;if(!B)return;if(z==='in')st_zoom(B.zoom*1.25);else if(z==='out')st_zoom(B.zoom/1.25);else if(z==='fit'){B.zoom=1;B.panX=0;B.panY=0;st_view()}else if(z==='thr'){B.threat=!B.threat;st_tools(true)}else if(z==='spd'){SPD=SPD===1?2:1;try{localStorage.setItem('rtk3_story_spd',SPD)}catch(e){}st_tools(true)}})}
+function st_view(){B.T=B.T0*B.zoom;const W=B.cw,H=B.ch,bw=B.T*COLS,bh=B.T*ROWS;let ox=(W-bw)/2+B.panX,oy=(H-bh)/2+B.panY;if(bw>W){ox=Math.min(0+20*B.dp,Math.max(W-bw-20*B.dp,ox))}else ox=(W-bw)/2;if(bh>H){oy=Math.min(8*B.dp,Math.max(H-bh-8*B.dp,oy))}else oy=(H-bh)/2;B.panX=ox-(W-bw)/2;B.panY=oy-(H-bh)/2;B.ox=ox;B.oy=oy}
+function st_zoom(z,cx,cy){const oz=B.zoom;z=Math.max(1,Math.min(2.6,z));if(z===oz)return;cx=cx==null?B.cw/2:cx;cy=cy==null?B.ch/2:cy;const bx=(cx-B.ox)/B.T,by=(cy-B.oy)/B.T;B.zoom=z;B.T=B.T0*z;const bw=B.T*COLS,bh=B.T*ROWS;B.panX=(cx-bx*B.T)-(B.cw-bw)/2;B.panY=(cy-by*B.T)-(B.ch-bh)/2;st_view()}
+function st_gestures(cv){const pts=new Map();let st=null;
+  cv.onpointerdown=e=>{cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===1)st={x:e.clientX,y:e.clientY,px:B.panX,py:B.panY,moved:false,e};else if(pts.size===2){const [a,b]=[...pts.values()];st={pinch:true,d:Math.hypot(a.x-b.x,a.y-b.y),z:B.zoom,moved:true}}};
+  cv.onpointermove=e=>{if(!pts.has(e.pointerId)||!st||!B)return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const r=cv.getBoundingClientRect();
+    if(st.pinch&&pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);st_zoom(st.z*d/st.d,((a.x+b.x)/2-r.left)*B.dp,((a.y+b.y)/2-r.top)*B.dp);return}
+    const dx=e.clientX-st.x,dy=e.clientY-st.y;if(!st.moved&&Math.hypot(dx,dy)>8)st.moved=true;if(st.moved&&B.zoom>1){B.panX=st.px+dx*B.dp;B.panY=st.py+dy*B.dp;st_view()}};
+  const up=e=>{const had=pts.has(e.pointerId);pts.delete(e.pointerId);if(!had||!st)return;if(!st.moved&&!st.pinch&&pts.size===0)st_onTap({clientX:e.clientX,clientY:e.clientY,currentTarget:cv});if(pts.size===0)st=null};
+  cv.onpointerup=up;cv.onpointercancel=e=>{pts.delete(e.pointerId);if(!pts.size)st=null};
+  cv.onwheel=e=>{e.preventDefault();if(!B)return;const r=cv.getBoundingClientRect();st_zoom(B.zoom*(e.deltaY<0?1.15:1/1.15),(e.clientX-r.left)*B.dp,(e.clientY-r.top)*B.dp)}}
 function st_fit(){const cv=$s('#stCv'),r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;B.dp=dp;
-  const T=Math.min(cv.width/COLS,(cv.height-60*dp)/ROWS);B.T=T;B.ox=(cv.width-T*COLS)/2;B.oy=(cv.height-60*dp-T*ROWS)/2+8*dp;B.terr=null;st_terr()}
-function st_terr(){if(!B||B.terr)return;try{if(typeof mapArtReady==='function'&&!mapArtReady())return;const pm=MAP,pt=window.BTHEME;MAP=B.map;window.BTHEME=B.D.theme;try{B.terr=renderTerrainArt(B.T/B.dp)}finally{MAP=pm;window.BTHEME=pt}}catch(e){B.terr=false}}
+  B.cw=cv.width;B.ch=cv.height-56*dp;B.T0=Math.min(B.cw/COLS,(B.ch-8*dp)/ROWS);B.zoom=B.zoom||1;st_view();B.terr=null;st_terr()}
+function st_terr(){if(!B||B.terr)return;try{if(typeof mapArtReady==='function'&&!mapArtReady())return;const pm=MAP,pt=window.BTHEME;MAP=B.map;window.BTHEME=B.D.theme;try{B.terr=renderTerrainArt(B.T0*1.6/B.dp)}finally{MAP=pm;window.BTHEME=pt}}catch(e){B.terr=false}}
 const st_ter=(x,y)=>B&&B.map&&B.map[y]?B.map[y][x]:'.';const st_pass=(x,y)=>st_ter(x,y)!=='w';const st_tdef=(x,y)=>{try{return (T_INFO[st_ter(x,y)]||{def:1}).def}catch(e){return 1}};
 window.addEventListener('resize',()=>{if(B&&!$s('#stCv').hidden)st_fit()});
 const st_at=(x,y)=>B.units.find(u=>u.hp>0&&u.x===x&&u.y===y);
@@ -252,31 +275,42 @@ function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?f
   return opts}
 function st_actBar(){const a=$s('#stAct');if(!B||B.turn!=='P'||B.busy){a.hidden=true;return}
   const u=B.sel;if(!u||B.mode==='idle'){a.innerHTML=`<button id="stEnd">End turn</button>`;a.hidden=false;$s('#stEnd').onclick=()=>st_endTurn();return}
-  if(B.mode==='act'){a.innerHTML=u.arts.map(k=>{const A=ARTS[k],ok=u.mp>=A.mp&&st_targetsFor(u,k).length;return `<button data-a="${k}" ${ok?'':'disabled'}>${A.zh} ${A.n}<small>${A.mp?A.mp+' 內力':'free'}${u.hero?' · Lv '+(P.arts[A.sub||k]||{lv:1}).lv:''}</small></button>`}).join('')+(u.hero&&P.herbs?`<button data-a="herb">Herb<small>+50 HP · ${P.herbs} left</small></button>`:'')+(u.poison&&P.antidote?`<button data-a="anti">Antidote<small>cure poison · ${P.antidote} left</small></button>`:'')+`<button data-a="wait">Wait</button><button data-a="back">Back</button>`;
+  if(B.mode==='act'){a.innerHTML=u.arts.map(k=>{const A=ARTS[k],ok=u.mp>=A.mp&&st_targetsFor(u,k).length;return `<button data-a="${k}" ${ok?'':'disabled'}>${A.zh} ${A.n}<small>${A.mp?A.mp+' 內力':'free'}${u.hero?' · Lv '+(P.arts[A.sub||k]||{lv:1}).lv:''}</small></button>`}).join('')+(u.hero&&P.herbs?`<button data-a="herb">Herb<small>+50 HP · ${P.herbs} left</small></button>`:'')+(u.poison&&P.antidote?`<button data-a="anti">Antidote<small>cure poison · ${P.antidote} left</small></button>`:'')+`<button data-a="wait">Wait</button><button data-a="back">Undo move</button>`;
     a.hidden=false;a.querySelectorAll('button').forEach(b=>b.onclick=()=>st_chooseArt(b.dataset.a));return}
-  if(B.mode==='target'){a.innerHTML=`<button data-a="cancel">Cancel</button>`;a.hidden=false;a.querySelector('button').onclick=()=>{B.mode='act';B.hl=[];st_actBar()};return}
+  if(B.mode==='target'){a.innerHTML=`<button data-a="cancel">Cancel</button>`;a.hidden=false;a.querySelector('button').onclick=()=>{B.mode='act';B.hl=[];B.pendOpt=null;$s('#stInfo').hidden=true;st_actBar()};return}
   a.hidden=true}
 function st_onTap(e){if(!B||B.turn!=='P'||B.busy)return;const r=e.currentTarget.getBoundingClientRect(),px=(e.clientX-r.left)*B.dp,py=(e.clientY-r.top)*B.dp;
-  const x=Math.floor((px-B.ox)/B.T),y=Math.floor((py-B.oy)/B.T);if(!st_inb(x,y))return;const o=st_at(x,y);
+  const x=Math.floor((px-B.ox)/B.T),y=Math.floor((py-B.oy)/B.T);if(!st_inb(x,y))return;const o=st_at(x,y);if(!(o&&o.side==='E'))B.pendFor=null;
+  if(o&&o.side==='P')st_info(o);else if(!o&&B.mode!=='target'){$s('#stInfo').hidden=true;if(B.mode==='idle'){const tt=st_ter(x,y),td=st_tdef(x,y);st_toast((TNAME[tt]||'Plain')+(tt==='w'?' · impassable':td!==1?' · damage taken ×'+(1/td).toFixed(2):''),1200)}}
   if((B.mode==='idle'||B.mode==='move'||B.mode==='act')&&o&&o.side==='E'){st_quickHit(o);return}
   if(B.mode==='idle'||B.mode==='move'){
     if(o&&o.side==='P'&&!o.done&&(B.mode==='idle'||o!==B.sel)){B.sel=o;B.mode='move';B.orig=[o.x,o.y];B.hl=st_reach(o).map(t=>({t,c:'mv'}));st_actBar();return}
     if(B.mode==='move'&&B.hl.some(h=>h.t[0]===x&&h.t[1]===y)){const u=B.sel;st_moveTo(u,x,y).then(()=>{B.mode='act';B.hl=[];st_actBar()});return}
     if(B.mode==='move'){B.mode='idle';B.sel=null;B.hl=[];st_actBar()}return}
-  if(B.mode==='target'){const opt=B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(opt)st_doAttack(B.sel,B.art,opt)}}
+  if(B.mode==='target'){const opt=B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(!opt)return;if(B.pendOpt===opt){B.pendOpt=null;$s('#stInfo').hidden=true;st_doAttack(B.sel,B.art,opt);return}
+    B.pendOpt=opt;B.hl=[];for(const op of B.opts)for(const t of op.tiles)B.hl.push({t,c:op===opt?'tg':'tg2'});B.pend=()=>{B.pendOpt=null;st_doAttack(B.sel,B.art,opt)};st_info(opt.hit[0],st_fcHtml(B.sel,B.art,opt.hit))}}
+function st_est(u,k,t){const A=ARTS[k],lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1,base=Math.max(1,(u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)/st_tdef(t.x,t.y));return {lo:Math.max(1,Math.round(base*.9)),hi:Math.max(1,Math.round(base*1.1)),hit:Math.round((1-t.dodge)*100)}}
+const TNAME={'.':'Plain','f':'Forest','h':'Hill','w':'River','=':'Bridge','p':'Road','c':'Fort'};
+function st_info(u,fc){const el=$s('#stInfo');if(!u){el.hidden=true;return}const tt=st_ter(u.x,u.y),td=st_tdef(u.x,u.y);
+  const pt=u.port?`<div class="ip" style="background-image:url(portraits/${u.port}.webp)"></div>`:`<div class="ip">${(u.name||'?')[0]}</div>`;
+  let h=`<div class="ih">${pt}<div><b>${u.name}</b><br>${u.side==='P'?'Ally':'Enemy'}${u.lv?' · Lv '+u.lv:''}${u.stun?' · stunned':''}${u.poison?' · poisoned':''}</div></div>HP ${u.hp}/${u.hpMax}<div class="ib"><i style="width:${Math.round(100*clamp01(u.hp/u.hpMax))}%;background:${u.side==='P'?'#5ad06a':'#e0574a'}"></i></div>${u.mpMax?`內力 ${u.mp}/${u.mpMax}<div class="ib"><i style="width:${Math.round(100*clamp01(u.mp/u.mpMax))}%;background:#58a8ff"></i></div>`:''}Atk ${u.atk} · Def ${u.def} · Move ${u.mv} · Dodge ${Math.round(u.dodge*100)}%<br>${TNAME[tt]||'Plain'}${td!==1?' · damage taken ×'+(1/td).toFixed(2):''}<br><small>${u.arts.map(k=>ARTS[k].n).join(', ')}</small>`;
+  if(fc)h+=fc;el.innerHTML=h;el.hidden=false;const cb=el.querySelector('[data-go]');if(cb)cb.onclick=()=>{const f=B.pend;B.pend=null;el.hidden=true;if(f)f()}}
+function st_fcHtml(u,k,hits){return `<div class="fc"><b>${ARTS[k].zh} ${ARTS[k].n}</b>${ARTS[k].mp?' · '+ARTS[k].mp+' 內力':''}${hits.map(t=>{const e=st_est(u,k,t);return `<div><span>${t.name}</span><span>${e.lo}-${e.hi} dmg · ${e.hit}%</span></div>`}).join('')}<button class="pri" data-go>Attack</button></div>`}
 function st_quickHit(o){let u=B.sel&&!B.sel.done?B.sel:null;if(!u){u=B.units.find(v=>v.hero&&v.hp>0&&!v.done)||B.units.find(v=>v.side==='P'&&v.hp>0&&!v.done)}if(!u)return;
   const hits=(from)=>{for(const k of u.arts){const A=ARTS[k];if(u.mp<A.mp)continue;const op=st_targetsFor(u,k,from).find(op=>op.hit.includes(o));if(op)return {k,op}}return null};
-  if(B.mode==='act'){const h=hits();if(h){B.sel=u;st_doAttack(u,h.k,h.op)}else st_toast('Out of reach');return}
-  let best=null;for(const t of st_reach(u)){const h=hits(t);if(h){const d=Math.abs(t[0]-u.x)+Math.abs(t[1]-u.y);if(!best||d<best.d)best={t,d}}}
-  if(!best)return st_toast(u.name+' cannot reach '+o.name+' this turn');B.sel=u;B.hl=[];$s('#stAct').hidden=true;B.busy=true;
-  st_moveTo(u,best.t[0],best.t[1]).then(()=>{B.busy=false;const h=hits();if(h)st_doAttack(u,h.k,h.op);else{B.mode='act';st_actBar()}})}
+  if(B.pendFor===o&&B.pend){const f=B.pend;B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;f();return}
+  if(B.mode==='act'){const h=hits();if(h){B.pendFor=o;B.pend=()=>{B.sel=u;st_doAttack(u,h.k,h.op)};st_info(o,st_fcHtml(u,h.k,h.op.hit))}else{st_info(o);st_toast('Out of reach')}return}
+  let best=null;for(const t of st_reach(u)){const h=hits(t);if(h){const d=Math.abs(t[0]-u.x)+Math.abs(t[1]-u.y);if(!best||d<best.d)best={t,d,h}}}
+  if(!best){st_info(o);return st_toast(u.name+' cannot reach '+o.name+' this turn')}
+  B.pendFor=o;B.hl=[{t:best.t,c:'mv'},{t:[o.x,o.y],c:'tg'}];B.pend=()=>{B.pendFor=null;B.sel=u;B.hl=[];$s('#stAct').hidden=true;B.busy=true;st_moveTo(u,best.t[0],best.t[1]).then(()=>{B.busy=false;const h=hits();if(h)st_doAttack(u,h.k,h.op);else{B.mode='act';st_actBar()}})};
+  st_info(o,st_fcHtml(u,best.h.k,best.h.op.hit).replace('</b>','</b> by '+u.name))}
 function st_moveTo(u,x,y){return new Promise(res=>{if(u.x===x&&u.y===y)return res();const fx=u.x,fy=u.y;u.anim={k:'run',t0:performance.now(),dur:260,fx,fy};u.face=x<fx?-1:x>fx?1:u.face;u.x=x;u.y=y;setTimeout(()=>{u.anim=null;res()},270)})}
 function st_chooseArt(k){const u=B.sel;
   if(k==='back'){if(B.orig){u.x=B.orig[0];u.y=B.orig[1]}B.mode='move';B.hl=st_reach(u).map(t=>({t,c:'mv'}));st_actBar();return}
   if(k==='wait'){st_finish(u);return}
   if(k==='anti'){P.antidote--;u.poison=0;st_toast('Poison cured');st_finish(u);return}
   if(k==='herb'){P.herbs--;u.hp=Math.min(u.hpMax,u.hp+50);st_toast('+50 HP');st_finish(u);return}
-  B.art=k;B.opts=st_targetsFor(u,k);B.mode='target';B.hl=[];for(const op of B.opts)for(const t of op.tiles)B.hl.push({t,c:'tg'});st_actBar()}
+  B.art=k;B.pendOpt=null;B.opts=st_targetsFor(u,k);B.mode='target';B.hl=[];for(const op of B.opts)for(const t of op.tiles)B.hl.push({t,c:'tg'});st_actBar()}
 function st_finish(u){u.done=true;B.sel=null;B.mode='idle';B.hl=[];st_actBar();st_checkEnd();if(B&&B.units.filter(v=>v.side==='P'&&v.hp>0).every(v=>v.done))st_endTurn()}
 async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[];const A=ARTS[k];u.mp-=A.mp;
   const res=opt.hit.map(t=>{const lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1;const dodge=Math.random()<t.dodge;let dmg=0,crit=false;
@@ -290,9 +324,9 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
   B.busy=false;st_finish(u)}
 function st_checkEnd(){if(!B)return;const pe=B.units.filter(v=>v.side==='P'&&v.hp>0),ee=B.units.filter(v=>v.side==='E'&&v.hp>0),hero=B.units.find(v=>v.hero);
   if(!ee.length)return st_endBattle(true);if(hero.hp<=0||!pe.length)return st_endBattle(false)}
-async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];st_actBar();
+async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1);await st_wait(900/SPD);
   for(const e of B.units.filter(v=>v.side==='E'&&v.hp>0)){if(!B)return;await st_enemyAct(e);st_checkEnd();if(!B)return}
-  B.turn='P';for(const u of B.units){if(u.poison&&u.hp>0&&u.side==='P'){u.hp=Math.max(1,u.hp-6);u.poison--}u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}st_toast('Your turn',900);st_actBar()}
+  B.turn='P';for(const u of B.units){if(u.poison&&u.hp>0&&u.side==='P'){u.hp=Math.max(1,u.hp-6);u.poison--}u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}B.turnN=(B.turnN||1)+1;st_banner('Your turn · '+B.turnN);st_actBar()}
 async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
   let best=null;for(const t of st_reach(e)){const op=st_targetsFor(e,k,t);if(op.length){const sc=-(op[0].hit[0].hp)+(op[0].hit[0].hero?15:0);if(!best||sc>best.sc)best={t,sc}}}
   if(best){await st_moveTo(e,best.t[0],best.t[1]);await st_wait(150);const op=st_targetsFor(e,k)[0];if(op){B.busy=true;await st_doAttackE(e,k,op);B.busy=false}return}
@@ -308,15 +342,17 @@ async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await 
     while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
     }}
   else{P.gold=Math.floor(P.gold*.8);P.hp=P.hpMax;P.mp=P.mpMax;}
-  B=null;$s('#stCv').hidden=true;$s('#stAct').hidden=true;st_hud();st_save();
+  B=null;$s('#stCv').hidden=true;$s('#stAct').hidden=true;st_tools(false);st_hud();st_save();
   if(!win&&b.key!=='spar'){await st_say('narr','Everything goes dark... You wake at the inn in Zhuo Village, bandaged and lighter of purse.');st_showMap()}
   b.res(win)}
 
+function st_threat(){const S=new Set();for(const e of B.units){if(e.side!=='E'||e.hp<=0)continue;const A=ARTS[e.arts[0]],r=A.shape==='r2'?2:1;for(const [x,y] of st_reach(e)){for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){if(Math.abs(dx)+Math.abs(dy)>r||(!dx&&!dy))continue;const X=x+dx,Y=y+dy;if(st_inb(X,Y))S.add(X+','+Y)}}}return S}
 // ---------- board render ----------
 function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimationFrame(st_loop);return}const c=cv.getContext('2d'),now=performance.now(),T=B.T;
   c.fillStyle='#1d1a14';c.fillRect(0,0,cv.width,cv.height);if(!B.terr&&B.terr!==false)st_terr();
   if(B.terr)c.drawImage(B.terr,B.ox,B.oy,T*COLS,T*ROWS);else{c.fillStyle='#5a7a3a';c.fillRect(B.ox,B.oy,T*COLS,T*ROWS);for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++){const tt=st_ter(x,y);if(tt!=='.'){c.fillStyle=tt==='w'?'#3a6a9a':tt==='f'?'#2f5a2a':tt==='h'?'#7a6a4a':'#a08a60';c.fillRect(B.ox+x*T,B.oy+y*T,T,T)}c.strokeStyle='rgba(0,0,0,.2)';c.strokeRect(B.ox+x*T,B.oy+y*T,T,T)}}
-  for(const h of B.hl){c.fillStyle=h.c==='mv'?'rgba(80,150,255,.35)':'rgba(255,70,60,.42)';c.fillRect(B.ox+h.t[0]*T+1,B.oy+h.t[1]*T+1,T-2,T-2)}
+  if(B.threat&&B.turn==='P'){if(!B.thrT||now-B.thrT>400){B.thrT=now;B.thr=st_threat()}c.fillStyle='rgba(255,40,30,.22)';for(const k of B.thr){const [x,y]=k.split(',').map(Number);c.fillRect(B.ox+x*T,B.oy+y*T,T,T)}}
+  for(const h of B.hl){c.fillStyle=h.c==='mv'?'rgba(80,150,255,.35)':h.c==='tg2'?'rgba(255,70,60,.18)':'rgba(255,70,60,.45)';c.fillRect(B.ox+h.t[0]*T+1,B.oy+h.t[1]*T+1,T-2,T-2)}
   const us=B.units.filter(u=>u.hp>0).sort((a,b)=>a.y-b.y);
   for(const u of us){const sh=st_sheetOf(u.sheet);if(!sh.complete||!sh.naturalWidth)continue;const R=st_rowsOf(sh);let px=B.ox+(u.x+.5)*T,py=B.oy+(u.y+.88)*T;
     let row=R.idle,fr=Math.floor((now/80+(u.id.length*3))%24);
@@ -339,7 +375,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.green&&P.arts.green)DR={im:GG,n:gDragons(P.arts.green.lv)};
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
   snd(anim==='ranged'?'fx':'swing');
-  function frame(){const now=performance.now(),t=now-t0;c.clearRect(0,0,W,H);
+  function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
     if(bg.complete&&bg.naturalWidth){const s=Math.max(W/bg.naturalWidth,H/bg.naturalHeight);c.drawImage(bg,(W-bg.naturalWidth*s)/2,(H-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
     c.fillStyle='rgba(0,0,0,.18)';c.fillRect(0,0,W,H);
     // banner
@@ -397,5 +433,5 @@ function st_titleLayout(){const tb=$s('#tbtns');if(!tb)return;
 if(typeof renderTitle==='function'){const _rt=renderTitle;renderTitle=function(){_rt.apply(this,arguments);st_titleLayout()}}
 window.addEventListener('load',()=>setTimeout(st_titleLayout,50));
 window.storyTitleLayout=st_titleLayout;
-window.__ST={B:()=>B,P:()=>P,tap(x,y){const cv=document.querySelector('#stCv'),r=cv.getBoundingClientRect();cv.dispatchEvent(new PointerEvent('pointerdown',{clientX:r.left+(B.ox+(x+.5)*B.T)/B.dp,clientY:r.top+(B.oy+(y+.5)*B.T)/B.dp,bubbles:true}))},targets:(u,k)=>st_targetsFor(u,k),reach:u=>st_reach(u)};
+window.__ST={B:()=>B,P:()=>P,tap(x,y){const cv=document.querySelector('#stCv'),r=cv.getBoundingClientRect();st_onTap({clientX:r.left+(B.ox+(x+.5)*B.T)/B.dp,clientY:r.top+(B.oy+(y+.5)*B.T)/B.dp,currentTarget:cv})},targets:(u,k)=>st_targetsFor(u,k),reach:u=>st_reach(u)};
 })();
