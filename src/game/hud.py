@@ -2670,3 +2670,5 @@ rep("const dashKind=u=>DASH_STYLE[u.id]||null;","const dashKind=u=>DASH_STYLE[u.
 rep("if(S.dashOn&&S.dashK==='palm'){S.dA=700;S.dB=1900}","if(S.dashOn&&NEWDASH.has(S.u.id)){S.dA=700;S.dB=1900}")
 rep("jy:k==='float'?","jy:k==='float'&&!S.dB?")
 rep("if(t>=DB&&!S._dh){S._dh=1;burst(hx+f*60*sc","if(t>=(S.dB?S.dA+(S.dB-S.dA)*.6:DB)&&!S._dh){S._dh=1;burst(hx+f*60*sc")
+# v471: run cadence fix - new hero run row is 1 step; Xi Shi row has 4 steps
+rep("'f_hero':3,","'f_hero':1,'f_xishi':4,")
