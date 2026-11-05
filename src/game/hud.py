@@ -2672,3 +2672,6 @@ rep("jy:k==='float'?","jy:k==='float'&&!S.dB?")
 rep("if(t>=DB&&!S._dh){S._dh=1;burst(hx+f*60*sc","if(t>=(S.dB?S.dA+(S.dB-S.dA)*.6:DB)&&!S._dh){S._dh=1;burst(hx+f*60*sc")
 # v471: run cadence fix - new hero run row is 1 step; Xi Shi row has 4 steps
 rep("'f_hero':3,","'f_hero':1,'f_xishi':4,")
+# v472: forecast also after pressing Attack then tapping the enemy (first tap previews, second / Attack button confirms)
+rep("function hitTarget(u){if(G.mode==='target'&&G.tmode!=='attack'&&G.skc!==u){","function hitTarget(u){if(G.mode==='target'&&G.skc!==u&&!(G.tmode==='attack'&&u&&u.fake)){")
+rep("  if(G.mode!=='target'||G.tmode==='attack'||!G.sel){G.skc=null;return}\n","  if(G.mode!=='target'||!G.sel){G.skc=null;return}\n  if(G.tmode==='attack'){const u=G.skc;if(u&&!u.fake&&G.targets.some(t=>t.u===u)){pv.innerHTML=lmPvHTML(G.sel,u,null,'<div class=\"pvbtns\"><button data-sk=\"go\" class=\"go\">攻 Attack</button><button data-sk=\"no\">Cancel</button></div>');pv.hidden=false;tp.hidden=true}else G.skc=null;return}\n")
