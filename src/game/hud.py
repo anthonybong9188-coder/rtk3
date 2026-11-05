@@ -2687,3 +2687,11 @@ rep("""function lmPortHTML(u){return""","""function lmFace(u){return PORT[u.id]?
 function lmPortHTML(u){return""")
 rep("""<div class="ustrip"><div class="utop"><div class="uav">${lmPortHTML(u)}""","""<div class="ustrip"><div class="utop"><div class="uav">${lmFace(u)}""")
 rep("""return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}""","""return `<div class="pvs ${fr?'fr':'fo'}">${lmFace(u)}""")
+# v474: info card in the reference style: big head-chest face, name plate, labelled thick bars starting on the face edge
+_a=s.index("function lmInfoHTML(u){");_b=s.index("function lmEnemyBox(",_a)
+s=s[:_a]+"""function lmInfoHTML(u){const fr=u.side==='shu',chips=[];
+    if(u.guard)chips.push('<span>Bracing</span>');if(u.stun)chips.push('<span class="bad">Rallying · misses a turn</span>');if(fr&&u.acted&&G.phase==='player')chips.push('<span>Done this turn</span>');if(u.dueled)chips.push('<span>Already dueled</span>');
+    const hb=u.hpMax?`<div class="ubr"><b>Hero</b><div class="ubar hb"><i style="width:${100*clamp(HP(u)/(u.hpMax||1))}%"></i><span>${HP(u)} / ${u.hpMax||0}</span></div></div>`:'';
+    const sl=u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldier';
+    return `<div class="ustrip uc2"><div class="uav">${lmFace(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un"><span>${u.name}</span>${u.cmd?'<span class="ucm">♛</span>':''}</div>${hb}<div class="ubr"><b>${sl}</b><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div></div><div class="ust">War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
+"""+s[_b:]
