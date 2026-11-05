@@ -13,7 +13,7 @@ const ARTS={
  green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Spinning kick that hits every adjacent enemy.'},
- star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'r2',pow:1.2,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Flying kick that reaches an enemy 2 squares away.'},
+ star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  axe:{zh:'斧',n:'Axe Chop',shape:'adj',pow:1.2,mp:0,anim:'melee',fx:'#ffb060'},
@@ -181,7 +181,7 @@ function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};if(lv0){st_t
 function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';
   const q=QG[P.qg],I=INNER[P.inner];P.manuals=P.manuals||[];P.antidote=P.antidote||0;
   const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`;
-  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/10 · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Dragon Qi Wave 金龍氣, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
+  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/${A.maxLv||10} · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Dragon Qi Wave 金龍氣, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
     <div class="sec2">內功 Inner art <small>passive</small></div><div class="art"><div class="ah"><b>${I.zh} ${I.n}</b></div><small>${I.desc}</small></div>
     <div class="sec2">輕功 Lightness skill</div><div class="art"><div class="ah"><b>${q.zh} ${q.n}</b></div><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>`;
   const inv=`<div class="sec2">包裹 Inventory</div>
@@ -228,6 +228,7 @@ function st_reach(u){const out=[[u.x,u.y]],seen=new Set([u.x+','+u.y]);let fr=[[
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?from[1]:u.y,foe=o=>o&&o.side!==u.side;const opts=[];
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
+  else if(A.shape==='kick'){const L=u.hero&&P.arts.star?Math.max(1,P.arts.star.lv):1;for(const [dx,dy] of DIRS){const tl=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o)){opts.push({tiles:tl.slice(),hit:[o],click:[[X,Y]],dir:[dx,dy]});break}if(o)break}}}
   else if(A.shape==='aoe'){const N=aoeDepth(u.hero&&P.arts[A.sub||'green']?P.arts.green.lv:1);for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=N;i++)for(const w of [-1,0,1]){const X=x+dx*i+(dy?w:0),Y=y+dy*i+(dx?w:0);if(!st_inb(X,Y))continue;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
   else if(A.shape==='ring'){const hit=[],tl=[];for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
   else if(A.shape==='r2'){for(const o of B.units)if(foe(o)&&o.hp>0&&Math.abs(o.x-x)+Math.abs(o.y-y)<=2)opts.push({tiles:[[o.x,o.y]],hit:[o],click:[[o.x,o.y]]})}
@@ -266,6 +267,7 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
     if(!dodge){crit=Math.random()<.08;dmg=Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)*rnd(.9,1.1)*(crit?1.5:1)/st_tdef(t.x,t.y)))}return {t,dodge,dmg,crit}});
   await st_fightScene(u,A,res);
   for(const r of res){if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hp<=0&&r.t.side==='E'&&u.side==='P'){B.xp=(B.xp||0)+r.t.xp}}}
+  if(A.pass&&opt.dir){const t0=opt.hit[0],bx=t0.x+opt.dir[0],by=t0.y+opt.dir[1];const free=(X,Y)=>st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y);let land=null;if(free(bx,by))land=[bx,by];else{let bd=1e9;for(const [dx,dy] of DIRS){const X=t0.x+dx,Y=t0.y+dy;if(!free(X,Y))continue;const d=Math.abs(X-bx)+Math.abs(Y-by)+(dx===-opt.dir[0]&&dy===-opt.dir[1]?.5:0);if(d<bd){bd=d;land=[X,Y]}}}if(land){u.x=land[0];u.y=land[1];u.face=opt.dir[0]?opt.dir[0]:u.face}}
   if(A.stun){for(const r of res)if(r.t.hp>0&&!r.dodge&&Math.random()<A.stun){r.t.stun=1;st_toast(r.t.name+' is stunned!')}}
   if(A.kb&&opt.dir){for(const r of res)if(r.t.hp>0&&!r.dodge){const X=r.t.x+opt.dir[0],Y=r.t.y+opt.dir[1];if(st_inb(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
   B.busy=false;st_finish(u)}
@@ -285,7 +287,7 @@ async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{c
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
   const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;P.poison=hero.poison||0;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
-    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<10&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400);if(P.eq==='palm'&&[3,5,7,10].includes(a.lv)){await st_wait(2500);st_toast('Dragon Qi Wave 金龍氣: range '+waveLen(a.lv)+' squares',3000)}}}}
+    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<(ARTS[P.eq].maxLv||10)&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400);if(P.eq==='palm'&&[3,5,7,10].includes(a.lv)){await st_wait(2500);st_toast('Dragon Qi Wave 金龍氣: range '+waveLen(a.lv)+' squares',3000)}}}}
     while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
     }}
   else{P.gold=Math.floor(P.gold*.8);P.hp=P.hpMax;P.mp=P.mpMax;}
@@ -316,7 +318,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const k=(n>1?.34:.42)*H/114,gy=H*.86,ax0=.24,tx=res.map((_,i)=>n>1?(n>3?.56+Math.floor(i/3)*.13+(i%3)*.03:.58+i*.12):.66),ty=res.map((_,i)=>gy-(n>3?(i%3)*H*.07:n>1?(i%2)*H*.05:0));
   const sh=st_sheetOf(att.sheet),R=st_rowsOf(sh),bg=B.bg,parts=[],pops=[];let t0=performance.now();
   const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee',mrow=(A.anim==='punch'||A.anim==='kick')&&R[A.anim]!=null?R[A.anim]:R.melee;
-  const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=n>1&&anim!=='ranged';
+  const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=(n>1||A.pass)&&anim!=='ranged',stay=!!A.pass;
   const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.green&&P.arts.green)DR={im:GG,n:gDragons(P.arts.green.lv)};
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
   snd(anim==='ranged'?'fx':'swing');
@@ -337,12 +339,12 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     let ax=X(ax0),row=R.idle,fr=Math.floor(now/80)%24;const last=X(tx[n-1]),first=X(tx[0]);
     if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*.1;if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
       else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*.1;ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40)%24}}
-    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}
+    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
     else{if(t>=350&&t<1500){row=R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
       if(t>800&&t<800+170*n+300){const q=clamp01((t-800)/(150*n+200));const px=lerp2(X(ax0)+mir*W*.06,last+mir*W*.05,q),py=gy-k*62;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.fillStyle=A.fx;c.globalAlpha=.25-j*.04;c.beginPath();c.arc(px-mir*j*k*10,py,k*(22-j*2),0,7);c.fill()}c.restore()}}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
     if(R.dash==null&&anim==='melee'&&row===R.melee)row=R.melee;
-    const face=(anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
+    const face=(!stay&&anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:stay&&t>=1700?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
     if(DR&&DR.im.complete&&DR.im.naturalWidth){for(let j=0;j<DR.n;j++){const ti=j%n,h0=hitT[ti]+j*60,a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[ti]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),oy=(j-(DR.n-1)/2)*k*38,py=ty[ti]-k*64+oy*(1-q*.6),dw=k*(DR.n>1?240:300),dh=dw/2;
       c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}c.drawImage(DR.im,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}}
     // particles + popups
