@@ -4033,11 +4033,11 @@ const INNER={hunyuan:{zh:'混元氣',n:'Primordial Breath',regen:4,def:4,dodge:.
 const QG=[{zh:'無',n:'None',mv:2,dodge:.05},{zh:'踏雲步',n:'Cloud Step',mv:3,dodge:.12},{zh:'燕回翔',n:'Swallow Glide',mv:4,dodge:.18}];
 const PEOPLE={hero:{n:'You',port:'hero'},hermit:{n:'Hermit Master',zh:'隱'},elder:{n:'Village Elder',zh:'老'},xiaoming:{n:'Xiao Ming',port:'xiao_ming'},xiaohei:{n:'Black Wind Chief',port:'xiao_hei'},jiangchen:{n:'Jiang Chen',port:'jiang_chen'},chief:{n:'Yellow Turban Chief',zh:'黃'},narr:{n:''}};
 const PLACES=[
- {id:'valley',zh:'隱仙谷',n:'Hermit Valley',x:.16,y:.22,need:null},
- {id:'zhuo',zh:'涿縣',n:'Zhuo Village',x:.40,y:.55,need:'prologue'},
- {id:'blackwind',zh:'黑風寨',n:'Black Wind Fort',x:.70,y:.30,need:'prologue'},
- {id:'temple',zh:'古寺',n:'Old Temple',x:.24,y:.78,need:'bw'},
- {id:'ytcamp',zh:'黃巾營',n:'Yellow Turban Camp',x:.80,y:.74,need:'temple'}];
+ {id:'valley',zh:'隱仙谷',n:'Hermit Valley',x:.16,y:.22,need:null,pic:'bg_pass'},
+ {id:'zhuo',zh:'涿縣',n:'Zhuo Village',x:.42,y:.55,need:'prologue',pic:'bg_road'},
+ {id:'blackwind',zh:'黑風寨',n:'Black Wind Fort',x:.76,y:.27,need:'prologue',pic:'bg_forest'},
+ {id:'temple',zh:'古寺',n:'Old Temple',x:.18,y:.80,need:'bw',pic:'bg_hill'},
+ {id:'ytcamp',zh:'黃巾營',n:'Yellow Turban Camp',x:.78,y:.78,need:'temple',pic:'bg_plain'}];
 const E=(id,name,sheet,lv,hp,atk,def,arts,xp,port,mv)=>({id,name,sheet,lv,hp,hpMax:hp,mp:0,mpMax:0,atk,def,arts,xp,port,mv:mv||2,dodge:.05,side:'E'});
 const BATTLES={
  spar:{theme:'pass',bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12)],pos:[[9,2],[9,5]]},
@@ -4058,31 +4058,45 @@ window.storyHasSave=()=>!!st_load();
 // ---------- DOM ----------
 const CSS=`
 #story{position:fixed;inset:0;z-index:7;background:#14110d;color:#f3e6c4;font-family:var(--f-body,system-ui);overflow:hidden;user-select:none}
-#story .stbar{position:absolute;left:0;right:0;top:0;height:40px;display:flex;align-items:center;gap:12px;padding:0 max(10px,env(safe-area-inset-left,0px));background:rgba(20,17,13,.86);border-bottom:1px solid #4a4030;z-index:3;font-size:13px}
-#story .stbar b{font-family:var(--f-display,serif);font-size:15px}
-#story .stbar .bar{width:70px;height:6px;background:#000;border-radius:3px;display:inline-block;vertical-align:middle;margin-left:4px}
-#story .stbar .bar i{display:block;height:100%;border-radius:3px}
+#story{--sb:46px}
+#story .stbar{position:absolute;left:0;right:0;top:0;height:var(--sb);display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"who bars res btns";align-items:center;gap:10px;padding:0 max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,#2a241b,#17130e);border-bottom:1px solid #6a5a3a;z-index:3;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#story .stbar .who{grid-area:who;display:flex;align-items:center;gap:6px;white-space:nowrap}
+#story .stbar .who b{font:900 22px var(--f-zh,serif);color:#ffd77a;line-height:1}
+#story .stbar .who .lv{background:#b8322c;color:#fff;border-radius:10px;padding:1px 8px;font-weight:700;font-size:12px}
+#story .stbar .bars{grid-area:bars;display:flex;gap:10px;min-width:0}
+#story .stbar .bx{flex:1;display:flex;align-items:center;gap:5px;min-width:0}
+#story .stbar .bx>span{color:#c9b98f;font-size:11px;white-space:nowrap;width:24px}
+#story .stbar .bar{position:relative;flex:1;height:15px;background:#0b0907;border:1px solid #4a4030;border-radius:8px;overflow:hidden;min-width:50px}
+#story .stbar .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;transition:width .3s}
+#story .stbar .bar em{position:absolute;inset:0;text-align:center;font:700 10.5px/15px var(--f-body,sans-serif);color:#fff;text-shadow:0 1px 2px #000;font-style:normal}
+#story .stbar .bx.xp .bar{height:9px}#story .stbar .bx.xp .bar em{line-height:9px;font-size:8.5px}
+#story .stbar .res{grid-area:res;display:flex;gap:10px;white-space:nowrap;font-weight:700}
+#story .stbar .btns{grid-area:btns;display:flex;gap:6px}
+#story .stbar .btns button{min-height:30px;padding:3px 12px}
+@media (max-width:700px){#story{--sb:78px}#story .stbar{grid-template-columns:auto 1fr auto;grid-template-areas:"who res btns" "bars bars bars";row-gap:4px;padding-top:6px;padding-bottom:6px}#story .stbar .res{justify-content:flex-end}}
 #story .sp{flex:1}
 #story button{font:inherit;color:#f3e6c4;background:#38332a;border:1px solid #5a4e38;border-radius:6px;padding:6px 12px;cursor:pointer;min-height:34px}
 #story button:disabled{opacity:.45;cursor:default}
 #story button.pri{background:#b8322c;border-color:#d4473f}
-#stMap{position:absolute;inset:40px 0 0 0;background:#2b2a22 center/cover no-repeat}
-#stMap .pl{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(20,17,13,.72);padding:6px 10px;border-radius:8px}
-#stMap .pl .z{font:900 20px var(--f-zh,serif);color:#ffd77a}
+#stMap{position:absolute;inset:var(--sb) 0 0 0;background:#2b2a22 center/cover no-repeat}
+#stMap .pl{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(20,17,13,.85);padding:5px 5px 6px;border-radius:10px;border:1px solid #6a5a3a;width:clamp(104px,min(22vw,32vh),170px);box-shadow:0 4px 12px rgba(0,0,0,.45)}
+#stMap .pl .pic{display:block;width:100%;aspect-ratio:16/10;border-radius:7px;background:#333 center/cover no-repeat;margin-bottom:3px}
+#stMap .pl .nm{font-size:12px;line-height:1.15;text-align:center}
+#stMap .pl .z{font:900 18px var(--f-zh,serif);color:#ffd77a;line-height:1.1}
 #stMap .pl.done .z::after{content:' ✓';color:#9be39b;font-size:14px}
 #stMap .pl.lock{opacity:.4;pointer-events:none}
 #stMap .pl.new{box-shadow:0 0 0 2px #ffd77a,0 0 14px #ffd77a}
-#stCv{position:absolute;inset:40px 0 0 0;width:100%;height:calc(100% - 40px);touch-action:none}
+#stCv{position:absolute;inset:var(--sb) 0 0 0;width:100%;height:calc(100% - var(--sb));touch-action:none}
 #stFight{position:absolute;inset:0;z-index:5;width:100%;height:100%;background:#000}
 #stAct{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;z-index:4;max-width:96%}
 #stAct button small{display:block;font-size:10.5px;opacity:.8}
-#stMsg{position:absolute;left:50%;top:52px;transform:translateX(-50%);z-index:6;background:rgba(20,17,13,.9);border:1px solid #d4ad55;border-radius:8px;padding:6px 14px;font-size:14px;pointer-events:none;transition:opacity .3s}
+#stMsg{position:absolute;left:50%;top:calc(var(--sb) + 10px);transform:translateX(-50%);z-index:6;background:rgba(20,17,13,.9);border:1px solid #d4ad55;border-radius:8px;padding:6px 14px;font-size:14px;pointer-events:none;transition:opacity .3s}
 #stDlg{position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;gap:12px;align-items:flex-end;padding:10px max(14px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,rgba(10,8,6,.97) 70%,rgba(10,8,6,0));min-height:120px}
 #stDlg .pt{width:96px;height:120px;flex:none;border-radius:6px;background:#2a241b center top/cover no-repeat;border:1px solid #5a4e38;display:flex;align-items:center;justify-content:center;font:900 48px var(--f-zh,serif);color:#ffd77a}
 #stDlg .tx{flex:1;font-size:15px;line-height:1.45;padding-bottom:6px}
 #stDlg .tx b{display:block;color:#ffd77a;font-family:var(--f-display,serif);margin-bottom:2px}
 #stDlg .tx .ch{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-#stPanel{position:absolute;inset:46px 8px 8px 8px;z-index:7;background:#18140f;border:1px solid #5a4e38;border-radius:8px;padding:12px 16px;overflow-y:auto;font-size:14px}
+#stPanel{position:absolute;inset:calc(var(--sb) + 6px) 8px 8px 8px;z-index:7;background:#18140f;border:1px solid #5a4e38;border-radius:8px;padding:12px 16px;overflow-y:auto;font-size:14px}
 #stPanel .hpw{display:grid;grid-template-columns:minmax(150px,26%) minmax(170px,22%) 1fr;gap:14px;height:100%}
 #stPanel .hpp{display:flex;align-items:flex-end;justify-content:center;background:radial-gradient(ellipse at 50% 70%,#3a2c1a,#18140f 70%);border-radius:8px;overflow:hidden}
 #stPanel .hpp img{max-height:100%;max-width:100%;object-fit:contain}
@@ -4102,7 +4116,7 @@ function st_build(){
   if($s('#story'))return;
   const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
   const d=document.createElement('div');d.id='story';d.hidden=true;
-  d.innerHTML=`<div class="stbar"><b id="stName">俠 Hero</b><span id="stLv"></span><span>HP<span class="bar"><i id="stHp" style="background:#5ad06a"></i></span></span><span>內力<span class="bar"><i id="stMp" style="background:#58a8ff"></i></span></span><span id="stGold"></span><span class="sp"></span><button id="stHeroBtn">Hero</button><button id="stMenuBtn">Menu</button></div>
+  d.innerHTML=`<div class="stbar"><div class="who"><b>俠</b><span class="lv" id="stLv">Lv 1</span></div><div class="bars"><div class="bx"><span>HP</span><div class="bar"><i id="stHp" style="background:linear-gradient(90deg,#3fae52,#7be08a)"></i><em id="stHpT"></em></div></div><div class="bx"><span>內力</span><div class="bar"><i id="stMp" style="background:linear-gradient(90deg,#3a7fd8,#7ab8ff)"></i><em id="stMpT"></em></div></div><div class="bx xp"><span>XP</span><div class="bar"><i id="stXp" style="background:linear-gradient(90deg,#c9962e,#ffd77a)"></i><em id="stXpT"></em></div></div></div><div class="res"><span id="stGold"></span><span id="stHerbs"></span></div><div class="btns"><button id="stHeroBtn">Hero</button><button id="stMenuBtn">Menu</button></div></div>
   <div id="stMap"></div><canvas id="stCv" hidden></canvas><div id="stAct" hidden></div><canvas id="stFight" hidden></canvas><div id="stMsg" style="opacity:0"></div><div id="stDlg" hidden></div><div id="stPanel" hidden></div>`;
   document.body.appendChild(d);
   $s('#stMenuBtn').onclick=()=>{if(B)return st_toast('Finish the battle first');st_exitStory()};
@@ -4110,7 +4124,7 @@ function st_build(){
 }
 function st_toast(t,ms){const m=$s('#stMsg');m.textContent=t;m.style.opacity=1;clearTimeout(st_toast.h);st_toast.h=setTimeout(()=>m.style.opacity=0,ms||1800)}
 function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
-  $s('#stLv').textContent='Lv '+P.lv+' · XP '+P.xp+'/'+xpNeed(P.lv);$s('#stHp').style.width=pct(P.hp,P.hpMax);$s('#stMp').style.width=pct(P.mp,P.mpMax);$s('#stGold').textContent='Gold '+P.gold+' · Herbs '+P.herbs}
+  $s('#stLv').textContent='Lv '+P.lv;$s('#stHp').style.width=pct(P.hp,P.hpMax);$s('#stHpT').textContent=P.hp+' / '+P.hpMax;$s('#stMp').style.width=pct(P.mp,P.mpMax);$s('#stMpT').textContent=P.mp+' / '+P.mpMax;$s('#stXp').style.width=pct(P.xp,xpNeed(P.lv));$s('#stXpT').textContent=P.xp+' / '+xpNeed(P.lv);$s('#stGold').textContent='💰 '+P.gold;$s('#stHerbs').textContent='🌿 '+P.herbs}
 
 // ---------- enter / exit ----------
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
@@ -4129,7 +4143,7 @@ function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');
 function st_showMap(){if(B)return;const m=$s('#stMap');m.hidden=false;$s('#stCv').hidden=true;$s('#stAct').hidden=true;mus('map');
   m.style.backgroundImage='url(art/bg_hill.jpg)';
   m.innerHTML=PLACES.map(p=>{const open=!p.need||P.flags[p.need],done=st_doneAt(p.id),nw=open&&!done&&p.id!=='zhuo'&&p.id!=='valley'||(p.id==='zhuo'&&open&&!P.flags.zhuo1);
-    return `<button class="pl ${open?'':'lock'} ${done?'done':''} ${nw?'new':''}" data-p="${p.id}" style="left:${p.x*100}%;top:${p.y*100}%"><span class="z">${p.zh}</span><span>${p.n}</span></button>`}).join('');
+    return `<button class="pl ${open?'':'lock'} ${done?'done':''} ${nw?'new':''}" data-p="${p.id}" style="left:${p.x*100}%;top:${p.y*100}%"><span class="pic" style="background-image:url(art/place_${p.id}.jpg),url(art/${p.pic}.jpg)"></span><span class="z">${p.zh}</span><span class="nm">${p.n}</span></button>`}).join('');
   m.querySelectorAll('.pl').forEach(b=>b.onclick=()=>st_visit(b.dataset.p));st_hud();st_save()}
 const st_doneAt=id=>({valley:P.flags.prologue,blackwind:P.flags.bw,temple:P.flags.temple,ytcamp:P.flags.yt})[id];
 async function st_visit(id){
