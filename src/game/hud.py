@@ -2675,3 +2675,15 @@ rep("'f_hero':3,","'f_hero':1,'f_xishi':4,")
 # v472: forecast also after pressing Attack then tapping the enemy (first tap previews, second / Attack button confirms)
 rep("function hitTarget(u){if(G.mode==='target'&&G.tmode!=='attack'&&G.skc!==u){","function hitTarget(u){if(G.mode==='target'&&G.skc!==u&&!(G.tmode==='attack'&&u&&u.fake)){")
 rep("  if(G.mode!=='target'||G.tmode==='attack'||!G.sel){G.skc=null;return}\n","  if(G.mode!=='target'||!G.sel){G.skc=null;return}\n  if(G.tmode==='attack'){const u=G.skc;if(u&&!u.fake&&G.targets.some(t=>t.u===u)){pv.innerHTML=lmPvHTML(G.sel,u,null,'<div class=\"pvbtns\"><button data-sk=\"go\" class=\"go\">攻 Attack</button><button data-sk=\"no\">Cancel</button></div>');pv.hidden=false;tp.hidden=true}else G.skc=null;return}\n")
+# v473: compact info card: head-chest face, bars full width under face row, no type/terrain text
+rep("""return `<div class="ustrip"><div class="uav">""","""return `<div class="ustrip"><div class="utop"><div class="uav">""")
+rep("""<div class="ust">${u.dragon?'Silver Dragon Cavalry':TYPES[u.type].n} · War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b> · ${T_INFO[terAt(u.x,u.y)].n}</div>${u.hpMax?""","""<div class="ust">War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b></div></div></div>${u.hpMax?""")
+rep("""${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}""","""${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div>`}""")
+# weather chip sits in the rail next to the turn box, one compact pill
+rep("""if(!c){c=document.createElement('div');c.id='wxChip';bv.appendChild(c)}""","""if(!c){c=document.createElement('div');c.id='wxChip';const tb=bv.querySelector('.turnbox');if(tb)tb.after(c);else bv.appendChild(c)}""")
+rep("""<div class="wxe">${w.fx}</div><div class="wxn">Next turn: ${n.ic} ${n.n}</div>`}""","""<div class="wxe">${w.fx} · Next ${n.ic}</div>`}""")
+# v473: head-to-chest face crop for info card + forecast
+rep("""function lmPortHTML(u){return""","""function lmFace(u){return PORT[u.id]?`<div class="hcf" style="background-image:url(portraits/${PORT[u.id]}.webp)"></div>`:lmPortHTML(u)}
+function lmPortHTML(u){return""")
+rep("""<div class="ustrip"><div class="utop"><div class="uav">${lmPortHTML(u)}""","""<div class="ustrip"><div class="utop"><div class="uav">${lmFace(u)}""")
+rep("""return `<div class="pvs ${fr?'fr':'fo'}">${lmPortHTML(u)}""","""return `<div class="pvs ${fr?'fr':'fo'}">${lmFace(u)}""")
