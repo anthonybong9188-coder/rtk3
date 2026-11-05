@@ -8,8 +8,9 @@ const st_wait=ms=>new Promise(r=>setTimeout(r,ms));
 
 // ---------- data ----------
 const ARTS={
- palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.0,mp:0,anim:'dash',fx:'#ffd75a',desc:'Palm strike on an adjacent enemy.'},
- wave:{zh:'金龍氣',n:'Dragon Qi Wave',shape:'wave',pow:.85,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: a gold wave through every enemy in a line.'},
+ basic:{zh:'拳腳',n:'Basic Strike',shape:'adj',pow:.75,mp:0,anim:'melee',fx:'#ffe7a8',desc:'Plain punches and kicks, no 內力 needed.'},
+ palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.45,mp:5,anim:'dash',fx:'#ffd75a',desc:'Powerful palm strike driven by 內力 on an adjacent enemy.'},
+ wave:{zh:'金龍掌勁',n:'Palm Force',shape:'wave',pow:1.1,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: 內力 pushed out from the palm, hits every enemy in a line.'},
  green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
@@ -195,7 +196,7 @@ function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};if(lv0){st_t
 function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';
   const q=QG[P.qg],I=INNER[P.inner];P.manuals=P.manuals||[];P.antidote=P.antidote||0;
   const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`;
-  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/${A.maxLv||10} · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Dragon Qi Wave 金龍氣, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
+  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/${A.maxLv||10} · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Palm Force 金龍掌勁, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
     <div class="sec2">內功 Inner art <small>passive</small></div><div class="art"><div class="ah"><b>${I.zh} ${I.n}</b></div><small>${I.desc}</small></div>
     <div class="sec2">輕功 Lightness skill</div><div class="art"><div class="ah"><b>${q.zh} ${q.n}</b></div><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>`;
   const inv=`<div class="sec2">包裹 Inventory</div>
@@ -220,7 +221,7 @@ function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalW
 
 // ---------- battle ----------
 let B=null;const COLS=14,ROWS=8;
-function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
+function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1).concat(['basic']).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
   const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
@@ -302,7 +303,7 @@ async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{c
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
   const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;P.poison=hero.poison||0;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
-    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<(ARTS[P.eq].maxLv||10)&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400);if(P.eq==='palm'&&[3,5,7,10].includes(a.lv)){await st_wait(2500);st_toast('Dragon Qi Wave 金龍氣: range '+waveLen(a.lv)+' squares',3000)}}}}
+    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<(ARTS[P.eq].maxLv||10)&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400);if(P.eq==='palm'&&[3,5,7,10].includes(a.lv)){await st_wait(2500);st_toast('Palm Force 金龍掌勁: range '+waveLen(a.lv)+' squares',3000)}}}}
     while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
     }}
   else{P.gold=Math.floor(P.gold*.8);P.hp=P.hpMax;P.mp=P.mpMax;}
