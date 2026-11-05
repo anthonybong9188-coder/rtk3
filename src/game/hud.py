@@ -2695,3 +2695,9 @@ s=s[:_a]+"""function lmInfoHTML(u){const fr=u.side==='shu',chips=[];
     const sl=u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldier';
     return `<div class="ustrip uc2"><div class="uav">${lmFace(u)}<i class="ut">${LM_TZ[u.type]||'兵'}</i></div><div class="ubody"><div class="un"><span>${u.name}</span>${u.cmd?'<span class="ucm">♛</span>':''}</div>${hb}<div class="ubr"><b>${sl}</b><div class="ubar"><i style="width:${100*clamp(SOL(u)/Math.max(1,u.max-(u.hpMax||0)))}%"></i><span>${DSOL(u,SOL(u))} / ${DSOL(u,u.max-(u.hpMax||0))}</span></div></div><div class="ust">War <b>${u.war}</b> · Int <b>${u.int}</b> · Mv <b>${TYPES[u.type].mv+(u.dragon?1:0)}</b></div>${chips.length?`<div class="uchips">${chips.join('')}</div>`:''}</div></div>`}
 """+s[_b:]
+# v475: forecast card in reference style (big face, name plate, SOLDIER row + HERO row bars with before -> after)
+_a=s.index("  const side=(u,loss,fr,arrow)=>{",s.index("function lmPvHTML("));_b=s.index("  return side(s,f.take",_a)
+s=s[:_a]+"""  const side=(u,loss,fr,arrow)=>{loss=Math.min(loss,u.troops);const hm=u.hpMax||0,s0=Math.max(0,u.troops-hm),s1=Math.max(0,u.troops-loss-hm),h0=Math.min(hm,u.troops),h1=Math.min(hm,Math.max(0,u.troops-loss)),sm=Math.max(1,u.max-hm);
+    const row=(lab,a,b,m,fm,cls)=>`<div class="pbr"><b>${lab}</b><div class="pvbar ${cls}"><i class="now" style="width:${100*clamp(b/m)}%"></i><i class="loss" style="left:${100*clamp(b/m)}%;width:${100*clamp((a-b)/m)}%"></i><span>${fm(a)}${b<a?` → <em>${fm(b)}</em>`:''}</span></div></div>`;
+    return `<div class="pvs pv2 ${fr?'fr':'fo'}">${lmFace(u)}<div class="pi"><div class="pnm"><span>${u.name}</span><small>${TYPES[u.type].n} ${arrow}</small></div>${row(u.type==='tiger'?'Tigers':u.type==='wolf'?'Wolves':'Soldier',s0,s1,sm,v=>DSOL(u,v),'')}${hm?row('Hero',h0,h1,hm,v=>v,'hb'):''}</div></div>`};
+"""+s[_b:]
