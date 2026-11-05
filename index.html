@@ -4170,6 +4170,19 @@ const CSS=`
 #stInfo .ibr .ib{flex:1;height:18px;margin:0;border-radius:4px 9px 9px 4px;border:1.5px solid #c9a24a}#stInfo .ibr .ib span{font:800 12px/16px system-ui}#stInfo .ist{margin-left:40px;font-size:11px;color:#cfc4aa}
 #stInfo .ftr{display:flex!important;align-items:center;gap:6px;margin-top:4px;justify-content:flex-start!important}#stInfo .fc .fp{display:block;width:44px;height:44px;flex:none;border-radius:9px;border:2px solid #e0574a}#stInfo .fc .fr2{display:block;flex:1;min-width:0}#stInfo .fn{display:flex;justify-content:space-between;font-size:12px}#stInfo .fn span:first-child{color:#fff;font-weight:700}#stInfo .ftr .ib{position:relative;height:18px;margin:2px 0 0;border-radius:4px 9px 9px 4px;border:1.5px solid #c9a24a;overflow:hidden;background:#000}#stInfo .ftr .ib i{position:absolute;top:0;bottom:0;left:0;border-radius:0}#stInfo .ftr .ib i.fl{background:#fff6c8;animation:lmBlink .55s steps(2) infinite}#stInfo .ftr .ib span{position:absolute;inset:0;text-align:center;font:800 12px/15px system-ui;color:#fff;text-shadow:0 1px 2px #000}#stInfo .ftr em{font-style:normal;color:#ffe08a}
 #stInfo .skc .skn{font:700 16px Georgia,serif;color:#fff;margin-bottom:6px}#stInfo .skc .skn b{color:#ffd77a;font-size:19px}#stInfo .skb{display:flex;gap:6px}#stInfo .skb button{flex:1;margin-top:0}
+#stFc{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:16px;background:linear-gradient(180deg,rgba(24,20,14,.94),rgba(10,8,5,.94));border:1.5px solid #c9a24a;box-shadow:0 8px 24px rgba(0,0,0,.55);font:13px system-ui;color:#eee;white-space:nowrap}
+#stFc[hidden]{display:none}#stFc .fs{display:flex;align-items:center;width:250px}#stFc .fs.fo{flex-direction:row-reverse}
+#stFc .fp{width:76px;height:76px;flex:none;border-radius:12px;border:3px solid #58a8ff;position:relative;z-index:1}#stFc .fo .fp{border-color:#e0574a}
+#stFc .fi{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;margin-left:-6px}#stFc .fo .fi{margin-left:0;margin-right:-6px}
+#stFc .fnm{align-self:flex-start;margin-left:12px;padding:1px 10px 2px;border-radius:10px 10px 10px 0;background:linear-gradient(180deg,#2a2418,#120f0a);border:1.5px solid #c9a24a;max-width:calc(100% - 12px);overflow:hidden;text-overflow:ellipsis}#stFc .fo .fnm{align-self:flex-end;margin-left:0;margin-right:12px;border-radius:10px 10px 0 10px}
+#stFc .fnm span{font:700 14px Georgia,serif;color:#ffd77a}#stFc .fnm small{margin-left:6px;font-size:11px;color:#e8dcc0}
+#stFc .fbr{display:flex;align-items:center;gap:4px}#stFc .fo .fbr{flex-direction:row-reverse}#stFc .fbr>b{position:relative;z-index:2;width:36px;text-align:right;font:italic 900 11.5px/1 Georgia,serif;color:#ffe08a;text-shadow:0 1px 0 #000,0 0 3px #000,0 0 3px #000;flex:none}#stFc .fo .fbr>b{text-align:left}
+#stFc .fbar{position:relative;flex:1;height:19px;border-radius:4px 10px 10px 4px;border:1.5px solid #c9a24a;background:#000;overflow:hidden}#stFc .fo .fbar{border-radius:10px 4px 4px 10px}
+#stFc .fbar i{position:absolute;top:0;bottom:0;left:0}#stFc .fbar i.fl{background:#fff6c8;animation:lmBlink .55s steps(2) infinite}
+#stFc .fbar span{position:absolute;inset:0;text-align:center;font:800 12px/16px system-ui;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}#stFc em{font-style:normal;color:#ffe08a}
+#stFc .fvs{display:flex;flex-direction:column;align-items:center;font:900 italic 20px Georgia,serif;color:#ffd77a;text-shadow:0 2px 4px #000;padding:0 4px}#stFc .fvs i{font:700 13px Georgia,serif;color:#fff;font-style:normal;margin-bottom:2px}#stFc .fvs small{font:700 11px system-ui;color:#fff;font-style:normal}
+#stFc .fbtn{display:flex;flex-direction:column;gap:6px;margin-left:6px}#stFc .fbtn button{padding:8px 14px;border-radius:12px;border:1.5px solid #6a5a3a;background:#2a241b;color:#fff;font:700 13px system-ui}#stFc .fbtn .go{background:linear-gradient(180deg,#e0574a,#a8180e);border-color:#ffb347}
+@media (max-width:760px){#stFc{bottom:52px;padding:6px}#stFc .fs{width:190px}#stFc .fp{width:58px;height:58px}#stFc .fbar{height:16px}#stFc .fbar span{font-size:11px;line-height:13px}}
 #stInfo .fc{margin-top:5px;padding-top:5px;border-top:1px solid #4a4030}#stInfo .fc div{display:flex;justify-content:space-between}#stInfo button{margin-top:6px;width:100%}
 #stBanner{position:absolute;left:0;right:0;top:40%;z-index:6;text-align:center;font:900 34px var(--f-display,serif);color:#ffd77a;text-shadow:0 3px 10px #000;background:linear-gradient(90deg,transparent,rgba(10,8,6,.85) 20%,rgba(10,8,6,.85) 80%,transparent);padding:10px 0;pointer-events:none;animation:stBan 1.1s ease forwards}
 #stBanner.en{color:#ff8a7a}
@@ -4364,7 +4377,7 @@ function st_actBar(){const a=$s('#stAct');if(!B||B.turn!=='P'||B.busy){a.hidden=
   if(B.mode==='target'){a.innerHTML=`<button data-a="cancel">Cancel</button>`;a.hidden=false;a.querySelector('button').onclick=()=>{B.mode='act';B.hl=[];B.pendOpt=null;$s('#stInfo').hidden=true;st_actBar()};return}
   a.hidden=true}
 function st_onTap(e){if(!B||B.turn!=='P'||B.busy)return;const r=e.currentTarget.getBoundingClientRect(),px=(e.clientX-r.left)*B.dp,py=(e.clientY-r.top)*B.dp;
-  const x=Math.floor((px-B.ox)/B.T),y=Math.floor((py-B.oy)/B.T);if(!st_inb(x,y))return;const o=st_at(x,y);if(!(o&&o.side==='E'))B.pendFor=null;
+  const x=Math.floor((px-B.ox)/B.T),y=Math.floor((py-B.oy)/B.T);if(!st_inb(x,y))return;const o=st_at(x,y);if(!(o&&o.side==='E')){if(B.pendFor){B.pendFor=null;B.pend=null;if(B.mode==='idle')B.hl=[]}st_fcHide()}
   if(o&&o.side==='P')st_info(o);else if(!o&&B.mode!=='target'){$s('#stInfo').hidden=true;if(B.mode==='idle'){const tt=st_ter(x,y),td=st_tdef(x,y);st_toast((TNAME[tt]||'Plain')+(tt==='w'?' · impassable':td!==1?' · damage taken ×'+(1/td).toFixed(2):''),1200)}}
   if((B.mode==='idle'||B.mode==='move'||B.mode==='act')&&o&&o.side==='E'){st_quickHit(o);return}
   if(B.mode==='idle'||B.mode==='move'){
@@ -4382,14 +4395,26 @@ function st_info(u,fc){const el=$s('#stInfo');if(!u){el.hidden=true;return}const
   let h=`<div class="ih">${pt}<div class="ir"><div class="inm">${u.name} <small>Lv ${u.lv||1}</small></div>${bar(u.hp,u.hpMax,u.side==='P'?'linear-gradient(180deg,#c4ffae,#4fdc4f 50%,#169a2c)':'linear-gradient(180deg,#ffb8a6,#ff4a36 50%,#a8180e)','HP')}${u.mpMax?bar(u.mp,u.mpMax,'linear-gradient(180deg,#bfe3ff,#3fa0ff 50%,#1a5fc0)','內力'):''}<div class="ist">Atk ${u.atk} · Def ${u.def} · Mv ${u.mv} · Dodge ${Math.round(u.dodge*100)}%${u.stun?' · stunned':''}${u.poison?' · poisoned':''}${td!==1?' · dmg ×'+(1/td).toFixed(2):''}</div></div></div><small>${u.arts.map(k=>ARTS[k].n).join(', ')}</small>`;
   if(fc)h+=fc;el.innerHTML='<div class="ibody">'+h+'</div>';el.hidden=false;const cb=el.querySelector('[data-go]');if(cb)cb.onclick=()=>{const f=B.pend;B.pend=null;el.hidden=true;if(f)f()}}
 function st_fcHtml(u,k,hits){return `<div class="fc"><b>${ARTS[k].zh} ${ARTS[k].n}</b>${ARTS[k].mp?' · '+ARTS[k].mp+' 內力':''}${hits.map(t=>{const e=st_est(u,k,t),a=Math.max(0,t.hp-e.hi),b=Math.max(0,t.hp-e.lo),m=t.hpMax||1,fu=t.port?'background:#2a241b url(portraits/'+t.port+'.webp) 50% 4%/150% auto no-repeat':st_face(t.sheet,44);return `<div class="ftr"><div class="fp" style="${fu}"></div><div class="fr2"><div class="fn"><span>${t.name}</span><span>${e.hit}% hit</span></div><div class="ib"><i style="width:${Math.round(100*clamp01(a/m))}%;background:linear-gradient(180deg,#ffb8a6,#ff4a36 50%,#a8180e)"></i><i class="fl" style="left:${Math.round(100*clamp01(a/m))}%;width:${Math.round(100*clamp01((t.hp-a)/m))}%"></i><span>HP ${t.hp} → <em>${a===b?a:a+'-'+b}</em></span></div></div></div>`}).join('')}<button class="pri" data-go>Attack</button></div>`}
+function st_fcShow(u,k,hits){let el=$s('#stFc');if(!el){el=document.createElement('div');el.id='stFc';$s('#stCv').parentNode.appendChild(el)}
+  const A=ARTS[k],t=hits[0],e=st_est(u,k,t),a=Math.max(0,t.hp-e.hi),b=Math.max(0,t.hp-e.lo);
+  const face=v=>`<div class="fp" style="${v.port?'background:#2a241b url(portraits/'+v.port+'.webp) 50% 4%/150% auto no-repeat':st_face(v.sheet,76)}"></div>`;
+  const row=(lab,v0,v1,m,c,txt)=>`<div class="fbr"><b>${lab}</b><div class="fbar"><i style="width:${Math.round(100*clamp01(v1/m))}%;background:${c}"></i>${v1<v0?`<i class="fl" style="left:${Math.round(100*clamp01(v1/m))}%;width:${Math.round(100*clamp01((v0-v1)/m))}%"></i>`:''}<span>${txt}</span></div></div>`;
+  const G='linear-gradient(180deg,#c4ffae,#4fdc4f 50%,#169a2c)',Rd='linear-gradient(180deg,#ffb8a6,#ff4a36 50%,#a8180e)',Bl='linear-gradient(180deg,#bfe3ff,#3fa0ff 50%,#1a5fc0)';
+  el.innerHTML=`<div class="fs fr">${face(u)}<div class="fi"><div class="fnm"><span>${u.name}</span></div>${row('HP',u.hp,u.hp,u.hpMax,G,u.hp+' / '+u.hpMax)}${u.mpMax?row('內力',u.mp,u.mp-A.mp,u.mpMax,Bl,A.mp?`${u.mp} → <em>${u.mp-A.mp}</em>`:u.mp+' / '+u.mpMax):''}</div></div>
+  <div class="fvs"><i>${A.zh}</i>VS<small>${e.hit}% hit</small></div>
+  <div class="fs fo">${face(t)}<div class="fi"><div class="fnm"><span>${t.name}${hits.length>1?` <small>+${hits.length-1}</small>`:''}</span></div>${row('HP',t.hp,a,t.hpMax,Rd,`${t.hp} → <em>${a===b?a:a+'-'+b}</em>`)}</div></div>
+  <div class="fbtn"><button class="go" data-go>攻 Attack</button><button data-no>Cancel</button></div>`;
+  el.hidden=false;el.querySelector('[data-go]').onclick=()=>{const f=B.pend;B.pend=null;B.pendFor=null;el.hidden=true;if(f)f()};
+  el.querySelector('[data-no]').onclick=()=>{B.pend=null;B.pendFor=null;el.hidden=true;if(B.mode==='idle')B.hl=[]}}
+function st_fcHide(){const el=$s('#stFc');if(el)el.hidden=true}
 function st_quickHit(o){let u=B.sel&&!B.sel.done?B.sel:null;if(!u){u=B.units.find(v=>v.hero&&v.hp>0&&!v.done)||B.units.find(v=>v.side==='P'&&v.hp>0&&!v.done)}if(!u)return;
   const hits=(from)=>{for(const k of u.arts){const A=ARTS[k];if(u.mp<A.mp)continue;const op=st_targetsFor(u,k,from).find(op=>op.hit.includes(o));if(op)return {k,op}}return null};
-  if(B.pendFor===o&&B.pend){const f=B.pend;B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;f();return}
-  if(B.mode==='act'){const h=hits();if(h){B.pendFor=o;B.pend=()=>{B.sel=u;st_doAttack(u,h.k,h.op)};st_info(o,st_fcHtml(u,h.k,h.op.hit))}else{st_info(o);st_toast('Out of reach')}return}
+  if(B.pendFor===o&&B.pend){const f=B.pend;B.pend=null;B.pendFor=null;st_fcHide();f();return}
+  if(B.mode==='act'){const h=hits();if(h){B.pendFor=o;B.pend=()=>{B.sel=u;st_doAttack(u,h.k,h.op)};$s('#stInfo').hidden=true;st_fcShow(u,h.k,h.op.hit)}else{st_info(o);st_toast('Out of reach')}return}
   let best=null;for(const t of st_reach(u)){const h=hits(t);if(h){const d=Math.abs(t[0]-u.x)+Math.abs(t[1]-u.y);if(!best||d<best.d)best={t,d,h}}}
   if(!best){st_info(o);return st_toast(u.name+' cannot reach '+o.name+' this turn')}
   B.pendFor=o;B.hl=[{t:best.t,c:'mv'},{t:[o.x,o.y],c:'tg'}];B.pend=()=>{B.pendFor=null;B.sel=u;B.hl=[];$s('#stAct').hidden=true;B.busy=true;st_moveTo(u,best.t[0],best.t[1]).then(()=>{B.busy=false;const h=hits();if(h)st_doAttack(u,h.k,h.op);else{B.mode='act';st_actBar()}})};
-  st_info(o,st_fcHtml(u,best.h.k,best.h.op.hit).replace('</b>','</b> by '+u.name))}
+  $s('#stInfo').hidden=true;st_fcShow(u,best.h.k,best.h.op.hit)}
 function st_moveTo(u,x,y){return new Promise(res=>{if(u.x===x&&u.y===y)return res();const fx=u.x,fy=u.y;u.anim={k:'run',t0:performance.now(),dur:260,fx,fy};u.face=x<fx?-1:x>fx?1:u.face;u.x=x;u.y=y;setTimeout(()=>{u.anim=null;res()},270)})}
 function st_chooseArt(k){const u=B.sel;
   if(k==='back'){if(B.orig){u.x=B.orig[0];u.y=B.orig[1]}B.mode='move';B.hl=st_reach(u).map(t=>({t,c:'mv'}));st_actBar();return}
@@ -4411,7 +4436,7 @@ async function st_doAttack(u,k,opt){B.busy=true;$s('#stAct').hidden=true;B.hl=[]
   B.busy=false;st_finish(u)}
 function st_checkEnd(){if(!B)return;const pe=B.units.filter(v=>v.side==='P'&&v.hp>0),ee=B.units.filter(v=>v.side==='E'&&v.hp>0),hero=B.units.find(v=>v.hero);
   if(!ee.length)return st_endBattle(true);if(hero.hp<=0||!pe.length)return st_endBattle(false)}
-async function st_endTurn(){if(!B)return;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1);await st_wait(900/SPD);if(!B)return;
+async function st_endTurn(){if(!B)return;st_fcHide();B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1);await st_wait(900/SPD);if(!B)return;
   for(const e of B.units.filter(v=>v.side==='E'&&v.hp>0)){if(!B)return;await st_enemyAct(e);st_checkEnd();if(!B)return}
   B.turn='P';for(const u of B.units){if(u.poison&&u.hp>0&&u.side==='P'){u.hp=Math.max(1,u.hp-6);u.poison--}u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}B.turnN=(B.turnN||1)+1;st_banner('Your turn · '+B.turnN);st_actBar()}
 async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
