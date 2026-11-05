@@ -4018,7 +4018,7 @@ const st_wait=ms=>new Promise(r=>setTimeout(r,ms));
 const ARTS={
  palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.0,mp:0,anim:'dash',fx:'#ffd75a',desc:'Palm strike on an adjacent enemy.'},
  wave:{zh:'金龍氣',n:'Dragon Qi Wave',shape:'wave',pow:.85,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: a gold wave through every enemy in a line.'},
- thunder:{talent:60,zh:'奔雷掌',n:'Rolling Thunder Palm',shape:'line2',pow:1.3,mp:10,anim:'dash',fx:'#9fd7ff',kb:1,desc:'Charges through 2 squares in a line, knocks back.'},
+ green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Spinning kick that hits every adjacent enemy.'},
  star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'r2',pow:1.2,mp:8,anim:'kick',fx:'#ffe7a8',desc:'Flying kick that reaches an enemy 2 squares away.'},
@@ -4045,7 +4045,8 @@ const BATTLES={
  temple:{theme:'hills',bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16)],pos:[[12,3],[10,2],[10,5]]},
  yt:{theme:'river',bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18)],pos:[[12,4],[10,1],[10,3],[10,5],[11,6]]}};
 const xpNeed=lv=>20+lv*15;
-const waveLen=lv=>lv>=10?5:lv>=7?4:lv>=5?3:lv>=3?2:0;
+const aoeDepth=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1,gDragons=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1;
+const waveLen=lv=>lv>=10?6:lv>=7?5:lv>=5?4:lv>=3?3:0;
 
 // ---------- state ----------
 let P=null;
@@ -4115,7 +4116,7 @@ function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
 function st_exitStory(){st_save();$s('#story').hidden=true;try{showScreen('title');renderTitle()}catch(e){$s('#title').hidden=false}}
 window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;P=st_freshHero();st_save();st_enter();await st_prologue()};
-window.storyContinue=function(){P=st_load();if(!P)return;if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
+window.storyContinue=function(){P=st_load();if(!P)return;if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
 
 // ---------- dialogue ----------
 function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');const pp=PEOPLE[who]||{n:who};
@@ -4173,7 +4174,7 @@ async function st_tutorialTip(){await st_say('narr','<b style="color:#9fd7ff">Ho
 async function st_afterBW(){P.flags.bw=1;P.gold+=80;
   await st_say('xiaohei','Ugh... that palm... who ARE you?');
   await st_say('narr','Among the stolen loot you find an old silk manual: <b>Rolling Thunder Palm 奔雷掌</b>.');
-  st_gainManual('thunder');await st_say('xiaoming','We did it! The village is safe! But the elder says Yellow Turbans hold the old temple to the south...');st_save();st_showMap()}
+  st_gainManual('green');await st_say('xiaoming','We did it! The village is safe! But the elder says Yellow Turbans hold the old temple to the south...');st_save();st_showMap()}
 async function st_afterTemple(){P.flags.temple=1;P.gold+=60;
   await st_say('jiangchen','My bell... broken... Great Teacher Zhang Jiao will avenge me...');
   await st_say('narr','Behind the altar, hidden in a hollow beam, is a scroll of 輕功: <b>Cloud Step 踏雲步</b>. Your body feels as light as mist.');
@@ -4188,7 +4189,7 @@ function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};if(lv0){st_t
 function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';
   const q=QG[P.qg],I=INNER[P.inner];P.manuals=P.manuals||[];P.antidote=P.antidote||0;
   const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`;
-  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/10 · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Dragon Qi Wave 金龍氣, range 2 · Lv 5: range 3 + golden dragon · Lv 7: range 4 · Lv 10: range 5${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
+  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/10 · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Dragon Qi Wave 金龍氣, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
     <div class="sec2">內功 Inner art <small>passive</small></div><div class="art"><div class="ah"><b>${I.zh} ${I.n}</b></div><small>${I.desc}</small></div>
     <div class="sec2">輕功 Lightness skill</div><div class="art"><div class="ah"><b>${q.zh} ${q.n}</b></div><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>`;
   const inv=`<div class="sec2">包裹 Inventory</div>
@@ -4235,6 +4236,7 @@ function st_reach(u){const out=[[u.x,u.y]],seen=new Set([u.x+','+u.y]);let fr=[[
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?from[1]:u.y,foe=o=>o&&o.side!==u.side;const opts=[];
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
+  else if(A.shape==='aoe'){const N=aoeDepth(u.hero&&P.arts[A.sub||'green']?P.arts.green.lv:1);for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=N;i++)for(const w of [-1,0,1]){const X=x+dx*i+(dy?w:0),Y=y+dy*i+(dx?w:0);if(!st_inb(X,Y))continue;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
   else if(A.shape==='ring'){const hit=[],tl=[];for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
   else if(A.shape==='r2'){for(const o of B.units)if(foe(o)&&o.hp>0&&Math.abs(o.x-x)+Math.abs(o.y-y)<=2)opts.push({tiles:[[o.x,o.y]],hit:[o],click:[[o.x,o.y]]})}
   else{const L=A.shape==='wave'?waveLen(u.hero&&P.arts.palm?P.arts.palm.lv:3):A.shape==='line3'?3:2;for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
@@ -4319,11 +4321,11 @@ function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimat
 // ---------- side-view fight scene ----------
 function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFight');cv.hidden=false;const r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;
   const W=cv.width,H=cv.height,c=cv.getContext('2d'),n=res.length,mir=att.side==='E'?-1:1,X=v=>mir>0?v*W:W-v*W;
-  const k=(n>1?.34:.42)*H/114,gy=H*.86,ax0=.24,tx=res.map((_,i)=>n>1?.58+i*.12:.66),ty=res.map((_,i)=>gy-(n>1?(i%2)*H*.05:0));
+  const k=(n>1?.34:.42)*H/114,gy=H*.86,ax0=.24,tx=res.map((_,i)=>n>1?(n>3?.56+Math.floor(i/3)*.13+(i%3)*.03:.58+i*.12):.66),ty=res.map((_,i)=>gy-(n>3?(i%3)*H*.07:n>1?(i%2)*H*.05:0));
   const sh=st_sheetOf(att.sheet),R=st_rowsOf(sh),bg=B.bg,parts=[],pops=[];let t0=performance.now();
   const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee',mrow=(A.anim==='punch'||A.anim==='kick')&&R[A.anim]!=null?R[A.anim]:R.melee;
   const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=n>1&&anim!=='ranged';
-  const GD=st_img('art/gdragon.jpg'),dragon=att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5;
+  const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.green&&P.arts.green)DR={im:GG,n:gDragons(P.arts.green.lv)};
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
   snd(anim==='ranged'?'fx':'swing');
   function frame(){const now=performance.now(),t=now-t0;c.clearRect(0,0,W,H);
@@ -4349,8 +4351,8 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
     if(R.dash==null&&anim==='melee'&&row===R.melee)row=R.melee;
     const face=(anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
-    if(dragon&&GD.complete&&GD.naturalWidth){const h0=hitT[0],a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[0]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),py=gy-k*64,dw=k*300,dh=dw/2;
-      c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}c.drawImage(GD,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}
+    if(DR&&DR.im.complete&&DR.im.naturalWidth){for(let j=0;j<DR.n;j++){const ti=j%n,h0=hitT[ti]+j*60,a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[ti]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),oy=(j-(DR.n-1)/2)*k*38,py=ty[ti]-k*64+oy*(1-q*.6),dw=k*(DR.n>1?240:300),dh=dw/2;
+      c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}c.drawImage(DR.im,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}}
     // particles + popups
     for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.2*dp;p.l-=.03;if(p.l>0){c.globalAlpha=p.l;c.fillStyle=p.col;c.fillRect(p.x,p.y,4*dp,4*dp)}}c.globalAlpha=1;
     for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle=p.col;c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.075)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
