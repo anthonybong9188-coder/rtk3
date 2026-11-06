@@ -26,7 +26,7 @@ const INNER={hunyuan:{zh:'混元氣',n:'Primordial Breath',regen:4,def:4,dodge:.
  jinzhong:{zh:'金鐘罩',n:'Golden Bell Shield',regen:2,def:12,dodge:0,hp:30,desc:'Passive: +12 defence, +30 HP, restores 2 內力 each turn.'},
  jiuyang:{zh:'九陽功',n:'Nine-Yang Art',regen:6,def:6,dodge:.05,hp:60,desc:'Passive: +60 HP, +6 defence, +5% dodge, restores 6 內力 each turn.'}};
 const QG=[{zh:'無',n:'None',mv:2,dodge:.05},{zh:'踏雲步',n:'Cloud Step',mv:3,dodge:.12},{zh:'燕回翔',n:'Swallow Glide',mv:4,dodge:.18}];
-const PEOPLE={hero:{n:'You',port:'hero'},hermit:{n:'Hermit Master',zh:'隱'},elder:{n:'Village Elder',zh:'老'},xiaoming:{n:'Xiao Ming',port:'xiao_ming'},xiaohei:{n:'Black Wind Chief',port:'xiao_hei'},jiangchen:{n:'Jiang Chen',port:'jiang_chen'},chief:{n:'Yellow Turban Chief',zh:'黃'},narr:{n:''}};
+const PEOPLE={hero:{n:'You',port:'hero'},hermit:{n:'Hermit Master',zh:'隱',port:'p_xianglang'},elder:{n:'Village Elder',zh:'老',port:'p_hanfu'},xiaoming:{n:'Xiao Ming',port:'xiao_ming'},xiaohei:{n:'Black Wind Chief',port:'xiao_hei'},jiangchen:{n:'Jiang Chen',port:'jiang_chen'},chief:{n:'Yellow Turban Chief',zh:'黃',port:'p_yanbaihu'},narr:{n:''}};
 const PLACES=[
  {id:'valley',zh:'隱仙谷',n:'Hermit Valley',x:.16,y:.22,need:null,pic:'bg_pass'},
  {id:'zhuo',zh:'涿縣',n:'Zhuo Village',x:.42,y:.55,need:'prologue',pic:'bg_road'},
@@ -35,10 +35,10 @@ const PLACES=[
  {id:'ytcamp',zh:'黃巾營',n:'Yellow Turban Camp',x:.78,y:.78,need:'temple',pic:'bg_plain'}];
 const E=(id,name,sheet,lv,hp,atk,def,arts,xp,port,mv)=>({id,name,sheet,lv,hp,hpMax:hp,mp:0,mpMax:0,atk,def,arts,xp,port,mv:mv||2,dodge:.05,side:'E'});
 const BATTLES={
- spar:{theme:'pass',bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12)],pos:[[9,2],[9,5]]},
- bw:{theme:'forest',bg:'bg_forest',title:'Black Wind Fort',foes:()=>[E('xiaohei','Black Wind Chief','f_xiaohei_shu',4,115,18,7,['axe'],40,'xiao_hei'),E('b1','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b2','Bandit','peasant_wei',2,45,12,4,['slash'],14),E('b3','Bandit','peasant_wei',2,45,12,4,['slash'],14)],pos:[[12,4],[10,2],[10,5],[11,6]]},
- temple:{theme:'hills',bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16)],pos:[[12,3],[10,2],[10,5]]},
- yt:{theme:'river',bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18)],pos:[[12,4],[10,1],[10,3],[10,5],[11,6]]}};
+ spar:{theme:'pass',bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12,'p_liuqi'),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12,'p_liuqi')],pos:[[9,2],[9,5]]},
+ bw:{theme:'forest',bg:'bg_forest',title:'Black Wind Fort',foes:()=>[E('xiaohei','Black Wind Chief','f_xiaohei_shu',4,115,18,7,['axe'],40,'xiao_hei'),E('b1','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong'),E('b2','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong'),E('b3','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong')],pos:[[12,4],[10,2],[10,5],[11,6]]},
+ temple:{theme:'hills',bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16,'p_liaohua'),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16,'p_liaohua')],pos:[[12,3],[10,2],[10,5]]},
+ yt:{theme:'river',bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90,'p_yanbaihu'),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua')],pos:[[12,4],[10,1],[10,3],[10,5],[11,6]]}};
 const xpNeed=lv=>20+lv*15;
 const aoeDepth=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1,gDragons=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1;
 const waveLen=lv=>lv>=10?6:lv>=7?5:lv>=5?4:lv>=3?3:0;

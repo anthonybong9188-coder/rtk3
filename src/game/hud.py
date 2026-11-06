@@ -2722,3 +2722,64 @@ rep("""  if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(
   for(const u of [...G.units].sort((a,b)=>a.py-b.py))drawToken(c,u,now);
   if(G.mode==='target'&&G.targets.some(t=>t.u.fake&&t.u.dir))lmDirArrows(c,now);""")
 rep("""const sel=G.skc&&G.skc.dir?G.skc:null;if(sel)lmRegion(c,sel.area,'rgba(255,40,30,.38)','#ff5a46',true);""","""const sel=G.skc&&G.skc.dir?G.skc:null;""")
+# ---------------------------------------------------------------- v484: duels removed from the game (Anthony, 7 Nov)
+import re as _re
+def _cut(start, end_mark):
+    global s
+    a = s.index(start); b = s.index(end_mark, a)
+    s = s[:a] + s[b:]
+def _cutfn(sig):
+    """remove a whole top-level function by brace matching"""
+    global s
+    a = s.index(sig); i = s.index('{', a); d = 0
+    while True:
+        ch = s[i]
+        if ch == '{': d += 1
+        elif ch == '}':
+            d -= 1
+            if d == 0: break
+        i += 1
+    b = i + 1
+    if s[b:b+1] == '\n': b += 1
+    s = s[:a] + s[b:]
+# CSS + DOM
+_a = s.index('#duelUI{display:flex;'); _b = s.index('\n', s.index('#duelMsg{', _a)) + 1; s = s[:_a] + s[_b:]
+s = s.replace('#stage:has(#duelUI[hidden])', '#stage')
+_a = s.index('    <div id="duelUI" hidden>'); _b = s.index('<button id="duelDone" class="primary" hidden>Continue</button>\n    </div>\n', _a); s = s[:_a] + s[_b + len('<button id="duelDone" class="primary" hidden>Continue</button>\n    </div>\n'):]
+s = s.replace("$('#duelUI').hidden=true;", '')
+s = s.replace('cinematic stage overlays for combat and duels', 'cinematic stage overlays for combat')
+# battle actions
+_a = s.index("  if(a==='duel'){G.prevMode=G.mode;G.tmode='duel';"); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+_a = s.index("  if(mode==='duel'){if(await doDuel(s,t)==='refused')"); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+_cutfn('function duelOdds(P,E){')
+_a = s.index('function duelAnswer(s,e){'); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+_a = s.index('const duelTargets=s=>'); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+_cutfn('async function doDuel(a,d){')
+# the duel scene, its HUD and sprites
+_cut('// ---------- duel ----------', '// ---------- boot ----------')
+s = s.replace(";t.add('duel_'+weaponOf(u))", '')
+s = s.replace("'duel_guandao','duel_spear','duel_sabre',", '')
+_a = s.index('function weaponOf(u){'); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+s = s.replace("if(u.dueled)chips.push('<span class=\"chip\">Already dueled</span>');", '')
+s = s.replace("if(u.dueled)chips.push('<span>Already dueled</span>');", '')
+# backgrounds: no duel arena
+s = s.replace(",duel:'art/bg_duel.jpg'", '')
+s = s.replace("function bgFor(ter,duel){const im=BGIMG[duel?'duel':", "function bgFor(ter){const im=BGIMG[")
+s = s.replace("function makeBG0(ter,defSide,duel){", "function makeBG0(ter,defSide){")
+s = s.replace("const r=rng(duel?5:ter.charCodeAt(0));", "const r=rng(ter.charCodeAt(0));")
+s = s.replace("g.addColorStop(0,duel?'#1a1420':'#1d1a26');g.addColorStop(.62,duel?'#4e2a2a':'#5b3d33');g.addColorStop(1,duel?'#b5583a':'#c07a44');", "g.addColorStop(0,'#1d1a26');g.addColorStop(.62,'#5b3d33');g.addColorStop(1,'#c07a44');")
+s = s.replace("const BI=bgFor(ter,duel);", "const BI=bgFor(ter);")
+_a = s.index("  if(duel){for(const side of [-1,1])for(let i=0;i<9;i++)"); _b = s.index('\n', _a) + 1; s = s[:_a] + s[_b:]
+s = s.replace("function makeBG(ter,defSide,duel){return lmGrade(makeBG0(ter,defSide,duel),", "function makeBG(ter,defSide){return lmGrade(makeBG0(ter,defSide),")
+s = s.replace("function makeBG(ter,defSide,duel){\n  if(duel||!LMF)return lmGrade(makeBG0(ter,defSide,duel),LM_G1);", "function makeBG(ter,defSide){\n  if(!LMF)return lmGrade(makeBG0(ter,defSide),LM_G1);")
+s = s.replace("makeBG('.',null,true)", "makeBG('.',null)")
+for _o in ["makeBG('p','L',false)", "makeBG(ter,e===R?'R':'L',false)"]: s = s.replace(_o, _o.replace(',false)', ')'))
+# music
+s = s.replace("if(name==='duel'&&!TRACKS.has('duel')&&cur)return;", '')
+s = s.replace('(title, map, battle, duel, victory, defeat)', '(title, map, battle, victory, defeat)')
+s = s.replace(",c:'fort',duel:'duel'},BGIMG={};", ",c:'fort'},BGIMG={};")
+s = s.replace("stun:0,dueled:false,px:u.x", "stun:0,px:u.x")
+s = s.replace("d.dueled=true;", "")
+# troop clashes: paired soldiers were flagged 's.duel' — rename so nothing says duel
+s = s.replace('s.duel', 's.pair')
+s = s.replace('d.deathT=2550+Math.random()*120;d.duel=1}', 'd.deathT=2550+Math.random()*120;d.pair=1}')
