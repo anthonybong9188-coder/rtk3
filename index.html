@@ -4089,7 +4089,7 @@ const ARTS={
  basic:{zh:'拳腳',n:'Basic Strike',shape:'adj',pow:.75,mp:0,anim:'melee',fx:'#ffe7a8',desc:'Plain punches and kicks, no 內力 needed.'},
  palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.45,mp:5,anim:'dash',fx:'#ffd75a',desc:'Powerful palm strike driven by 內力 on an adjacent enemy.'},
  wave:{zh:'金龍掌勁',n:'Palm Force',shape:'wave',pow:1.1,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: 內力 pushed out from the palm, hits every enemy in a line.'},
- green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
+ green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',anim2:'twin',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
  star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'fly',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
@@ -4323,7 +4323,7 @@ function st_gainManual(k){P.manuals=P.manuals||[];if(!P.arts[k]&&!P.manuals.incl
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
 const st_sheetOf=k=>st_img('sprites/'+k+'.png');
-function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
+function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2,twin:n>9?9:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
 // draw cell with feet anchor (90,126) at (x,y); scale k; face 1=right,-1=left
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
@@ -4480,6 +4480,11 @@ function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimat
   requestAnimationFrame(st_loop)}
 
 // ---------- side-view fight scene ----------
+const SOFT=document.createElement('canvas');
+function st_softDraw(c,im,sx,sy,sw,sh,dx,dy,dw,dh){const W=Math.max(2,Math.round(dw)),H=Math.max(2,Math.round(dh));if(SOFT.width!==W||SOFT.height!==H){SOFT.width=W;SOFT.height=H}const g=SOFT.getContext('2d');g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);g.drawImage(im,sx,sy,sw,sh,0,0,W,H);
+  g.globalCompositeOperation='destination-in';const fx=g.createLinearGradient(0,0,W,0);fx.addColorStop(0,'rgba(0,0,0,0)');fx.addColorStop(.18,'#000');fx.addColorStop(.82,'#000');fx.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=fx;g.fillRect(0,0,W,H);
+  const fy=g.createLinearGradient(0,0,0,H);fy.addColorStop(0,'rgba(0,0,0,0)');fy.addColorStop(.2,'#000');fy.addColorStop(.8,'#000');fy.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=fy;g.fillRect(0,0,W,H);c.drawImage(SOFT,dx,dy,dw,dh)}
+
 function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFight');cv.hidden=false;const r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;
   const W=cv.width,H=cv.height,c=cv.getContext('2d'),n=res.length,mir=att.side==='E'?-1:1,X=v=>mir>0?v*W:W-v*W;
   const k=(n>1?.34:.42)*H/114,gy=H*.86,ax0=.24,tx=res.map((_,i)=>n>1?(n>3?.56+Math.floor(i/3)*.13+(i%3)*.03:.58+i*.12):.66),ty=res.map((_,i)=>gy-(n>3?(i%3)*H*.07:n>1?(i%2)*H*.05:0));
@@ -4508,13 +4513,13 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*.1;if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
       else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*.1;ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40*(typeof RM==='function'?RM(sh)/2:1))%24}}
     else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
-    else{if(t>=350&&t<1500){row=R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
+    else{if(t>=350&&t<1500){row=A.anim2&&R[A.anim2]!=null?R[A.anim2]:R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
       if(t>800&&t<800+170*n+300){const q=clamp01((t-800)/(150*n+200));const px=lerp2(X(ax0)+mir*W*.06,last+mir*W*.05,q),py=gy-k*62;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.fillStyle=A.fx;c.globalAlpha=.25-j*.04;c.beginPath();c.arc(px-mir*j*k*10,py,k*(22-j*2),0,7);c.fill()}c.restore()}}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
     if(R.dash==null&&anim==='melee'&&row===R.melee)row=R.melee;
     const face=(!stay&&anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:stay&&t>=1700?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
     if(DR&&DR.im.complete&&DR.im.naturalWidth){for(let j=0;j<DR.n;j++){const ti=j%n,h0=hitT[ti]+j*60,a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[ti]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),oy=(j-(DR.n-1)/2)*k*38,py=ty[ti]-k*64+oy*(1-q*.6),dw=k*(DR.n>1?240:300),dh=dw/2;
-      c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}c.drawImage(DR.im,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}}
+      c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}st_softDraw(c,DR.im,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}}
     // particles + popups
     for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.2*dp;p.l-=.03;if(p.l>0){c.globalAlpha=p.l;c.fillStyle=p.col;c.fillRect(p.x,p.y,4*dp,4*dp)}}c.globalAlpha=1;
     for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle=p.col;c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.075)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
