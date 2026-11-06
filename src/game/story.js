@@ -15,6 +15,7 @@ const ARTS={
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
  star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'fly',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
+ plum:{talent:70,zh:'天下梅花手',n:'Plum Blossom Hand',shape:'passive',passive:1,pow:.9,mp:0,anim:'plum',fx:'#ffb7c9',maxLv:10,desc:'Passive counter art. When an enemy attacks him at close range, he may answer at once with a storm of palms, fists and elbows, plum blossoms filling the air. Counter chance 15% at Lv 1, +3% per level (42% at Lv 10). Costs no 內力.'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  axe:{zh:'斧',n:'Axe Chop',shape:'adj',pow:1.2,mp:0,anim:'melee',fx:'#ffb060'},
@@ -161,7 +162,7 @@ function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
 function st_exitStory(){st_save();$s('#story').hidden=true;try{showScreen('title');renderTitle()}catch(e){$s('#title').hidden=false}}
 window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;P=st_freshHero();st_save();st_enter();await st_prologue()};
-window.storyContinue=function(){P=st_load();if(!P)return;if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
+window.storyContinue=function(){P=st_load();if(!P)return;if(P.flags&&P.flags.temple&&!(P.arts&&P.arts.plum)&&!(P.manuals||[]).includes('plum')){P.manuals=(P.manuals||[]).concat(['plum'])}if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
 
 // ---------- dialogue ----------
 function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');const pp=PEOPLE[who]||{n:who};
@@ -223,7 +224,8 @@ async function st_afterBW(){P.flags.bw=1;P.gold+=80;
 async function st_afterTemple(){P.flags.temple=1;P.gold+=60;
   await st_say('jiangchen','My bell... broken... Great Teacher Zhang Jiao will avenge me...');
   await st_say('narr','Behind the altar, hidden in a hollow beam, is a scroll of 輕功: <b>Cloud Step 踏雲步</b>. Your body feels as light as mist.');
-  P.qg=Math.max(P.qg,1);st_toast('輕功 learned: Cloud Step — move 3 squares, better dodge',3000);st_save();st_showMap()}
+  P.qg=Math.max(P.qg,1);st_toast('輕功 learned: Cloud Step — move 3 squares, better dodge',3000);await st_wait(3200);
+  await st_say('narr','Rolled inside the same beam is a second, older scroll, its silk printed with plum blossoms: <b>天下梅花手 Plum Blossom Hand</b>.');st_gainManual('plum');st_save();st_showMap()}
 async function st_afterYT(){P.flags.yt=1;P.gold+=150;st_gainManual('tiger');
   await st_say('chief','How... can one man... stand against the Yellow Sky...');
   await st_say('narr','The camp scatters. By nightfall the whole county speaks of a young hero with a palm of gold.');
@@ -253,13 +255,13 @@ function st_gainManual(k){P.manuals=P.manuals||[];if(!P.arts[k]&&!P.manuals.incl
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
 const st_sheetOf=k=>st_img('sprites/'+k+'.png');
-function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2,twin:n>9?9:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
+function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2,twin:n>9?9:null,plum:n>10?10:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
 // draw cell with feet anchor (90,126) at (x,y); scale k; face 1=right,-1=left
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
 // ---------- battle ----------
 let B=null;const COLS=14,ROWS=8;let SPD=1;try{SPD=+localStorage.getItem('rtk3_story_spd')||1}catch(e){}
-function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1).concat(['basic']).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
+function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1&&!ARTS[k].passive).concat(['basic']).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
 function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
   const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
@@ -419,7 +421,10 @@ async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}cons
   const near=ps.sort((a,b)=>(Math.abs(a.x-e.x)+Math.abs(a.y-e.y))-(Math.abs(b.x-e.x)+Math.abs(b.y-e.y)))[0];
   let bt=null,bd=1e9;for(const t of st_reach(e)){const d=Math.abs(t[0]-near.x)+Math.abs(t[1]-near.y);if(d<bd){bd=d;bt=t}}if(bt)await st_moveTo(e,bt[0],bt[1]);await st_wait(120)}
 async function st_doAttackE(e,k,opt){const A=ARTS[k];const res=opt.hit.map(t=>{const dodge=Math.random()<t.dodge;const dmg=dodge?0:Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)/st_tdef(t.x,t.y)));return {t,dodge,dmg}});
-  await st_fightScene(e,A,res);st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));for(const r of res)if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}}
+  await st_fightScene(e,A,res);const ctr=[];st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));for(const r of res)if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}
+  const pl=P.arts.plum;for(const r of res){const h=r.t;if(!h.hero||h.hp<=0||e.hp<=0||!pl||pl.lv<1||A.shape==='r2'||Math.abs(h.x-e.x)+Math.abs(h.y-e.y)!==1)continue;if(Math.random()>=.15+.03*(pl.lv-1))continue;
+    const dmg=Math.max(1,Math.round((h.atk*ARTS.plum.pow*(1+.08*(pl.lv-1))-e.def*.6)*rnd(.9,1.1)/st_tdef(e.x,e.y)));await st_counterScene(h,e,dmg);e.hp=Math.max(0,e.hp-dmg);
+    st_log(`<b>You</b> · 天下梅花手 counter: ${e.name} −${dmg}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}}
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
   const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;P.poison=hero.poison||0;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
@@ -516,6 +521,39 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     c.font=`700 ${Math.round(H*.04)}px sans-serif`;c.textAlign='left';c.fillStyle='#fff';c.fillText(att.name,mir>0?W*.03:W*.6,H*.95);
     if(t<dur&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
   let skip=false;cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};requestAnimationFrame(frame)})}
+
+// 天下梅花手 counter: a storm of palms, fists and elbows with plum blossoms in the air
+function st_plum(c,x,y,r,rot,al){c.save();c.globalAlpha=al;c.translate(x,y);c.rotate(rot);for(let i=0;i<5;i++){c.rotate(Math.PI*2/5);c.beginPath();c.ellipse(0,-r*.62,r*.42,r*.55,0,0,7);c.fillStyle='#ffc2d4';c.fill();c.lineWidth=Math.max(1,r*.08);c.strokeStyle='#ff7fa6';c.stroke()}c.beginPath();c.arc(0,0,r*.24,0,7);c.fillStyle='#ffe28a';c.fill();c.restore()}
+function st_counterScene(h,e,dmg){return new Promise(done=>{const cv=$s('#stFight');cv.hidden=false;const r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;
+  const W=cv.width,H=cv.height,c=cv.getContext('2d'),k=.42*H/114,gy=H*.86,bg=B.bg,sh=st_sheetOf(h.sheet),R=st_rowsOf(sh),es=st_sheetOf(e.sheet),ER=st_rowsOf(es),dur=2600,petals=[],pops=[];
+  const hx=W*.4,ex0=W*.6,N=6,hits=Array.from({length:N},(_,i)=>650+i*170),parts=[];const t0=performance.now();let skip=false,hd=0;
+  for(let i=0;i<34;i++)petals.push({x:Math.random()*W*1.1,y:rnd(-.25,.75)*H,vx:rnd(-1.4,-.3)*dp,vy:rnd(.6,1.5)*dp,r:rnd(9,17)*dp,rot:Math.random()*6,vr:rnd(-.05,.05),born:200+Math.random()*900});
+  snd('swing');cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};
+  function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
+    if(bg.complete&&bg.naturalWidth){const s=Math.max(W/bg.naturalWidth,H/bg.naturalHeight);c.drawImage(bg,(W-bg.naturalWidth*s)/2,(H-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
+    c.fillStyle='rgba(40,0,20,.22)';c.fillRect(0,0,W,H);
+    c.fillStyle='rgba(10,8,6,.75)';c.fillRect(0,H*.04,W,H*.11);c.fillStyle='#ffc2d4';c.font=`900 ${Math.round(H*.07)}px serif`;c.textAlign='center';c.fillText('天下梅花手  Plum Blossom Hand — Counter!',W/2,H*.12);
+    // enemy: staggers with every blow, knocked back by the last
+    let ex=ex0,erow=ER.idle,efr=Math.floor(now/80)%24,erot=0;const lastH=hits[N-1];
+    if(t>hits[0]){const q=(t-hits[0])/(lastH-hits[0]+500);ex=ex0+W*.012*Math.sin(t/25)*(t<lastH?1:0)+(t>lastH?W*.07*ease2(clamp01((t-lastH)/300)):0);
+      if(ER.fall===4){erow=4;efr=t<lastH+500?2+Math.floor((t/60)%6):Math.max(0,7-Math.floor((t-lastH-500)/40))}else erot=.18*Math.sin(Math.min(1,q)*Math.PI)}
+    c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ex,gy,k*40,k*9,0,0,7);c.fill();st_drawRot(c,es,erow,efr,ex,gy,k,-1,1,erot);
+    // hero: steps in, flurry, steps back
+    let hx2=hx,row=R.idle,fr=Math.floor(now/80)%24;const pr=R.plum!=null?R.plum:null;
+    if(t>=350&&t<lastH+350){hx2=lerp2(hx,ex0-W*.1,ease2(clamp01((t-350)/250)));if(pr!=null){row=pr;fr=Math.min(23,Math.floor((t-450)/(lastH-100)*24))}else{const seg=Math.floor((t-500)/170)%3;row=seg===2?R.melee:R.punch;fr=Math.min(23,8+Math.floor(((t-500)%170)/170*12))}}
+    else if(t>=lastH+350){hx2=lerp2(ex0-W*.1,hx,ease2(clamp01((t-lastH-350)/300)))}
+    c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(hx2,gy,k*40,k*9,0,0,7);c.fill();st_drawCell(c,sh,row,fr,hx2,gy,k,1);
+    // blows: flashes + petals burst
+    hits.forEach((ht,i)=>{if(t>ht&&i>=hd){hd=i+1;snd('hit');const px=ex-W*.03,py=gy-k*(50+((i*37)%40));for(let j=0;j<7;j++){const a=Math.random()*6.28,v=rnd(3,8)*dp;petals.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5*dp,r:rnd(8,14)*dp,rot:Math.random()*6,vr:rnd(-.15,.15),born:0,burst:1,t0:t})}
+        for(let j=0;j<8;j++){const a=Math.random()*6.28,v=rnd(2,6)*dp;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1})}
+        if(i===N-1)pops.push({x:ex,y:gy-k*125,t:now,txt:''+dmg})}});
+    hits.forEach(ht=>{if(t>ht&&t<ht+90){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,200,220,.18)';c.beginPath();c.arc(ex-W*.03,gy-k*65,k*24,0,7);c.fill();c.restore()}});
+    for(const p of petals){if(t<p.born)continue;p.x+=p.vx;p.y+=p.vy;if(p.burst){p.vx*=.97;p.vy=p.vy*.97+.06*dp}p.rot+=p.vr;const al=p.burst?clamp01(1-(t-p.t0)/900):clamp01((t-p.born)/400);if(al<=0)continue;st_plum(c,p.x,p.y,p.r,p.rot,al*.95)}
+    for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.2*dp;p.l-=.04;if(p.l>0){c.globalAlpha=p.l;c.fillStyle='#ffe3ec';c.fillRect(p.x,p.y,4*dp,4*dp)}}c.globalAlpha=1;
+    for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle='#ffc2d4';c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.08)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
+    c.font=`700 ${Math.round(H*.04)}px sans-serif`;c.textAlign='left';c.fillStyle='#fff';c.fillText(h.name,W*.03,H*.95);
+    if(t<dur&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
+  requestAnimationFrame(frame)})}
 
 // whirlwind kick: hero spins in the middle, foes stand where they are on the board (E right, W left, N behind, S in front)
 function st_spinScene(cv,att,A,res,sh,R,done){const W=cv.width,H=cv.height,c=cv.getContext('2d'),dp=W/cv.getBoundingClientRect().width,mir=att.side==='E'?-1:1,bg=B.bg,parts=[],pops=[];
