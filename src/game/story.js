@@ -15,8 +15,8 @@ const ARTS={
  tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
  whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
  star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'fly',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
- douzhuan:{talent:85,zh:'斗轉星移',n:'Star Shift',shape:'passive',passive:1,pow:0,mp:8,anim:'shift',fx:'#9fd0ff',maxLv:10,desc:'Murong family inner art: 以彼之道，還施彼身. When any enemy attack (close, ranged or area) reaches him, he may catch it in a turning solar system and send it back. Chance 10% at Lv 1, +2% per level (28% at Lv 10). Costs 8 內力 when it triggers. He takes no damage; the attacker takes 50% of its own damage at Lv 1, +5% per level (95% at Lv 10). From Lv 5 poison and stun bounce back too. Checked before 梅花手.'},
- plum:{talent:70,zh:'天下梅花手',n:'Plum Blossom Hand',shape:'passive',passive:1,pow:.9,mp:0,anim:'plum',fx:'#ffb7c9',maxLv:10,desc:'Passive counter art. When an enemy attacks him at close range, he may answer at once with a storm of palms, fists and elbows, plum blossoms filling the air. Counter chance 15% at Lv 1, +3% per level (42% at Lv 10). Costs no 內力.'},
+ douzhuan:{talent:85,zh:'斗轉星移',n:'Star Shift',shape:'passive',passive:1,pow:0,mp:8,anim:'shift',fx:'#9fd0ff',maxLv:10,desc:'Murong family inner art: 以彼之道，還施彼身. When an enemy blow is about to land, he steps back and a turning solar system catches it: he takes only part of the damage and the rest flies back at the attacker. Chance 10% at Lv 1, +2% per level (28% at Lv 10). Costs 8 內力 when it triggers. Damage taken 60% at Lv 1 down to 33% at Lv 10; the rest is returned. From Lv 5 poison and stun bounce back too. Checked before 降龍手.'},
+ xianglong:{talent:70,zh:'降龍手',n:'Subdue Dragon Hand',shape:'passive',passive:1,pow:0,mp:0,anim:'xlong',fx:'#5ab0ff',maxLv:10,desc:'Passive guarding art. When an enemy blow is about to land, he steps back and a blue dragon rises between them to take the hit: he takes only part of the damage and the rest is lost. Chance 15% at Lv 1, +3% per level (42% at Lv 10). Damage taken 40% at Lv 1 down to 18% at Lv 10. Costs no 內力.'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  axe:{zh:'斧',n:'Axe Chop',shape:'adj',pow:1.2,mp:0,anim:'melee',fx:'#ffb060'},
@@ -164,7 +164,7 @@ function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
 function st_exitStory(){st_save();$s('#story').hidden=true;try{showScreen('title');renderTitle()}catch(e){$s('#title').hidden=false}}
 window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;P=st_freshHero();st_save();st_enter();await st_prologue()};
-window.storyContinue=function(){P=st_load();if(!P)return;if(P.flags&&P.flags.yt&&!(P.arts&&P.arts.douzhuan)&&!(P.manuals||[]).includes('douzhuan')){P.manuals=(P.manuals||[]).concat(['douzhuan'])}if(P.flags&&P.flags.temple&&!(P.arts&&P.arts.plum)&&!(P.manuals||[]).includes('plum')){P.manuals=(P.manuals||[]).concat(['plum'])}if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
+window.storyContinue=function(){P=st_load();if(!P)return;if(P.arts&&P.arts.plum){P.arts.xianglong=P.arts.plum;delete P.arts.plum}if(P.manuals)P.manuals=P.manuals.map(m=>m==='plum'?'xianglong':m);if(P.eq==='plum')P.eq='xianglong';if(P.flags&&P.flags.yt&&!(P.arts&&P.arts.douzhuan)&&!(P.manuals||[]).includes('douzhuan')){P.manuals=(P.manuals||[]).concat(['douzhuan'])}if(P.flags&&P.flags.temple&&!(P.arts&&P.arts.xianglong)&&!(P.manuals||[]).includes('xianglong')){P.manuals=(P.manuals||[]).concat(['xianglong'])}if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
 
 // ---------- dialogue ----------
 function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');const pp=PEOPLE[who]||{n:who};
@@ -227,7 +227,7 @@ async function st_afterTemple(){P.flags.temple=1;P.gold+=60;
   await st_say('jiangchen','My bell... broken... Great Teacher Zhang Jiao will avenge me...');
   await st_say('narr','Behind the altar, hidden in a hollow beam, is a scroll of 輕功: <b>Cloud Step 踏雲步</b>. Your body feels as light as mist.');
   P.qg=Math.max(P.qg,1);st_toast('輕功 learned: Cloud Step — move 3 squares, better dodge',3000);await st_wait(3200);
-  await st_say('narr','Rolled inside the same beam is a second, older scroll, its silk printed with plum blossoms: <b>天下梅花手 Plum Blossom Hand</b>.');st_gainManual('plum');st_save();st_showMap()}
+  await st_say('narr','Rolled inside the same beam is a second, older scroll, its silk painted with a coiling blue dragon: <b>降龍手 Subdue Dragon Hand</b>.');st_gainManual('xianglong');st_save();st_showMap()}
 async function st_afterYT(){P.flags.yt=1;P.gold+=150;st_gainManual('tiger');st_gainManual('douzhuan');
   await st_say('chief','How... can one man... stand against the Yellow Sky...');
   await st_say('narr','In the chief\'s chest, among stolen silver, lies a scroll sealed with a single character — 慕容, the Murong family of Gusu: <b>斗轉星移 Star Shift</b>. Whoever it was taken from will want it back...');
@@ -258,7 +258,7 @@ function st_gainManual(k){P.manuals=P.manuals||[];if(!P.arts[k]&&!P.manuals.incl
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
 const st_sheetOf=k=>st_img('sprites/'+k+'.png');
-function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2,twin:n>9?9:null,plum:n>10?10:null,shift:n>11?11:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
+function st_rowsOf(sh){const n=Math.round(sh.naturalHeight/132);return n>=5?{idle:0,run:1,melee:2,ranged:3,fall:4,dash:n>5?5:null,punch:n>6?6:2,kick:n>7?7:2,fly:n>8?8:2,twin:n>9?9:null,xlong:n>10?10:null,shift:n>11?11:null}:{idle:0,run:1,melee:2,ranged:2,fall:3,dash:null}}
 // draw cell with feet anchor (90,126) at (x,y); scale k; face 1=right,-1=left
 function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalWidth)return;c.save();c.globalAlpha=alpha==null?1:alpha;c.translate(x,y);c.scale(face*k,k);c.drawImage(sh,fr*192,row*132,192,132,-90,-126,192,132);c.restore()}
 
@@ -427,16 +427,14 @@ async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}cons
   // approach nearest
   const near=ps.sort((a,b)=>(Math.abs(a.x-e.x)+Math.abs(a.y-e.y))-(Math.abs(b.x-e.x)+Math.abs(b.y-e.y)))[0];
   let bt=null,bd=1e9;for(const t of st_reach(e)){const d=Math.abs(t[0]-near.x)+Math.abs(t[1]-near.y);if(d<bd){bd=d;bt=t}}if(bt)await st_moveTo(e,bt[0],bt[1]);await st_wait(120)}
-async function st_doAttackE(e,k,opt){const A=ARTS[k];const dz=P.arts.douzhuan;const res=opt.hit.map(t=>{const base=Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)/st_tdef(t.x,t.y)));
-    if(t.hero&&dz&&dz.lv>=1&&t.mp>=ARTS.douzhuan.mp&&Math.random()<.10+.02*(dz.lv-1)){t.mp-=ARTS.douzhuan.mp;return {t,dodge:false,dmg:0,reflect:Math.max(1,Math.round(base*(.5+.05*(dz.lv-1))))}}
+async function st_doAttackE(e,k,opt){const A=ARTS[k];const dz=P.arts.douzhuan,xl=P.arts.xianglong;const res=opt.hit.map(t=>{const base=Math.max(1,Math.round((e.atk*A.pow-t.def*.6)*rnd(.9,1.1)/st_tdef(t.x,t.y)));
+    if(t.hero&&dz&&dz.lv>=1&&t.mp>=ARTS.douzhuan.mp&&Math.random()<.10+.02*(dz.lv-1)){t.mp-=ARTS.douzhuan.mp;const dmg=Math.max(0,Math.round(base*(.60-.03*(dz.lv-1))));return {t,dodge:false,dmg,guard:'shift',ret:Math.max(1,base-dmg),base}}
+    if(t.hero&&xl&&xl.lv>=1&&Math.random()<.15+.03*(xl.lv-1)){const dmg=Math.max(0,Math.round(base*(.40-.025*(xl.lv-1))));return {t,dodge:false,dmg,guard:'dragon',drop:base-dmg,base}}
     const dodge=Math.random()<t.dodge;return {t,dodge,dmg:dodge?0:base}});
-  await st_fightScene(e,A,res);const ctr=[];st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.reflect?'turns it back (斗轉星移)':r.dodge?'dodges':'−'+r.dmg+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));for(const r of res)if(!r.dodge&&!r.reflect){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}
-  for(const r of res){if(!r.reflect||e.hp<=0)continue;await st_shiftScene(r.t,e,A,r.reflect);e.hp=Math.max(0,e.hp-r.reflect);let ex='';
-    if(dz.lv>=5&&e.hp>0){if(A.poison){e.poison=3;ex=' · poisoned by its own bell'}if(A.stun&&Math.random()<A.stun){e.stun=1;ex+=' · stunned'}}
-    st_log(`<b>You</b> · 斗轉星移: ${e.name} takes its own ${A.zh} −${r.reflect}${ex}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}
-  const pl=P.arts.plum;for(const r of res){const h=r.t;if(r.reflect||!h.hero||h.hp<=0||e.hp<=0||!pl||pl.lv<1||A.shape==='r2'||Math.abs(h.x-e.x)+Math.abs(h.y-e.y)!==1)continue;if(Math.random()>=.15+.03*(pl.lv-1))continue;
-    const dmg=Math.max(1,Math.round((h.atk*ARTS.plum.pow*(1+.08*(pl.lv-1))-e.def*.6)*rnd(.9,1.1)/st_tdef(e.x,e.y)));await st_counterScene(h,e,dmg);e.hp=Math.max(0,e.hp-dmg);
-    st_log(`<b>You</b> · 天下梅花手 counter: ${e.name} −${dmg}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}}
+  await st_fightScene(e,A,res);st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.guard==='dragon'?` (降龍手 stops ${r.drop})`:r.guard==='shift'?` (斗轉星移 returns ${r.ret})`:'')+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));
+  for(const r of res)if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(!r.guard&&A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}
+  for(const r of res){if(r.guard!=='shift')continue;e.hp=Math.max(0,e.hp-r.ret);let ex='';if(dz.lv>=5&&e.hp>0){if(A.poison){e.poison=3;ex=' · poisoned by its own bell'}if(A.stun&&Math.random()<A.stun){e.stun=1;ex+=' · stunned'}}
+    st_log(`<b>You</b> · 斗轉星移: ${e.name} takes back −${r.ret}${ex}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}}
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
   const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;P.poison=hero.poison||0;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
@@ -500,6 +498,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=(n>1||A.pass)&&anim!=='ranged',stay=!!A.pass;
   const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.green&&P.arts.green)DR={im:GG,n:gDragons(P.arts.green.lv)};
   const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
+  const GRD=res.map((r2,i)=>r2.guard?i:-1).filter(i=>i>=0),retR=res.find(r2=>r2.guard==='shift'),retT=retR?hitT[res.indexOf(retR)]+650:1e9,attDead=retR&&att.hp-retR.ret<=0;let retDone=false;const GSTOP=res[0]&&res[0].guard&&!pierce?.24:0;const DUR=GRD.length?Math.max(dur,...GRD.map(i=>hitT[i]+1350)):dur;
   snd(anim==='ranged'?'fx':'swing');
   function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
     if(bg.complete&&bg.naturalWidth){const s=Math.max(W/bg.naturalWidth,H/bg.naturalHeight);c.drawImage(bg,(W-bg.naturalWidth*s)/2,(H-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
@@ -508,22 +507,35 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     c.fillStyle='rgba(10,8,6,.75)';c.fillRect(0,H*.04,W,H*.11);c.fillStyle='#ffd77a';c.font=`900 ${Math.round(H*.07)}px serif`;c.textAlign='center';c.fillText((A.zh||'')+'  '+A.n,W/2,H*.12);
     // targets
     res.forEach((r2,i)=>{const t2=r2.t,ts=st_sheetOf(t2.sheet),TR=st_rowsOf(ts);let x=X(tx[i]),y=ty[i],row=TR.idle,fr=Math.floor(now/80)%24,al=1;const ht=hitT[i];
-      let rot=0,oy=0;const dead=!r2.dodge&&!r2.reflect&&t2.hp-r2.dmg<=0;
-      if(r2.reflect){}else if(t>ht&&dead){row=TR.fall;fr=Math.min(23,Math.floor((t-ht)/30))}else{const rc=st_react(t,ht,r2.dodge,TR,W,H,mir);if(rc){x+=rc.ox;oy=rc.oy;rot=rc.rot;if(rc.row!=null){row=rc.row;fr=rc.fr}}}
+      let rot=0,oy=0;const dead=!r2.dodge&&t2.hp-r2.dmg<=0,gd=r2.guard,gs=ht-280;
+      if(gd&&t>gs){const q=t<ht+900?ease2(clamp01((t-gs)/220)):1-ease2(clamp01((t-ht-900)/300));x+=mir*W*.075*q;
+        if(t<ht+950){const gr=gd==='shift'?(TR.shift!=null?TR.shift:TR.twin):(TR.xlong!=null?TR.xlong:TR.twin);if(gr!=null){row=gr;fr=Math.min(23,Math.floor((t-gs)/1230*24))}}
+        if(t>ht&&dead){row=TR.fall;fr=Math.min(23,Math.floor((t-ht)/30))}}
+      else if(t>ht&&dead){row=TR.fall;fr=Math.min(23,Math.floor((t-ht)/30))}else{const rc=st_react(t,ht,r2.dodge,TR,W,H,mir);if(rc){x+=rc.ox;oy=rc.oy;rot=rc.rot;if(rc.row!=null){row=rc.row;fr=rc.fr}}}
       c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(x,y,k*40*(1+oy/(H*.2)),k*9,0,0,7);c.fill();
       st_drawRot(c,ts,row,fr,x,y+oy,k,-mir,al,rot);
-      if(t>ht&&!r2.dodge&&!r2.reflect&&t<ht+120){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,240,200,.22)';c.beginPath();c.arc(x,y-k*60,k*32,0,7);c.fill();c.restore()}
-      if(t>ht&&!hitDone[i]){hitDone[i]=true;pops.push({x,y:y-k*120,t:now,txt:r2.reflect?'斗轉星移!':r2.dodge?'Dodge!':(r2.crit?'Critical '+r2.dmg:''+r2.dmg),col:r2.reflect?'#9fd0ff':r2.dodge?'#9fd7ff':r2.crit?'#ffd23a':'#fff'});if(r2.reflect){snd('fx')}else if(!r2.dodge){snd('hit');for(let j=0;j<18;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x,y:y-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:A.fx})}}else snd('swing')}});
+      if(t>ht&&!r2.dodge&&!gd&&t<ht+120){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,240,200,.22)';c.beginPath();c.arc(x,y-k*60,k*32,0,7);c.fill();c.restore()}
+      if(t>ht&&!hitDone[i]){hitDone[i]=true;pops.push({x,y:y-k*120,t:now,txt:gd?(gd==='dragon'?'降龍手  −':'斗轉星移  −')+r2.dmg:r2.dodge?'Dodge!':(r2.crit?'Critical '+r2.dmg:''+r2.dmg),col:gd?'#9fd0ff':r2.dodge?'#9fd7ff':r2.crit?'#ffd23a':'#fff'});if(gd){snd('fx');snd('hit')}else if(!r2.dodge){snd('hit');for(let j=0;j<18;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x,y:y-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:A.fx})}}else snd('swing')}});
     // attacker
     let ax=X(ax0),row=R.idle,fr=Math.floor(now/80)%24;const last=X(tx[n-1]),first=X(tx[0]);
-    if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*.1;if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
-      else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*.1;ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40*(typeof RM==='function'?RM(sh)/2:1))%24}}
-    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*.11;if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
+    if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.1);if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
+      else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.1);ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40*(typeof RM==='function'?RM(sh)/2:1))%24}}
+    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.11);if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
     else{if(t>=350&&t<1500){row=A.anim2&&R[A.anim2]!=null?R[A.anim2]:R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
       if(t>800&&t<800+170*n+300){const q=clamp01((t-800)/(150*n+200));const px=lerp2(X(ax0)+mir*W*.06,last+mir*W*.05,q),py=gy-k*62;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.fillStyle=A.fx;c.globalAlpha=.25-j*.04;c.beginPath();c.arc(px-mir*j*k*10,py,k*(22-j*2),0,7);c.fill()}c.restore()}}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
     if(R.dash==null&&anim==='melee'&&row===R.melee)row=R.melee;
-    const face=(!stay&&anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:stay&&t>=1700?-mir:mir;st_drawCell(c,sh,row,fr,ax,gy,k,face);
+    let arot=0,aox=0;if(t>retT){if(attDead){row=R.fall;fr=Math.min(23,Math.floor((t-retT)/30))}else{const rc=st_react(t,retT,false,R,W,H,-mir);if(rc){aox=rc.ox;arot=rc.rot;if(rc.row!=null){row=rc.row;fr=rc.fr}}}}
+    if(attDead&&t>retT){ax=st_fightScene.lastAx??ax}else st_fightScene.lastAx=ax;
+    if(t>retT&&!retDone){retDone=true;snd('hit');pops.push({x:ax,y:gy-k*120,t:now,txt:'−'+retR.ret,col:'#9fd0ff'});for(let j=0;j<18;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x:ax,y:gy-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:'#9fd0ff'})}}
+    const face=(!stay&&anim!=='ranged'&&t>=(anim==='dash'?1900:1700))?-mir:stay&&t>=1700?-mir:mir;st_drawRot(c,sh,row,fr,ax+aox,gy,k,face,1,arot);
+    // guards: blue dragon / solar system between the hero and the blow
+    for(const gi of GRD){const r2=res[gi],ht=hitT[gi],gs=ht-280,x0=X(tx[gi]),bx=x0-mir*W*.085,by=ty[gi]-k*68;if(t<gs||t>ht+1100)continue;const g=t<gs+200?(t-gs)/200:t<ht+750?1:clamp01(1-(t-ht-750)/350);
+      if(r2.guard==='dragon'){if(GG.complete&&GG.naturalWidth){const pp=Math.floor((t-gs)/70)%12,f=t<ht?(pp<7?pp:12-pp):Math.min(15,7+Math.floor((t-ht)/60)),dw=k*240,dh=dw/2,rise=(1-ease2(clamp01((t-gs)/260)))*k*40;c.save();c.globalCompositeOperation='screen';c.globalAlpha=g;c.filter='hue-rotate(100deg) saturate(1.6)';if(mir>0){c.translate(bx,0);c.scale(-1,1);c.translate(-bx,0)}st_softDraw(c,GG,(f%6)*240,Math.floor(f/6)*120,240,120,bx-dw*.5,by-dh*.55+rise,dw,dh);c.restore()}
+        const sg=c.createRadialGradient(bx,by,0,bx,by,k*70);sg.addColorStop(0,`rgba(140,200,255,${.35*g})`);sg.addColorStop(1,'rgba(40,90,220,0)');c.save();c.globalCompositeOperation='lighter';c.fillStyle=sg;c.beginPath();c.ellipse(bx,by,k*45,k*80,0,0,7);c.fill();c.restore()}
+      else{const spin=(t-gs)/1000*(t>ht-100&&t<ht+500?3:1.1);st_solar(c,bx,by,k*135*(.45+.55*Math.min(1,g*1.3)),spin,g)}
+      if(t>ht&&t<ht+420){const q=(t-ht)/420;c.save();c.globalCompositeOperation='lighter';c.strokeStyle=`rgba(170,220,255,${1-q})`;c.lineWidth=(6-q*4)*dp;c.beginPath();c.ellipse(bx,by,k*(30+q*70),k*(50+q*90),0,0,7);c.stroke();c.restore()}
+      if(r2.guard==='shift'&&t>ht+120&&t<retT){const q=clamp01((t-ht-120)/(retT-ht-120)),ox=lerp2(bx,ax,ease2(q)),oy=lerp2(by,gy-k*60,q)-Math.sin(q*Math.PI)*k*40;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.globalAlpha=.55-j*.09;c.fillStyle=A.fx||'#9fd0ff';c.beginPath();c.arc(ox,oy,k*(15-j*2.5)*(1+j*.45),0,7);c.fill()}c.restore()}}
     if(DR&&DR.im.complete&&DR.im.naturalWidth){for(let j=0;j<DR.n;j++){const ti=j%n,h0=hitT[ti]+j*60,a=h0-380,b=h0+700;if(t>=a&&t<b){const dt=t-a,f=Math.min(35,Math.floor(dt/(b-a)*36)),q=clamp01(dt/380),tx0=X(tx[ti]),sx=ax+mir*k*55,px=lerp2(sx,tx0,ease2(q)),oy=(j-(DR.n-1)/2)*k*38,py=ty[ti]-k*64+oy*(1-q*.6),dw=k*(DR.n>1?240:300),dh=dw/2;
       c.save();c.globalCompositeOperation='lighter';c.globalAlpha=t>b-200?(b-t)/200:1;if(mir<0){c.translate(px,0);c.scale(-1,1);c.translate(-px,0)}st_softDraw(c,DR.im,(f%6)*240,Math.floor(f/6)*120,240,120,px-dw*.55,py-dh/2,dw,dh);c.restore()}}}
     // particles + popups
@@ -531,7 +543,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle=p.col;c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.075)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
     // name plates
     c.font=`700 ${Math.round(H*.04)}px sans-serif`;c.textAlign='left';c.fillStyle='#fff';c.fillText(att.name,mir>0?W*.03:W*.6,H*.95);
-    if(t<dur&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
+    if(t<DUR&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
   let skip=false;cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};requestAnimationFrame(frame)})}
 
 // 斗轉星移: a solar system turns in front of him, swallows the blow and flings it back at its owner
@@ -542,67 +554,6 @@ function st_solar(c,x,y,R,a,al){c.save();c.globalAlpha=al;c.translate(x,y);
   const draw=front=>{for(const [o,s,col,sp] of PL){const an=a*sp+o*9,px=Math.cos(an)*R*o,py=Math.sin(an)*R*o*.38;if((py>0)!==front)continue;const pr=R*s*.32;const pg=c.createRadialGradient(px-pr*.4,py-pr*.4,pr*.1,px,py,pr);pg.addColorStop(0,'#fff');pg.addColorStop(.35,col);pg.addColorStop(1,'rgba(0,0,0,.85)');c.fillStyle=pg;c.beginPath();c.arc(px,py,pr,0,7);c.fill();if(o===.86){c.strokeStyle='rgba(240,210,150,.8)';c.lineWidth=2;c.beginPath();c.ellipse(px,py,pr*1.9,pr*.55,-.3,0,7);c.stroke()}}};
   c.lineWidth=1.2;for(const [o] of PL){c.strokeStyle='rgba(170,210,255,.35)';c.beginPath();c.ellipse(0,0,R*o,R*o*.38,0,0,7);c.stroke()}
   draw(false);const sg=c.createRadialGradient(0,0,0,0,0,R*.2);sg.addColorStop(0,'#fff8d0');sg.addColorStop(.4,'#ffd040');sg.addColorStop(1,'rgba(255,120,0,0)');c.globalCompositeOperation='lighter';c.fillStyle=sg;c.beginPath();c.arc(0,0,R*.2,0,7);c.fill();c.globalCompositeOperation='source-over';draw(true);c.restore()}
-function st_shiftScene(h,e,A,dmg){return new Promise(done=>{const cv=$s('#stFight');cv.hidden=false;const r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;
-  const W=cv.width,H=cv.height,c=cv.getContext('2d'),k=.4*H/114,gy=H*.86,bg=B.bg,sh=st_sheetOf(h.sheet),R=st_rowsOf(sh),es=st_sheetOf(e.sheet),ER=st_rowsOf(es),dur=3000,pops=[],parts=[];
-  const hx=W*.3,ex=W*.74,sx=W*.47,sy=gy-k*70,SR=Math.min(W*.2,H*.42),ranged=A.shape==='r2'||A.anim==='ranged';const t0=performance.now();let skip=false,hitDone=false;
-  snd('fx');cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};
-  function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
-    if(bg.complete&&bg.naturalWidth){const s=Math.max(W/bg.naturalWidth,H/bg.naturalHeight);c.drawImage(bg,(W-bg.naturalWidth*s)/2,(H-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
-    c.fillStyle=`rgba(6,10,40,${.25+.35*clamp01(t/400)*(t<2500?1:clamp01((3000-t)/500))})`;c.fillRect(0,0,W,H);
-    c.fillStyle='rgba(10,8,6,.75)';c.fillRect(0,H*.04,W,H*.11);c.fillStyle='#bfe0ff';c.font=`900 ${Math.round(H*.065)}px serif`;c.textAlign='center';c.fillText('斗轉星移  —  以彼之道，還施彼身',W/2,H*.12);
-    // solar system: grows, spins (fast while it swallows the blow), then fades
-    const g=t<350?ease2(t/350):t<2300?1:clamp01(1-(t-2300)/500),spin=t/1000*(t>700&&t<1500?3.2:1.1);if(g>0)st_solar(c,sx,sy,SR*(.4+.6*g),spin,g);
-    // hero: palms out, guiding the system (two-palm row until the Grok clip arrives)
-    const hr=R.shift!=null?R.shift:R.twin!=null?R.twin:R.ranged;st_drawCell(c,sh,t<2400?hr:R.idle,t<2400?Math.min(23,Math.floor(t/2400*24)):Math.floor(now/80)%24,hx,gy,k,1);
-    // the stolen blow: an orb of the enemy's own power orbits the sun, then flies back
-    const fx=A.fx||'#ffd27a';if(t>500&&t<1900){let ox,oy;if(t<800){const q=(t-500)/300;ox=lerp2(ex-W*.06,sx,ease2(q));oy=lerp2(gy-k*60,sy,q)}else if(t<1500){const an=(t-800)/700*Math.PI*4;ox=sx+Math.cos(an)*SR*.55;oy=sy+Math.sin(an)*SR*.2}else{const q=(t-1500)/400;ox=lerp2(sx+SR*.55,ex,ease2(q));oy=lerp2(sy,gy-k*60,q)}
-      c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.globalAlpha=.5-j*.08;c.fillStyle=fx;c.beginPath();c.arc(ox,oy,k*(16-j*2.5)*(1+j*.4),0,7);c.fill()}c.restore();parts.push({x:ox,y:oy,vx:rnd(-1,1)*dp,vy:rnd(-1,1)*dp,l:.8,col:fx})}
-    // the ghost of his own move hits the enemy (close-range attacks)
-    const ht=1880;if(!ranged&&t>1500&&t<2300){const q=clamp01((t-1500)/380),gx=lerp2(ex-W*.28,ex-W*.1,ease2(q));c.save();c.globalAlpha=.32*(t<2100?1:clamp01((2300-t)/200));st_drawCell(c,es,ER.melee!=null?ER.melee:ER.idle,Math.min(23,Math.floor(q*20)),gx,gy,k,1);c.restore()}
-    // enemy: hit by its own attack
-    let erow=ER.idle,efr=Math.floor(now/80)%24,eox=0,erot=0;const dead=e.hp-dmg<=0;
-    if(t>ht){if(dead){erow=ER.fall;efr=Math.min(23,Math.floor((t-ht)/30))}else{const rc=st_react(t,ht,false,ER,W,H,1);if(rc){eox=rc.ox;erot=rc.rot;if(rc.row!=null){erow=rc.row;efr=rc.fr}}}}
-    if(t>ht&&!hitDone){hitDone=true;snd('hit');pops.push({x:ex,y:gy-k*125,t:now,txt:'Reflected '+dmg});for(let j=0;j<20;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x:ex,y:gy-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:fx})}}
-    c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ex+eox,gy,k*40,k*9,0,0,7);c.fill();st_drawRot(c,es,erow,efr,ex+eox,gy,k,-1,1,erot);
-    for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.l-=.035;if(p.l>0){c.globalAlpha=p.l;c.fillStyle=p.col;c.fillRect(p.x,p.y,3*dp,3*dp)}}c.globalAlpha=1;if(parts.length>400)parts.splice(0,parts.length-400);
-    for(const p of pops){const q=(now-p.t)/1000;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle='#bfe0ff';c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.075)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
-    c.font=`700 ${Math.round(H*.04)}px sans-serif`;c.textAlign='left';c.fillStyle='#fff';c.fillText(h.name,W*.03,H*.95);
-    if(t<dur&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
-  requestAnimationFrame(frame)})}
-
-// 天下梅花手 counter: a storm of palms, fists and elbows with plum blossoms in the air
-function st_plum(c,x,y,r,rot,al){c.save();c.globalAlpha=al;c.translate(x,y);c.rotate(rot);for(let i=0;i<5;i++){c.rotate(Math.PI*2/5);c.beginPath();c.ellipse(0,-r*.62,r*.42,r*.55,0,0,7);c.fillStyle='#ffc2d4';c.fill();c.lineWidth=Math.max(1,r*.08);c.strokeStyle='#ff7fa6';c.stroke()}c.beginPath();c.arc(0,0,r*.24,0,7);c.fillStyle='#ffe28a';c.fill();c.restore()}
-function st_counterScene(h,e,dmg){return new Promise(done=>{const cv=$s('#stFight');cv.hidden=false;const r=cv.getBoundingClientRect(),dp=Math.min(2,window.devicePixelRatio||1);cv.width=r.width*dp;cv.height=r.height*dp;
-  const W=cv.width,H=cv.height,c=cv.getContext('2d'),k=.42*H/114,gy=H*.86,bg=B.bg,sh=st_sheetOf(h.sheet),R=st_rowsOf(sh),es=st_sheetOf(e.sheet),ER=st_rowsOf(es),dur=2600,petals=[],pops=[];
-  const hx=W*.4,ex0=W*.6,N=6,hits=Array.from({length:N},(_,i)=>650+i*170),parts=[];const t0=performance.now();let skip=false,hd=0;
-  for(let i=0;i<34;i++)petals.push({x:Math.random()*W*1.1,y:rnd(-.25,.75)*H,vx:rnd(-1.4,-.3)*dp,vy:rnd(.6,1.5)*dp,r:rnd(9,17)*dp,rot:Math.random()*6,vr:rnd(-.05,.05),born:200+Math.random()*900});
-  snd('swing');cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};
-  function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
-    if(bg.complete&&bg.naturalWidth){const s=Math.max(W/bg.naturalWidth,H/bg.naturalHeight);c.drawImage(bg,(W-bg.naturalWidth*s)/2,(H-bg.naturalHeight*s)/2,bg.naturalWidth*s,bg.naturalHeight*s)}
-    c.fillStyle='rgba(40,0,20,.22)';c.fillRect(0,0,W,H);
-    c.fillStyle='rgba(10,8,6,.75)';c.fillRect(0,H*.04,W,H*.11);c.fillStyle='#ffc2d4';c.font=`900 ${Math.round(H*.07)}px serif`;c.textAlign='center';c.fillText('天下梅花手  Plum Blossom Hand — Counter!',W/2,H*.12);
-    // enemy: staggers with every blow, knocked back by the last
-    let ex=ex0,erow=ER.idle,efr=Math.floor(now/80)%24,erot=0;const lastH=hits[N-1];
-    if(t>hits[0]){const q=(t-hits[0])/(lastH-hits[0]+500);ex=ex0+W*.012*Math.sin(t/25)*(t<lastH?1:0)+(t>lastH?W*.07*ease2(clamp01((t-lastH)/300)):0);
-      if(ER.fall===4){erow=4;efr=t<lastH+500?2+Math.floor((t/60)%6):Math.max(0,7-Math.floor((t-lastH-500)/40))}else erot=.18*Math.sin(Math.min(1,q)*Math.PI)}
-    c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ex,gy,k*40,k*9,0,0,7);c.fill();st_drawRot(c,es,erow,efr,ex,gy,k,-1,1,erot);
-    // hero: steps in, flurry, steps back
-    let hx2=hx,row=R.idle,fr=Math.floor(now/80)%24;const pr=R.plum!=null?R.plum:null;
-    if(t>=350&&t<lastH+350){hx2=lerp2(hx,ex0-W*.1,ease2(clamp01((t-350)/250)));if(pr!=null){row=pr;fr=Math.min(23,Math.floor((t-450)/(lastH-100)*24))}else{const seg=Math.floor((t-500)/170)%3;row=seg===2?R.melee:R.punch;fr=Math.min(23,8+Math.floor(((t-500)%170)/170*12))}}
-    else if(t>=lastH+350){hx2=lerp2(ex0-W*.1,hx,ease2(clamp01((t-lastH-350)/300)))}
-    c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(hx2,gy,k*40,k*9,0,0,7);c.fill();st_drawCell(c,sh,row,fr,hx2,gy,k,1);
-    // blows: flashes + petals burst
-    hits.forEach((ht,i)=>{if(t>ht&&i>=hd){hd=i+1;snd('hit');const px=ex-W*.03,py=gy-k*(50+((i*37)%40));for(let j=0;j<7;j++){const a=Math.random()*6.28,v=rnd(3,8)*dp;petals.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5*dp,r:rnd(8,14)*dp,rot:Math.random()*6,vr:rnd(-.15,.15),born:0,burst:1,t0:t})}
-        for(let j=0;j<8;j++){const a=Math.random()*6.28,v=rnd(2,6)*dp;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1})}
-        if(i===N-1)pops.push({x:ex,y:gy-k*125,t:now,txt:''+dmg})}});
-    hits.forEach(ht=>{if(t>ht&&t<ht+90){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,200,220,.18)';c.beginPath();c.arc(ex-W*.03,gy-k*65,k*24,0,7);c.fill();c.restore()}});
-    for(const p of petals){if(t<p.born)continue;p.x+=p.vx;p.y+=p.vy;if(p.burst){p.vx*=.97;p.vy=p.vy*.97+.06*dp}p.rot+=p.vr;const al=p.burst?clamp01(1-(t-p.t0)/900):clamp01((t-p.born)/400);if(al<=0)continue;st_plum(c,p.x,p.y,p.r,p.rot,al*.95)}
-    for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.2*dp;p.l-=.04;if(p.l>0){c.globalAlpha=p.l;c.fillStyle='#ffe3ec';c.fillRect(p.x,p.y,4*dp,4*dp)}}c.globalAlpha=1;
-    for(const p of pops){const q=(now-p.t)/900;if(q>1)continue;c.globalAlpha=1-q;c.fillStyle='#ffc2d4';c.strokeStyle='#000';c.lineWidth=4*dp;c.font=`900 ${Math.round(H*.08)}px sans-serif`;c.textAlign='center';c.strokeText(p.txt,p.x,p.y-q*40*dp);c.fillText(p.txt,p.x,p.y-q*40*dp)}c.globalAlpha=1;
-    c.font=`700 ${Math.round(H*.04)}px sans-serif`;c.textAlign='left';c.fillStyle='#fff';c.fillText(h.name,W*.03,H*.95);
-    if(t<dur&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
-  requestAnimationFrame(frame)})}
-
 // whirlwind kick: hero spins in the middle, foes stand where they are on the board (E right, W left, N behind, S in front)
 function st_spinScene(cv,att,A,res,sh,R,done){const W=cv.width,H=cv.height,c=cv.getContext('2d'),dp=W/cv.getBoundingClientRect().width,mir=att.side==='E'?-1:1,bg=B.bg,parts=[],pops=[];
   const k0=.34*H/114,gy0=H*.72,cx=W*.5,dur=2400;const t0=performance.now();
