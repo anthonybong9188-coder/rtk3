@@ -2783,3 +2783,11 @@ s = s.replace("d.dueled=true;", "")
 # troop clashes: paired soldiers were flagged 's.duel' — rename so nothing says duel
 s = s.replace('s.duel', 's.pair')
 s = s.replace('d.deathT=2550+Math.random()*120;d.duel=1}', 'd.deathT=2550+Math.random()*120;d.pair=1}')
+# v488: on-screen keyboard must not hide dialog buttons (name entry): fit the dialog to the visible area
+rep("""// ------------------------------------------------------------ march
+function openMarch(""","""(function(){const vv=window.visualViewport;if(!vv)return;let base=vv.height;const fit=()=>{const d=document.getElementById('dlg');if(!d)return;const ae=document.activeElement,typing=ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&ae.type!=='range';if(!typing)base=Math.max(vv.height,typing?0:vv.height);base=Math.max(base,vv.height*(typing?0:1));const kb=typing&&vv.height<base*.8;
+  d.style.top=kb?vv.offsetTop+'px':'';d.style.height=kb?vv.height+'px':'';d.style.bottom=kb?'auto':'';d.classList.toggle('kbup',kb);
+  if(kb){const a=document.activeElement,b=d.querySelector('.dbtns');if(b)b.scrollIntoView({block:'end'});if(a&&a.tagName==='INPUT')a.scrollIntoView({block:'nearest'})}};
+  vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);document.addEventListener('focusin',()=>setTimeout(fit,300));document.addEventListener('focusout',()=>setTimeout(fit,300))})();
+// ------------------------------------------------------------ march
+function openMarch(""")

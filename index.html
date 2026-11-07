@@ -769,6 +769,12 @@ html.standalone #fsBtn,html.standalone #tfsBtn,html.standalone #cfsBtn{display:n
 .pv2 .pvbar span{position:relative;z-index:1;display:block;text-align:center;font:800 12.5px/17px var(--f-body);color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pv2 .pvbar em{font-style:normal;color:#ffe08a}
 @media (max-width:760px){.pvs.pv2{width:220px!important}.pv2 .hcf,.pv2 .useal{width:66px!important;height:66px!important}.pv2 .pbr>b{width:52px;font-size:10px}.pv2 .pvbar{height:17px}.pv2 .pvbar span{font-size:11px;line-height:14px}}
+/* v488 keyboard-up dialogs: hug the top, compact, buttons always reachable */
+#dlg.kbup{place-items:start center;padding-block:6px}
+#dlg.kbup .dlgbox{max-height:100%;padding:10px 14px;gap:6px}
+#dlg.kbup .dlgbox h2{font-size:18px}
+#dlg.kbup .dlgbox p{font-size:13px}
+#dlg.kbup .dbtns{position:sticky;bottom:0;background:var(--panel);padding-top:6px}
 
 </style>
 
@@ -2850,6 +2856,10 @@ function dialog(html,buttons){return new Promise(res=>{
   $('#dlg').hidden=false;if(again){const t=box.querySelector('.tlist');if(t)t.scrollTop=keepT;box.scrollTop=keepB}
   box.onclick=e=>{const b=e.target.closest('[data-r]');if(!b||b.disabled)return;$('#dlg').hidden=true;box.onclick=null;res(b.dataset.r)}})}
 
+(function(){const vv=window.visualViewport;if(!vv)return;let base=vv.height;const fit=()=>{const d=document.getElementById('dlg');if(!d)return;const ae=document.activeElement,typing=ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&ae.type!=='range';if(!typing)base=Math.max(vv.height,typing?0:vv.height);base=Math.max(base,vv.height*(typing?0:1));const kb=typing&&vv.height<base*.8;
+  d.style.top=kb?vv.offsetTop+'px':'';d.style.height=kb?vv.height+'px':'';d.style.bottom=kb?'auto':'';d.classList.toggle('kbup',kb);
+  if(kb){const a=document.activeElement,b=d.querySelector('.dbtns');if(b)b.scrollIntoView({block:'end'});if(a&&a.tagName==='INPUT')a.scrollIntoView({block:'nearest'})}};
+  vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);document.addEventListener('focusin',()=>setTimeout(fit,300));document.addEventListener('focusout',()=>setTimeout(fit,300))})();
 // ------------------------------------------------------------ march
 function openMarch(from,to,mode){
   const m={from,to,sel:new Set(),troops:0,rice:0,gold:0,cmd:null,al:{}},xfer=mode==='transfer',purse=C(from).gov?C(from):null,RS=C(from);
