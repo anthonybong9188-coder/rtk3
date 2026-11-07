@@ -9,23 +9,31 @@ const st_wait=ms=>new Promise(r=>setTimeout(r,ms));
 // ---------- data ----------
 const ARTS={
  basic:{zh:'拳腳',n:'Basic Strike',shape:'adj',pow:.75,mp:0,anim:'melee',fx:'#ffe7a8',desc:'Plain punches and kicks, no 內力 needed.'},
- palm:{zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.45,mp:5,anim:'dash',fx:'#ffd75a',desc:'Powerful palm strike driven by 內力 on an adjacent enemy.'},
- wave:{zh:'金龍掌勁',n:'Palm Force',shape:'wave',pow:1.1,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',desc:'Golden Dragon Palm technique: 內力 pushed out from the palm, hits every enemy in a line.'},
- green:{talent:60,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',anim2:'twin',fx:'#5dff8a',desc:'Both palms push a wave of green qi: hits every enemy in a 3-wide area in front. Lv 1-4: 1 row · Lv 5: 2 rows + 2 dragons · Lv 7: 3 rows + 3 dragons · Lv 10: 4 rows + 4 dragons.'},
- tiger:{talent:65,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'Heavy punch on an adjacent enemy; 20% chance to stun (they lose their next turn).'},
- whirl:{talent:75,zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:.9,mp:8,anim:'kick',fx:'#ffe7a8',maxLv:5,desc:'Spinning kick around him. Lv 1-2: the 4 adjacent squares · Lv 3-4: all 8 squares including diagonals · Lv 5: all 8 + 40% chance to push each enemy back 1 square. Max level 5.'},
- star:{talent:80,zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:.9,mp:8,anim:'fly',fx:'#ffe7a8',maxLv:5,pass:1,desc:'Light flying kick in a straight line, then he lands behind the enemy (or beside it if that square is taken). Reach = its level: Lv 1 adjacent, Lv 2 two squares ... Lv 5 five squares. Max level 5.'},
- douzhuan:{talent:85,zh:'斗轉星移',n:'Star Shift',shape:'passive',passive:1,pow:0,mp:8,anim:'shift',fx:'#9fd0ff',maxLv:10,desc:'Murong family inner art: 以彼之道，還施彼身. When an enemy blow is about to land, he steps back and a turning solar system catches it: he takes only part of the damage and the rest flies back at the attacker. Chance 10% at Lv 1, +2% per level (28% at Lv 10). Costs 8 內力 when it triggers. Damage taken 60% at Lv 1 down to 33% at Lv 10; the rest is returned. From Lv 5 poison and stun bounce back too. Checked before 降龍手.'},
- xianglong:{talent:70,zh:'降龍手',n:'Subdue Dragon Hand',shape:'passive',passive:1,pow:0,mp:0,anim:'xlong',fx:'#5ab0ff',maxLv:10,desc:'Passive guarding art. When an enemy blow is about to land, he steps back and a blue dragon rises between them to take the hit: he takes only part of the damage and the rest is lost. Chance 15% at Lv 1, +3% per level (42% at Lv 10). Damage taken 40% at Lv 1 down to 18% at Lv 10. Costs no 內力.'},
+ palm:{type:'atk',zh:'金龍掌',n:'Golden Dragon Palm',shape:'adj',pow:1.45,mp:5,anim:'dash',fx:'#ffd75a',maxLv:10,desc:'Dash-in palm strike on an adjacent enemy. One manual, three moves: 金龍有悔 unlocks at Lv 3, 金龍出海 at Lv 5. A golden dragon flies from the palm at Lv 5.'},
+ wave:{zh:'金龍有悔',n:'Dragon Regret',shape:'wave',pow:1.1,mp:6,anim:'ranged',fx:'#ffd75a',sub:'palm',unlock:3,heavy:1,desc:'金龍掌 move (Lv 3+): 內力 pushed out from the palm hits every enemy in a straight line. Range 3 / 4 / 5 / 6 squares at palm Lv 3 / 5 / 7 / 10.'},
+ sea:{zh:'金龍出海',n:'Dragon from the Sea',shape:'aoe',pow:1.1,mp:12,anim:'ranged',anim2:'twin',fx:'#ffd75a',sub:'palm',unlock:5,heavy:1,desc:'金龍掌 move (Lv 5+): both palms push a golden wave over a 3-wide area in front. Lv 5: 1 row · Lv 7: 2 rows + 2 golden dragons · Lv 10: 3 rows + 3 golden dragons.'},
+ green:{hidden:1,zh:'青龍氣',n:'Green Dragon Qi',shape:'aoe',pow:1.1,mp:12,anim:'ranged',anim2:'twin',fx:'#5dff8a',desc:'HIDDEN'},
+ tiger:{hidden:1,zh:'伏虎拳',n:'Tiger-Taming Fist',shape:'adj',pow:1.15,mp:4,anim:'punch',fx:'#ffb060',stun:.2,desc:'HIDDEN'},
+ whirl:{zh:'旋風腿',n:'Whirlwind Kick',shape:'ring',pow:1.0,mp:8,anim:'kick',fx:'#ffe7a8',sub:'star',unlock:3,heavy:1,desc:'追星腿 move (Lv 3+): spin kick around him. Lv 3-4: the 4 adjacent squares · Lv 5+: all 8 · Lv 7: 40% push-back · Lv 10: 60% push-back.'},
+ chain:{zh:'連環腿',n:'Chain Kick',shape:'adj',pow:.8,mp:7,anim:'kick',fx:'#ffe7a8',sub:'star',unlock:5,hits:2,desc:'追星腿 move (Lv 5+): two kicks in a row on one adjacent enemy. Each kick can miss on its own.'},
+ star:{type:'atk',zh:'追星腿',n:'Shooting-Star Kick',shape:'kick',pow:1.35,mp:5,anim:'fly',fx:'#ffe7a8',maxLv:10,pass:1,desc:'Flying kick along a line; he lands behind the enemy (or beside it if that square is taken). Reach 1 / 2 / 3 / 4 / 5 at Lv 1 / 3 / 5 / 7 / 10. One manual, three moves: 旋風腿 at Lv 3, 連環腿 at Lv 5.'},
+ douzhuan:{type:'guard',zh:'天轉星移',n:'Star Shift',shape:'passive',passive:1,pow:0,mp:8,anim:'shift',fx:'#9fd0ff',maxLv:10,desc:'以彼之道，還施彼身. When an enemy blow is about to land, he steps back and a turning solar system catches it: he takes only part of the damage and the rest flies back at the attacker. Chance 10% at Lv 1, +2% per level. Costs 8 內力. Damage taken 60% at Lv 1 down to 33% at Lv 10. From Lv 5 poison and stun bounce back too.'},
+ xianglong:{type:'guard',zh:'降龍手',n:'Subdue Dragon Hand',shape:'passive',passive:1,pow:0,mp:0,anim:'xlong',fx:'#5ab0ff',maxLv:10,desc:'When an enemy blow is about to land, he steps back and a blue dragon rises to take the hit: he takes only part of the damage and the rest is lost. Chance 15% at Lv 1, +3% per level. Damage taken 40% at Lv 1 down to 18% at Lv 10. No 內力 cost.'},
+ cloud:{type:'qg',passive:1,zh:'踏雲步',n:'Cloud Step',agi:2,maxLv:5,mp:0,desc:'輕功 manual. Each level completed: +2 agility (permanent). No use in battle.'},
+ sky:{type:'qg',passive:1,zh:'凌天步',n:'Sky Step',agi:3,maxLv:5,mp:0,desc:'輕功 manual. Each level completed: +3 agility (permanent). No use in battle.'},
+ caixing:{type:'qg',passive:1,zh:'踩星步',n:'Star-Treading Step',agi:4,maxLv:5,mp:0,desc:'輕功 manual. Each level completed: +4 agility (permanent). No use in battle.'},
+ jiuyang:{type:'inner',passive:1,zh:'九陽功',n:'Nine-Sun Art',mp:0,maxLv:10,hp:30,def:4,desc:'內功. Learning it: +30 體力, +4 防衛 (kept forever). While active: cuts damage taken by 8% at Lv 1, +2% per level (26% at Lv 10).'},
+ xiaowu:{type:'inner',passive:1,zh:'小无脉功',n:'Pulseless Art',mp:0,maxLv:10,hp:30,def:4,desc:'內功. Learning it: +30 體力, +4 防衛 (kept forever). While active: raises damage dealt by 8% at Lv 1, +2% per level (26% at Lv 10).'},
+ beitian:{type:'inner',passive:1,zh:'北天神功',n:'Northern Sky Art',mp:0,maxLv:10,hp:30,def:4,desc:'內功. Learning it: +30 體力, +4 防衛 (kept forever). While active: every 3 times he is hit (every 2 from Lv 7) his max 內力 rises by 1 for good and he restores 10% of his 內力 (+1% per level).'},
  fork:{zh:'叉',n:'Pitchfork Jab',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  slash:{zh:'刀',n:'Slash',shape:'adj',pow:1,mp:0,anim:'melee',fx:'#ffe7a8'},
  axe:{zh:'斧',n:'Axe Chop',shape:'adj',pow:1.2,mp:0,anim:'melee',fx:'#ffb060'},
  bell:{zh:'攝魂鈴',n:'Soul Bell',shape:'r2',pow:1.1,mp:0,anim:'ranged',fx:'#7dff9a',poison:.5},
  staff:{zh:'棍',n:'Staff Strike',shape:'adj',pow:.8,mp:0,anim:'melee',fx:'#ffe7a8'}};
-const INNER={hunyuan:{zh:'混元氣',n:'Primordial Breath',regen:4,def:4,dodge:.03,hp:0,desc:'Passive: +4 defence, +3% dodge, restores 4 內力 each turn.'},
- jinzhong:{zh:'金鐘罩',n:'Golden Bell Shield',regen:2,def:12,dodge:0,hp:30,desc:'Passive: +12 defence, +30 HP, restores 2 內力 each turn.'},
- jiuyang:{zh:'九陽功',n:'Nine-Yang Art',regen:6,def:6,dodge:.05,hp:60,desc:'Passive: +60 HP, +6 defence, +5% dodge, restores 6 內力 each turn.'}};
-const QG=[{zh:'無',n:'None',mv:2,dodge:.05},{zh:'踏雲步',n:'Cloud Step',mv:3,dodge:.12},{zh:'燕回翔',n:'Swallow Glide',mv:4,dodge:.18}];
+const mvOf=agi=>agi>=100?6:agi>=80?5:agi>=60?4:3,dodgeOf=agi=>Math.min(.2,agi/1000),talRed=t=>t>=80?.3:t>=60?.2:.1;
+const skillNeed=lv=>Math.max(5,Math.round(xpNeed(lv)*(1-talRed(P?P.talent:50))));
+const KIND={atk:'武功 Attack',guard:'護身 Guard',inner:'內功 Inner art',qg:'輕功 Lightness'};
+const MOVES={palm:['palm','wave','sea'],star:['star','whirl','chain']};
 const PEOPLE={hero:{n:'You',port:'hero'},hermit:{n:'Hermit Master',zh:'隱',port:'p_xianglang'},elder:{n:'Village Elder',zh:'老',port:'p_hanfu'},xiaoming:{n:'Xiao Ming',port:'xiao_ming'},xiaohei:{n:'Black Wind Chief',port:'xiao_hei'},jiangchen:{n:'Jiang Chen',port:'jiang_chen'},chief:{n:'Yellow Turban Chief',zh:'黃',port:'p_yanbaihu'},narr:{n:''}};
 const PLACES=[
  {id:'valley',zh:'隱仙谷',n:'Hermit Valley',x:.16,y:.22,need:null,pic:'bg_pass'},
@@ -33,19 +41,22 @@ const PLACES=[
  {id:'blackwind',zh:'黑風寨',n:'Black Wind Fort',x:.76,y:.27,need:'prologue',pic:'bg_forest'},
  {id:'temple',zh:'古寺',n:'Old Temple',x:.18,y:.80,need:'bw',pic:'bg_hill'},
  {id:'ytcamp',zh:'黃巾營',n:'Yellow Turban Camp',x:.78,y:.78,need:'temple',pic:'bg_plain'}];
-const E=(id,name,sheet,lv,hp,atk,def,arts,xp,port,mv)=>({id,name,sheet,lv,hp,hpMax:hp,mp:0,mpMax:0,atk,def,arts,xp,port,mv:mv||2,dodge:.05,side:'E'});
+const AGI={d1:35,d2:35,b1:40,b2:40,b3:40,y1:45,y2:45,y3:45,y4:45,jiangchen:50,xiaohei:55,chief:60};
+const E=(id,name,sheet,lv,hp,atk,def,arts,xp,port)=>{const agi=AGI[id]||30+lv*5;return {id,name,sheet,lv,hp,hpMax:hp,mp:0,mpMax:0,atk,def,arts,xp,port,agi,mv:mvOf(agi),dodge:dodgeOf(agi),side:'E'}};
 const BATTLES={
  spar:{theme:'pass',bg:'bg_pass',title:'Sparring · the two disciples',foes:()=>[E('d1','Disciple','peasant_shu',1,45,11,4,['staff'],12,'p_liuqi'),E('d2','Disciple','peasant_shu',1,45,11,4,['staff'],12,'p_liuqi')],pos:[[9,2],[9,5]]},
  bw:{theme:'forest',bg:'bg_forest',title:'Black Wind Fort',foes:()=>[E('xiaohei','Black Wind Chief','f_xiaohei_shu',4,115,18,7,['axe'],40,'xiao_hei'),E('b1','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong'),E('b2','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong'),E('b3','Bandit','peasant_wei',2,45,12,4,['slash'],14,'p_baolong')],pos:[[12,4],[10,2],[10,5],[11,6]]},
  temple:{theme:'hills',bg:'bg_hill',title:'Old Temple',foes:()=>[E('jiangchen','Jiang Chen','f_jiangchen_shu',5,130,22,6,['bell'],50,'jiang_chen'),E('y1','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16,'p_liaohua'),E('y2','Yellow Turban','peasant_ind',3,62,16,6,['slash'],16,'p_liaohua')],pos:[[12,3],[10,2],[10,5]]},
  yt:{theme:'river',bg:'bg_plain',title:'Yellow Turban Camp',foes:()=>[E('chief','Yellow Turban Chief','general_ind',7,240,27,10,['slash'],90,'p_yanbaihu'),E('y1','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y2','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y3','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua'),E('y4','Yellow Turban','peasant_ind',4,70,18,7,['slash'],18,'p_liaohua')],pos:[[12,4],[10,1],[10,3],[10,5],[11,6]]}};
 const xpNeed=lv=>20+lv*15;
-const aoeDepth=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1,gDragons=lv=>lv>=10?4:lv>=7?3:lv>=5?2:1;
+const aoeDepth=lv=>lv>=10?3:lv>=7?2:1,gDragons=lv=>lv>=10?3:lv>=7?2:0,kickReach=lv=>lv>=10?5:lv>=7?4:lv>=5?3:lv>=3?2:1;
 const waveLen=lv=>lv>=10?6:lv>=7?5:lv>=5?4:lv>=3?3:0;
 
 // ---------- state ----------
 let P=null;
-function st_freshHero(){return {lv:1,xp:0,hp:120,hpMax:120,mp:30,mpMax:30,atk:22,def:10,talent:70,gold:30,herbs:1,qg:0,inner:'hunyuan',arts:{palm:{lv:1,xp:0}},eq:'palm',flags:{},party:[],day:1}}
+function st_roll(){const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1));const hp=r(100,140),mp=r(25,40);return {hp,hpMax:hp,mp,mpMax:mp,atk:r(18,26),def:r(8,14),agi:r(40,60),talent:r(40,90)}}
+function st_freshHero(st,ch){st=st||st_roll();ch=ch||{atk:'palm',guard:'xianglong',inner:'jiuyang'};const P0=Object.assign({v:2,name:'Hero',lv:1,xp:0,gold:30,herbs:1,antidote:0,arts:{},manuals:[],eq:ch.atk,inner:ch.inner,flags:{},party:[],day:1},st);
+  for(const k of [ch.atk,ch.guard,'cloud',ch.inner])P0.arts[k]={lv:1,xp:0};P0.agi+=ARTS.cloud.agi;P0.hpMax+=ARTS[ch.inner].hp;P0.hp=P0.hpMax;P0.def+=ARTS[ch.inner].def;return P0}
 function st_save(){try{localStorage.setItem(SKEY,JSON.stringify(P))}catch(e){}}
 function st_load(){try{const s=localStorage.getItem(SKEY);return s?JSON.parse(s):null}catch(e){return null}}
 window.storyHasSave=()=>!!st_load();
@@ -86,6 +97,8 @@ const CSS=`
 #stTools{position:absolute;right:8px;top:calc(var(--sb) + 56px);z-index:4;display:flex;flex-direction:column;gap:5px}
 #story .rail{top:calc(var(--sb) + 8px)}#story .rail .pill.on{border-color:#ff7060;color:#ffb0a0;box-shadow:0 0 10px rgba(255,90,60,.6)}#story .logpanel{top:calc(var(--sb) + 8px)}#story .logpanel ol{margin:0;padding-left:20px;font-size:13px;line-height:1.45}#story .logpanel li.t{list-style:none;margin:6px 0 2px -20px;color:#9fc4ff;font-weight:800}
 #story .hud.tp{z-index:5}#story #stAct.fan{z-index:5;left:auto;top:auto;transform:none;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:74px;height:74px;padding:0;display:block;flex-wrap:nowrap;max-width:none}@media (max-width:600px),(max-height:440px){#story #stAct.fan{width:62px;height:62px;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px))}}#story #stBl{z-index:4}#stAct.fan[hidden],#stBl[hidden],#stTp[hidden],#stRail[hidden]{display:none}
+#stOrder{position:absolute;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;padding:4px 8px;border-radius:24px;background:rgba(10,8,6,.72);border:1px solid rgba(201,162,74,.6);pointer-events:none}#stOrder[hidden]{display:none}#stOrder i{position:relative;width:30px;height:30px;border-radius:50%;background-size:150% auto;background-position:50% 6%;border:2px solid #58a8ff;opacity:.9}#stOrder i.e{border-color:#e0574a}#stOrder i.now{width:38px;height:38px;border-width:3px;opacity:1;box-shadow:0 0 10px rgba(255,215,90,.8)}#stOrder i b{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font:900 8px system-ui;color:#1a1208;background:#ffd77a;border-radius:4px;padding:0 3px;letter-spacing:.05em}
+@media (max-width:760px){#stOrder i{width:24px;height:24px}#stOrder i.now{width:30px;height:30px}}
 #stTip{position:absolute;z-index:7;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));width:min(420px,92vw);padding:10px 14px 12px;border-radius:10px;background:linear-gradient(180deg,#f4e8cc,#e2cfa4);color:#3a2a14;border:2px solid #8a6a32;box-shadow:0 8px 24px rgba(0,0,0,.6)}#stTip[hidden]{display:none}#stTip .tth{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(90,60,20,.35);padding-bottom:4px;margin-bottom:6px}#stTip .tth b{font:900 20px var(--f-zh,serif);color:#7a1a0a}#stTip .tth span{font:700 17px var(--f-display,serif)}#stTip .ttm{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin-bottom:6px}#stTip .ttm span{padding:1px 8px;border-radius:9px;background:#6a4e22;color:#fff3d6}#stTip .ttm em{font-style:normal;padding:1px 8px;border-radius:9px;background:#3a2a14;color:#ffd27a}#stTip p{margin:0;font-size:13px;line-height:1.4}
 #stTools button{min-height:34px!important;width:38px;padding:0!important;font-size:16px;background:rgba(30,26,20,.85)!important}
 #stTools button.on{border-color:#ff7060!important;color:#ff9080}
@@ -150,7 +163,7 @@ function st_build(){
   const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
   const d=document.createElement('div');d.id='story';d.hidden=true;
   d.innerHTML=`<div class="stbar"><div class="who"><b>俠</b><span class="lv" id="stLv">Lv 1</span></div><div class="bars"><div class="bx"><span>HP</span><div class="bar"><i id="stHp" style="background:linear-gradient(90deg,#3fae52,#7be08a)"></i><em id="stHpT"></em></div></div><div class="bx"><span>內力</span><div class="bar"><i id="stMp" style="background:linear-gradient(90deg,#3a7fd8,#7ab8ff)"></i><em id="stMpT"></em></div></div><div class="bx xp"><span>XP</span><div class="bar"><i id="stXp" style="background:linear-gradient(90deg,#c9962e,#ffd77a)"></i><em id="stXpT"></em></div></div></div><div class="res"><span id="stGold"></span><span id="stHerbs"></span></div><div class="btns"><button id="stFsBtn" title="Full screen" aria-label="Full screen">⛶</button><button id="stHeroBtn">Hero</button><button id="stMenuBtn">Menu</button></div></div>
-  <div id="stMap"></div><canvas id="stCv" hidden></canvas><aside class="rail" id="stRail" hidden><div class="turnbox"><span class="lbl">Turn</span><b id="stTurn">1</b></div><div class="pills"><button class="pill ic" data-r="thr" title="Enemy range" aria-label="Show enemy range">👁</button><button class="pill" data-r="auto" title="Auto battle">AUTO</button><button class="pill" data-r="spd" title="Battle scene speed">▶ 1×</button><button class="pill ic" data-r="snd" aria-label="Sound">🔊</button><button class="pill ic" data-r="log" title="Battle log" aria-label="Battle log">☰</button><button class="pill ic" data-r="perf" title="Performance meter" aria-label="Performance meter">📊</button><button class="pill ic" data-r="ret" title="Retreat" aria-label="Retreat">⚑</button></div></aside><div id="stTools" hidden><button data-z="in" title="Zoom in">＋</button><button data-z="out" title="Zoom out">－</button><button data-z="fit" title="Fit board">⤢</button></div><div class="logpanel" id="stLog" hidden><div class="lph"><div><b>Battle log</b><small id="stLogSub"></small></div><button class="pill" data-r="logx">Close</button></div><ol id="stLogL"></ol></div><div class="hud tp" id="stTp" hidden></div><div id="stTip" hidden></div><div class="hud bl" id="stBl" hidden><button class="endbtn" id="stEndB">End turn</button></div><div id="stInfo" hidden></div><div id="stEInfo" hidden></div><div id="stBanner" hidden></div><div id="stAct" class="acts2 fan" hidden></div><canvas id="stFight" hidden></canvas><div id="stMsg" style="opacity:0"></div><div id="stDlg" hidden></div><div id="stPanel" hidden></div>`;
+  <div id="stMap"></div><canvas id="stCv" hidden></canvas><div id="stOrder" hidden></div><aside class="rail" id="stRail" hidden><div class="turnbox"><span class="lbl">Turn</span><b id="stTurn">1</b></div><div class="pills"><button class="pill ic" data-r="thr" title="Enemy range" aria-label="Show enemy range">👁</button><button class="pill" data-r="auto" title="Auto battle">AUTO</button><button class="pill" data-r="spd" title="Battle scene speed">▶ 1×</button><button class="pill ic" data-r="snd" aria-label="Sound">🔊</button><button class="pill ic" data-r="log" title="Battle log" aria-label="Battle log">☰</button><button class="pill ic" data-r="perf" title="Performance meter" aria-label="Performance meter">📊</button><button class="pill ic" data-r="ret" title="Retreat" aria-label="Retreat">⚑</button></div></aside><div id="stTools" hidden><button data-z="in" title="Zoom in">＋</button><button data-z="out" title="Zoom out">－</button><button data-z="fit" title="Fit board">⤢</button></div><div class="logpanel" id="stLog" hidden><div class="lph"><div><b>Battle log</b><small id="stLogSub"></small></div><button class="pill" data-r="logx">Close</button></div><ol id="stLogL"></ol></div><div class="hud tp" id="stTp" hidden></div><div id="stTip" hidden></div><div class="hud bl" id="stBl" hidden><button class="endbtn" id="stEndB">Wait</button></div><div id="stInfo" hidden></div><div id="stEInfo" hidden></div><div id="stBanner" hidden></div><div id="stAct" class="acts2 fan" hidden></div><canvas id="stFight" hidden></canvas><div id="stMsg" style="opacity:0"></div><div id="stDlg" hidden></div><div id="stPanel" hidden></div>`;
   document.body.appendChild(d);
   $s('#stMenuBtn').onclick=()=>{if(B)return st_toast('Finish the battle first');st_exitStory()};
   $s('#stHeroBtn').onclick=()=>st_heroPanel();
@@ -163,8 +176,27 @@ function st_hud(){const pct=(a,b)=>Math.round(100*clamp01(a/b))+'%';
 // ---------- enter / exit ----------
 function st_enter(){st_build();for(const s of ['title','campaign','battleView']){const e=$s('#'+s);if(e)e.hidden=true}$s('#story').hidden=false;document.body.classList.add('lock');st_hud();st_showMap()}
 function st_exitStory(){st_save();$s('#story').hidden=true;try{showScreen('title');renderTitle()}catch(e){$s('#title').hidden=false}}
-window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;P=st_freshHero();st_save();st_enter();await st_prologue()};
-window.storyContinue=function(){P=st_load();if(!P)return;if(P.arts&&P.arts.plum){P.arts.xianglong=P.arts.plum;delete P.arts.plum}if(P.manuals)P.manuals=P.manuals.map(m=>m==='plum'?'xianglong':m);if(P.eq==='plum')P.eq='xianglong';if(P.flags&&P.flags.yt&&!(P.arts&&P.arts.douzhuan)&&!(P.manuals||[]).includes('douzhuan')){P.manuals=(P.manuals||[]).concat(['douzhuan'])}if(P.flags&&P.flags.temple&&!(P.arts&&P.arts.xianglong)&&!(P.manuals||[]).includes('xianglong')){P.manuals=(P.manuals||[]).concat(['xianglong'])}if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_enter()};
+window.storyNew=async function(){if(st_load()&&!confirm('Start a new story? The current story save will be replaced.'))return;const r=await st_create();if(!r)return;P=st_freshHero(r.st,r.ch);P.name=r.name;st_save();st_enter();await st_prologue()};
+// new hero: name, roll stats, pick one art per category (the ones not picked turn up as manuals from chapter 2)
+async function st_create(){if(typeof dialog!=='function')return {name:'Hero',st:st_roll(),ch:{atk:'palm',guard:'xianglong',inner:'jiuyang'}};let name='';
+  for(;;){const r=await dialog(`<h2>俠 The orphan of Hermit Valley</h2><p>Eighteen winters ago a hermit found a baby in the snow. What is the young man's name?</p><input id="heroName" class="hname" maxlength="12" autocomplete="off" placeholder="Up to 12 letters" value="${name.replace(/"/g,'')}">`,[['cancel','Cancel'],['ok','Next','primary']]);
+    if(r!=='ok')return null;name=(document.getElementById('heroName').value||'').replace(/\s+/g,' ').trim().slice(0,12);if(name)break}
+  let st=st_roll();const tierTxt=t=>'skills level '+Math.round(talRed(t)*100)+'% faster';
+  for(;;){const row=(lab,v,lo,hi,extra)=>`<div class="hstat"><span>${lab}</span><b>${v}</b><i style="width:${Math.round(100*(v-lo+4)/(hi-lo+4))}%"></i>${extra?`<small class="muted" style="grid-column:1/-1">${extra}</small>`:''}</div>`;
+    const r=await dialog(`<h2>${name}</h2><p class="muted">Roll his starting stats. Roll as often as you like.</p><div class="hstats">${row('體力 HP',st.hp,100,140)}${row('內力 Inner power',st.mp,25,40)}${row('攻擊 Attack',st.atk,18,26)}${row('防衛 Defence',st.def,8,14)}${row('輕功 Agility',st.agi,40,60,'Moves '+mvOf(st.agi+ARTS.cloud.agi)+' squares (with Cloud Step) · dodge '+Math.round(dodgeOf(st.agi+2)*100)+'%')}${row('悟性 Talent',st.talent,40,90,tierTxt(st.talent))}</div>`,[['cancel','Cancel'],['roll','🎲 Roll again'],['ok','Accept','primary']]);
+    if(r==='cancel')return null;if(r==='roll'){st=st_roll();continue}break}
+  const pick=async(title,txt,keys)=>{const r=await dialog(`<h2>${title}</h2><p class="muted">${txt}</p><div class="tlist slots">${keys.map(k=>`<button data-r="${k}"><span class="sl"><b>${ARTS[k].zh} ${ARTS[k].n}</b><small>${ARTS[k].desc}</small></span></button>`).join('')}</div>`,[['cancel','Back']]);return ARTS[r]?r:null};
+  const atk=await pick('武功 · His fighting art','Years of training under the hermit. Which art did he master? The other can be found later.',['palm','star']);if(!atk)return null;
+  const guard=await pick('護身 · His guarding art','How does he protect himself?',['douzhuan','xianglong']);if(!guard)return null;
+  const inner=await pick('內功 · His inner art','Which inner art did he cultivate? Others can be learned later; their 體力 and 防衛 bonuses stay with him.',['jiuyang','xiaowu','beitian']);if(!inner)return null;
+  return {name,st,ch:{atk,guard,inner}}}
+function st_migrate(){if(P.v>=2)return;P.v=2;P.name=P.name||'Hero';P.agi=50+(P.lv-1);const A=P.arts||{};
+  for(const k of ['green','tiger','wave','thunder','plum'])delete A[k];if(A.whirl){A.star=A.star||{lv:Math.max(1,A.whirl.lv),xp:0};delete A.whirl}
+  A.cloud={lv:1,xp:0};P.agi+=2;
+  A.jiuyang={lv:1,xp:0};P.inner='jiuyang';P.hpMax+=30;P.def+=4;delete P.qg;
+  if(!A.palm&&!A.star)A.palm={lv:1,xp:0};if(!A.douzhuan&&!A.xianglong)A.xianglong={lv:1,xp:0};
+  P.manuals=(P.manuals||[]).filter(k=>ARTS[k]&&!ARTS[k].hidden&&!A[k]&&k!=='whirl');if(!ARTS[P.eq]||!A[P.eq])P.eq=A.palm?'palm':'star';P.arts=A}
+window.storyContinue=function(){P=st_load();if(!P)return;if(P.v>=2){P.manuals=P.manuals||[];st_enter();return}if(P.arts&&P.arts.plum){P.arts.xianglong=P.arts.plum;delete P.arts.plum}if(P.manuals)P.manuals=P.manuals.map(m=>m==='plum'?'xianglong':m);if(P.eq==='plum')P.eq='xianglong';if(P.flags&&P.flags.yt&&!(P.arts&&P.arts.douzhuan)&&!(P.manuals||[]).includes('douzhuan')){P.manuals=(P.manuals||[]).concat(['douzhuan'])}if(P.flags&&P.flags.temple&&!(P.arts&&P.arts.xianglong)&&!(P.manuals||[]).includes('xianglong')){P.manuals=(P.manuals||[]).concat(['xianglong'])}if(P.arts&&P.arts.thunder){P.arts.green=P.arts.thunder;delete P.arts.thunder}if(P.eq==='thunder')P.eq='green';if(P.manuals)P.manuals=P.manuals.map(k=>k==='thunder'?'green':k);if(P.arts&&P.arts.wave){delete P.arts.wave;if(P.eq==='wave')P.eq='palm'}P.manuals=P.manuals||[];P.antidote=P.antidote||0;if(!P.eq)P.eq='palm';for(const a of Object.values(P.arts)){if(a.xp==null)a.xp=0}st_migrate();st_save();st_enter()};
 
 // ---------- dialogue ----------
 function st_say(who,text,choices){return new Promise(res=>{const d=$s('#stDlg');const pp=PEOPLE[who]||{n:who};
@@ -211,50 +243,51 @@ async function st_prologue(){
   await st_say('narr','AD 184. Deep in the mountains of You province, far from the dying Han court...');
   await st_say('hermit','Eighteen winters ago I found you in the snow below this valley, a baby wrapped in a soldier\'s cloak. Today you are a man.');
   await st_say('hero','Master... you taught me everything I know.');
-  await st_say('hermit','Your Golden Dragon Palm 金龍掌 is ready, and the Primordial Breath 混元氣 flows in you. But the world below is drowning. Yellow Turbans burn the villages, bandits prey on the weak.');
+  {const at=Object.keys(P.arts).find(k=>ARTS[k].type==='atk'),gd=Object.keys(P.arts).find(k=>ARTS[k].type==='guard');await st_say('hermit',`Your ${ARTS[at].zh} is ready, ${ARTS[gd].zh} guards you, and ${ARTS[P.inner].zh} flows in you. But the world below is drowning. Yellow Turbans burn the villages, bandits prey on the weak.`)}
   await st_say('hermit','Before you leave, show me. Defeat my two disciples — and do not hurt them too badly.');
   await st_tutorialTip();
   const won=await st_battle('spar');
   if(!won){P.hp=P.hpMax;P.mp=P.mpMax;await st_say('hermit','Again. Breathe, then strike.');return st_prologue()}
   await st_say('hermit','Good. Remember this: strength without virtue is the path of demons. Go down to Zhuo Village, and help those who suffer.');
   P.flags.prologue=1;P.hp=P.hpMax;P.mp=P.mpMax;st_save();st_showMap();st_toast('Visit Zhuo Village',2600)}
-async function st_tutorialTip(){await st_say('narr','<b style="color:#9fd7ff">How to fight</b>Tap your hero, then a blue square to move (or tap him again to stay). Choose a martial art, then tap a red square. Each unit acts once per turn. 內力 powers your arts and recovers every turn.')}
+async function st_tutorialTip(){await st_say('narr','<b style="color:#9fd7ff">How to fight</b>Everyone has a 輕功 bar: the faster fighter acts more often — watch the order strip at the top. When it is your hero\'s move, tap a blue square to move (or tap him to stay), choose an art, then tap a red square. Waiting keeps half the bar; heavy arts cost extra time.')}
 async function st_afterBW(){P.flags.bw=1;P.gold+=80;
   await st_say('xiaohei','Ugh... that palm... who ARE you?');
-  await st_say('narr','Among the stolen loot you find an old silk manual: <b>Rolling Thunder Palm 奔雷掌</b>.');
-  st_gainManual('green');await st_say('xiaoming','We did it! The village is safe! But the elder says Yellow Turbans hold the old temple to the south...');st_save();st_showMap()}
+  await st_say('narr','Among the stolen loot you find 80 gold and three bundles of healing herbs.');P.herbs+=3;await st_say('xiaoming','We did it! The village is safe! But the elder says Yellow Turbans hold the old temple to the south...');st_save();st_showMap()}
 async function st_afterTemple(){P.flags.temple=1;P.gold+=60;
   await st_say('jiangchen','My bell... broken... Great Teacher Zhang Jiao will avenge me...');
-  await st_say('narr','Behind the altar, hidden in a hollow beam, is a scroll of 輕功: <b>Cloud Step 踏雲步</b>. Your body feels as light as mist.');
-  P.qg=Math.max(P.qg,1);st_toast('輕功 learned: Cloud Step — move 3 squares, better dodge',3000);await st_wait(3200);
-  await st_say('narr','Rolled inside the same beam is a second, older scroll, its silk painted with a coiling blue dragon: <b>降龍手 Subdue Dragon Hand</b>.');st_gainManual('xianglong');st_save();st_showMap()}
-async function st_afterYT(){P.flags.yt=1;P.gold+=150;st_gainManual('tiger');st_gainManual('douzhuan');
+  await st_say('narr','Behind the altar, in a hollow beam, the monks hid their medicine chest: two antidotes and two herbs. The scroll shelves are empty — someone took the manuals long ago.');P.antidote=(P.antidote||0)+2;P.herbs+=2;st_save();st_showMap()}
+async function st_afterYT(){P.flags.yt=1;P.gold+=150;P.herbs+=2;
   await st_say('chief','How... can one man... stand against the Yellow Sky...');
-  await st_say('narr','In the chief\'s chest, among stolen silver, lies a scroll sealed with a single character — 慕容, the Murong family of Gusu: <b>斗轉星移 Star Shift</b>. Whoever it was taken from will want it back...');
+  await st_say('narr','In the chief\'s chest you find 150 gold — and a letter speaking of martial manuals carried to Luoyang. Perhaps they can still be found...');
   await st_say('narr','The camp scatters. By nightfall the whole county speaks of a young hero with a palm of gold.');
   await st_say('narr','In Zhuo, three men — Liu Bei, Guan Yu and Zhang Fei — are raising volunteers against the rebels. They want to meet you...<br><br><b style="color:#ffd77a">End of Chapter 1.</b> Chapter 2: the road to Hu Lao Gate — coming soon.');st_save();st_showMap()}
-function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};if(lv0){st_toast('Learned '+ARTS[k].n+' at level 0 — equip it and win battles to reach level 1',3600);return}st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
+function st_learn(k,lv0){if(!P.arts[k]){P.arts[k]={lv:lv0?0:1,xp:0};const A=ARTS[k];if(A.type==='inner'){P.hpMax+=A.hp;P.hp+=A.hp;P.def+=A.def}if(lv0){st_toast('Learned '+ARTS[k].n+' at level 0 — equip it and win battles to reach level 1',3600);return}st_toast('New martial art: '+ARTS[k].n+' '+ARTS[k].zh,3000)}}
 
 // ---------- hero panel ----------
-function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';
-  const q=QG[P.qg],I=INNER[P.inner];P.manuals=P.manuals||[];P.antidote=P.antidote||0;
-  const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`;
-  const skills=`<div class="sec2">武功 Martial arts <small>★ = equipped manual, gains half your battle XP</small></div>${Object.entries(P.arts).map(([k,a])=>{const A=ARTS[k],eq=P.eq===k;return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}</b><span>Lv ${a.lv}/${A.maxLv||10} · ${a.lv<1?'<b style="color:#e0a050">not usable yet</b>':A.mp?A.mp+' 內力':'free'}</span></div>${eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/xpNeed(a.lv)))}%"></i></div><small>Manual XP ${a.xp||0}/${xpNeed(a.lv)}</small>`:`<button data-eq="${k}">Equip</button>`}<small>${A.desc||''}</small>${k==='palm'?`<small style="color:#c9b98f">Lv 3: Palm Force 金龍掌勁, range 3 · Lv 5: range 4 + golden dragon · Lv 7: range 5 · Lv 10: range 6${waveLen(a.lv)?` <b style="color:#ffd77a">(now ${waveLen(a.lv)} squares)</b>`:''}</small>`:''}</div>`}).join('')}
-    <div class="sec2">內功 Inner art <small>passive</small></div><div class="art"><div class="ah"><b>${I.zh} ${I.n}</b></div><small>${I.desc}</small></div>
-    <div class="sec2">輕功 Lightness skill</div><div class="art"><div class="ah"><b>${q.zh} ${q.n}</b></div><small>Move ${q.mv} squares · dodge ${Math.round(q.dodge*100)}%</small></div>`;
+function st_heroPanel(tab){const p=$s('#stPanel');if(!p.hidden&&!tab){p.hidden=true;return}tab=tab||'skills';P.manuals=P.manuals||[];P.antidote=P.antidote||0;
+  const stat=(k,v)=>`<div class="hs"><span>${k}</span><b>${v}</b></div>`,red=Math.round(talRed(P.talent)*100);
+  const artRow=(k,a)=>{const A=ARTS[k],eq=P.eq===k,act=A.type==='inner'&&P.inner===k,max=A.maxLv||10,need=skillNeed(a.lv);
+    const moves=MOVES[k]?MOVES[k].map(m=>{const M=ARTS[m],un=!M.unlock||a.lv>=M.unlock;return `<span style="color:${un?'#ffd77a':'#8a7d62'}">${M.zh}${M.unlock?' (Lv '+M.unlock+')':''}${M.mp?' · '+M.mp+' 內力':''}</span>`}).join(' · '):'';
+    return `<div class="art ${eq?'eq':''}"><div class="ah"><b>${eq?'★ ':''}${A.zh} ${A.n}${act?' <small style="color:#9fe39b">· active</small>':''}</b><span>Lv ${a.lv}/${max}${a.lv<1?' · <b style="color:#e0a050">not usable yet</b>':''}</span></div>
+      ${a.lv<max?(eq?`<div class="xb"><i style="width:${Math.round(100*clamp01((a.xp||0)/need))}%"></i></div><small>Manual XP ${a.xp||0}/${need}</small>`:`<button data-eq="${k}">Equip to train</button>`):'<small style="color:#9fe39b">Mastered</small>'}
+      ${A.type==='inner'&&!act&&a.lv>=1?`<button data-inner="${k}">Make active</button>`:''}${moves?`<small>${moves}</small>`:''}<small>${A.desc||''}</small></div>`};
+  const groups=['atk','guard','inner','qg'].map(t=>{const ks=Object.keys(P.arts).filter(k=>ARTS[k]&&ARTS[k].type===t);return ks.length?`<div class="sec2">${KIND[t]}</div>${ks.map(k=>artRow(k,P.arts[k])).join('')}`:''}).join('');
+  const skills=`<div class="sec2" style="margin-top:0">★ = the one manual in training · it gets half of each battle's XP · 悟性 cuts the XP it needs by ${red}%</div>${groups}`;
   const inv=`<div class="sec2">包裹 Inventory</div>
     <div class="art"><div class="ah"><b>🌿 Herb ×${P.herbs}</b><button data-use="herb" ${P.herbs?'':'disabled'}>Use</button></div><small>Restores 50 HP.</small></div>
     <div class="art"><div class="ah"><b>🧪 Antidote ×${P.antidote}</b><button data-use="anti" ${P.antidote&&P.poison?'':'disabled'}>Use</button></div><small>Cures poison.${P.poison?' <b style="color:#9be39b">You are poisoned.</b>':''}</small></div>
-    <div class="sec2">秘籍 Manuals to study</div>${P.manuals.length?P.manuals.map(k=>{const A=ARTS[k],need=A.talent||0,ok=P.talent>=need;return `<div class="art"><div class="ah"><b>📜 ${A.zh} ${A.n}</b><button data-learn="${k}" ${ok?'':'disabled'}>Learn</button></div><small>${A.desc||''} Needs talent 悟性 ${need}.</small></div>`}).join(''):'<p class="muted">No unread manuals.</p>'}`;
+    <div class="sec2">秘籍 Manuals to study</div>${P.manuals.length?P.manuals.map(k=>{const A=ARTS[k];return `<div class="art"><div class="ah"><b>📜 ${A.zh} ${A.n}</b><button data-learn="${k}">Learn</button></div><small>${KIND[A.type]||''} · ${A.desc||''}</small></div>`}).join(''):'<p class="muted">No unread manuals.</p>'}`;
   p.innerHTML=`<div class="hpw"><div class="hpp"><img src="portraits/cut_hero.webp" alt="The hero"></div>
-   <div class="hpc"><h3>俠 The Hero</h3>${stat('Level',P.lv)}${stat('XP',P.xp+' / '+xpNeed(P.lv))}${stat('HP',P.hp+' / '+P.hpMax)}${stat('內力',P.mp+' / '+P.mpMax)}${stat('Attack',P.atk)}${stat('Defence',P.def+(I.def?' +'+I.def:''))}${stat('Agility',Math.round((q.dodge+I.dodge)*100)+'%')}${stat('Move',q.mv)}${stat('悟性 Talent',P.talent)}${stat('Gold',P.gold)}${stat('Party',['You',...P.party.map(k=>PEOPLE[k].n)].join(', '))}</div>
+   <div class="hpc"><h3>俠 ${P.name||'The Hero'}</h3>${stat('Level',P.lv)}${stat('XP',P.xp+' / '+xpNeed(P.lv))}${stat('體力 HP',P.hp+' / '+P.hpMax)}${stat('內力',P.mp+' / '+P.mpMax)}${stat('攻擊 Attack',P.atk)}${stat('防衛 Defence',P.def)}${stat('輕功 Agility',P.agi)}${stat('Move',mvOf(P.agi)+' squares')}${stat('Dodge',Math.round(dodgeOf(P.agi)*100)+'%')}${stat('悟性 Talent',P.talent+' (−'+red+'% skill XP)')}${stat('Gold',P.gold)}${stat('Party',['You',...P.party.map(k=>PEOPLE[k].n)].join(', '))}</div>
    <div class="hpr"><div class="tabs"><button data-tab="skills" class="${tab==='skills'?'on':''}">武功 Skills</button><button data-tab="inv" class="${tab==='inv'?'on':''}">包裹 Inventory</button><span class="sp"></span><button id="stClose" class="pri">Close</button></div><div class="hpl">${tab==='skills'?skills:inv}</div></div></div>`;
   p.hidden=false;$s('#stClose').onclick=()=>p.hidden=true;
   p.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>st_heroPanel(b.dataset.tab));
-  p.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{P.eq=b.dataset.eq;st_save();st_heroPanel('skills');st_toast('Equipped: '+ARTS[P.eq].n)});
+  p.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{P.eq=b.dataset.eq;st_save();st_heroPanel('skills');st_toast('Training: '+ARTS[P.eq].n)});
+  p.querySelectorAll('[data-inner]').forEach(b=>b.onclick=()=>{P.inner=b.dataset.inner;st_save();st_heroPanel('skills');st_toast('Active 內功: '+ARTS[P.inner].zh)});
   p.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{if(b.dataset.use==='herb'){P.herbs--;P.hp=Math.min(P.hpMax,P.hp+50)}else{P.antidote--;P.poison=0;st_toast('Poison cured')}st_hud();st_save();st_heroPanel('inv')});
   p.querySelectorAll('[data-learn]').forEach(b=>b.onclick=()=>{const k=b.dataset.learn;P.manuals=P.manuals.filter(x=>x!==k);st_learn(k,1);st_save();st_heroPanel('inv')})}
-function st_gainManual(k){P.manuals=P.manuals||[];if(!P.arts[k]&&!P.manuals.includes(k)){P.manuals.push(k);st_toast('Manual obtained: '+ARTS[k].n+' — study it in the Hero screen',3200)}}
+function st_gainManual(k){P.manuals=P.manuals||[];if(ARTS[k].hidden)return;if(!P.arts[k]&&!P.manuals.includes(k)){P.manuals.push(k);st_toast('Manual obtained: '+ARTS[k].n+' — study it in the Hero screen',3200)}}
 // ---------- sprites ----------
 const IMG={};function st_img(src){if(!IMG[src]){const i=new Image();i.src=src;IMG[src]=i}return IMG[src]}
 const st_sheetOf=k=>st_img('sprites/'+k+'.png');
@@ -264,8 +297,9 @@ function st_drawCell(c,sh,row,fr,x,y,k,face,alpha){if(!sh.complete||!sh.naturalW
 
 // ---------- battle ----------
 let B=null;const COLS=14,ROWS=8;let SPD=1;try{SPD=+localStorage.getItem('rtk3_story_spd')||1}catch(e){}
-function st_heroUnit(){const q=QG[P.qg];const I=INNER[P.inner];return {id:'hero',name:'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp+I.hp,hpMax:P.hpMax+I.hp,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def+I.def,mv:q.mv,dodge:q.dodge+I.dodge,poison:P.poison||0,arts:Object.keys(P.arts).filter(k=>k!=='wave'&&P.arts[k].lv>=1&&!ARTS[k].passive).concat(['basic']).concat(P.arts.palm&&waveLen(P.arts.palm.lv)?['wave']:[]),hero:true}}
-function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,mv:3,dodge:.06,arts:['fork']}}}
+function st_heroArts(){const out=[];for(const k of Object.keys(P.arts)){const A=ARTS[k],a=P.arts[k];if(!A||A.type!=='atk'||a.lv<1)continue;for(const m of MOVES[k]||[k]){const M=ARTS[m];if(!M.unlock||a.lv>=M.unlock)out.push(m)}}return out.concat(['basic'])}
+function st_heroUnit(){return {id:'hero',name:P.name||'You',sheet:'f_hero_shu',port:'hero',side:'P',hp:P.hp,hpMax:P.hpMax,mp:P.mp,mpMax:P.mpMax,atk:P.atk,def:P.def,agi:P.agi,mv:mvOf(P.agi),dodge:dodgeOf(P.agi),poison:P.poison||0,arts:st_heroArts(),hero:true,hits:0}}
+function st_allyUnit(k){if(k==='xiaoming'){const L=P.lv,agi=44+L;return {id:'xiaoming',name:'Xiao Ming',sheet:'f_xiaoming_shu',port:'xiao_ming',side:'P',hp:70+L*8,hpMax:70+L*8,mp:0,mpMax:0,atk:13+L*2,def:6+L,agi,mv:mvOf(agi),dodge:dodgeOf(agi),arts:['fork']}}}
 function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[st_heroUnit(),...P.party.map(st_allyUnit).filter(Boolean)];
   const ppos=[[2,4],[2,3],[2,5],[1,4]];const fs=D.foes();
   let map=null;try{map=genBattleMap('N',D.theme==='river',1000+Math.floor(Math.random()*9000),D.theme)}catch(e){}if(!map||map.length!==ROWS)map=Array.from({length:ROWS},()=>'.'.repeat(COLS));
@@ -273,7 +307,7 @@ function st_battle(key){return new Promise(res=>{const D=BATTLES[key];const us=[
   const place=(u,x,y)=>{let best=null,bd=1e9;for(let X=0;X<COLS;X++)for(let Y=0;Y<ROWS;Y++){if(!st_pass(X,Y)||B.units.some(v=>v.x===X&&v.y===Y))continue;const d=Math.abs(X-x)+Math.abs(Y-y);if(d<bd){bd=d;best=[X,Y]}}[u.x,u.y]=best;B.units.push(u)};
   us.forEach((u,i)=>place(u,...ppos[i]));fs.forEach((u,i)=>place(u,...D.pos[i]));
   $s('#stMap').hidden=true;const cv=$s('#stCv');cv.hidden=false;mus('battle');B.zoom=1;B.panX=0;B.panY=0;B.turnN=1;B.log=[];st_log('Turn 1',1);st_fit();st_gestures(cv);st_tools(true);
-  st_toast(D.title,2000);for(const u of B.units)u.done=false;st_loop();st_actBar();setTimeout(()=>st_banner('Your turn',0,'Turn 1'),400)})}
+  st_toast(D.title,2000);for(const u of B.units){u.done=false;u.ct=Math.random()*25}B.clock=0;B.nextRound=ROUND;st_loop();st_actBar();setTimeout(()=>{st_banner('Battle!',0,'The fastest acts first');setTimeout(st_advance,900)},300)})}
 function st_banner(t,en,sub){const b=$s('#stBanner');if(!b)return;b.hidden=true;b.className=en?'en':'';b.innerHTML='<b>'+t+'</b>'+(sub?'<small>'+sub+'</small>':'');void b.offsetWidth;b.hidden=false;clearTimeout(st_banner.h);st_banner.h=setTimeout(()=>b.hidden=true,1400)}
 function st_tools(on){const tb=$s('#stTools'),rl=$s('#stRail');tb.hidden=!on;rl.hidden=!on;if(!on){for(const id of ['#stInfo','#stEInfo','#stBl','#stTp','#stTip','#stLog'])$s(id).hidden=true;return}
   $s('#stTurn').textContent=B?B.turnN||1:1;rl.querySelector('[data-r=spd]').textContent='▶ '+SPD+'×';rl.querySelector('[data-r=thr]').classList.toggle('on',!!(B&&B.threat));rl.querySelector('[data-r=auto]').classList.toggle('on',!!(B&&B.auto));
@@ -286,15 +320,15 @@ function st_tools(on){const tb=$s('#stTools'),rl=$s('#stRail');tb.hidden=!on;rl.
   $s('#stLog [data-r=logx]').onclick=()=>st_logShow(false);$s('#stEndB').onclick=()=>{if(B&&B.turn==='P'&&!B.busy)st_endTurn()}}
 function st_log(h,turn){if(!B)return;(B.log=B.log||[]).push({h,turn});if(!$s('#stLog').hidden)st_logShow(true)}
 function st_logShow(on){const el=$s('#stLog');el.hidden=!on;if(!on||!B)return;$s('#stLogSub').textContent=(B.D&&B.D.title||'')+' · Turn '+(B.turnN||1);const L=$s('#stLogL');L.innerHTML=(B.log||[]).map(e=>e.turn?`<li class="t">${e.h}</li>`:`<li>${e.h}</li>`).join('');el.scrollTop=el.scrollHeight}
-async function st_retreat(){if(!B||B.busy||B.turn!=='P')return st_toast('Wait for your turn');const c=await st_say('narr','Retreat from this battle? It counts as a defeat (you lose 20% of your gold).',['Retreat','Keep fighting']);if(c===0&&B){st_log('<b>You retreat.</b>');st_endBattle(false)}}
+async function st_retreat(){if(!B||B.busy||B.turn!=='P')return st_toast('Wait for your move');const c=await st_say('narr','Retreat from this battle? It counts as a defeat (you lose 20% of your gold).',['Retreat','Keep fighting']);if(c===0&&B){st_log('<b>You retreat.</b>');st_endBattle(false)}}
 // AUTO: your side fights by itself (same thinking as the enemy, but picks its best art)
-function st_autoGo(){if(!B||!B.auto||B.turn!=='P'||B.busy||B.autoRun)return;B.autoRun=true;(async()=>{try{for(const u of B.units.filter(v=>v.side==='P'&&v.hp>0&&!v.done)){if(!B||!B.auto||B.turn!=='P')break;await st_autoAct(u);if(!B)return}}finally{if(B)B.autoRun=false}if(B&&B.auto&&B.turn==='P'&&B.units.some(v=>v.side==='P'&&v.hp>0&&!v.done))st_endTurn()})()}
-async function st_autoAct(u){B.sel=u;B.mode='idle';st_fcHide();$s('#stInfo').hidden=true;$s('#stTp').hidden=true;
+function st_autoGo(){if(!B||!B.auto||B.turn!=='P'||B.busy||!B.act||B.act.side!=='P')return;B.hl=[];st_autoAct(B.act)}
+async function st_autoAct(u){if(!B||B.autoBusy===u)return;B.autoBusy=u;B.sel=u;B.mode='idle';st_fcHide();$s('#stInfo').hidden=true;$s('#stTp').hidden=true;
   const arts=u.arts.filter(k=>u.mp>=ARTS[k].mp).sort((a,b)=>ARTS[b].pow-ARTS[a].pow);let best=null;
   for(const t of st_reach(u))for(const k of arts){const op=st_targetsFor(u,k,t);for(const o of op){const sc=o.hit.length*ARTS[k].pow*100-o.hit.reduce((a,h)=>a+h.hp,0)*.2-(ARTS[k].mp||0);if(!best||sc>best.sc)best={t,k,o,sc}}}
   if(best){await st_moveTo(u,best.t[0],best.t[1]);await st_wait(120);const op=st_targetsFor(u,best.k).find(o=>o.hit[0]===best.o.hit[0])||st_targetsFor(u,best.k)[0];if(op){await st_doAttack(u,best.k,op);return}}
   const foes=B.units.filter(v=>v.side!==u.side&&v.hp>0);if(foes.length){const n=foes.sort((a,b)=>(Math.abs(a.x-u.x)+Math.abs(a.y-u.y))-(Math.abs(b.x-u.x)+Math.abs(b.y-u.y)))[0];let bt=null,bd=1e9;for(const t of st_reach(u)){const d=Math.abs(t[0]-n.x)+Math.abs(t[1]-n.y);if(d<bd){bd=d;bt=t}}if(bt)await st_moveTo(u,bt[0],bt[1])}
-  await st_wait(120);if(B)st_finish(u)}
+  await st_wait(120);if(B){u.ctNext=20;st_finish(u)}}
 function st_view(){B.T=B.T0*B.zoom;const W=B.cw,H=B.ch,bw=B.T*COLS,bh=B.T*ROWS;let ox=(W-bw)/2+B.panX,oy=(H-bh)/2+B.panY;if(bw>W){ox=Math.min(0+20*B.dp,Math.max(W-bw-20*B.dp,ox))}else ox=(W-bw)/2;if(bh>H){oy=Math.min(8*B.dp,Math.max(H-bh-8*B.dp,oy))}else oy=(H-bh)/2;B.panX=ox-(W-bw)/2;B.panY=oy-(H-bh)/2;B.ox=ox;B.oy=oy}
 function st_zoom(z,cx,cy){const oz=B.zoom;z=Math.max(1,Math.min(2.6,z));if(z===oz)return;cx=cx==null?B.cw/2:cx;cy=cy==null?B.ch/2:cy;const bx=(cx-B.ox)/B.T,by=(cy-B.oy)/B.T;B.zoom=z;B.T=B.T0*z;const bw=B.T*COLS,bh=B.T*ROWS;B.panX=(cx-bx*B.T)-(B.cw-bw)/2;B.panY=(cy-by*B.T)-(B.ch-bh)/2;st_view()}
 function st_gestures(cv){const pts=new Map();let st=null;
@@ -317,9 +351,9 @@ function st_reach(u){const out=[[u.x,u.y]],seen=new Set([u.x+','+u.y]);let fr=[[
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
 function st_targetsFor(u,art,from){const A=ARTS[art],x=from?from[0]:u.x,y=from?from[1]:u.y,foe=o=>o&&o.side!==u.side;const opts=[];
   if(A.shape==='adj'){for(const [dx,dy] of DIRS){const o=st_at(x+dx,y+dy);if(foe(o))opts.push({tiles:[[x+dx,y+dy]],hit:[o],click:[[x+dx,y+dy]]})}}
-  else if(A.shape==='kick'){const L=u.hero&&P.arts.star?Math.max(1,P.arts.star.lv):1;for(const [dx,dy] of DIRS){const tl=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o)){opts.push({tiles:tl.slice(),hit:[o],click:[[X,Y]],dir:[dx,dy]});break}if(o)break}}}
-  else if(A.shape==='aoe'){const N=aoeDepth(u.hero&&P.arts[A.sub||'green']?P.arts.green.lv:1);for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=N;i++)for(const w of [-1,0,1]){const X=x+dx*i+(dy?w:0),Y=y+dy*i+(dx?w:0);if(!st_inb(X,Y))continue;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
-  else if(A.shape==='ring'){const wl=u.hero&&P.arts.whirl?P.arts.whirl.lv:1,RD=wl>=3?DIRS.concat([[1,1],[1,-1],[-1,1],[-1,-1]]):DIRS;const hit=[],tl=[];for(const [dx,dy] of RD){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
+  else if(A.shape==='kick'){const L=u.hero&&P.arts.star?kickReach(P.arts.star.lv):1;for(const [dx,dy] of DIRS){const tl=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o)){opts.push({tiles:tl.slice(),hit:[o],click:[[X,Y]],dir:[dx,dy]});break}if(o)break}}}
+  else if(A.shape==='aoe'){const N=aoeDepth(u.hero&&P.arts.palm?P.arts.palm.lv:5);for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=N;i++)for(const w of [-1,0,1]){const X=x+dx*i+(dy?w:0),Y=y+dy*i+(dx?w:0);if(!st_inb(X,Y))continue;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
+  else if(A.shape==='ring'){const wl=u.hero&&P.arts.star?P.arts.star.lv:3,RD=wl>=5?DIRS.concat([[1,1],[1,-1],[-1,1],[-1,-1]]):DIRS;const hit=[],tl=[];for(const [dx,dy] of RD){const o=st_at(x+dx,y+dy);tl.push([x+dx,y+dy]);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl.filter(t=>st_inb(t[0],t[1])),hit,click:hit.map(o=>[o.x,o.y])})}
   else if(A.shape==='r2'){for(const o of B.units)if(foe(o)&&o.hp>0&&Math.abs(o.x-x)+Math.abs(o.y-y)<=2)opts.push({tiles:[[o.x,o.y]],hit:[o],click:[[o.x,o.y]]})}
   else{const L=A.shape==='wave'?waveLen(u.hero&&P.arts.palm?P.arts.palm.lv:3):A.shape==='line3'?3:2;for(const [dx,dy] of DIRS){const tl=[],hit=[];for(let i=1;i<=L;i++){const X=x+dx*i,Y=y+dy*i;if(!st_inb(X,Y))break;tl.push([X,Y]);const o=st_at(X,Y);if(foe(o))hit.push(o)}if(hit.length)opts.push({tiles:tl,hit,click:tl,dir:[dx,dy]})}}
   return opts}
@@ -332,7 +366,7 @@ function st_fanLayout(a){const bs=[...a.children];if(!bs.length)return;
     const angs=fixed?fixed.slice(0,n):Array.from({length:n},(_,j)=>n===1?45:(cap===4?11.25+22.5*j+(4-n)*11.25:9+18*j+(5-n)*9));
     for(const ang of angs){const b=rest[i++],t=ang*Math.PI/180,x=C-R*Math.cos(t),y=C-R*Math.sin(t);
       Object.assign(b.style,{left:(x-SM/2)+'px',top:(y-SM/2)+'px',width:SM+'px',height:SM+'px',animationDelay:(d++*25)+'ms'})}}}
-const SHORT={basic:['攻','Attack'],palm:['掌','Dragon Palm'],wave:['勁','Palm Force'],green:['青','Green Qi'],tiger:['虎','Tiger Fist'],whirl:['旋','Whirlwind'],star:['星','Star Kick']};
+const SHORT={basic:['攻','Attack'],palm:['掌','Dragon Palm'],wave:['悔','Dragon Regret'],sea:['海','From the Sea'],chain:['連','Chain Kick'],green:['青','Green Qi'],tiger:['虎','Tiger Fist'],whirl:['旋','Whirlwind'],star:['星','Star Kick']};
 function st_actBar(){const a=$s('#stAct'),bl=$s('#stBl'),tp=$s('#stTp');$s('#stTip').hidden=true;
   if(!B||B.turn!=='P'||B.busy){a.hidden=true;bl.hidden=true;tp.hidden=true;return}
   const u=B.sel;
@@ -358,12 +392,14 @@ function st_onTap(e){if(!B||B.turn!=='P'||B.busy)return;const r=e.currentTarget.
   if(o&&o.side==='P')st_info(o);else if(!o&&B.mode!=='target'){$s('#stInfo').hidden=true;if(B.mode==='idle'){const tt=st_ter(x,y),td=st_tdef(x,y);st_toast((TNAME[tt]||'Plain')+(tt==='w'?' · impassable':td!==1?' · damage taken ×'+(1/td).toFixed(2):''),1200)}}
   if((B.mode==='idle'||B.mode==='move'||B.mode==='act')&&o&&o.side==='E'){st_quickHit(o);return}
   if(B.mode==='idle'||B.mode==='move'){
-    if(o&&o.side==='P'&&!o.done&&(B.mode==='idle'||o!==B.sel)){B.sel=o;B.mode='move';B.orig=[o.x,o.y];B.hl=st_reach(o).map(t=>({t,c:'mv'}));st_actBar();return}
+    if(o&&o===B.act&&(B.mode==='idle'||o!==B.sel)){B.sel=o;B.mode='move';B.orig=[o.x,o.y];B.hl=st_reach(o).map(t=>({t,c:'mv'}));st_actBar();return}
     if(B.mode==='move'&&B.hl.some(h=>h.t[0]===x&&h.t[1]===y)){const u=B.sel;st_moveTo(u,x,y).then(()=>{B.mode='act';B.hl=[];st_actBar()});return}
-    if(B.mode==='move'){B.mode='idle';B.sel=null;B.hl=[];st_actBar()}return}
+    return}
   if(B.mode==='target'){const opt=B.opts.find(op=>op.dir&&B.sel&&B.sel.x+op.dir[0]===x&&B.sel.y+op.dir[1]===y)||B.opts.find(op=>op.click.some(t=>t[0]===x&&t[1]===y));if(!opt)return;if(B.pendOpt===opt){B.pendOpt=null;$s('#stInfo').hidden=true;st_doAttack(B.sel,B.art,opt);return}
     B.pendOpt=opt;B.hl=opt.tiles.map(t=>({t,c:'tg'}));if(opt.hit[0])st_info(opt.hit[0],null,1);const A=ARTS[B.art],el=$s('#stInfo');el.innerHTML=`<div class="ibody skc"><div class="skn"><b>${A.zh}</b> <span>${A.n}</span></div><div class="skb"><button class="pri" data-go>Use</button><button data-no>Cancel</button></div></div>`;el.hidden=false;el.querySelector('[data-go]').onclick=()=>{B.pendOpt=null;el.hidden=true;st_doAttack(B.sel,B.art,opt)};el.querySelector('[data-no]').onclick=()=>{B.pendOpt=null;st_tgView()}}}
-function st_est(u,k,t){const A=ARTS[k],lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1,base=Math.max(1,(u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)/st_tdef(t.x,t.y));return {lo:Math.max(1,Math.round(base*.9)),hi:Math.max(1,Math.round(base*1.1)),hit:Math.round((1-t.dodge)*100)}}
+const st_innerLv=k=>P&&P.inner===k&&P.arts[k]?P.arts[k].lv:0;
+const st_dealMul=u=>u.hero&&st_innerLv('xiaowu')?1.08+.02*(st_innerLv('xiaowu')-1):1,st_takeMul=t=>t.hero&&st_innerLv('jiuyang')?1-(.08+.02*(st_innerLv('jiuyang')-1)):1;
+function st_est(u,k,t){const A=ARTS[k],lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1,hn=A.hits||1,base=Math.max(1,(u.atk*A.pow*(1+.08*(lv-1))*st_dealMul(u)-t.def*.6)/st_tdef(t.x,t.y))*hn;return {lo:Math.max(1,Math.round(base*.9)),hi:Math.max(1,Math.round(base*1.1)),hit:Math.round((1-t.dodge)*100)}}
 const TNAME={'.':'Plain','f':'Forest','h':'Hill','w':'River','=':'Bridge','p':'Road','c':'Fort'};
 function st_face(k,sz){const z=1.7*(sz||84)/84;return k?`background:#3a2c1c url(sprites/${k}.png) ${-72*z}px ${-8*z}px/${4608*z}px auto no-repeat`:''}
 function st_info(u,fc,side){const el=$s(side?'#stEInfo':'#stInfo');if(!u){el.hidden=true;if(!side)$s('#stEInfo').hidden=true;return}const td=st_tdef(u.x,u.y);
@@ -384,7 +420,7 @@ function st_fcShow(u,k,hits){let el=$s('#stFc');if(!el){el=document.createElemen
   el.hidden=false;$s('#stAct').hidden=true;$s('#stBl').hidden=true;el.querySelector('[data-go]').onclick=()=>{const f=B.pend;B.pend=null;B.pendFor=null;el.hidden=true;if(f)f()};
   el.querySelector('[data-no]').onclick=()=>{B.pend=null;B.pendFor=null;el.hidden=true;$s('#stEInfo').hidden=true;if(B.mode==='idle')B.hl=[];st_actBar()}}
 function st_fcHide(){const el=$s('#stFc');if(el&&!el.hidden){el.hidden=true;if(B&&!B.busy)st_actBar()}}
-function st_quickHit(o){let u=B.sel&&!B.sel.done?B.sel:null;if(!u){u=B.units.find(v=>v.hero&&v.hp>0&&!v.done)||B.units.find(v=>v.side==='P'&&v.hp>0&&!v.done)}if(!u)return;
+function st_quickHit(o){const u=B.act&&B.act.side==='P'?B.act:null;if(!u)return;
   const hits=(from)=>{for(const k of u.arts){const A=ARTS[k];if(u.mp<A.mp)continue;const op=st_targetsFor(u,k,from).find(op=>op.hit.includes(o));if(op)return {k,op}}return null};
   if(B.pendFor===o&&B.pend){const f=B.pend;B.pend=null;B.pendFor=null;st_fcHide();f();return}
   if(B.mode==='act'){const h=hits();if(h){B.pendFor=o;B.pend=()=>{B.sel=u;st_doAttack(u,h.k,h.op)};st_info(u);st_info(o,null,1);st_fcShow(u,h.k,h.op.hit)}else{st_info(o);st_toast('Out of reach')}return}
@@ -399,31 +435,51 @@ async function st_moveTo(u,x,y){if(u.x===x&&u.y===y)return;const steps=st_path(u
   for(const [X,Y] of steps){const fx=u.x,fy=u.y;await new Promise(res=>{u.anim={k:'run',t0:performance.now(),dur:150,fx,fy};u.face=X<fx?-1:X>fx?1:u.face;u.x=X;u.y=Y;setTimeout(res,150)})}u.anim=null}
 function st_chooseArt(k){const u=B.sel;
   if(k==='back'){if(B.orig){u.x=B.orig[0];u.y=B.orig[1]}B.mode='move';B.hl=st_reach(u).map(t=>({t,c:'mv'}));st_actBar();return}
-  if(k==='wait'){st_finish(u);return}
+  if(k==='wait'){u.ctNext=ctAfter('wait',(B.orig&&(u.x!==B.orig[0]||u.y!==B.orig[1])));st_finish(u);return}
   if(k==='anti'){P.antidote--;u.poison=0;st_toast('Poison cured');st_finish(u);return}
   if(k==='herb'){P.herbs--;u.hp=Math.min(u.hpMax,u.hp+50);st_toast('+50 HP');st_finish(u);return}
   B.art=k;B.pendOpt=null;B.opts=st_targetsFor(u,k);B.mode='target';st_tgView();st_actBar()}
 function st_tgView(){B.hl=[];for(const op of B.opts)if(!op.dir)for(const t of op.hit.length?op.hit.map(o=>[o.x,o.y]):op.tiles)B.hl.push({t,c:'tg2'});$s('#stInfo').hidden=true}
-function st_finish(u){u.done=true;B.sel=null;B.mode='idle';B.hl=[];st_actBar();st_checkEnd();if(B&&B.units.filter(v=>v.side==='P'&&v.hp>0).every(v=>v.done))st_endTurn()}
+function st_beitian(t){if(!st_innerLv('beitian'))return 0;const bl=st_innerLv('beitian');t.hits=(t.hits||0)+1;if(t.hits<(bl>=7?2:3))return 0;t.hits=0;P.mpMax+=1;t.mpMax+=1;const g=Math.round(t.mpMax*(.10+.01*(bl-1)));t.mp=Math.min(t.mpMax,t.mp+g);st_log(`<b>You</b> · 北天神功 draws in power: max 內力 +1, +${g} 內力`);st_toast('北天神功: max 內力 +1, +'+g+' 內力',1800);return g}
+function st_finish(u){if(!B)return;if(B.autoBusy===u)B.autoBusy=null;u.done=true;B.sel=null;B.mode='idle';B.hl=[];B.act=null;u.ct=u.ctNext!=null?u.ctNext:0;u.ctNext=null;st_actBar();st_checkEnd();if(B&&!B.ended)st_advance()}
+// ---------- ATB: every unit's 輕功 bar fills; full bar = that unit acts ----------
+const ROUND=100/60,CT={atk:0,move:20,wait:50,heavy:-20,basic:10},ctAfter=(k,moved)=>k==='wait'?(moved?CT.move:CT.wait):CT[k],enemyCt=(r,moved)=>r==='atk'?ctAfter('atk'):ctAfter('wait',moved);
+function st_fill(u,us){const mn=Math.min(...us.map(v=>10+v.agi));return Math.min(10+u.agi,3*mn)}
+function st_predict(n){const us=B.units.filter(u=>u.hp>0);const ct=new Map(us.map(u=>[u,u===B.act?0:u.ct]));const out=B.act?[B.act]:[];
+  for(let g=0;g<64&&out.length<n;g++){let dt=1e9;for(const u of us)dt=Math.min(dt,Math.max(0,(100-ct.get(u))/st_fill(u,us)));for(const u of us)ct.set(u,ct.get(u)+st_fill(u,us)*dt);
+    const nx=us.filter(u=>ct.get(u)>=100-1e-6).sort((a,b)=>ct.get(b)-ct.get(a)||(a.side==='P'?-1:1))[0];if(!nx)break;out.push(nx);ct.set(nx,0)}return out}
+function st_order(){const el=$s('#stOrder');if(!el)return;if(!B){el.hidden=true;return}const L=st_predict(8);
+  el.innerHTML=L.map((u,i)=>{const f=u.port?`background-image:url(portraits/${u.port}.webp)`:st_face(u.sheet,34);return `<i class="${u.side==='P'?'p':'e'}${i===0?' now':''}" style="${f}" title="${u.name}">${i===0?'<b>NOW</b>':''}</i>`}).join('');el.hidden=false}
+async function st_advance(){if(!B||B.ended)return;const us=B.units.filter(u=>u.hp>0);if(!us.length)return;
+  let dt=Math.min(...us.map(u=>Math.max(0,(100-u.ct)/st_fill(u,us))));for(const u of us)u.ct+=st_fill(u,us)*dt;B.clock+=dt;
+  while(B.clock>=B.nextRound){B.nextRound+=ROUND;B.turnN=(B.turnN||1)+1;$s('#stTurn').textContent=B.turnN;st_log('Turn '+B.turnN,1);
+    for(const u of us){if(u.poison&&u.hp>0){u.hp=Math.max(1,u.hp-6);u.poison--}if(u.hero)u.mp=Math.min(u.mpMax,u.mp+4)}}
+  const u=us.filter(v=>v.ct>=100-1e-6).sort((a,b)=>b.ct-a.ct||(a.side==='P'?-1:1))[0];if(!u)return st_advance();
+  B.act=u;u.done=false;st_order();
+  if(u.stun){u.stun=0;st_log(`${u.name} is stunned and loses the move`);st_toast(u.name+' is stunned',1000);await st_wait(500/SPD);u.ctNext=0;return st_finish(u)}
+  if(u.side==='E'){B.turn='E';B.lastSide='E';st_actBar();await st_wait(350/SPD);if(!B)return;const ox=u.x,oy=u.y,r=await st_enemyAct(u);if(!B)return;u.ctNext=enemyCt(r,u.x!==ox||u.y!==oy);st_checkEnd();if(B&&!B.ended)st_finish(u);return}
+  B.turn='P';if(B.lastSide!=='P')st_banner(u.hero?'Your move':u.name,0,'Turn '+(B.turnN||1));B.lastSide='P';
+  if(B.auto){st_autoAct(u);return}
+  B.sel=u;B.mode='move';B.orig=[u.x,u.y];B.hl=st_reach(u).map(t=>({t,c:'mv'}));st_info(u);st_actBar();st_tools(true)}
 async function st_doAttack(u,k,opt){B.busy=true;$s('#stTp').hidden=true;$s('#stTip').hidden=true;if(u.hero&&k!=='basic'&&typeof cutIn==='function'){try{await cutIn({id:'hero',name:u.name},{zh:ARTS[k].zh,n:ARTS[k].n})}catch(e){}}$s('#stAct').hidden=true;$s('#stEInfo').hidden=true;B.hl=[];const A=ARTS[k];u.mp-=A.mp;
-  const res=opt.hit.map(t=>{const lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1;const dodge=Math.random()<t.dodge;let dmg=0,crit=false;
-    if(!dodge){crit=Math.random()<.08;dmg=Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))-t.def*.6)*rnd(.9,1.1)*(crit?1.5:1)/st_tdef(t.x,t.y)))}return {t,dodge,dmg,crit}});
-  if(A.shape==='ring'&&u.hero&&P.arts.whirl&&P.arts.whirl.lv>=5)for(const r of res){const dx=Math.sign(r.t.x-u.x),dy=Math.sign(r.t.y-u.y),X=r.t.x+dx,Y=r.t.y+dy;if(!r.dodge&&r.t.hp-r.dmg>0&&Math.random()<.4&&st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y))r.push=[X,Y]}
-  await st_fightScene(u,A,res);st_log(`<b>${u.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.crit?' (critical)':'')+(r.t.hp-r.dmg<=0?' — defeated':'')}`).join(', '));
+  const res=opt.hit.map(t=>{const lv=u.hero?(P.arts[A.sub||k]||{lv:1}).lv:1,hs=[];let crit=false;
+    for(let h=0;h<(A.hits||1);h++){if(Math.random()<t.dodge){hs.push(0);continue}const c1=Math.random()<.08;crit=crit||c1;hs.push(Math.max(1,Math.round((u.atk*A.pow*(1+.08*(lv-1))*st_dealMul(u)-t.def*.6)*rnd(.9,1.1)*(c1?1.5:1)/st_tdef(t.x,t.y))))}
+    const dmg=hs.reduce((a,b)=>a+b,0);return {t,dodge:dmg===0,dmg,crit,hits:A.hits?hs:null}});
+  const pushP=A.shape==='ring'&&u.hero&&P.arts.star?(P.arts.star.lv>=10?.6:P.arts.star.lv>=7?.4:0):0;
+  if(pushP)for(const r of res){const dx=Math.sign(r.t.x-u.x),dy=Math.sign(r.t.y-u.y),X=r.t.x+dx,Y=r.t.y+dy;if(!r.dodge&&r.t.hp-r.dmg>0&&Math.random()<pushP&&st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y))r.push=[X,Y]}
+  await st_fightScene(u,A,res);if(!B)return;st_log(`<b>${u.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.crit?' (critical)':'')+(r.t.hp-r.dmg<=0?' — defeated':'')}`).join(', '));
   for(const r of res){if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hp<=0&&r.t.side==='E'&&u.side==='P'){B.xp=(B.xp||0)+r.t.xp}}}
   if(A.pass&&opt.dir){const t0=opt.hit[0],bx=t0.x+opt.dir[0],by=t0.y+opt.dir[1];const free=(X,Y)=>st_inb(X,Y)&&st_pass(X,Y)&&!st_at(X,Y);let land=null;if(free(bx,by))land=[bx,by];else{let bd=1e9;for(const [dx,dy] of DIRS){const X=t0.x+dx,Y=t0.y+dy;if(!free(X,Y))continue;const d=Math.abs(X-bx)+Math.abs(Y-by)+(dx===-opt.dir[0]&&dy===-opt.dir[1]?.5:0);if(d<bd){bd=d;land=[X,Y]}}}if(land){u.x=land[0];u.y=land[1];u.face=opt.dir[0]?opt.dir[0]:u.face}}
   for(const r of res)if(r.push&&r.t.hp>0&&!st_at(r.push[0],r.push[1])){r.t.x=r.push[0];r.t.y=r.push[1]}
   if(A.stun){for(const r of res)if(r.t.hp>0&&!r.dodge&&Math.random()<A.stun){r.t.stun=1;st_toast(r.t.name+' is stunned!')}}
   if(A.kb&&opt.dir){for(const r of res)if(r.t.hp>0&&!r.dodge){const X=r.t.x+opt.dir[0],Y=r.t.y+opt.dir[1];if(st_inb(X,Y)&&!st_at(X,Y)){r.t.x=X;r.t.y=Y}}}
-  B.busy=false;st_finish(u)}
+  u.ctNext=ctAfter(A.heavy?'heavy':k==='basic'?'basic':'atk');B.busy=false;st_finish(u)}
 function st_checkEnd(){if(!B)return;const pe=B.units.filter(v=>v.side==='P'&&v.hp>0),ee=B.units.filter(v=>v.side==='E'&&v.hp>0),hero=B.units.find(v=>v.hero);
   if(!ee.length)return st_endBattle(true);if(hero.hp<=0||!pe.length)return st_endBattle(false)}
-async function st_endTurn(){if(!B)return;st_fcHide();$s('#stEInfo').hidden=true;B.turn='E';B.sel=null;B.mode='idle';B.hl=[];B.pend=null;B.pendFor=null;$s('#stInfo').hidden=true;st_actBar();st_banner('Enemy turn',1,'Turn '+B.turnN);await st_wait(900/SPD);if(!B)return;
-  for(const e of B.units.filter(v=>v.side==='E'&&v.hp>0)){if(!B)return;await st_enemyAct(e);st_checkEnd();if(!B)return}
-  B.turn='P';for(const u of B.units){if(u.poison&&u.hp>0&&u.side==='P'){u.hp=Math.max(1,u.hp-6);u.poison--}u.done=false;if(u.hero)u.mp=Math.min(u.mpMax,u.mp+INNER[P.inner].regen)}B.turnN=(B.turnN||1)+1;st_log('Turn '+B.turnN,1);st_banner('Your turn',0,'Turn '+B.turnN);st_actBar();st_tools(true);st_autoGo()}
-async function st_enemyAct(e){if(e.stun){e.stun=0;await st_wait(250);return}const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
+async function st_endTurn(){if(!B||!B.act||B.act.side!=='P'||B.busy)return;st_fcHide();$s('#stEInfo').hidden=true;const u=B.act;u.ctNext=ctAfter('wait',(B.orig&&(u.x!==B.orig[0]||u.y!==B.orig[1])));B.pend=null;B.pendFor=null;st_finish(u)}
+async function st_enemyAct(e){const k=e.arts[0],ps=B.units.filter(v=>v.side==='P'&&v.hp>0);if(!ps.length)return;
   let best=null;for(const t of st_reach(e)){const op=st_targetsFor(e,k,t);if(op.length){const sc=-(op[0].hit[0].hp)+(op[0].hit[0].hero?15:0);if(!best||sc>best.sc)best={t,sc}}}
-  if(best){await st_moveTo(e,best.t[0],best.t[1]);await st_wait(150);const op=st_targetsFor(e,k)[0];if(op){B.busy=true;await st_doAttackE(e,k,op);B.busy=false}return}
+  if(best){await st_moveTo(e,best.t[0],best.t[1]);await st_wait(150);const op=st_targetsFor(e,k)[0];if(op){B.busy=true;await st_doAttackE(e,k,op);B.busy=false;return 'atk'}return 'move'}
   // approach nearest
   const near=ps.sort((a,b)=>(Math.abs(a.x-e.x)+Math.abs(a.y-e.y))-(Math.abs(b.x-e.x)+Math.abs(b.y-e.y)))[0];
   let bt=null,bd=1e9;for(const t of st_reach(e)){const d=Math.abs(t[0]-near.x)+Math.abs(t[1]-near.y);if(d<bd){bd=d;bt=t}}if(bt)await st_moveTo(e,bt[0],bt[1]);await st_wait(120)}
@@ -431,18 +487,18 @@ async function st_doAttackE(e,k,opt){const A=ARTS[k];const dz=P.arts.douzhuan,xl
     if(t.hero&&dz&&dz.lv>=1&&t.mp>=ARTS.douzhuan.mp&&Math.random()<.10+.02*(dz.lv-1)){t.mp-=ARTS.douzhuan.mp;const dmg=Math.max(0,Math.round(base*(.60-.03*(dz.lv-1))));return {t,dodge:false,dmg,guard:'shift',ret:Math.max(1,base-dmg),base}}
     if(t.hero&&xl&&xl.lv>=1&&Math.random()<.15+.03*(xl.lv-1)){const dmg=Math.max(0,Math.round(base*(.40-.025*(xl.lv-1))));return {t,dodge:false,dmg,guard:'dragon',drop:base-dmg,base}}
     const dodge=Math.random()<t.dodge;return {t,dodge,dmg:dodge?0:base}});
-  await st_fightScene(e,A,res);st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.guard==='dragon'?` (降龍手 stops ${r.drop})`:r.guard==='shift'?` (斗轉星移 returns ${r.ret})`:'')+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));
-  for(const r of res)if(!r.dodge){r.t.hp=Math.max(0,r.t.hp-r.dmg);if(!r.guard&&A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}
+  await st_fightScene(e,A,res);if(!B)return;st_log(`<b style="color:#ff9a8a">${e.name}</b> · ${A.zh} ${A.n}: `+res.map(r=>`${r.t.name} ${r.dodge?'dodges':'−'+r.dmg+(r.guard==='dragon'?` (降龍手 stops ${r.drop})`:r.guard==='shift'?` (天轉星移 returns ${r.ret})`:'')+(r.t.hp-r.dmg<=0?' — falls':'')}`).join(', '));
+  for(const r of res)if(!r.dodge){r.dmg=Math.round(r.dmg*st_takeMul(r.t));r.t.hp=Math.max(0,r.t.hp-r.dmg);if(r.t.hero&&r.dmg>0)st_beitian(r.t);if(!r.guard&&A.poison&&r.t.hp>0&&Math.random()<A.poison){r.t.poison=3;st_toast(r.t.name+' is poisoned!')}}
   for(const r of res){if(r.guard!=='shift')continue;e.hp=Math.max(0,e.hp-r.ret);let ex='';if(dz.lv>=5&&e.hp>0){if(A.poison){e.poison=3;ex=' · poisoned by its own bell'}if(A.stun&&Math.random()<A.stun){e.stun=1;ex+=' · stunned'}}
-    st_log(`<b>You</b> · 斗轉星移: ${e.name} takes back −${r.ret}${ex}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}}
+    st_log(`<b>You</b> · 天轉星移: ${e.name} takes back −${r.ret}${ex}${e.hp<=0?' — defeated':''}`);if(e.hp<=0)B.xp=(B.xp||0)+(e.xp||0)}}
 async function st_endBattle(win){const b=B;if(b.ended)return;b.ended=true;await st_wait(500);
-  const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp-INNER[P.inner].hp));P.mp=hero.mp;P.poison=hero.poison||0;
+  const hero=b.units.find(v=>v.hero);P.hp=Math.max(1,Math.min(P.hpMax,hero.hp));P.mp=Math.min(P.mpMax,hero.mp);P.poison=hero.poison||0;
   if(win){const xp=(b.xp||0);P.xp+=xp;st_toast('Victory! +'+xp+' XP',2200);
-    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);while(a.lv<(ARTS[P.eq].maxLv||10)&&a.xp>=xpNeed(a.lv)){a.xp-=xpNeed(a.lv);a.lv++;await st_wait(400);st_toast(ARTS[P.eq].n+' rises to level '+a.lv,2400);if(P.eq==='palm'&&[3,5,7,10].includes(a.lv)){await st_wait(2500);st_toast('Palm Force 金龍掌勁: range '+waveLen(a.lv)+' squares',3000)}}}}
-    while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
+    {const a=P.arts[P.eq];if(a){if(a.xp==null)a.xp=0;a.xp+=Math.floor(xp/2);const A=ARTS[P.eq];while(a.lv<(A.maxLv||10)&&a.xp>=skillNeed(a.lv)){a.xp-=skillNeed(a.lv);a.lv++;if(A.agi)P.agi+=A.agi;await st_wait(400);st_toast(A.zh+' '+A.n+' rises to level '+a.lv+(A.agi?' · 輕功 +'+A.agi:''),2400);const un=(MOVES[P.eq]||[]).find(m=>ARTS[m].unlock===a.lv);if(un){await st_wait(2500);st_toast('New move: '+ARTS[un].zh+' '+ARTS[un].n,3000)}}if(a.lv>=(A.maxLv||10))a.xp=0}}
+    while(P.lv<30&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.hpMax+=14;P.mpMax+=6;P.atk+=3;P.def+=2;P.agi+=1;P.hp=P.hpMax;P.mp=P.mpMax;await st_wait(300);st_toast('Level up! Level '+P.lv,2400);snd('victory');
     }}
   else{P.gold=Math.floor(P.gold*.8);P.hp=P.hpMax;P.mp=P.mpMax;}
-  B=null;$s('#stCv').hidden=true;$s('#stAct').hidden=true;st_tools(false);st_hud();st_save();
+  B=null;$s('#stCv').hidden=true;$s('#stAct').hidden=true;st_tools(false);$s('#stOrder').hidden=true;st_hud();st_save();
   if(!win&&b.key!=='spar'){await st_say('narr','Everything goes dark... You wake at the inn in Zhuo Village, bandaged and lighter of purse.');st_showMap()}
   b.res(win)}
 
@@ -458,9 +514,10 @@ function st_loop(){if(!B)return;const cv=$s('#stCv');if(cv.hidden){requestAnimat
     let row=R.idle,fr=Math.floor((now/80+(u.id.length*3))%24);
     if(u.anim&&u.anim.k==='run'){const q=clamp01((now-u.anim.t0)/u.anim.dur);px=lerp2(B.ox+(u.anim.fx+.5)*T,px,q);py=lerp2(B.oy+(u.anim.fy+.88)*T,py,q);row=R.run;fr=Math.floor(now/40*(typeof RM==='function'?RM(sh)/2:1))%24}
     const face=u.face||(u.side==='P'?1:-1),k=1.45*T/114;
+    if(B.act===u){const pu=(Math.sin(now/180)+1)/2;c.save();c.strokeStyle=u.side==='P'?`rgba(255,215,90,${.6+.4*pu})`:`rgba(255,90,70,${.6+.4*pu})`;c.lineWidth=3*B.dp;c.beginPath();c.ellipse(px,py,T*(.36+.04*pu),T*(.12+.015*pu),0,0,7);c.stroke();c.restore()}
     if(B.sel===u){c.strokeStyle='#ffd77a';c.lineWidth=3*B.dp;c.strokeRect(B.ox+u.x*T+2,B.oy+u.y*T+2,T-4,T-4)}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(px,py,T*.28,T*.08,0,0,7);c.fill();
-    st_drawCell(c,sh,row,fr,px,py,k,face,u.done&&u.side==='P'&&B.turn==='P'?.6:1);
+    st_drawCell(c,sh,row,fr,px,py,k,face,1);
     st_chip(c,u,px,B.oy+(u.y+.5)*T,T)}
   if(B.mode==='target'&&B.opts)for(const op of B.opts){if(!op.dir)continue;const on=B.pendOpt===op;if(B.pendOpt&&!on)continue;const [dx,dy]=op.dir,X=B.sel.x+dx,Y=B.sel.y+dy,p=(Math.sin(now/200)+1)/2,L=T*(.36+(on?.06:.03*p));c.save();c.translate(B.ox+(X+.5)*T+dx*T*.06*p,B.oy+(Y+.5)*T+dy*T*.06*p);c.rotate(Math.atan2(dy,dx));c.beginPath();c.moveTo(L,0);c.lineTo(-L*.15,-L*.75);c.lineTo(-L*.15,-L*.32);c.lineTo(-L*.9,-L*.32);c.lineTo(-L*.9,L*.32);c.lineTo(-L*.15,L*.32);c.lineTo(-L*.15,L*.75);c.closePath();c.fillStyle=on?'#ff8a2a':'#ffd23c';c.fill();c.lineWidth=Math.max(2,T*.05);c.strokeStyle=on?'#fff3c0':'#5a3a00';c.stroke();c.restore()}
   requestAnimationFrame(st_loop)}
@@ -496,8 +553,8 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
   const anim=A.anim==='dash'&&R.dash!=null?'dash':A.anim==='ranged'?'ranged':'melee',mrow=(A.anim==='punch'||A.anim==='kick'||A.anim==='fly')&&R[A.anim]!=null?R[A.anim]:R.melee;
   if(A.shape==='ring'&&R.kick!==2)return st_spinScene(cv,att,A,res,sh,R,done);
   const dur=anim==='dash'?2300:anim==='ranged'?2000:2200;const pierce=(n>1||A.pass)&&anim!=='ranged',stay=!!A.pass;
-  const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.green&&P.arts.green)DR={im:GG,n:gDragons(P.arts.green.lv)};
-  const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:1150+i*140);const hitDone=res.map(()=>false);
+  const GD=st_img('art/gdragon.jpg'),GG=st_img('art/gdragon_g.jpg');let DR=null;if(att.hero&&A===ARTS.palm&&P.arts.palm&&P.arts.palm.lv>=5)DR={im:GD,n:1};if(att.hero&&A===ARTS.sea&&P.arts.palm&&gDragons(P.arts.palm.lv))DR={im:GD,n:gDragons(P.arts.palm.lv)};
+  const hitT=res.map((_,i)=>anim==='dash'?1100+i*120:anim==='ranged'?950+i*110:A.hits?1600:1150+i*140);const hitDone=res.map(()=>false);
   const GRD=res.map((r2,i)=>r2.guard?i:-1).filter(i=>i>=0),retR=res.find(r2=>r2.guard==='shift'),retT=retR?hitT[res.indexOf(retR)]+650:1e9,attDead=retR&&att.hp-retR.ret<=0;let retDone=false;const GSTOP=res[0]&&res[0].guard&&!pierce?.24:0;const DUR=GRD.length?Math.max(dur,...GRD.map(i=>hitT[i]+1350)):dur;
   snd(anim==='ranged'?'fx':'swing');
   function frame(){const now=performance.now(),t=(now-t0)*SPD;c.clearRect(0,0,W,H);
@@ -517,12 +574,13 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
       c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(x,y,k*40*(1+oy/(H*.2)),k*9,0,0,7);c.fill();
       st_drawRot(c,ts,row,fr,x,y+oy,k,-mir,al,rot);
       if(t>ht&&!r2.dodge&&!gd&&t<ht+120){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,240,200,.22)';c.beginPath();c.arc(x,y-k*60,k*32,0,7);c.fill();c.restore()}
-      if(t>ht&&!hitDone[i]){hitDone[i]=true;pops.push({x,y:y-k*120,t:now,txt:gd?(gd==='dragon'?'降龍手  −':'斗轉星移  −')+r2.dmg:r2.dodge?'Dodge!':(r2.crit?'Critical '+r2.dmg:''+r2.dmg),col:gd?'#9fd0ff':r2.dodge?'#9fd7ff':r2.crit?'#ffd23a':'#fff'});if(gd){snd('fx');snd('hit')}else if(!r2.dodge){snd('hit');for(let j=0;j<18;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x,y:y-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:A.fx})}}else snd('swing')}});
+      if(r2.hits&&t>ht-450&&!r2.h1){r2.h1=1;pops.push({x,y:y-k*140,t:now,txt:r2.hits[0]?''+r2.hits[0]:'Dodge!',col:r2.hits[0]?'#fff':'#9fd7ff'});if(r2.hits[0])snd('hit')}
+      if(t>ht&&!hitDone[i]){hitDone[i]=true;if(r2.hits){pops.push({x,y:y-k*120,t:now,txt:(r2.hits[1]?''+r2.hits[1]:'Dodge!')+(r2.dmg?'  (total '+r2.dmg+')':''),col:r2.hits[1]?'#ffd23a':'#9fd7ff'});if(r2.hits[1]){snd('hit')}}else pops.push({x,y:y-k*120,t:now,txt:gd?(gd==='dragon'?'降龍手  −':'天轉星移  −')+r2.dmg:r2.dodge?'Dodge!':(r2.crit?'Critical '+r2.dmg:''+r2.dmg),col:gd?'#9fd0ff':r2.dodge?'#9fd7ff':r2.crit?'#ffd23a':'#fff'});if(gd){snd('fx');snd('hit')}else if(!r2.dodge){snd('hit');for(let j=0;j<18;j++){const a=Math.random()*6.28,v=rnd(2,7)*dp;parts.push({x,y:y-k*60,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,col:A.fx})}}else snd('swing')}});
     // attacker
     let ax=X(ax0),row=R.idle,fr=Math.floor(now/80)%24;const last=X(tx[n-1]),first=X(tx[0]);
     if(anim==='dash'){const a0=400,a1=1900;if(t>=a0&&t<a1){const q=(t-a0)/(a1-a0);row=R.dash;fr=Math.min(23,Math.floor(q*24));const dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.1);if(q<.2)ax=X(ax0);else if(q<.6)ax=lerp2(X(ax0),dest,ease2((q-.2)/.4));else ax=dest}
       else if(t>=a1){const q=clamp01((t-a1)/350),dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.1);ax=lerp2(dest,X(ax0),ease2(q));row=R.run;fr=Math.floor(now/40*(typeof RM==='function'?RM(sh)/2:1))%24}}
-    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.11);if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
+    else if(anim==='melee'){const dest=pierce?last+mir*W*.08:first-mir*W*(GSTOP||.11);if(t>=300&&t<800){row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(X(ax0),dest,ease2((t-300)/500))}else if(t>=800&&t<1700){row=mrow;fr=A.hits?Math.floor((t-800)/450*24)%24:Math.min(23,Math.floor((t-800)/900*24));ax=pierce?lerp2(dest-mir*W*.2,dest,clamp01((t-800)/600)):dest}else if(t>=1700){if(stay){ax=dest}else{row=R.run;fr=Math.floor(now/40)%24;ax=lerp2(dest,X(ax0),ease2(clamp01((t-1700)/350)))}}}
     else{if(t>=350&&t<1500){row=A.anim2&&R[A.anim2]!=null?R[A.anim2]:R.ranged;fr=Math.min(23,Math.floor((t-350)/1150*24))}
       if(t>800&&t<800+170*n+300){const q=clamp01((t-800)/(150*n+200));const px=lerp2(X(ax0)+mir*W*.06,last+mir*W*.05,q),py=gy-k*62;c.save();c.globalCompositeOperation='lighter';for(let j=0;j<5;j++){c.fillStyle=A.fx;c.globalAlpha=.25-j*.04;c.beginPath();c.arc(px-mir*j*k*10,py,k*(22-j*2),0,7);c.fill()}c.restore()}}
     c.fillStyle='rgba(0,0,0,.3)';c.beginPath();c.ellipse(ax,gy,k*40,k*9,0,0,7);c.fill();
@@ -551,7 +609,7 @@ function st_fightScene(att,A,res){return new Promise(done=>{const cv=$s('#stFigh
     if(t<DUR&&!skip)requestAnimationFrame(frame);else{cv.hidden=true;cv.onpointerdown=null;done()}}
   let skip=false;cv.onpointerdown=()=>{if(performance.now()-t0>300)skip=true};requestAnimationFrame(frame)})}
 
-// 斗轉星移: a solar system turns in front of him, swallows the blow and flings it back at its owner
+// 天轉星移: a solar system turns in front of him, swallows the blow and flings it back at its owner
 function st_solar(c,x,y,R,a,al){c.save();c.globalAlpha=al;c.translate(x,y);
   const g=c.createRadialGradient(0,0,0,0,0,R*1.2);g.addColorStop(0,'rgba(30,50,120,.8)');g.addColorStop(.55,'rgba(10,16,52,.62)');g.addColorStop(.85,'rgba(6,8,30,.3)');g.addColorStop(1,'rgba(4,6,20,0)');c.fillStyle=g;c.beginPath();c.ellipse(0,0,R*1.2,R*.9,0,0,7);c.fill();
   for(let i=0;i<40;i++){const sa=i*2.4+a*.05,sr=R*(.15+((i*37)%100)/100*.95);c.fillStyle=`rgba(255,255,255,${.35+.4*Math.sin(a*3+i)})`;c.fillRect(Math.cos(sa)*sr,Math.sin(sa)*sr*.6,2.5,2.5)}
@@ -611,5 +669,5 @@ function st_titleLayout(){const tb=$s('#tbtns');if(!tb)return;
 if(typeof renderTitle==='function'){const _rt=renderTitle;renderTitle=function(){_rt.apply(this,arguments);st_titleLayout()}}
 window.addEventListener('load',()=>setTimeout(st_titleLayout,50));
 window.storyTitleLayout=st_titleLayout;
-window.__ST={B:()=>B,P:()=>P,tap(x,y){const cv=document.querySelector('#stCv'),r=cv.getBoundingClientRect();st_onTap({clientX:r.left+(B.ox+(x+.5)*B.T)/B.dp,clientY:r.top+(B.oy+(y+.5)*B.T)/B.dp,currentTarget:cv})},targets:(u,k)=>st_targetsFor(u,k),reach:u=>st_reach(u)};
+window.__ST={B:()=>B,P:()=>P,tap(x,y){const cv=document.querySelector('#stCv'),r=cv.getBoundingClientRect();st_onTap({clientX:r.left+(B.ox+(x+.5)*B.T)/B.dp,clientY:r.top+(B.oy+(y+.5)*B.T)/B.dp,currentTarget:cv})},targets:(u,k)=>st_targetsFor(u,k),reach:u=>st_reach(u),fn:{skillNeed,CT,ctAfter,enemyCt,beitian:t=>st_beitian(t),gainManual:k=>st_gainManual(k),learn:(k,l)=>st_learn(k,l),mvOf,dodgeOf,talRed,kickReach,aoeDepth,gDragons,waveLen,heroArts:()=>st_heroArts(),fill:(u,us)=>st_fill(u,us),predict:n=>st_predict(n),est:(u,k,t)=>st_est(u,k,t),dealMul:u=>st_dealMul(u),takeMul:t=>st_takeMul(t),heroUnit:()=>st_heroUnit(),ARTS}};
 })();
